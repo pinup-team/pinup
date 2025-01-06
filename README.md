@@ -1,1 +1,1 @@
-# pinup
+g# 핀업(pin-up)
