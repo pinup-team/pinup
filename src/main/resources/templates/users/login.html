@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+</head>
+<body>
+<p>로그인 페이지입니다</p>
+<a th:href="${authUri}">
+    <button>네이버 로그인</button>
+</a>
+<a th:href="${authGoogleUri}">
+    <button>구글 로그인</button>
+</a>
+</body>
+</html>

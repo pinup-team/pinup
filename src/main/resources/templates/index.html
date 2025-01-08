@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pinup</title>
+</head>
+<body>
+<div>Header</div>
+<a th:href="@{/api/users/login}">로그인</a>
+<th:block th:if="${userInfo}">
+    <p>Name: <span th:text="${userInfo.name}">Name</span></p>
+    <p>Email: <span th:text="${userInfo.email}">Email</span></p>
+    <p>Role: <span th:text="${userInfo.role}">Role</span></p>
+</th:block>
+<div>Footer</div>
+</body>
+</html>
