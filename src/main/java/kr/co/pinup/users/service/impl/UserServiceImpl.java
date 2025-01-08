@@ -59,16 +59,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String makeGoogleAuthUri() {
+    public String makeGoogleAuthUri(HttpSession session) {
         log.info("Make AuthUri: google");
+        String state = generateState();
+        session.setAttribute("state", state);
 
         // Authorization URI 생성
         return String.format(
                 "https://accounts.google.com/o/oauth2/auth?client_id=%s"
                         + "&redirect_uri=%s&response_type=code"
-                        + "&scope=https://www.googleapis.com/auth/userinfo.email+profile",
+                        + "&scope=https://www.googleapis.com/auth/userinfo.email+profile"
+                        + "&state=%s",
                 URLEncoder.encode(googleRegistration.getClientId(), StandardCharsets.UTF_8),
-                URLEncoder.encode(googleRegistration.getRedirectUri(), StandardCharsets.UTF_8)
+                URLEncoder.encode(googleRegistration.getRedirectUri(), StandardCharsets.UTF_8),
+                URLEncoder.encode(state, StandardCharsets.UTF_8)
         );
     }
 
@@ -82,6 +86,27 @@ public class UserServiceImpl implements UserService {
 
         String accessToken = getAccessToken(code);
         OauthUserDto oauthUserDto = getUserInfo(accessToken);
+
+        UserInfo userInfo = new UserInfo();
+        if (userRepository.existsByProviderId(oauthUserDto.getResponse().getId())) {
+            UserEntity user = userRepository.findByProviderId(oauthUserDto.getResponse().getId());
+            userInfo = UserInfo.builder()
+                    .email(user.getEmail())
+                    .name(user.getName())
+                    .role(user.getRole())
+                    .build();
+        } else {
+            userInfo = save(oauthUserDto, Provider.NAVER);
+        }
+        return userInfo;
+    }
+
+    @Override
+    public UserInfo oauthGoogle(String code, String error, HttpSession session) {
+        log.info("Oauth: naver");
+
+        String accessToken = getGoogleAccessToken(code);
+        OauthUserDto oauthUserDto = getGoogleUserInfo(accessToken);
 
         UserInfo userInfo = new UserInfo();
         if (userRepository.existsByProviderId(oauthUserDto.getResponse().getId())) {
@@ -149,6 +174,38 @@ public class UserServiceImpl implements UserService {
 
     private OauthUserDto getUserInfo(String accessToken) {
         String url = "https://openapi.naver.com/v1/nid/me";
+
+        WebClient webClient = WebClient.builder().build();
+        OauthUserDto userDto = webClient.get()
+                .uri(url)
+//                .uri(naverProvider.getUserInfoUri())
+                .header("Authorization", "Bearer " + accessToken)
+                .retrieve().bodyToMono(OauthUserDto.class).block();
+        System.out.println("userDto" + userDto);
+        return userDto;
+    }
+
+    private String getGoogleAccessToken(String code) {
+        String accessTokenUrl =
+//                naverProvider.getTokenUri()
+                "https://oauth2.googleapis.com/token"
+                        + "?grant_type=authorization_code"
+                        + "&client_id=" + googleRegistration.getClientId()
+                        + "&client_secret=" + googleRegistration.getClientSecret()
+                        + "&code=" + code;
+
+        WebClient webClient = WebClient.builder().build();
+        TokenReponse tokenReponse = webClient.post()
+                .uri(accessTokenUrl)
+                .retrieve()
+                .bodyToMono(TokenReponse.class)
+                .block();
+
+        return tokenReponse.getAccess_token();
+    }
+
+    private OauthUserDto getGoogleUserInfo(String accessToken) {
+        String url = "https://www.googleapis.com/oauth2/v3/userinfo";
 
         WebClient webClient = WebClient.builder().build();
         OauthUserDto userDto = webClient.get()

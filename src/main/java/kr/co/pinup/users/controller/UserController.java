@@ -31,7 +31,7 @@ public class UserController {
     public String loginPage(HttpSession session, Model model) {
         log.info("move to login page");
         model.addAttribute("authUri", userService.makeNaverAuthUri(session));
-        model.addAttribute("authGoogleUri", userService.makeGoogleAuthUri());
+        model.addAttribute("authGoogleUri", userService.makeGoogleAuthUri(session));
         return "users/login";
     }
 
@@ -54,6 +54,20 @@ public class UserController {
         }
     }
 
-//    @GetMapping("/oauth/google")
-//    public String googleLogin(@RequestParam(value = ""))
+    @GetMapping("/oauth/google")
+    public String googleLogin(@RequestParam(value = "code", required = false) String code,
+                              @RequestParam(value = "error", required = false) String error,
+                              HttpSession session, Model model) {
+        log.info("move to login naver");
+        UserInfo userInfo = userService.oauthGoogle(code, error, session);
+
+        if(userInfo == null) {
+            model.addAttribute("error", error);
+            model.addAttribute("message", "access_denied");
+            return "error";
+        } else {
+            model.addAttribute("userInfo", userInfo);
+            return "index";
+        }
+    }
 }
