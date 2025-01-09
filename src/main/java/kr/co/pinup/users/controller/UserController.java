@@ -35,7 +35,7 @@ public class UserController {
         return "users/login";
     }
 
-    @GetMapping("/login/oauth/naver")
+    @GetMapping("/oauth/naver")
     public String naverLogin(@RequestParam(value = "code", required = false) String code,
                              @RequestParam(value = "state", required = false) String state,
                              @RequestParam(value = "error", required = false) String error,
@@ -56,10 +56,12 @@ public class UserController {
 
     @GetMapping("/oauth/google")
     public String googleLogin(@RequestParam(value = "code", required = false) String code,
+                              @RequestParam(value = "state", required = false) String state,
                               @RequestParam(value = "error", required = false) String error,
+
                               HttpSession session, Model model) {
         log.info("move to login naver");
-        UserInfo userInfo = userService.oauthGoogle(code, error, session);
+        UserInfo userInfo = userService.oauthGoogle(code, state, error, session);
 
         if(userInfo == null) {
             model.addAttribute("error", error);

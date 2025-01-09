@@ -20,7 +20,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
-                                .loginPage("/api/users/login/oauth/naver")
+                                .loginPage("/api/users/oauth/naver")
+                                .defaultSuccessUrl("/api/users/oauth/naver")
 //                        .defaultSuccessUrl("/api/users/login/oauth/naver/callback")
                 );
 

@@ -9,7 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class OauthUserDto {
+public class NaverDto {
     @JsonProperty("response")
     public Response response;
 
@@ -21,6 +21,6 @@ public class OauthUserDto {
         private String name;
         private String email;
         private String gender;
-        private String age;
+        private String birthyear;
     }
 }

@@ -24,7 +24,7 @@ public class UserEntity extends BaseTimeEntity {
 //    @Column(nullable = true, length = 50, unique = true)
 //    private String nickname;
     private String gender;
-    private String age;
+    private String birthyear;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "provider_type", nullable = false, length = 50)

@@ -9,12 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TokenReponse {
-    private String access_token;
-    private String token_type;
-    private String expires_in;
-    private String refresh_token;
-    private String scope;
+public class NaverResponse {
+    private String code;
+    private String state;
     private String error;
     private String error_description;
 }
