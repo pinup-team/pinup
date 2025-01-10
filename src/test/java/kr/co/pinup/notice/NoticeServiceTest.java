@@ -169,7 +169,7 @@ class NoticeServiceTest {
     @ParameterizedTest
     @MethodSource("noticeProvider")
     @DisplayName("공지사항 삭제")
-    void delete(String title, String content) {
+    void remove(String title, String content) {
         // given
         Notice notice = Notice.builder()
                 .title(title)
@@ -178,7 +178,7 @@ class NoticeServiceTest {
         noticeRepository.save(notice);
 
         // when
-        noticeService.delete(notice.getId());
+        noticeService.remove(notice.getId());
 
         // then
         assertThat(noticeRepository.count()).isEqualTo(0);
@@ -187,11 +187,11 @@ class NoticeServiceTest {
     @ParameterizedTest
     @ValueSource(longs = 1)
     @DisplayName("존재하지 않는 공지사항 삭제")
-    void deleteError(Long noticeId) {
+    void removeError(Long noticeId) {
         // given
 
         // expected
-        assertThatThrownBy(() -> noticeService.delete(noticeId))
+        assertThatThrownBy(() -> noticeService.remove(noticeId))
                 .isInstanceOf(NoticeNotFound.class)
                 .hasMessage(NOTICE_NOT_FOUND_MESSAGE);
     }

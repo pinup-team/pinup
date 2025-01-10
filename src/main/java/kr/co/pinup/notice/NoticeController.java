@@ -6,11 +6,12 @@ import kr.co.pinup.notice.request.NoticeUpdate;
 import kr.co.pinup.notice.response.NoticeResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @RestController
@@ -34,7 +35,7 @@ public class NoticeController {
     public ResponseEntity<Void> save(@RequestBody @Valid NoticeCreate request) {
         noticeService.save(request);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return ResponseEntity.status(CREATED).build();
     }
 
     @PutMapping("/{noticeId}")
@@ -46,7 +47,7 @@ public class NoticeController {
 
     @DeleteMapping("/{noticeId}")
     public ResponseEntity<Void> delete(@PathVariable Long noticeId) {
-        noticeService.delete(noticeId);
+        noticeService.remove(noticeId);
 
         return ResponseEntity.noContent().build();
     }

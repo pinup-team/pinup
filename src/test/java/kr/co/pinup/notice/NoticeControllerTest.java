@@ -320,7 +320,7 @@ class NoticeControllerTest {
         long noticeId = 1L;
 
         // when
-        doNothing().when(noticeService).delete(noticeId);
+        doNothing().when(noticeService).remove(noticeId);
 
         // expected
         mockMvc.perform(delete("/notices/{noticeId}", noticeId))
@@ -335,7 +335,7 @@ class NoticeControllerTest {
         long noticeId = 99999L;
 
         // when
-        doThrow(new NoticeNotFound()).when(noticeService).delete(noticeId);
+        doThrow(new NoticeNotFound()).when(noticeService).remove(noticeId);
 
         // expected
         mockMvc.perform(MockMvcRequestBuilders.delete("/notices/{noticeId}", noticeId))

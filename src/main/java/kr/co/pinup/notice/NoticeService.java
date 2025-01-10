@@ -34,10 +34,12 @@ public class NoticeService {
     }
 
     public void save(NoticeCreate noticeCreate) {
-        noticeRepository.save(Notice.builder()
+        Notice notice = Notice.builder()
                 .title(noticeCreate.title())
                 .content(noticeCreate.content())
-                .build());
+                .build();
+
+        noticeRepository.save(notice);
     }
 
     @Transactional
@@ -48,7 +50,7 @@ public class NoticeService {
         notice.update(noticeUpdate);
     }
 
-    public void delete(Long noticeId) {
+    public void remove(Long noticeId) {
         Notice notice = noticeRepository.findById(noticeId)
                 .orElseThrow(NoticeNotFound::new);
 
