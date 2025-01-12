@@ -1,6 +1,9 @@
 package kr.co.pinup.posts.service.imp;
 
 import jakarta.transaction.Transactional;
+import kr.co.pinup.posts.exception.comment.CommentNotFoundException;
+import kr.co.pinup.posts.exception.general.BadRequestException;
+import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.model.dto.CommentDto;
 import kr.co.pinup.posts.model.entity.CommentEntity;
 import kr.co.pinup.posts.model.entity.PostEntity;
@@ -28,16 +31,24 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteComment(Long commentId) {
+        // 댓글을 찾을 수 없는 경우 예외 처리
+        if (!commentRepository.existsById(commentId)) {
+            throw new CommentNotFoundException("댓글을 찾을 수 없습니다.");
+        }
         commentRepository.deleteById(commentId);
     }
 
     @Override
     public CommentEntity createComment(CommentDto commentDto) {
-        // 게시글이 존재하는지 확인
+        // 게시글이 존재하는지 확인하고 없으면 예외 처리
         PostEntity post = postRepository.findById(commentDto.getPostId())
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다."));
 
         // 댓글 생성
+        if (commentDto.getContent() == null || commentDto.getContent().isEmpty()) {
+            throw new BadRequestException("댓글 내용이 비어 있습니다.");
+        }
+
         CommentEntity comment = CommentEntity.builder()
                 .post(post)
                 .userId(commentDto.getUserId())
@@ -48,3 +59,4 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.save(comment);
     }
 }
+

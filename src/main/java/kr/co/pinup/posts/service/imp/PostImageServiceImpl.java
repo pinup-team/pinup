@@ -2,6 +2,8 @@ package kr.co.pinup.posts.service.imp;
 
 
 import jakarta.transaction.Transactional;
+import kr.co.pinup.posts.exception.postimage.PostImageDeleteFailedException;
+import kr.co.pinup.posts.exception.postimage.PostImageUploadException;
 import kr.co.pinup.posts.model.entity.PostEntity;
 import kr.co.pinup.posts.model.entity.PostImageEntity;
 import kr.co.pinup.posts.model.repository.PostImageRepository;
@@ -37,7 +39,6 @@ public class PostImageServiceImpl implements PostImageService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-
     // 이미지 파일을 S3에 업로드하고, URL을 DB에 저장하는 로직
     @Transactional
     @Override
@@ -51,11 +52,14 @@ public class PostImageServiceImpl implements PostImageService {
                 .collect(Collectors.toList());
 
         // DB에 이미지 정보 저장
-        postImageRepository.saveAll(postImages);
+        try {
+            postImageRepository.saveAll(postImages);
+        } catch (Exception e) {
+            throw new PostImageUploadException("이미지 저장 실패", e);
+        }
 
         return postImages;
     }
-
 
     @Transactional
     @Override
@@ -66,11 +70,19 @@ public class PostImageServiceImpl implements PostImageService {
         postImages.forEach(postImage -> {
             String fileUrl = postImage.getS3Url();
             String fileName = extractFileName(fileUrl); // URL에서 파일 이름 추출
-            deleteFromS3(fileName);  // S3에서 파일 삭제
+            try {
+                deleteFromS3(fileName);  // S3에서 파일 삭제
+            } catch (Exception e) {
+                throw new PostImageDeleteFailedException("S3에서 이미지 삭제 실패: " + fileName, e);
+            }
         });
 
-
-        postImageRepository.deleteAllByPostId(postId);
+        // DB에서 이미지 삭제
+        try {
+            postImageRepository.deleteAllByPostId(postId);
+        } catch (Exception e) {
+            throw new PostImageDeleteFailedException("이미지 삭제 실패", e);
+        }
     }
 
     @Override
@@ -82,11 +94,19 @@ public class PostImageServiceImpl implements PostImageService {
         postImages.forEach(postImage -> {
             String fileUrl = postImage.getS3Url();
             String fileName = extractFileName(fileUrl); // URL에서 파일 이름 추출
-            deleteFromS3(fileName);  // S3에서 파일 삭제
+            try {
+                deleteFromS3(fileName);  // S3에서 파일 삭제
+            } catch (Exception e) {
+                throw new PostImageDeleteFailedException("S3에서 이미지 삭제 실패: " + fileName, e);
+            }
         });
 
         // DB에서 이미지 엔티티 삭제
-        postImageRepository.deleteAll(postImages);
+        try {
+            postImageRepository.deleteAll(postImages);
+        } catch (Exception e) {
+            throw new PostImageDeleteFailedException("선택한 이미지 삭제 실패", e);
+        }
     }
 
     @Override
@@ -104,6 +124,7 @@ public class PostImageServiceImpl implements PostImageService {
                 .map(this::uploadFile) // 각 파일을 S3에 업로드하고 URL 반환
                 .collect(Collectors.toList());
     }
+
     public String uploadFile(MultipartFile file) {
         try {
             // 고유한 파일 이름을 생성
@@ -139,7 +160,7 @@ public class PostImageServiceImpl implements PostImageService {
             }
         } catch (IOException e) {
             log.error("Error uploading file to S3: {}", e.getMessage(), e);
-            throw new RuntimeException("파일 업로드 실패", e);
+            throw new PostImageUploadException("파일 업로드 실패", e);
         }
     }
 
@@ -151,7 +172,7 @@ public class PostImageServiceImpl implements PostImageService {
                     .key(fileName)
                     .build());
         } catch (Exception e) {
-            throw new RuntimeException("S3에서 파일 삭제 실패", e);
+            throw new PostImageDeleteFailedException("S3에서 파일 삭제 실패: " + fileName, e);
         }
     }
 

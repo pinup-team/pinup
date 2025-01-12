@@ -32,7 +32,7 @@ public class PostController {
     public String getAllPosts(@PathVariable Long storeid,Model model) {
         List<PostEntity> posts = postService.findByStoreId(storeid);
         model.addAttribute("posts", posts);
-        return "post/list"; // "post/list"는 thymeleaf 템플릿 경로
+        return "post/list";
     }
 
     // 특정 게시글 상세 조회
@@ -52,14 +52,14 @@ public class PostController {
         model.addAttribute("comments", comments);
         model.addAttribute("images", images);
 
-        return "post/detail"; // "post/detail"은 상세보기 페이지의 thymeleaf 템플릿 경로
+        return "/post/detail/"+post.getId();
     }
 
     // 게시글 생성 페이지로 이동
     @GetMapping("/create")
     public String createPostForm(Model model) {
-        model.addAttribute("postDto", new PostDto()); // PostDto 객체를 모델에 추가
-        return "post/create";  // create.html 템플릿 경로
+        model.addAttribute("postDto", new PostDto());
+        return "/post/create";
     }
 
 
@@ -69,21 +69,15 @@ public class PostController {
                              @RequestParam("images") List<MultipartFile> images,
                              Model model) {
 
-        log.info("Create new post,{}",postDto);
-        log.info("Create new images,{}",images);
-
-        // PostDto 객체를 그대로 전달하고, MultipartFile 목록을 전달
         postDto.setUserId(1L);
         postDto.setStoreId(1L);
         postDto.setImages(images);
 
         PostEntity post = postService.createPost(postDto);
 
-        // 생성된 게시글을 모델에 추가
         model.addAttribute("post", post);
 
-        // 생성 후 게시글 상세 페이지로 리다이렉트
-        return "post/detail";
+        return "/post/"+ post.getId();
     }
 
     // 게시글 삭제
@@ -99,6 +93,6 @@ public class PostController {
     public String updatePost(@PathVariable Long id, @ModelAttribute PostDto postDto) {
         PostEntity post = postService.getPostById(id);
         postService.updatePost(id, postDto);
-        return "post/"+ id;
+        return "/post/"+ id;
     }
 }

@@ -1,6 +1,11 @@
 package kr.co.pinup.posts.service.imp;
 
+
+import kr.co.pinup.posts.exception.post.InvalidPostContentException;
+
 import jakarta.transaction.Transactional;
+import kr.co.pinup.posts.exception.post.PostDeleteFailedException;
+import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.model.dto.PostDto;
 import kr.co.pinup.posts.model.entity.PostEntity;
 import kr.co.pinup.posts.model.entity.PostImageEntity;
@@ -24,6 +29,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostEntity createPost(PostDto postDto) {
+        if (postDto.getTitle() == null || postDto.getContent() == null) {
+            throw new InvalidPostContentException("제목 또는 내용이 비어 있습니다.");
+        }
 
         PostEntity post = new PostEntity();
         post.setStoreId(postDto.getStoreId());
@@ -56,27 +64,34 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostEntity getPostById(Long id) {
         return postRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + id));
     }
 
-
     public void deletePost(Long postId) {
-        // 해당 게시글 조회
+        // 게시글 조회
         PostEntity post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + postId));
 
         // 해당 게시글에 연관된 이미지 삭제
-        postImageService.deleteAllByPost(postId);
+        try {
+            postImageService.deleteAllByPost(postId);
+        } catch (Exception e) {
+            throw new PostDeleteFailedException("게시글 삭제 중 이미지 삭제 실패. ID: " + postId);
+        }
 
         // 게시글 삭제
-        postRepository.delete(post);
+        try {
+            postRepository.delete(post);
+        } catch (Exception e) {
+            throw new PostDeleteFailedException("게시글 삭제 실패. ID: " + postId);
+        }
     }
 
     @Override
     public PostEntity updatePost(Long id, PostDto postDto) {
         // 기존 게시글 조회
         PostEntity post = postRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + id));
 
         // 게시글 정보 수정
         post.setTitle(postDto.getTitle());
@@ -84,7 +99,7 @@ public class PostServiceImpl implements PostService {
         post.setStoreId(postDto.getStoreId());
         post.setUserId(postDto.getUserId());
 
-// 기존 이미지를 처리 (기존 이미지를 삭제하고 새 이미지 추가)
+        // 기존 이미지를 처리 (기존 이미지를 삭제하고 새 이미지 추가)
         if (postDto.getImagesToDelete() != null && !postDto.getImagesToDelete().isEmpty()) {
             // 삭제할 이미지 URL 리스트를 처리하여 S3에서 해당 파일 삭제
             postImageService.deleteSelectedImages(id, postDto.getImagesToDelete());
@@ -95,10 +110,9 @@ public class PostServiceImpl implements PostService {
             List<PostImageEntity> postImages = postImageService.savePostImages(postDto.getImages(), post);
 
             if (!postImages.isEmpty()) {
-                // post_id를 기준으로 PostImageEntity를 조회 (이것은 예시로 작성된 코드입니다)
+                // 썸네일을 첫 번째 이미지로 설정
                 PostImageEntity firstImage = postImageService.findFirstImageByPostId(post.getId());
 
-                // 썸네일을 첫 번째 이미지로 설정
                 if (firstImage != null) {
                     post.setThumbnail(firstImage.getS3Url()); // 썸네일로 첫 번째 이미지를 설정
                 }
