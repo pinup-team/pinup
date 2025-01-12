@@ -6,7 +6,7 @@ import lombok.Builder;
 import java.time.LocalDateTime;
 
 @Builder
-public record FaqResponse(Long id, String question, String answer,String category,
+public record FaqResponse(Long id, String question, String answer, String category,
                           LocalDateTime createdAt, LocalDateTime updatedAt) {
 
     public FaqResponse(Faq faq) {

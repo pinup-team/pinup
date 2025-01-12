@@ -85,8 +85,8 @@ class NoticeServiceTest {
 
         // then
         assertThat(noticeRepository.count()).isEqualTo(2L);
-        assertThat(notices.get(0).title()).isEqualTo(title1);
-        assertThat(notices.get(0).content()).isEqualTo(content1);
+        assertThat(notices.get(0).title()).isEqualTo(title2);
+        assertThat(notices.get(0).content()).isEqualTo(content2);
     }
 
     @ParameterizedTest
