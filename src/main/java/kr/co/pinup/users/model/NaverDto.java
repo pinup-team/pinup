@@ -20,7 +20,7 @@ public class NaverDto {
         private String id;
         private String name;
         private String email;
-        private String gender;
-        private String birthyear;
+//        private String gender;
+//        private String birthyear;
     }
 }

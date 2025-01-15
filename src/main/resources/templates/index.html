@@ -1,17 +1,56 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:oauth="http://oauth">
 <head>
     <meta charset="UTF-8">
     <title>Pinup</title>
 </head>
 <body>
 <div>Header</div>
-<a th:href="@{/api/users/login}">로그인</a>
-<th:block th:if="${userInfo}">
-    <p>Name: <span th:text="${userInfo.name}">Name</span></p>
-    <p>Email: <span th:text="${userInfo.email}">Email</span></p>
-    <p>Role: <span th:text="${userInfo.role}">Role</span></p>
+<!-- userInfo가 없을 때만 로그인 버튼을 표시 -->
+<th:block th:if="${session.userInfo == null}">
+    <a oauth:naverLoginUrl="커스텀 uri">
+        <button>NAVER 로그인</button>
+    </a>
+    <a oauth:googleLoginUrl="커스텀 uri">
+        <button>GOOGLE 로그인</button>
+    </a>
+    <p>
+    <button onclick="window.location.href='/users/login'">로그인</button>
+    </p>
+</th:block>
+<p>accessToken : <span th:text="${session.accessToken}"></span></p>
+
+<!-- userInfo가 있을 때 로그아웃과 사용자 정보를 표시 -->
+<th:block th:if="${session.userInfo != null}">
+    <button th:onclick="logout()">로그아웃</button>
+    <p>Name: <span th:text="${session.userInfo.name}">Name</span></p>
+    <p>Email: <span th:text="${session.userInfo.email}">Email</span></p>
+    <p>Role: <span th:text="${session.userInfo.role}">Role</span></p>
+    <p>Provider: <span th:text="${session.userInfo.provider}">Provider</span></p>
 </th:block>
 <div>Footer</div>
 </body>
 </html>
+
+<script>
+    function logout() {
+        fetch('/users/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    console.log("Logout successful");
+                } else {
+                    throw new Error('Logout failed');
+                }
+            })
+            .then(data => console.log(data))
+            .catch(error => console.error('There was a problem with the fetch operation:', error));
+    }
+</script>

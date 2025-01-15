@@ -1,7 +1,7 @@
 package kr.co.pinup.users.model;
 
 import jakarta.persistence.*;
-import kr.co.pinup.users.model.enums.Provider;
+import kr.co.pinup.users.model.enums.OAuthProvider;
 import kr.co.pinup.users.model.enums.UserRole;
 import lombok.*;
 
@@ -23,12 +23,12 @@ public class UserEntity extends BaseTimeEntity {
     private String email;
 //    @Column(nullable = true, length = 50, unique = true)
 //    private String nickname;
-    private String gender;
-    private String birthyear;
+//    private String gender;
+//    private String birthyear;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "provider_type", nullable = false, length = 50)
-    private Provider providerType;
+    private OAuthProvider providerType;
     @Column(name = "provider_id", nullable = false, length = 255)
     private String providerId;
 
