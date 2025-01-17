@@ -1,6 +1,7 @@
-package kr.co.pinup.notice;
+package kr.co.pinup.notice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.co.pinup.notice.NoticeService;
 import kr.co.pinup.notice.exception.NoticeNotFound;
 import kr.co.pinup.notice.request.NoticeCreate;
 import kr.co.pinup.notice.request.NoticeUpdate;
@@ -33,8 +34,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(NoticeController.class)
-class NoticeControllerTest {
+@WebMvcTest(NoticeApiController.class)
+class NoticeApiControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

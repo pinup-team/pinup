@@ -1,6 +1,7 @@
-package kr.co.pinup.faq;
+package kr.co.pinup.faq.controller;
 
 import jakarta.validation.Valid;
+import kr.co.pinup.faq.FaqService;
 import kr.co.pinup.faq.request.FaqCreate;
 import kr.co.pinup.faq.response.FaqResponse;
 import kr.co.pinup.notice.request.FaqUpdate;
@@ -15,9 +16,9 @@ import static org.springframework.http.HttpStatus.CREATED;
 
 @Slf4j
 @RestController
-@RequestMapping("/faqs")
+@RequestMapping("/api/faqs")
 @RequiredArgsConstructor
-public class FaqController {
+public class FaqApiController {
 
     private final FaqService faqService;
 

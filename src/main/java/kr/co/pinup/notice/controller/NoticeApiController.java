@@ -1,6 +1,7 @@
-package kr.co.pinup.notice;
+package kr.co.pinup.notice.controller;
 
 import jakarta.validation.Valid;
+import kr.co.pinup.notice.NoticeService;
 import kr.co.pinup.notice.request.NoticeCreate;
 import kr.co.pinup.notice.request.NoticeUpdate;
 import kr.co.pinup.notice.response.NoticeResponse;
@@ -15,9 +16,9 @@ import static org.springframework.http.HttpStatus.CREATED;
 
 @Slf4j
 @RestController
-@RequestMapping("/notices")
+@RequestMapping("/api/notices")
 @RequiredArgsConstructor
-public class NoticeController {
+public class NoticeApiController {
 
     private final NoticeService noticeService;
 
@@ -33,6 +34,7 @@ public class NoticeController {
 
     @PostMapping
     public ResponseEntity<Void> save(@RequestBody @Valid NoticeCreate request) {
+        log.info("save= {}", request);
         noticeService.save(request);
 
         return ResponseEntity.status(CREATED).build();

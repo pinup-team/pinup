@@ -1,8 +1,9 @@
 package kr.co.pinup.notice.exception;
 
+import kr.co.pinup.exception.GlobalCustomException;
 import org.springframework.http.HttpStatus;
 
-public class NoticeNotFound extends RuntimeException {
+public class NoticeNotFound extends GlobalCustomException {
 
     private static final String MESSAGE = "공지사항이 존재하지 않습니다.";
 
@@ -10,6 +11,7 @@ public class NoticeNotFound extends RuntimeException {
         super(MESSAGE);
     }
 
+    @Override
     public HttpStatus getHttpStatus() {
         return HttpStatus.NOT_FOUND;
     }

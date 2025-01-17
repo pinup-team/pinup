@@ -1,7 +1,7 @@
-package kr.co.pinup.faq;
+package kr.co.pinup.faq.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.co.pinup.faq.FaqService;
 import kr.co.pinup.faq.exception.FaqNotFound;
 import kr.co.pinup.faq.request.FaqCreate;
 import kr.co.pinup.faq.response.FaqResponse;
@@ -27,8 +27,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(FaqController.class)
-class FaqControllerTest {
+@WebMvcTest(FaqApiController.class)
+class FaqApiControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

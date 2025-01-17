@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
+  <div class="container" layout:fragment="content">
+    <div>
+      <button th:onclick="|location.href='@{/faqs/new}'|">FAQ 작성</button>
+    </div>
+    <div th:each="faq : ${faqs}" th:object="${faq}">
+      <div th:text="*{category}"></div>
+      <div th:text="*{question}"></div>
+      <div th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></div>
+      <div>
+        <button th:onclick="|location.href='@{/faqs/{id}/update(id=*{id})}'|" th:text="수정">수정</button>
+        <button th:onclick="removeFaq([[*{id}]])" th:text="삭제">삭제</button>
+      </div>
+    </div>
+  </div>
+</html>
