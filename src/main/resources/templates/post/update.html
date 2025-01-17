@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Post</title>
+</head>
+<body>
+
+<h1>Update Post</h1>
+
+<!-- 폼 액션을 수정할 URL로 설정, 메서드는 POST로 두고, PUT을 지정 -->
+<form th:action="@{/post/{id}(id=${post.id})}" th:object="${postDto}" method="post" enctype="multipart/form-data">
+  <input type="hidden" name="_method" value="put" /> <!-- PUT 방식으로 전송 -->
+
+  <!-- 기존 이미지 리스트 출력 -->
+  <div>
+    <h3>Current Images</h3>
+    <ul>
+      <th:block th:each="image : ${images}">
+        <li>
+          <!-- 이미지 출력 -->
+          <img th:src="@{${image.s3Url}}" alt="Post Image" width="300px"/>
+
+          <!-- 이미지 삭제 체크박스 -->
+          <input type="checkbox" th:value="${image.s3Url}" onclick="toggleImageToDelete(this.value)"/>
+          <label>Delete</label>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+
+  <!-- 삭제할 이미지 리스트 (숨겨진 필드로 전달) -->
+  <input type="hidden" th:field="*{postImageDto.imagesToDelete}" id="imagesToDelete" name="imagesToDelete"/>
+
+  <!-- 제목 입력 -->
+  <label for="title">Title</label>
+  <input type="text" th:field="*{title}" id="title" name="title" required="true"/>
+
+  <!-- 내용 입력 -->
+  <label for="content">Content</label>
+  <textarea th:field="*{content}" id="content" name="content" required="true"></textarea>
+
+  <!-- 새 이미지 업로드 -->
+  <label for="images">Upload New Images</label>
+  <input type="file" th:field="*{postImageDto.images}" name="images" multiple="multiple"/>
+
+  <!-- 제출 버튼 -->
+  <button type="submit">Update</button>
+
+</form>
+
+<script>
+  // 삭제할 이미지 URL을 imagesToDelete 필드에 추가하거나 제거하는 자바스크립트 함수
+  function toggleImageToDelete(imageUrl) {
+    const imagesToDeleteField = document.getElementById('imagesToDelete');
+    let imagesToDelete = imagesToDeleteField.value ? imagesToDeleteField.value.split(',') : [];
+
+    // 이미지 URL이 이미 삭제 목록에 있으면 제거, 없으면 추가
+    if (imagesToDelete.includes(imageUrl)) {
+      imagesToDelete = imagesToDelete.filter(url => url !== imageUrl);
+    } else {
+      imagesToDelete.push(imageUrl);
+    }
+
+    // 값을 콤마로 구분된 문자열로 업데이트
+    imagesToDeleteField.value = imagesToDelete.join(',');
+  }
+</script>
+
+</body>
+</html>
