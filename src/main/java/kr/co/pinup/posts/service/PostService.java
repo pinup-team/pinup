@@ -1,6 +1,7 @@
 package kr.co.pinup.posts.service;
 
 import kr.co.pinup.posts.model.dto.PostDto;
+import kr.co.pinup.posts.model.dto.PostImageDto;
 import kr.co.pinup.posts.model.entity.PostEntity;
 
 import java.util.List;
