@@ -21,10 +21,8 @@ public class UserEntity extends BaseTimeEntity {
     private String name;
     @Column(nullable = false, length = 100, unique = true)
     private String email;
-//    @Column(nullable = true, length = 50, unique = true)
-//    private String nickname;
-//    private String gender;
-//    private String birthyear;
+    @Column(nullable = false, length = 50, unique = true)
+    private String nickname;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "provider_type", nullable = false, length = 50)

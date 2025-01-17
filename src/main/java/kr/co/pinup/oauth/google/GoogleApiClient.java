@@ -6,18 +6,10 @@ import kr.co.pinup.config.OauthConfig;
 import kr.co.pinup.oauth.OAuthApiClient;
 import kr.co.pinup.oauth.OAuthLoginParams;
 import kr.co.pinup.oauth.OAuthProvider;
-import kr.co.pinup.oauth.google.GoogleResponse;
-import kr.co.pinup.oauth.google.GoogleToken;
-import kr.co.pinup.oauth.naver.NaverToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.math.BigInteger;
-import java.net.URI;
-import java.security.SecureRandom;
 
 @Component
 @RequiredArgsConstructor

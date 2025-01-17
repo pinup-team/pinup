@@ -20,8 +20,6 @@ public class NaverResponse implements OAuthResponse {
         private String id;
         private String name;
         private String email;
-//        private String gender;
-//        private String birthyear;
     }
 
     @Override

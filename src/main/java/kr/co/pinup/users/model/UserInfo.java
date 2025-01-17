@@ -12,8 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserInfo {
-    private String name;
-    private String email;
+    private String nickname;
     private UserRole role;
     private OAuthProvider provider;
 }
