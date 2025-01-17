@@ -2,16 +2,18 @@ package kr.co.pinup.users.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import kr.co.pinup.oauth.OAuthLoginParams;
+import kr.co.pinup.oauth.google.GoogleLoginParams;
+import kr.co.pinup.oauth.naver.NaverLoginParams;
 import kr.co.pinup.users.model.UserInfo;
 import kr.co.pinup.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @Slf4j
 @Controller
@@ -20,79 +22,58 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/login")
-    public String loginPage(HttpServletRequest request, Model model) {
-        log.info("move to login page");
-        HttpSession session = request.getSession();
-        model.addAttribute("authUri", userService.makeNaverAuthUri(session));
-        model.addAttribute("authGoogleUri", userService.makeGoogleAuthUri(session));
-        return "users/login";
-    }
-
     @GetMapping("/oauth/naver")
-    public String naverLogin(@RequestParam(value = "code", required = false) String code,
-                             @RequestParam(value = "state", required = false) String state,
-                             @RequestParam(value = "error", required = false) String error,
-                             @RequestParam(value = "error_description", required = false) String error_description,
-                             HttpServletRequest request, Model model) {
-        HttpSession session = request.getSession(true);
-
-        UserInfo userInfo = userService.oauthNaver(code, state, error, error_description, session);
-
-        if (userInfo == null) {
-            model.addAttribute("error", error);
-            model.addAttribute("message", error_description);
-            return "error";
-        } else {
-            session.setAttribute("userInfo", userInfo);
-            return "redirect:/";
-        }
+    public String loginNaver(@ModelAttribute NaverLoginParams params,
+                             HttpServletRequest request) {
+        log.info("move to login naver");
+        return loginProcess(params, request);
     }
 
     @GetMapping("/oauth/google")
-    public String googleLogin(@RequestParam(value = "code", required = false) String code,
-                              @RequestParam(value = "state", required = false) String state,
-                              @RequestParam(value = "error", required = false) String error,
-                              HttpServletRequest request, Model model) {
+    public String loginGoogle(@ModelAttribute GoogleLoginParams params,
+                              HttpServletRequest request) {
         log.info("move to login google");
-        HttpSession session = request.getSession(true);
+        return loginProcess(params, request);
+    }
 
-        UserInfo userInfo = userService.oauthGoogle(code, state, error, session);
+    private String loginProcess(OAuthLoginParams params, HttpServletRequest request) {
+        return Optional.ofNullable(request.getSession(true))
+                .map(session -> loginUser(params, session))
+                .orElseThrow(() -> new IllegalStateException("세션 생성에 실패했습니다."));
+    }
 
-        if (userInfo == null) {
-            model.addAttribute("error", error);
-            model.addAttribute("message", "access_denied");
-            return "error";
-        } else {
-            session.setAttribute("userInfo", userInfo);
-            return "redirect:/";
-        }
+    private String loginUser(OAuthLoginParams params, HttpSession session) {
+        return Optional.ofNullable(userService.login(params, session))
+                .map(userInfo -> {
+                    session.setAttribute("userInfo", userInfo);
+                    return "redirect:/";
+                })
+                .orElseGet(() -> handleError(session, "로그인 실패"));
     }
 
     @PostMapping("/logout")
-    public String logout(HttpServletRequest request, Model model) {
-        // HttpSession은 새로운 세션을 만들 수 있기 때문에, 아래 코드 사용함
-        HttpSession session = request.getSession(false);
+    public String logout(HttpServletRequest request) {
+        return Optional.ofNullable(request.getSession(false))
+                .filter(session -> !session.isNew())
+                .map(session -> {
+                    UserInfo userInfo = (UserInfo) session.getAttribute("userInfo");
+                    if(userInfo != null) {
+                        boolean response = userService.logout(userInfo.getProvider(), session);
+                        if(!response){
+                            handleError(session, "logout_failed");
+                        }
+                    } else {
+                        handleError(session, "no_user_info_in_session");
+                    }
+                    return "redirect:/";
+                })
+                .orElseGet(() -> handleError(request.getSession(), "no_session_exists"));
+    }
 
-        if (session != null) {
-            UserInfo userInfo = (UserInfo) session.getAttribute("userInfo");
-            if (userInfo != null) {
-                String accessToken = userService.logout(session, userInfo.getProvider());
-                if (accessToken == null) {
-                    model.addAttribute("error", "error");
-                    model.addAttribute("message", "logout_failed");
-                    return "error";
-                }
-            } else {
-                model.addAttribute("error", "error");
-                model.addAttribute("message", "no_user_info_in_session");
-                return "error";
-            }
-        } else {
-            model.addAttribute("error", "error");
-            model.addAttribute("message", "no_session_exists");
-            return "error";
-        }
-        return "redirect:/";
+    private String handleError(HttpSession session, String message) {
+        log.error("Error: {}", message);
+        session.setAttribute("error", "error");
+        session.setAttribute("message", message);
+        return "redirect:/error";
     }
 }

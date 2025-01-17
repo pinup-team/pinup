@@ -19,7 +19,7 @@
     <button onclick="window.location.href='/users/login'">로그인</button>
     </p>
 </th:block>
-<p>accessToken : <span th:text="${session.accessToken}"></span></p>
+<p>accessToken : <span th:text="${session.accessToken}">AccessToken</span> </p>
 
 <!-- userInfo가 있을 때 로그아웃과 사용자 정보를 표시 -->
 <th:block th:if="${session.userInfo != null}">

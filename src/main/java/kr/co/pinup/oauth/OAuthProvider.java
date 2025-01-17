@@ -1,4 +1,4 @@
-package kr.co.pinup.users.model.enums;
+package kr.co.pinup.oauth;
 
 public enum OAuthProvider {
     GOOGLE, NAVER, KAKAO

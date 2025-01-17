@@ -1,6 +1,6 @@
 package kr.co.pinup.users.model;
 
-import kr.co.pinup.users.model.enums.OAuthProvider;
+import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.users.model.enums.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
