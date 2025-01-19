@@ -38,3 +38,4 @@ out/
 
 # Application YAML configuration
 /application.yml
+/application-test.yml
