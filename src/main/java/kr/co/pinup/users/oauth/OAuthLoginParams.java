@@ -1,4 +1,4 @@
-package kr.co.pinup.oauth;
+package kr.co.pinup.users.oauth;
 
 import org.springframework.util.MultiValueMap;
 

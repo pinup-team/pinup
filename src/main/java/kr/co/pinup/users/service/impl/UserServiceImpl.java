@@ -1,12 +1,10 @@
 package kr.co.pinup.users.service.impl;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
-import kr.co.pinup.config.OauthConfig;
-import kr.co.pinup.oauth.OAuthLoginParams;
-import kr.co.pinup.oauth.OAuthProvider;
-import kr.co.pinup.oauth.OAuthResponse;
-import kr.co.pinup.oauth.OAuthService;
+import kr.co.pinup.users.oauth.OAuthLoginParams;
+import kr.co.pinup.users.oauth.OAuthProvider;
+import kr.co.pinup.users.oauth.OAuthResponse;
+import kr.co.pinup.users.oauth.OAuthService;
 import kr.co.pinup.users.model.UserDto;
 import kr.co.pinup.users.model.UserEntity;
 import kr.co.pinup.users.model.UserInfo;
@@ -15,43 +13,33 @@ import kr.co.pinup.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-    private final OAuthService OAuthService;
+    private final OAuthService oAuthService;
 
     @Override
     public UserInfo login(OAuthLoginParams params, HttpSession session) {
-        OAuthResponse oAuthResponse = OAuthService.request(params, session);
-        UserEntity user = findOrCreateUser(oAuthResponse);
-        return UserInfo.builder()
-                .nickname(user.getNickname())
-                .role(user.getRole())
-                .provider(user.getProviderType())
-                .build();
-    }
-
-    @Override
-    public UserDto findUser(UserInfo userInfo) {
-        return userRepository.findByNickname(userInfo.getNickname())
-                .map(userEntity -> {
-                    return UserDto.builder()
-                            .name(userEntity.getName())
-                            .email(userEntity.getEmail())
-                            .nickname(userInfo.getNickname())
-                            .providerType(userEntity.getProviderType())
-                            .role(userEntity.getRole())
-                            .build();
-                })
-                .orElse(null);
+        try {
+            OAuthResponse oAuthResponse = oAuthService.request(params, session);
+            UserEntity user = findOrCreateUser(oAuthResponse);
+            return UserInfo.builder()
+                    .nickname(user.getNickname())
+                    .provider(user.getProviderType())
+                    .role(user.getRole())
+                    .build();
+        } catch (Exception e) {
+            log.error("Login failed: {}", e.getMessage());
+            throw new IllegalStateException("로그인 처리 중 문제가 발생했습니다.", e);
+        }
     }
 
     private UserEntity findOrCreateUser(OAuthResponse oAuthResponse) {
@@ -60,73 +48,130 @@ public class UserServiceImpl implements UserService {
     }
 
     private UserEntity newUser(OAuthResponse oAuthResponse) {
-        UserEntity user = UserEntity.builder()
-                .name(oAuthResponse.getName())
-                .email(oAuthResponse.getEmail())
-                .nickname(makeNickname())
-                .providerType(oAuthResponse.getOAuthProvider())
-                .providerId(oAuthResponse.getId())
-                .build();
-
-        return userRepository.save(user);
+        try {
+            UserEntity user = UserEntity.builder()
+                    .name(oAuthResponse.getName())
+                    .email(oAuthResponse.getEmail())
+                    .nickname(makeNickname())
+                    .providerType(oAuthResponse.getOAuthProvider())
+                    .providerId(oAuthResponse.getId())
+                    .build();
+            return userRepository.save(user);
+        } catch (Exception e) {
+            log.error("Error creating new user: {}", e.getMessage());
+            throw new RuntimeException("사용자 생성 중 문제가 발생했습니다.", e);
+        }
     }
 
     @Override
     public String makeNickname() {
         String nickname;
-        do {
-            String randomAdjective = getRandomItem(ADJECTIVES);
-            String randomNoun = getRandomItem(NOUNS);
-            nickname = randomAdjective + randomNoun;
-        } while (userRepository.existsByNickname(nickname));
-        return nickname;
+        try {
+            do {
+                String randomAdjective = getRandomItem(ADJECTIVES);
+                String randomNoun = getRandomItem(NOUNS);
+                nickname = randomAdjective + randomNoun;
+            } while (userRepository.existsByNickname(nickname));
+            return nickname;
+        } catch (Exception e) {
+            log.error("Error generating nickname: {}", e.getMessage());
+            throw new RuntimeException("닉네임 생성 중 문제가 발생했습니다.", e);
+        }
+    }
+
+    @Override
+    public UserDto findUser(UserInfo userInfo) {
+        try {
+            return userRepository.findByNickname(userInfo.getNickname())
+                    .map(userEntity -> UserDto.builder()
+                            .name(userEntity.getName())
+                            .email(userEntity.getEmail())
+                            .nickname(userEntity.getNickname())
+                            .providerType(userEntity.getProviderType())
+                            .role(userEntity.getRole())
+                            .build())
+                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        } catch (Exception e) {
+            log.error("Error finding user: {}", e.getMessage());
+            throw new RuntimeException("사용자 조회 중 문제가 발생했습니다.", e);
+        }
     }
 
     @Override
     public UserDto update(UserInfo userInfo, UserDto userDto) {
-        return userRepository.findByNickname(userInfo.getNickname())
-                .filter(userEntity -> userDto.getEmail().equals(userEntity.getEmail()))
-                .map(user -> {
-                    user.setNickname(userDto.getNickname());
-                    UserEntity savedUser = userRepository.save(user);
-                    return UserDto.builder()
-                            .id(savedUser.getId())
-                            .name(savedUser.getName())
-                            .nickname(savedUser.getNickname())
-                            .email(savedUser.getEmail())
-                            .providerType(savedUser.getProviderType())
-                            .role(savedUser.getRole())
-                            .build();
-                })
-                .orElse(null);
+        try {
+            UserEntity userEntity = userRepository.findByNickname(userInfo.getNickname())
+                    .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+            if (!userEntity.getEmail().equals(userDto.getEmail())) {
+                throw new IllegalArgumentException("이메일이 일치하지 않습니다.");
+            }
+
+            if (userRepository.findByNickname(userDto.getNickname()).isPresent()) {
+                throw new IllegalArgumentException("중복된 닉네임입니다.");
+            }
+
+            userEntity.setNickname(userDto.getNickname());
+            UserEntity updatedUser = userRepository.save(userEntity);
+
+            return UserDto.builder()
+                    .id(updatedUser.getId())
+                    .name(updatedUser.getName())
+                    .nickname(updatedUser.getNickname())
+                    .email(updatedUser.getEmail())
+                    .providerType(updatedUser.getProviderType())
+                    .role(updatedUser.getRole())
+                    .build();
+        } catch (IllegalArgumentException e) {
+            log.error("Duplicate nickname error: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Error updating user: {}", e.getMessage());
+            throw new RuntimeException("사용자 업데이트 중 문제가 발생했습니다.", e);
+        }
     }
 
     @Override
     public boolean delete(UserInfo userInfo, UserDto userDto) {
-        return userRepository.findByNickname(userInfo.getNickname())
-                .filter(userEntity -> userDto.getEmail().equals(userEntity.getEmail()))
-                .map(user -> {
-                    userRepository.delete(user);
-                    return true;
-                })
-                .orElse(false);
+        try {
+            return userRepository.findByNickname(userInfo.getNickname())
+                    .filter(userEntity -> userDto.getEmail().equals(userEntity.getEmail()))
+                    .map(user -> {
+                        userRepository.delete(user);
+                        return true;
+                    })
+                    .orElse(false);
+        } catch (Exception e) {
+            log.error("Error deleting user: {}", e.getMessage());
+            throw new RuntimeException("사용자 삭제 중 문제가 발생했습니다.", e);
+        }
     }
 
     private String getRandomItem(List<String> items) {
-        Random random = new Random();
-        int index = random.nextInt(items.size());
-        return items.get(index);
+        try {
+            Random random = new Random();
+            int index = random.nextInt(items.size());
+            return items.get(index);
+        } catch (Exception e) {
+            log.error("Error getting random item: {}", e.getMessage());
+            throw new RuntimeException("랜덤 항목 선택 중 문제가 발생했습니다.", e);
+        }
     }
 
     @Override
     public boolean logout(OAuthProvider oAuthProvider, HttpSession session) {
-        log.info("LogOut {}", oAuthProvider);
-        boolean response = OAuthService.revoke(oAuthProvider, session);
+        try {
+            log.info("LogOut {}", oAuthProvider);
+            boolean response = oAuthService.revoke(oAuthProvider, session);
 
-        if (response) {
-            session.invalidate();
+            if (response) {
+                session.invalidate();
+            }
+            return response;
+        } catch (Exception e) {
+            log.error("Error logging out: {}", e.getMessage());
+            throw new RuntimeException("로그아웃 처리 중 문제가 발생했습니다.", e);
         }
-        return response;
     }
 
     private static final List<String> ADJECTIVES = List.of(

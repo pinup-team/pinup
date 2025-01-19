@@ -2,14 +2,17 @@ package kr.co.pinup.users.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import kr.co.pinup.oauth.OAuthLoginParams;
-import kr.co.pinup.oauth.google.GoogleLoginParams;
-import kr.co.pinup.oauth.naver.NaverLoginParams;
+import kr.co.pinup.users.oauth.OAuthLoginParams;
+import kr.co.pinup.users.oauth.google.GoogleLoginParams;
+import kr.co.pinup.users.oauth.naver.NaverLoginParams;
 import kr.co.pinup.users.model.UserDto;
 import kr.co.pinup.users.model.UserInfo;
+import kr.co.pinup.users.model.loginUser.LoginUser;
 import kr.co.pinup.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +25,7 @@ import java.util.Optional;
 @RequestMapping("/users")
 public class UserController {
     private final UserService userService;
+    private final HttpSession session;
 
     @GetMapping("/login")
     public String login() {
@@ -30,110 +34,117 @@ public class UserController {
 
     @GetMapping("/oauth/naver")
     public String loginNaver(@ModelAttribute NaverLoginParams params,
-                             HttpServletRequest request) {
+                             HttpServletRequest request, Model model) {
         log.info("move to login naver");
-        return loginProcess(params, request);
+        return loginProcess(params, request, model);
     }
 
     @GetMapping("/oauth/google")
     public String loginGoogle(@ModelAttribute GoogleLoginParams params,
-                              HttpServletRequest request) {
+                              HttpServletRequest request, Model model) {
         log.info("move to login google");
-        return loginProcess(params, request);
+        return loginProcess(params, request, model);
     }
 
-    private String loginProcess(OAuthLoginParams params, HttpServletRequest request) {
-        return Optional.ofNullable(request.getSession(true))
-                .map(session -> userService.login(params, session))
-                .map(userInfo -> {
-                    request.getSession().setAttribute("userInfo", userInfo);
-                    return "redirect:/";
-                })
-                .orElseGet(() -> handleError(request.getSession(), "세션 생성에 실패했습니다.")); // 세션 없으면 에러 처리
+    private String loginProcess(OAuthLoginParams params, HttpServletRequest request, Model model) {
+        try {
+            return Optional.ofNullable(request.getSession(true))
+                    .map(session -> userService.login(params, session))
+                    .map(userInfo -> {
+                        request.getSession().setAttribute("userInfo", userInfo);
+                        return "redirect:/";
+                    })
+                    .orElseGet(() -> {
+                        model.addAttribute("message", "세션 생성에 실패했습니다.");
+                        return "error";
+                    });
+        } catch (OAuth2AuthenticationException e) {
+            log.error("OAuth 인증 실패: {}", e.getMessage());
+            model.addAttribute("message", "OAuth 인증에 실패했습니다.");
+            return "error";
+        } catch (Exception e) {
+            log.error("예상치 못한 오류: {}", e.getMessage());
+            model.addAttribute("message", "로그인 중 예기치 못한 오류가 발생했습니다.");
+            return "error";
+        }
     }
 
     @GetMapping("/profile")
-    public String userProfile(HttpServletRequest request, Model model) {
-        return getSession(request)
-                .map(session -> {
-                    UserInfo userInfo = (UserInfo) session.getAttribute("userInfo");
-                    if (userInfo == null) {
-                        return handleError(session, "UserInfo is null");
+    public String userProfile(@LoginUser UserInfo userInfo, Model model) {
+        return Optional.ofNullable(userInfo)
+                .map(user -> {
+                    UserDto userDto = userService.findUser(user);
+                    if (userDto == null) {
+                        log.error("User not found for: {}", user);
+                        model.addAttribute("message", "사용자를 찾을 수 없습니다.");
+                        return "error";
                     }
-                    UserDto user = userService.findUser(userInfo);
-                    if (user == null) {
-                        return handleError(session, "User is null");
-                    }
-                    model.addAttribute("profile", user);
+                    model.addAttribute("profile", userDto);
                     return "/users/profile";
                 })
-                .orElseGet(() -> handleError(request.getSession(), "no_session_exists"));
+                .orElseGet(() -> {
+                    log.error("User info not found in session");
+                    model.addAttribute("message", "로그인 정보가 없습니다.");
+                    return "error";
+                });
     }
 
+    // todo nickname 추천해주는거?
     @GetMapping("/nickname")
-    public String makeNickname(HttpServletRequest request, Model model) {
-        return getSession(request)
-                .map(session -> {
+    public String makeNickname(@LoginUser UserInfo userInfo, Model model) {
+        return Optional.ofNullable(userInfo)
+                .map(user -> {
                     model.addAttribute("nickname", userService.makeNickname());
                     return "/users/profile";
                 })
-                .orElseGet(() -> handleError(request.getSession(), "no_session_exists"));
+                .orElseGet(() -> {
+                    model.addAttribute("message", "로그인 정보가 없습니다.");
+                    return "error";
+                });
     }
 
-    @PostMapping
-    public String update(@ModelAttribute UserDto userDto, HttpServletRequest request, Model model) {
-        return getSession(request)
-                .map(session -> {
-                    UserInfo userInfo = (UserInfo) session.getAttribute("userInfo");
-                    UserDto user = userService.update(userInfo, userDto);
-                    if (user != null) {
-                        userInfo.setNickname(userDto.getNickname());
-                        session.setAttribute("userInfo", userInfo);
-                        model.addAttribute("profile", user);
-                        return "redirect:/users/profile";
+    @PatchMapping
+    public ResponseEntity<?> update(@RequestBody UserDto userDto, @LoginUser UserInfo userInfo) {
+        return Optional.ofNullable(userInfo)
+                .map(user -> {
+                    UserDto updatedUser = userService.update(user, userDto);
+                    if (updatedUser != null) {
+                        user.setNickname(userDto.getNickname());
+                        session.setAttribute("userInfo", user);
+                        return ResponseEntity.ok("닉네임이 변경되었습니다.");
                     } else {
-                        return handleError(session, "user update failed");
+                        return ResponseEntity.badRequest().body("중복된 닉네임입니다.");
                     }
                 })
-                .orElseGet(() -> handleError(request.getSession(), "no_session_exists"));
+                .orElseGet(() -> ResponseEntity.status(403).body("로그인 정보가 없습니다."));
     }
 
     @DeleteMapping
-    public String delete(@RequestBody UserDto userDto, HttpServletRequest request) {
-        System.out.println("UserDto : " + userDto);
-        return getSession(request)
-                .map(session -> {
-                    UserInfo userInfo = (UserInfo) session.getAttribute("userInfo");
-                    if (userService.delete(userInfo, userDto)) {
+    public ResponseEntity<?> delete(@RequestBody UserDto userDto, @LoginUser UserInfo userInfo) {
+        return Optional.ofNullable(userInfo)
+                .map(user -> {
+                    if (userService.delete(user, userDto)) {
                         session.removeAttribute("userInfo");
-                        return "redirect:/";
+                        session.invalidate();
+                        return ResponseEntity.ok("탈퇴 성공");
                     } else {
-                        return handleError(session, "user delete failed");
+                        return ResponseEntity.badRequest().body("사용자 탈퇴 실패");
                     }
                 })
-                .orElseGet(() -> handleError(request.getSession(), "no_session_exists"));
+                .orElseGet(() -> {
+                    return ResponseEntity.status(403).body("로그인 정보가 없습니다.");
+                });
     }
 
     @PostMapping("/logout")
-    public String logout(HttpServletRequest request) {
-        return getSession(request)
-                .map(session -> {
-                    UserInfo userInfo = (UserInfo) session.getAttribute("userInfo");
-                    boolean response = userService.logout(userInfo.getProvider(), session);
-                    return response ? "redirect:/" : handleError(session, "logout_failed");
+    public ResponseEntity<?> logout(@LoginUser UserInfo userInfo) {
+        return Optional.ofNullable(userInfo)
+                .map(user -> {
+                    boolean response = userService.logout(user.getProvider(), session);
+                    return response ? ResponseEntity.ok("로그아웃 성공") : ResponseEntity.badRequest().body("로그아웃 실패");
                 })
-                .orElseGet(() -> handleError(request.getSession(), "no_session_exists"));
-    }
-
-    private Optional<HttpSession> getSession(HttpServletRequest request) {
-        return Optional.ofNullable(request.getSession(false))
-                .filter(session -> !session.isNew());
-    }
-
-    private String handleError(HttpSession session, String message) {
-        log.error("Error: {}", message);
-        session.setAttribute("error", "error");
-        session.setAttribute("message", message);
-        return "redirect:/error";
+                .orElseGet(() -> {
+                    return ResponseEntity.status(403).body("로그인 정보가 없습니다.");
+                });
     }
 }

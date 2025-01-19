@@ -1,13 +1,15 @@
-package kr.co.pinup.oauth.google;
+package kr.co.pinup.users.oauth.google;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import kr.co.pinup.oauth.OAuthProvider;
-import kr.co.pinup.oauth.OAuthResponse;
+import kr.co.pinup.users.oauth.OAuthProvider;
+import kr.co.pinup.users.oauth.OAuthResponse;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GoogleResponse implements OAuthResponse {
     private String sub;

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:fragment="headerFragment">
+<header>
+    <div class="container">
+        <div class="logo">
+            <a href="/" th:text="'PinUp'">PinUp</a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/" th:href="@{/}">Home</a></li>
+                <li><a href="/about" th:href="@{/about}">About</a></li>
+                <li><a href="/services" th:href="@{/services}">Services</a></li>
+                <li><a href="/contact" th:href="@{/contact}">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="user-actions">
+            <a href="/login" th:href="@{/templates/users/login}">Login</a>
+        </div>
+    </div>
+</header>
+</html>

@@ -1,11 +1,11 @@
-package kr.co.pinup.oauth.naver;
+package kr.co.pinup.users.oauth.naver;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.config.OauthConfig;
-import kr.co.pinup.oauth.OAuthApiClient;
-import kr.co.pinup.oauth.OAuthLoginParams;
-import kr.co.pinup.oauth.OAuthProvider;
+import kr.co.pinup.users.oauth.OAuthApiClient;
+import kr.co.pinup.users.oauth.OAuthLoginParams;
+import kr.co.pinup.users.oauth.OAuthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -76,6 +76,7 @@ public class NaverApiClient implements OAuthApiClient {
                 .retrieve()
                 .bodyToMono(NaverToken.class)
                 .block();
+        assert tokenResponse != null;
         return tokenResponse.getAccessToken() == null;
     }
 }

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>PinUp</title>
+    <link rel="shortcut icon" href="#">
+</head>
+<body>
+<!-- header -->
+<header th:replace="fragment/header :: headerFragment"></header>
+
+<!-- content -->
+<div layout:replace="${content}"></div>
+
+<!-- footer -->
+<footer th:replace="fragment/footer :: footerFragment"></footer>
+</body>
+</html>

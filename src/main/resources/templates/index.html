@@ -1,49 +1,30 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}"
       xmlns:oauth="http://oauth">
-<head>
-    <meta charset="UTF-8">
-    <title>Pinup</title>
-</head>
-<body>
-<div>Header</div>
-<th:block th:if="${session.userInfo == null}">
-    <a oauth:naverLoginUrl="커스텀 uri">
-        <button>NAVER 로그인</button>
-    </a>
-    <a oauth:googleLoginUrl="커스텀 uri">
-        <button>GOOGLE 로그인</button>
-    </a>
-    <p>
-    <button onclick="window.location.href='/users/login'">로그인</button>
-    </p>
-</th:block>
 
-<th:block th:if="${session.userInfo != null}">
-    <button th:onclick="logout()">로그아웃</button>
-    <button onclick="window.location.href='/users/profile'">마이페이지</button>
-    <p>Name: <span th:text="${session.userInfo.nickname}">NickName</span></p>
-    <p>Role: <span th:text="${session.userInfo.role}">Role</span></p>
-    <p>Provider: <span th:text="${session.userInfo.provider}">Provider</span></p>
-</th:block>
-<div>Footer</div>
-</body>
+<div layout:fragment="content">
+    <th:block th:if="${session.userInfo == null}">
+        <a oauth:naverLoginUrl="커스텀 uri">
+            <button>NAVER 로그인</button>
+        </a>
+        <a oauth:googleLoginUrl="커스텀 uri">
+            <button>GOOGLE 로그인</button>
+        </a>
+        <p>
+            <button onclick="window.location.href='users/login'">로그인</button>
+        </p>
+    </th:block>
+
+    <th:block th:if="${session.userInfo != null}">
+        <button th:onclick="logOut()">로그아웃</button>
+        <button onclick="window.location.href='users/profile'">마이페이지</button>
+        <p>Name: <span th:text="${session.userInfo.nickname}">NickName</span></p>
+        <p>Role: <span th:text="${session.userInfo.role}">Role</span></p>
+        <p>Provider: <span th:text="${session.userInfo.provider}">Provider</span></p>
+    </th:block>
+</div>
 </html>
 
-<script>
-    function logout() {
-        fetch('/users/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-            .then(response => {
-                if (response.redirected) {
-                    window.location.href = response.url;
-                }
-            })
-            .then(data => console.log(data))
-            .catch(error => console.error('There was a problem with the fetch operation:', error));
-    }
-</script>
+<script src="/js/User.js"></script>

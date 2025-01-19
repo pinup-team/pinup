@@ -1,6 +1,6 @@
 package kr.co.pinup.config;
 
-import kr.co.pinup.customTag.CustomDialect;
+import kr.co.pinup.users.oauth.customTag.CustomDialect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.thymeleaf.spring6.SpringTemplateEngine;

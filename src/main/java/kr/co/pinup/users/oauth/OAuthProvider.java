@@ -1,4 +1,4 @@
-package kr.co.pinup.oauth;
+package kr.co.pinup.users.oauth;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

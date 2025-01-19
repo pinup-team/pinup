@@ -1,15 +1,17 @@
-package kr.co.pinup.oauth.google;
+package kr.co.pinup.users.oauth.google;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.config.OauthConfig;
-import kr.co.pinup.oauth.OAuthApiClient;
-import kr.co.pinup.oauth.OAuthLoginParams;
-import kr.co.pinup.oauth.OAuthProvider;
+import kr.co.pinup.users.oauth.OAuthApiClient;
+import kr.co.pinup.users.oauth.OAuthLoginParams;
+import kr.co.pinup.users.oauth.OAuthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -40,7 +42,7 @@ public class GoogleApiClient implements OAuthApiClient {
                 .body(BodyInserters.fromFormData("grant_type", googleRegistration.getAuthorizationGrantType())
                         .with("client_id", googleRegistration.getClientId())
                         .with("client_secret", googleRegistration.getClientSecret())
-                        .with("code", params.makeParams().getFirst("code"))
+                        .with("code", Objects.requireNonNull(params.makeParams().getFirst("code")))
                         .with("redirect_uri", googleRegistration.getRedirectUri()))
                 .retrieve()
                 .bodyToMono(GoogleToken.class)
@@ -64,7 +66,7 @@ public class GoogleApiClient implements OAuthApiClient {
 
     @Override
     public boolean revokeAccessToken(HttpSession session, String accessToken) {
-        return googleWebClient.post()
+        return Boolean.TRUE.equals(googleWebClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")
                         .host("oauth2.googleapis.com")
@@ -75,6 +77,6 @@ public class GoogleApiClient implements OAuthApiClient {
                 .retrieve()
                 .toBodilessEntity()
                 .map(responseEntity -> responseEntity.getStatusCode().is2xxSuccessful())
-                .block();
+                .block());
     }
 }

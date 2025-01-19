@@ -1,7 +1,7 @@
-package kr.co.pinup.oauth.naver;
+package kr.co.pinup.users.oauth.naver;
 
-import kr.co.pinup.oauth.OAuthLoginParams;
-import kr.co.pinup.oauth.OAuthProvider;
+import kr.co.pinup.users.oauth.OAuthLoginParams;
+import kr.co.pinup.users.oauth.OAuthProvider;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.LinkedMultiValueMap;

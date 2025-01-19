@@ -1,9 +1,11 @@
-package kr.co.pinup.oauth.google;
+package kr.co.pinup.users.oauth.google;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
 @Getter
 @NoArgsConstructor
 public class GoogleToken {

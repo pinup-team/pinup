@@ -1,0 +1,91 @@
+spring:
+  application:
+    name: pinup
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/pinup
+    username: pinup
+    password: rlaehgmlWkd0106
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database: postgresql
+    properties:
+      hibernate:
+        format_sql: true
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          naver:
+            client-id: test-naver-id
+            client-secret: test-naver-secret
+            scope:
+              - name
+              - email
+            client-name: Naver
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8888/test/users/oauth/naver
+          google:
+            client-id: test-google-id
+            client-secret: test-google-secret
+            scope:
+              - profile
+              - email
+            client-name: Google
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:8888/test/users/oauth/google
+
+        provider:
+          naver:
+            authorization-uri: http://localhost:8888/test/users/naver/authorize
+            token-uri: http://localhost:8888/test/users/naver/token
+            user-info-uri: http://localhost:8888/test/users/naver/userInfo
+            user-name-attribute: response
+          google:
+            authorization-uri: http://localhost:8888/test/users/google/authorize
+            token-uri: http://localhost:8888/test/users/google/token
+            user-info-uri: http://localhost:8888/test/users/google/userInfo
+            user-name-attribute: sub
+
+springdoc:
+  packages-to-scan: com.colabear754.springdoc_example.controllers
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /springdoc.html
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operations-sorter: alpha
+
+server:
+  servlet:
+    context-path: /
+    encoding:
+      enabled: true
+      charset: UTF-8
+      force: true
+  port: 8888
+
+logging:
+  level:
+    root: INFO  # 전체 애플리케이션의 기본 로그 레벨을 INFO로 설정
+    org.springframework.web: DEBUG  # Spring Web 관련 로그는 DEBUG로 설정
+    org.springframework.security: DEBUG  # Spring Security 관련 로그는 DEBUG로 설정
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.colabear754: TRACE  # 사용자 패키지(com.colabear754) 관련 로그는 TRACE로 설정 (세밀한 로그 기록)
+    org.springframework.boot: INFO  # Spring Boot 관련 로그는 INFO 레벨로 설정
+    org.springframework.context: DEBUG  # Spring Context 관련 로그는 DEBUG로 설정
+#    com.zaxxer.hikari: DEBUG  # HikariCP 관련 로그는 DEBUG로 설정 (데이터베이스 커넥션 풀 정보)

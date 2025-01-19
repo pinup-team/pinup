@@ -1,7 +1,7 @@
-package kr.co.pinup.oauth.google;
+package kr.co.pinup.users.oauth.google;
 
-import kr.co.pinup.oauth.OAuthLoginParams;
-import kr.co.pinup.oauth.OAuthProvider;
+import kr.co.pinup.users.oauth.OAuthLoginParams;
+import kr.co.pinup.users.oauth.OAuthProvider;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.LinkedMultiValueMap;
