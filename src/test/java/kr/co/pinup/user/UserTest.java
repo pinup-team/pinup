@@ -18,12 +18,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.sql.DataSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
@@ -36,6 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 @SpringBootTest
 @AutoConfigureMockMvc
+@ActiveProfiles("test")
 @ContextConfiguration(classes = PinupApplication.class)
 public class UserTest {
 
@@ -48,49 +54,34 @@ public class UserTest {
     @InjectMocks
     private UserController userController;
 
+    @Autowired
+    private static JdbcTemplate jdbcTemplate;
+
     private MockHttpSession session;
     private ObjectMapper objectMapper;
 
-    private UserInfo testInfo;
-    private UserDto testDto;
-    private UserInfo mockTestInfo;
-    private UserDto mockTestDto;
+    private UserInfo testInfo = new UserInfo("네이버TestUser", OAuthProvider.NAVER, UserRole.ROLE_USER);
+    private UserDto testDto = new UserDto("test", "test@naver.com", "네이버TestUser", OAuthProvider.NAVER, UserRole.ROLE_USER);
+
+    private UserInfo mockTestInfo = new UserInfo("mockNickname", OAuthProvider.NAVER, UserRole.ROLE_USER);
+    private UserDto mockTestDto = new UserDto("mock", "mock@naver.com", "mockNickname", OAuthProvider.NAVER, UserRole.ROLE_USER);
 
     @BeforeEach
     void setUp() {
+        DataSource dataSource = new DriverManagerDataSource("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1", "sa", "");
+        jdbcTemplate = new JdbcTemplate(dataSource);
+
+        jdbcTemplate.update("INSERT INTO users (name, email, nickname, provider_type, provider_id, role) VALUES (?, ?, ?, ?, ?, ?)",
+                "test", "test@naver.com", "네이버TestUser", "NAVER", "123456789","ROLE_USER");
+
         mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
         session = new MockHttpSession();
         objectMapper = new ObjectMapper();
-        testInfo = UserInfo.builder()
-                .nickname("어리석은대추나무")
-                .provider(OAuthProvider.NAVER)
-                .role(UserRole.ROLE_USER)
-                .build();
-        testDto = UserDto.builder()
-                .name("김도희")
-                .email("runa0601019@naver.com")
-                .nickname("어리석은대추나무")
-                .providerType(OAuthProvider.NAVER)
-                .role(UserRole.ROLE_USER)
-                .build();
-
-
-        mockTestInfo = UserInfo.builder()
-                .nickname("testNickname")
-                .provider(OAuthProvider.NAVER)
-                .role(UserRole.ROLE_USER)
-                .build();
-        mockTestDto = UserDto.builder()
-                .name("test")
-                .email("test@naver.com")
-                .nickname("testNickname")
-                .providerType(OAuthProvider.NAVER)
-                .role(UserRole.ROLE_USER)
-                .build();
     }
 
     @AfterEach
     void tearDown() {
+        jdbcTemplate.update("DELETE FROM users");
         session.clearAttributes();
     }
 
@@ -173,9 +164,6 @@ public class UserTest {
     class updateUser {
         @Test
         void 수정_성공() throws Exception {
-//            UserInfo userInfo = new UserInfo("어리석은대추나무", OAuthProvider.NAVER, UserRole.ROLE_USER);
-//            UserDto userDto = new UserDto("김도희", "runa0601019@naver.com", "완벽한나무늘보", OAuthProvider.NAVER, UserRole.ROLE_USER);
-
             given(userService.update(testInfo, testDto)).willReturn(testDto);
 
             mockMvc.perform(MockMvcRequestBuilders.patch("/users")
@@ -189,7 +177,7 @@ public class UserTest {
 
         @Test
         void 수정_실패_중복닉네임() throws Exception {
-            UserDto userDto = new UserDto("김도희", "runa0601019@naver.com", "조용한고래", OAuthProvider.NAVER, UserRole.ROLE_USER);
+            UserDto userDto = new UserDto("test", "test@naver.com", "조용한고래", OAuthProvider.NAVER, UserRole.ROLE_USER);
 
             given(userService.update(testInfo, userDto)).willThrow(new IllegalArgumentException("\""+userDto.getNickname()+"\"은 중복된 닉네임입니다."));
 //            given(userService.update(mockUserInfo, userDto)).willReturn(userDto);
