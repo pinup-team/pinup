@@ -37,5 +37,7 @@ out/
 .vscode/
 
 # Application YAML configuration
-/application.yml
-/application-test.yml
+application.yml
+
+# MAC OS
+.DS_Store
