@@ -63,7 +63,7 @@ class NoticeApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/notices")
+        mockMvc.perform(post("/api/notices")
                 .contentType(APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isCreated())
@@ -81,7 +81,7 @@ class NoticeApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/notices")
+        mockMvc.perform(post("/api/notices")
                 .contentType(APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isBadRequest())
@@ -104,7 +104,7 @@ class NoticeApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/notices")
+        mockMvc.perform(post("/api/notices")
                 .contentType(APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isBadRequest())
@@ -126,7 +126,7 @@ class NoticeApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/notices")
+        mockMvc.perform(post("/api/notices")
                 .contentType(APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isBadRequest())
@@ -149,7 +149,7 @@ class NoticeApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/notices")
+        mockMvc.perform(post("/api/notices")
                 .contentType(APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isBadRequest())
@@ -174,7 +174,7 @@ class NoticeApiControllerTest {
         given(noticeService.findAll()).willReturn(notices);
 
         // expected
-        mockMvc.perform(get("/notices"))
+        mockMvc.perform(get("/api/notices"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(10))
                 .andExpect(jsonPath("$[0].title").exists())
@@ -197,7 +197,7 @@ class NoticeApiControllerTest {
         given(noticeService.find(noticeId)).willReturn(notice);
 
         // expected
-        mockMvc.perform(get("/notices/{noticeId}", noticeId))
+        mockMvc.perform(get("/api/notices/{noticeId}", noticeId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").exists())
                 .andExpect(jsonPath("$.content").exists())
@@ -216,7 +216,7 @@ class NoticeApiControllerTest {
         when(noticeService.find(noticeId)).thenThrow(new NoticeNotFound());
 
         // expected
-        mockMvc.perform(get("/notices/{noticeId}", noticeId))
+        mockMvc.perform(get("/api/notices/{noticeId}", noticeId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value("NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("공지사항이 존재하지 않습니다."))
@@ -235,7 +235,7 @@ class NoticeApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(put("/notices/{noticeId}", noticeId)
+        mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isNoContent())
@@ -253,7 +253,7 @@ class NoticeApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(put("/notices/{noticeId}", noticeId)
+        mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest())
@@ -277,7 +277,7 @@ class NoticeApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(put("/notices/{noticeId}", noticeId)
+        mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest())
@@ -305,7 +305,7 @@ class NoticeApiControllerTest {
         doThrow(new NoticeNotFound()).when(noticeService).update(noticeId, request);
 
         // expected
-        mockMvc.perform(put("/notices/{noticeId}", noticeId)
+        mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isNotFound())
@@ -324,7 +324,7 @@ class NoticeApiControllerTest {
         doNothing().when(noticeService).remove(noticeId);
 
         // expected
-        mockMvc.perform(delete("/notices/{noticeId}", noticeId))
+        mockMvc.perform(delete("/api/notices/{noticeId}", noticeId))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
@@ -339,7 +339,7 @@ class NoticeApiControllerTest {
         doThrow(new NoticeNotFound()).when(noticeService).remove(noticeId);
 
         // expected
-        mockMvc.perform(MockMvcRequestBuilders.delete("/notices/{noticeId}", noticeId))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/notices/{noticeId}", noticeId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value("NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("공지사항이 존재하지 않습니다."))

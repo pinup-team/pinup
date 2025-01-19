@@ -52,7 +52,7 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/faqs")
+        mockMvc.perform(post("/api/faqs")
                 .contentType(APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isCreated())
@@ -71,7 +71,7 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/faqs")
+        mockMvc.perform(post("/api/faqs")
                 .contentType(APPLICATION_JSON)
                 .content(body))
                 .andExpect(status().isBadRequest())
@@ -94,7 +94,7 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/faqs")
+        mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest())
@@ -118,7 +118,7 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/faqs")
+        mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest())
@@ -142,7 +142,7 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/faqs")
+        mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest())
@@ -166,7 +166,7 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(post("/faqs")
+        mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest())
@@ -194,7 +194,7 @@ class FaqApiControllerTest {
         given(faqService.findAll()).willReturn(response);
 
         // expected
-        mockMvc.perform(get("/faqs"))
+        mockMvc.perform(get("/api/faqs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(5))
                 .andExpect(jsonPath("$[0].category").exists())
@@ -221,7 +221,7 @@ class FaqApiControllerTest {
         given(faqService.find(faqId)).willReturn(response);
 
         // expected
-        mockMvc.perform(get("/faqs/{faqId}", faqId))
+        mockMvc.perform(get("/api/faqs/{faqId}", faqId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.category").exists())
                 .andExpect(jsonPath("$.question").exists())
@@ -241,7 +241,7 @@ class FaqApiControllerTest {
         when(faqService.find(faqId)).thenThrow(new FaqNotFound());
 
         // expected
-        mockMvc.perform(get("/faqs/{faqId}", faqId))
+        mockMvc.perform(get("/api/faqs/{faqId}", faqId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value("NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("FAQ가 존재하지 않습니다."))
@@ -263,7 +263,7 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(put("/faqs/{faqId}", faqId)
+        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isNoContent())
@@ -284,7 +284,7 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(put("/faqs/{faqId}", faqId)
+        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest())
@@ -310,7 +310,7 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(put("/faqs/{faqId}", faqId)
+        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest())
@@ -336,7 +336,7 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(put("/faqs/{faqId}", faqId)
+        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest())
@@ -362,7 +362,7 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // expected
-        mockMvc.perform(put("/faqs/{faqId}", faqId)
+        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isBadRequest())
@@ -392,7 +392,7 @@ class FaqApiControllerTest {
         doThrow(new FaqNotFound()).when(faqService).update(faqId, request);
 
         // expected
-        mockMvc.perform(put("/faqs/{faqId}", faqId)
+        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isNotFound())
@@ -411,7 +411,7 @@ class FaqApiControllerTest {
         doNothing().when(faqService).remove(faqId);
 
         // expected
-        mockMvc.perform(delete("/faqs/{faqId}", faqId))
+        mockMvc.perform(delete("/api/faqs/{faqId}", faqId))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
@@ -426,7 +426,7 @@ class FaqApiControllerTest {
         doThrow(new FaqNotFound()).when(faqService).remove(faqId);
 
         // expected
-        mockMvc.perform(delete("/faqs/{faqId}", faqId))
+        mockMvc.perform(delete("/api/faqs/{faqId}", faqId))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value("NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("FAQ가 존재하지 않습니다."))
