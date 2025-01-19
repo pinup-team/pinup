@@ -9,10 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<PostEntity, Long> {
-    // 특정 행사 ID로 게시글 목록 조회
     List<PostEntity> findByStoreId(Long storeId);
 
-    // 게시글 ID로 조회
     Optional<PostEntity> findById(Long id);
 
 }

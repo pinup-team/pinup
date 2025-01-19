@@ -12,13 +12,12 @@ import lombok.NoArgsConstructor;
 public class ErrorResponse {
     private String error;
     private String message;
-    private String details;  // 추가 정보 (선택적)
+    private String details;
 
     public ErrorResponse(String error, String message) {
         this.error = error;
         this.message = message;
     }
 
-    // Getters and Setters
 }
 

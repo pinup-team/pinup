@@ -2,60 +2,74 @@ package kr.co.pinup.posts.controller;
 
 import kr.co.pinup.posts.model.dto.CommentDto;
 import kr.co.pinup.posts.service.CommentService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.times;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.testcontainers.shaded.com.github.dockerjava.core.MediaType;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(CommentController.class)  // CommentController만 테스트합니다.
+@ExtendWith(MockitoExtension.class)  // Mockito 확장자를 사용하여 Mockito 테스트를 진행
 class CommentControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;  // HTTP 요청을 보내고 결과를 검증하는 MockMvc 객체
+    @InjectMocks
+    private CommentController commentController;
 
-    @MockBean
-    private CommentService commentService;  // CommentService는 Mock 객체로 주입됩니다.
+    @Mock
+    private CommentService commentService;
 
-    private Long postId = 1L; // 테스트용 postId
+    private MockMvc mockMvc;
+    private ObjectMapper objectMapper;
 
-    // 댓글 생성 테스트
+    @BeforeEach
+    void setUp() {
+        objectMapper = new ObjectMapper();  // ObjectMapper 명시적 초기화
+        mockMvc = MockMvcBuilders.standaloneSetup(commentController).build();
+    }
+
     @Test
     public void testCreateComment() throws Exception {
         // given
+        Long postId = 1L;
         CommentDto commentDto = new CommentDto();
         commentDto.setContent("This is a test comment");
         commentDto.setUserId(1L);
 
-        // when & then
-        mockMvc.perform(put("/comment/" + postId)
-                        .flashAttr("commentDto", commentDto))  // flash attributes 사용
-                .andExpect(status().is3xxRedirection())  // 리다이렉트 상태 확인
-                .andExpect(redirectedUrl("/post/detail/" + postId));
+        CommentDto createdComment = new CommentDto();
+        createdComment.setContent("This is a test comment");
+        createdComment.setUserId(1L);
+
+        // when
+        when(commentService.createComment(any(CommentDto.class))).thenReturn(createdComment);
+
+        // then
+        mockMvc.perform(put("/comment/{postId}", postId)
+                        .contentType(String.valueOf(MediaType.APPLICATION_JSON))
+                        .content(objectMapper.writeValueAsString(commentDto)))
+                .andExpect(status().isCreated())  // 상태 코드가 201 Created인지 확인
+                .andExpect(jsonPath("$.content").value("This is a test comment"))  // 응답 본문에 포함된 내용 확인
+                .andExpect(jsonPath("$.userId").value(1L));
+        verify(commentService).createComment(any(CommentDto.class));
     }
 
-    // 댓글 삭제 테스트
     @Test
     public void testDeleteComment() throws Exception {
-        // given
+
         Long commentId = 1L;
-        Long postId = 1L;
 
-        // when & then
-        mockMvc.perform(MockMvcRequestBuilders.delete("/comment/{commentId}", commentId)  // HTTP DELETE 요청
-                        .param("postId", String.valueOf(postId)))  // postId를 요청 파라미터로 넘깁니다.
-                .andExpect(status().is3xxRedirection())  // 리디렉션 상태 코드 검증
-                .andExpect(redirectedUrl("/post/detail/" + postId));  // 리디렉션 URL 검증
-
-        // commentService.deleteComment 메소드가 1번 호출됐는지 검증
+        mockMvc.perform(delete("/comment/{commentId}", commentId))
+                .andExpect(status().isOk());
         verify(commentService, times(1)).deleteComment(commentId);
     }
 }

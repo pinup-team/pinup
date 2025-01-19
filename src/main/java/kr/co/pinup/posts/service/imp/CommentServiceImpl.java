@@ -35,18 +35,17 @@ public class CommentServiceImpl implements CommentService {
         if (!commentRepository.existsById(commentId)) {
             throw new CommentNotFoundException("댓글을 찾을 수 없습니다.");
         }
-        commentRepository.deleteById(commentId);
+        commentRepository.deleteById(commentId);  // 댓글 삭제
     }
 
     @Override
-    public CommentEntity createComment(CommentDto commentDto) {
+    public CommentDto createComment(CommentDto commentDto) {
         // 게시글이 존재하는지 확인하고 없으면 예외 처리
         PostEntity post = postRepository.findById(commentDto.getPostId())
                 .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다."));
 
-        // 댓글 생성
-        if (commentDto.getContent() == null || commentDto.getContent().isEmpty()) {
-            throw new BadRequestException("댓글 내용이 비어 있습니다.");
+        if (commentDto.getContent().isEmpty()) {
+            throw new BadRequestException("댓글 내용은 비어 있을 수 없습니다.");
         }
 
         CommentEntity comment = CommentEntity.builder()
@@ -54,9 +53,15 @@ public class CommentServiceImpl implements CommentService {
                 .userId(commentDto.getUserId())
                 .content(commentDto.getContent())
                 .createdAt(Instant.now())
+                .updatedAt(Instant.now())
                 .build();
 
-        return commentRepository.save(comment);
+
+        CommentEntity savedComment = commentRepository.save(comment);
+
+        return new CommentDto(savedComment.getPost().getId(), savedComment.getUserId(), savedComment.getContent());
+
     }
 }
+
 

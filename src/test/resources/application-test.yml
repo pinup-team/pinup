@@ -27,44 +27,11 @@ spring:
 cloud:
   aws:
     s3:
-      endpoint: http://192.168.45.32:4566  # LocalStack S3 엔드포인트
+      endpoint: http://172.30.1.36:4566  # LocalStack S3 엔드포인트
       region: us-east-1
     credentials:
       access-key: test
       secret-key: test
 
 
-#spring:
-#  application:
-#    name: pinup-test
-#  # 데이터베이스 설정을 비활성화하거나, 메모리 DB를 사용하도록 설정
-#  datasource:
-#    url: jdbc:h2:mem:testdb  # In-memory H2 DB 사용
-#    driver-class-name: org.h2.Driver
-#    username: sa
-#    password: password
-#  jpa:
-#    hibernate:
-#      ddl-auto: create-drop  # Hibernate 자동 DDL 처리
-#    show-sql: true
-#    properties:
-#      hibernate:
-#        format_sql: true
-#  thymeleaf:
-#    prefix: classpath:/templates/
-#    suffix: .html
-#    cache: false
-#  logging:
-#    level:
-#      org.hibernate.SQL: DEBUG
-#      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
-## application-test.yml (LocalStack 설정 추가)
-#cloud:
-#  aws:
-#    s3:
-#      endpoint: http://192.168.45.122:4566  # LocalStack S3 엔드포인트
-#      region: us-east-1
-#    credentials:
-#      access-key: test
-#      secret-key: test
-#
+

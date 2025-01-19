@@ -1,7 +1,10 @@
 package kr.co.pinup.posts.exception.post;
 
-public class PostPermissionDeniedException extends RuntimeException {
+import kr.co.pinup.posts.exception.globalcustomapp.GlobalCustomException;
+import org.springframework.http.HttpStatus;
+
+public class PostPermissionDeniedException extends GlobalCustomException {
     public PostPermissionDeniedException(String message) {
-        super(message);
+        super(message, HttpStatus.FORBIDDEN);
     }
 }

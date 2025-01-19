@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -13,9 +14,22 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostImageDto {
-    private Long postId;      // 이미지가 속한 게시글의 ID
+    private Long postId;
 
-    private List<MultipartFile> images;   // 게시글과 관련된 이미지 URL들 (PostImageEntity의 s3Url을 전달)
+    private List<MultipartFile> images;
 
-    private List<String> imagesToDelete; // 삭제할 이미지 URL 리스트
+    private List<String> imagesToDelete;
+
+
+    public PostImageDto(List<MultipartFile> images) {
+        this.images = images != null ? images : new ArrayList<>();
+        this.imagesToDelete = new ArrayList<>();
+    }
+
+
+    public PostImageDto(List<MultipartFile> images, List<String> imagesToDelete) {
+        this.images = images != null ? images : new ArrayList<>();
+        this.imagesToDelete = imagesToDelete != null ? imagesToDelete : new ArrayList<>();
+    }
+
 }

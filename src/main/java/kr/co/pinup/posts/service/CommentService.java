@@ -10,5 +10,5 @@ public interface CommentService {
 
     void deleteComment(Long commentId);
 
-    CommentEntity createComment(CommentDto commentDto);
+    CommentDto createComment(CommentDto commentDto);
 }

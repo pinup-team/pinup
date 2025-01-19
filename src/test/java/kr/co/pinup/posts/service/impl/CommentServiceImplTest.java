@@ -23,7 +23,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-@ExtendWith(MockitoExtension.class)  // Mockito 확장을 사용하여 mock 객체를 초기화
+@ExtendWith(MockitoExtension.class)
 public class CommentServiceImplTest {
 
     @Mock
@@ -40,7 +40,6 @@ public class CommentServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        // Test 데이터 준비
         postEntity = PostEntity.builder()
                 .id(1L)
                 .storeId(123L)
@@ -63,13 +62,8 @@ public class CommentServiceImplTest {
 
     @Test
     void findByPostId_PostExists_ReturnsComments() {
-        // given: PostEntity와 관련된 댓글을 반환하도록 mock 설정
         when(commentRepository.findByPostId(1L)).thenReturn(List.of(commentEntity));
-
-        // when: findByPostId 메서드 호출
         List<CommentEntity> result = commentService.findByPostId(1L);
-
-        // then: 결과 검증
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("This is a test comment.", result.get(0).getContent());
@@ -77,58 +71,44 @@ public class CommentServiceImplTest {
 
     @Test
     void deleteComment_CommentExists_DeletesComment() {
-        // given: 댓글이 존재함을 mock 설정
         when(commentRepository.existsById(1L)).thenReturn(true);
-
-        // when: deleteComment 메서드 호출
         commentService.deleteComment(1L);
-
-        // then: deleteById가 호출되었는지 검증
         verify(commentRepository, times(1)).deleteById(1L);
     }
 
     @Test
     void deleteComment_CommentNotFound_ThrowsCommentNotFoundException() {
-        // given: 댓글이 존재하지 않음을 mock 설정
         when(commentRepository.existsById(1L)).thenReturn(false);
-
-        // when & then: deleteComment 메서드 호출 시 예외가 발생하는지 검증
         assertThrows(CommentNotFoundException.class, () -> commentService.deleteComment(1L));
     }
 
     @Test
     void createComment_ValidComment_CreatesComment() {
-        // given: Post가 존재함을 mock 설정
         when(postRepository.findById(1L)).thenReturn(Optional.of(postEntity));
         when(commentRepository.save(any(CommentEntity.class))).thenReturn(commentEntity);
 
-        // when: createComment 메서드 호출
         CommentDto commentDto = new CommentDto(1L, 789L, "This is a test comment.");
-        CommentEntity result = commentService.createComment(commentDto);
+        CommentDto result = commentService.createComment(commentDto);
 
-        // then: 댓글이 생성되었는지 검증
         assertNotNull(result);
         assertEquals("This is a test comment.", result.getContent());
         assertEquals(789L, result.getUserId());
-        assertEquals(postEntity, result.getPost());
+        assertEquals(Long.valueOf(1L), result.getPostId());
+
+        verify(postRepository).findById(1L);
+        verify(commentRepository).save(any(CommentEntity.class));
     }
 
     @Test
     void createComment_PostNotFound_ThrowsPostNotFoundException() {
-        // given: 게시글이 존재하지 않음을 mock 설정
         when(postRepository.findById(1L)).thenReturn(Optional.empty());
-
-        // when & then: createComment 메서드 호출 시 예외가 발생하는지 검증
         CommentDto commentDto = new CommentDto(1L, 789L, "This is a test comment.");
         assertThrows(PostNotFoundException.class, () -> commentService.createComment(commentDto));
     }
 
     @Test
     void createComment_EmptyContent_ThrowsBadRequestException() {
-        // given: 게시글이 존재함을 mock 설정
         when(postRepository.findById(1L)).thenReturn(Optional.of(postEntity));
-
-        // when & then: 빈 댓글 내용일 경우 예외가 발생하는지 검증
         CommentDto commentDto = new CommentDto(1L, 789L, "");
         assertThrows(BadRequestException.class, () -> commentService.createComment(commentDto));
     }

@@ -1,7 +1,10 @@
 package kr.co.pinup.posts.exception.comment;
 
-public class CommentPermissionDeniedException extends RuntimeException {
+import kr.co.pinup.posts.exception.globalcustomapp.GlobalCustomException;
+import org.springframework.http.HttpStatus;
+
+public class CommentPermissionDeniedException extends GlobalCustomException {
     public CommentPermissionDeniedException(String message) {
-        super(message);
+        super(message, HttpStatus.FORBIDDEN);
     }
 }

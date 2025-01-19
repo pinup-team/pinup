@@ -105,10 +105,8 @@ public class PostImageServiceImplTest {
         Long postId = 1L;
         when(postImageRepository.findByPostId(postId)).thenReturn(Collections.emptyList());
 
-        // 실제 서비스 호출
         postImageService.deleteAllByPost(postId);
 
-        // S3와 DB 삭제 메서드가 호출되지 않아야 한다.
         verify(s3Client, never()).deleteObject((DeleteObjectRequest) any());
         verify(postImageRepository, never()).deleteAllByPostId(postId);
     }
@@ -175,7 +173,6 @@ public class PostImageServiceImplTest {
         Long postId = 1L;
         PostImageDto postImageDto = new PostImageDto(Collections.emptyList());
 
-        // 예외가 발생해야 한다
         PostImageNotFoundException exception = assertThrows(PostImageNotFoundException.class, () -> {
             postImageService.deleteSelectedImages(postId, postImageDto);
         });
@@ -241,53 +238,44 @@ public class PostImageServiceImplTest {
 
     @Test
     public void testFindImagesByPostId_withImages() {
-        // Prepare test data
+
         String fileUrl = "https://s3.amazonaws.com/testBucket/testImage.jpg";
         PostImageEntity postImageEntity = new PostImageEntity();
         postImageEntity.setS3Url(fileUrl);
 
-        // 양방향 관계 설정
         postEntity = new PostEntity();
-        postEntity.setId(1L);  // 게시글 ID 설정
+        postEntity.setId(1L);
         postEntity.setTitle("Test Post");
         postEntity.setContent("This is a test post.");
         postEntity.setPostImages(new ArrayList<>());
-        postEntity.getPostImages().add(postImageEntity);  // postEntity에 이미지 추가
-        postImageEntity.setPost(postEntity);  // 양방향 관계 설정
+        postEntity.getPostImages().add(postImageEntity);
+        postImageEntity.setPost(postEntity);
 
-        // Mock repository behavior for findByPostId
-        when(postImageRepository.findByPostId(postEntity.getId())).thenReturn(Arrays.asList(postImageEntity));  // Mock 데이터 반환
+        when(postImageRepository.findByPostId(postEntity.getId())).thenReturn(Arrays.asList(postImageEntity));
 
-        // Mock save behavior
         when(postRepository.save(postEntity)).thenReturn(postEntity);
         when(postImageRepository.save(postImageEntity)).thenReturn(postImageEntity);
 
-        // 실제 데이터베이스에 postEntity 저장
         postEntity = postRepository.save(postEntity);
 
-        // 실제 데이터베이스에 postImageEntity 저장
         postImageRepository.save(postImageEntity);
 
-        // Call the method to be tested
         List<PostImageEntity> result = postImageService.findImagesByPostId(postEntity.getId());
 
-        // Assertions
-        assertNotNull(result);  // Null이 아닌지 확인
-        assertNotNull(result);  // Null이 아닌지 확인
+        assertNotNull(result);
+        assertNotNull(result);
         assertTrue(result.isEmpty() || result.get(0).getS3Url() == null);
     }
 
     @Test
     public void testFindImagesByPostId_noImages() {
-        // Mock repository behavior for findByPostId when there are no images
+
         when(postImageRepository.findByPostId(postEntity.getId())).thenReturn(Collections.emptyList());  // 빈 리스트 반환
 
-        // Call the method to be tested
         List<PostImageEntity> result = postImageService.findImagesByPostId(postEntity.getId());
 
-        // Assertions
-        assertNotNull(result);  // Null이 아닌지 확인
-        assertEquals(0, result.size());  // 이미지가 없으면 0개
+        assertNotNull(result);
+        assertEquals(0, result.size());
     }
 
 }

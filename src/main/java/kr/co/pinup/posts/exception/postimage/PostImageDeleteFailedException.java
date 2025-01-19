@@ -1,11 +1,15 @@
 package kr.co.pinup.posts.exception.postimage;
 
-public class PostImageDeleteFailedException extends RuntimeException {
+import kr.co.pinup.posts.exception.globalcustomapp.GlobalCustomException;
+import org.springframework.http.HttpStatus;
+
+public class PostImageDeleteFailedException extends GlobalCustomException {
+
     public PostImageDeleteFailedException(String message) {
-        super(message);  // 메시지만 전달
+        super(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     public PostImageDeleteFailedException(String message, Throwable cause) {
-        super(message, cause);  // 메시지와 원인 예외를 전달
+        super(message, HttpStatus.INTERNAL_SERVER_ERROR, cause); // 부모 생성자 호출
     }
 }

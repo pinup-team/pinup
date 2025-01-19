@@ -1,7 +1,10 @@
 package kr.co.pinup.posts.exception.post;
 
-public class PostUpdateFailedException extends RuntimeException {
+import kr.co.pinup.posts.exception.globalcustomapp.GlobalCustomException;
+import org.springframework.http.HttpStatus;
+
+public class PostUpdateFailedException extends GlobalCustomException {
     public PostUpdateFailedException(String message) {
-        super(message);
+        super(message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -1,7 +1,10 @@
 package kr.co.pinup.posts.exception.comment;
 
-public class CommentNotFoundException extends RuntimeException {
+import kr.co.pinup.posts.exception.globalcustomapp.GlobalCustomException;
+import org.springframework.http.HttpStatus;
+
+public class CommentNotFoundException extends GlobalCustomException {
     public CommentNotFoundException(String message) {
-        super(message);
+        super(message, HttpStatus.NOT_FOUND);
     }
 }

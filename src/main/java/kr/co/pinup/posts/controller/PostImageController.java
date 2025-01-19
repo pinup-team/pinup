@@ -10,5 +10,4 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class PostImageController {
 
-
 }

@@ -1,5 +1,6 @@
 package kr.co.pinup.posts.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +24,8 @@ public class CommentEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "postid", nullable = false)
-    private PostEntity post; // 게시글과의 관계
+    @JsonIgnore
+    private PostEntity post;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;

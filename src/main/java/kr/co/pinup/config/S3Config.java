@@ -21,31 +21,30 @@ import software.amazon.awssdk.regions.Region;
 public class S3Config {
 
     @Value("${cloud.aws.credentials.accessKey}")
-    private String accessKey;
+    String accessKey;
 
     @Value("${cloud.aws.credentials.secretKey}")
-    private String secretKey;
+    String secretKey;
 
     @Value("${cloud.aws.region.static}")
-    private String region;
+    String region;
 
     @Value("${cloud.aws.s3.endpoint}")
-    private String endpoint;
+    String endpoint;
 
     @Bean
     public S3Client s3Client() {
 
         AwsBasicCredentials awsCredentials = AwsBasicCredentials.create(accessKey, secretKey);
 
-        // LocalStack 엔드포인트가 설정되어 있으면 엔드포인트를 지정
         if (endpoint != null && !endpoint.isEmpty()) {
             return S3Client.builder()
                     .endpointOverride(URI.create(endpoint))
-                    .region(Region.US_EAST_1)  // LocalStack에서 사용하는 리전 (US_EAST_1)
-                    .credentialsProvider(StaticCredentialsProvider.create(awsCredentials)) // LocalStack에서 사용하는 가짜 자격 증명
+                    .region(Region.US_EAST_1)
+                    .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
                     .overrideConfiguration(ClientOverrideConfiguration.builder()
-                            .apiCallTimeout(Duration.ofMinutes(2)) // API 호출 타임아웃 설정
-                            .apiCallAttemptTimeout(Duration.ofSeconds(30)) // 각 시도에 대한 타임아웃 설정
+                            .apiCallTimeout(Duration.ofMinutes(2))
+                            .apiCallAttemptTimeout(Duration.ofSeconds(30))
                             .build()) // 타임아웃 설정
                     .build();
         }

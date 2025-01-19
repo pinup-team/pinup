@@ -3,7 +3,9 @@ package kr.co.pinup.posts.service.imp;
 
 import jakarta.transaction.Transactional;
 import kr.co.pinup.posts.exception.postimage.PostImageDeleteFailedException;
+import kr.co.pinup.posts.exception.postimage.PostImageNotFoundException;
 import kr.co.pinup.posts.exception.postimage.PostImageUploadException;
+import kr.co.pinup.posts.model.dto.PostImageDto;
 import kr.co.pinup.posts.model.entity.PostEntity;
 import kr.co.pinup.posts.model.entity.PostImageEntity;
 import kr.co.pinup.posts.model.repository.PostImageRepository;
@@ -16,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
@@ -39,19 +42,20 @@ public class PostImageServiceImpl implements PostImageService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    // 이미지 파일을 S3에 업로드하고, URL을 DB에 저장하는 로직
+
     @Transactional
     @Override
-    public List<PostImageEntity> savePostImages(List<MultipartFile> images, PostEntity post) {
-        // 파일을 S3에 업로드하고 URL을 리스트로 받음
-        List<String> imageUrls = uploadFiles(images);
+    public List<PostImageEntity> savePostImages(PostImageDto postImageDto, PostEntity post) {
+        if (postImageDto.getImages() == null || postImageDto.getImages().isEmpty()) {
+            throw new PostImageUploadException("업로드할 이미지가 없습니다.");
+        }
 
-        // 이미지 URL을 PostImageEntity로 변환하여 DB에 저장
+        List<String> imageUrls = uploadFiles(postImageDto.getImages());
+
         List<PostImageEntity> postImages = imageUrls.stream()
                 .map(s3Url -> new PostImageEntity(post, s3Url))
                 .collect(Collectors.toList());
 
-        // DB에 이미지 정보 저장
         try {
             postImageRepository.saveAll(postImages);
         } catch (Exception e) {
@@ -65,47 +69,62 @@ public class PostImageServiceImpl implements PostImageService {
     @Override
     public void deleteAllByPost(Long postId) {
         List<PostImageEntity> postImages = postImageRepository.findByPostId(postId);
+        log.info("삭제할 이미지 : , {}",postImages);
 
-        // S3에서 이미지 삭제
+        if (postImages.isEmpty()) {
+            log.info("삭제할 이미지가 없습니다. 게시글 ID: {}", postId);
+            return;
+        }
+
         postImages.forEach(postImage -> {
             String fileUrl = postImage.getS3Url();
-            String fileName = extractFileName(fileUrl); // URL에서 파일 이름 추출
+            String fileName = extractFileName(fileUrl);
             try {
-                deleteFromS3(fileName);  // S3에서 파일 삭제
+                deleteFromS3(fileName);
+            } catch (SdkClientException e) {
+                throw new PostImageDeleteFailedException("S3 클라이언트 오류 발생: " + fileName, e);
             } catch (Exception e) {
                 throw new PostImageDeleteFailedException("S3에서 이미지 삭제 실패: " + fileName, e);
             }
         });
 
-        // DB에서 이미지 삭제
         try {
             postImageRepository.deleteAllByPostId(postId);
         } catch (Exception e) {
-            throw new PostImageDeleteFailedException("이미지 삭제 실패", e);
+            throw new PostImageDeleteFailedException("게시글 ID " + postId + "의 이미지 삭제 실패", e);
         }
     }
 
     @Override
-    public void deleteSelectedImages(Long id, List<String> images) {
-        // 해당 게시글의 이미지들 중 URL이 일치하는 이미지를 조회
-        List<PostImageEntity> postImages = postImageRepository.findByPostIdAndS3UrlIn(id, images);
+    public void deleteSelectedImages(Long postId, PostImageDto postImageDto) {
 
-        // 삭제할 이미지들만 S3에서 삭제
-        postImages.forEach(postImage -> {
-            String fileUrl = postImage.getS3Url();
-            String fileName = extractFileName(fileUrl); // URL에서 파일 이름 추출
+        List<String> imagesToDelete = postImageDto.getImagesToDelete();
+
+        if (imagesToDelete != null && !imagesToDelete.isEmpty()) {
+
+            List<PostImageEntity> postImages = postImageRepository.findByPostIdAndS3UrlIn(postId, imagesToDelete);
+
+            log.info("삭제할 이미지 : , {}",postImages);
+
+
+            postImages.forEach(postImage -> {
+                String fileUrl = postImage.getS3Url();
+                String fileName = extractFileName(fileUrl);
+                try {
+                    deleteFromS3(fileName);
+                } catch (Exception e) {
+                    throw new PostImageDeleteFailedException("S3에서 이미지 삭제 실패: " + fileName, e);
+                }
+            });
+
             try {
-                deleteFromS3(fileName);  // S3에서 파일 삭제
-            } catch (Exception e) {
-                throw new PostImageDeleteFailedException("S3에서 이미지 삭제 실패: " + fileName, e);
-            }
-        });
 
-        // DB에서 이미지 엔티티 삭제
-        try {
-            postImageRepository.deleteAll(postImages);
-        } catch (Exception e) {
-            throw new PostImageDeleteFailedException("선택한 이미지 삭제 실패", e);
+                postImageRepository.deleteAll(postImages);
+            } catch (Exception e) {
+                throw new PostImageDeleteFailedException("선택한 이미지 삭제 실패", e);
+            }
+        } else {
+            throw new PostImageNotFoundException("삭제할 이미지 URL이 없습니다.");
         }
     }
 
@@ -116,70 +135,75 @@ public class PostImageServiceImpl implements PostImageService {
 
     @Override
     public List<PostImageEntity> findImagesByPostId(Long postId) {
-        return postImageRepository.findByPostId(postId);
+        log.info("findImagesByPostId: " + postId);
+        List<PostImageEntity> postImages = postImageRepository.findByPostId(postId);
+
+        for (PostImageEntity image : postImages) {
+            log.info("Image S3 URL: " + image.getS3Url());
+        }
+        return postImages;
     }
+
+
 
     public List<String> uploadFiles(List<MultipartFile> files) {
         return files.stream()
-                .map(this::uploadFile) // 각 파일을 S3에 업로드하고 URL 반환
+                .map(this::uploadFile)
                 .collect(Collectors.toList());
     }
 
-    public String uploadFile(MultipartFile file) {
+
+    private String uploadFile(MultipartFile file) {
         try {
-            // 고유한 파일 이름을 생성
+
             String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
             log.info("Uploading file: {}", fileName);
             log.info("File size: {}", file.getSize());
             log.info("Bucket name: {}", bucketName);
 
-            // S3에 파일 업로드
+
             try (InputStream inputStream = file.getInputStream()) {
-                // 요청 준비
                 PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                         .bucket(bucketName)
                         .key(fileName)
                         .contentType(file.getContentType())
                         .build();
 
-                // 요청 로그 찍기
-                log.info("PutObjectRequest: {}", putObjectRequest);
-
                 s3Client.putObject(
                         putObjectRequest,
                         RequestBody.fromInputStream(inputStream, file.getSize())
                 );
 
-                // 파일 URL 반환
-                String fileUrl = s3Client.utilities()
+
+                return s3Client.utilities()
                         .getUrl(builder -> builder.bucket(bucketName).key(fileName))
                         .toString();
-
-                log.info("File uploaded to S3. URL: {}", fileUrl);
-                return fileUrl;
             }
         } catch (IOException e) {
             log.error("Error uploading file to S3: {}", e.getMessage(), e);
             throw new PostImageUploadException("파일 업로드 실패", e);
+        } catch (Exception e) {
+            log.error("Unexpected error occurred during file upload: {}", e.getMessage(), e);
+            throw new PostImageUploadException("파일 업로드 중 예기치 않은 오류 발생", e);
         }
     }
 
-    // S3에서 파일 삭제
+
     public void deleteFromS3(String fileName) {
         try {
             s3Client.deleteObject(DeleteObjectRequest.builder()
                     .bucket(bucketName)
                     .key(fileName)
                     .build());
+        } catch (SdkClientException e) {
+            throw new PostImageDeleteFailedException("S3 클라이언트 오류 발생: " + fileName, e);
         } catch (Exception e) {
             throw new PostImageDeleteFailedException("S3에서 파일 삭제 실패: " + fileName, e);
         }
     }
 
-    // URL에서 파일 이름만 추출하는 메서드
+
     private String extractFileName(String fileUrl) {
-        // 예를 들어, URL이 "https://my-bucket.s3.amazonaws.com/uuid_filename.jpg"라면
-        // "uuid_filename.jpg"를 반환
         String[] urlParts = fileUrl.split("/");
         return urlParts[urlParts.length - 1];
     }

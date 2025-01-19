@@ -1,15 +1,14 @@
 package kr.co.pinup.posts.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString(exclude = "post")
+@EqualsAndHashCode(of = "id")
 @Entity
 @Table(name = "post_images")
 public class PostImageEntity {
@@ -31,4 +30,16 @@ public class PostImageEntity {
         this.s3Url = s3Url;
     }
 
+    public PostImageEntity(String originalFilename, byte[] bytes) {
+
+    }
+
+    public void setPost(PostEntity post) {
+        this.post = post;
+        if (!post.getPostImages().contains(this)) {
+            post.getPostImages().add(this);
+        }
+    }
+
 }
+

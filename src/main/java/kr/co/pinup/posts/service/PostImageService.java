@@ -3,7 +3,6 @@ package kr.co.pinup.posts.service;
 import kr.co.pinup.posts.model.dto.PostImageDto;
 import kr.co.pinup.posts.model.entity.PostEntity;
 import kr.co.pinup.posts.model.entity.PostImageEntity;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
