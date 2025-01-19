@@ -1,4 +1,4 @@
-package kr.co.pinup.users.model.loginUser;
+package kr.co.pinup.users.loginUser;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

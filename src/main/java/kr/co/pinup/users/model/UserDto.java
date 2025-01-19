@@ -37,4 +37,16 @@ public class UserDto {
         this.providerType = OAuthProvider.valueOf(providerType);
         this.role = UserRole.valueOf(role);
     }
+
+    public UserDto(UserEntity userEntity) {
+        this.id = userEntity.getId();
+        this.name = userEntity.getName();
+        this.nickname = userEntity.getNickname();
+        this.email = userEntity.getEmail();
+        this.providerType = userEntity.getProviderType();
+        this.role = userEntity.getRole();
+    }
+
+    public UserDto(String name, String email, String nickname, OAuthProvider oAuthProvider, UserRole userRole) {
+    }
 }

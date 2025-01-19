@@ -1,6 +1,6 @@
 package kr.co.pinup.config;
 
-import kr.co.pinup.users.model.loginUser.LoginUserArgumentResolver;
+import kr.co.pinup.users.loginUser.LoginUserArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;

@@ -1,13 +1,16 @@
 package kr.co.pinup.users.controller;
 
+import jakarta.servlet.UnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import kr.co.pinup.users.error.UnauthorizedException;
+import kr.co.pinup.users.error.UserNotFoundException;
+import kr.co.pinup.users.loginUser.LoginUser;
+import kr.co.pinup.users.model.UserDto;
+import kr.co.pinup.users.model.UserInfo;
 import kr.co.pinup.users.oauth.OAuthLoginParams;
 import kr.co.pinup.users.oauth.google.GoogleLoginParams;
 import kr.co.pinup.users.oauth.naver.NaverLoginParams;
-import kr.co.pinup.users.model.UserDto;
-import kr.co.pinup.users.model.UserInfo;
-import kr.co.pinup.users.model.loginUser.LoginUser;
 import kr.co.pinup.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,14 +25,14 @@ import java.util.Optional;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/users")
+@RequestMapping(value = "/users", produces = "application/json;charset=UTF-8")
 public class UserController {
     private final UserService userService;
     private final HttpSession session;
 
     @GetMapping("/login")
     public String login() {
-        return "/users/login";
+        return "users/login";
     }
 
     @GetMapping("/oauth/naver")
@@ -71,22 +74,24 @@ public class UserController {
 
     @GetMapping("/profile")
     public String userProfile(@LoginUser UserInfo userInfo, Model model) {
-        return Optional.ofNullable(userInfo)
-                .map(user -> {
-                    UserDto userDto = userService.findUser(user);
-                    if (userDto == null) {
-                        log.error("User not found for: {}", user);
-                        model.addAttribute("message", "사용자를 찾을 수 없습니다.");
-                        return "error";
-                    }
-                    model.addAttribute("profile", userDto);
-                    return "/users/profile";
-                })
-                .orElseGet(() -> {
-                    log.error("User info not found in session");
-                    model.addAttribute("message", "로그인 정보가 없습니다.");
-                    return "error";
-                });
+        try {
+            UserDto userDto = userService.findUser(userInfo);
+            if (userDto == null) {
+                log.error("User not found for: {}", userInfo);
+                model.addAttribute("message", "사용자를 찾을 수 없습니다.");
+                return "error";
+            }
+            model.addAttribute("profile", userDto);
+            return "users/profile";
+        } catch (IllegalArgumentException e) {
+            log.error("Error occurred while fetching user: {}", e.getMessage());
+            model.addAttribute("message", e.getMessage());
+            return "error";
+        } catch (Exception e) {
+            log.error("Unexpected error occurred: {}", e.getMessage());
+            model.addAttribute("message", e.getMessage());
+            return "error";
+        }
     }
 
     // todo nickname 추천해주는거?
@@ -95,7 +100,7 @@ public class UserController {
         return Optional.ofNullable(userInfo)
                 .map(user -> {
                     model.addAttribute("nickname", userService.makeNickname());
-                    return "/users/profile";
+                    return "users/profile";
                 })
                 .orElseGet(() -> {
                     model.addAttribute("message", "로그인 정보가 없습니다.");
@@ -105,35 +110,41 @@ public class UserController {
 
     @PatchMapping
     public ResponseEntity<?> update(@RequestBody UserDto userDto, @LoginUser UserInfo userInfo) {
-        return Optional.ofNullable(userInfo)
-                .map(user -> {
-                    UserDto updatedUser = userService.update(user, userDto);
-                    if (updatedUser != null) {
-                        user.setNickname(userDto.getNickname());
-                        session.setAttribute("userInfo", user);
-                        return ResponseEntity.ok("닉네임이 변경되었습니다.");
-                    } else {
-                        return ResponseEntity.badRequest().body("중복된 닉네임입니다.");
-                    }
-                })
-                .orElseGet(() -> ResponseEntity.status(403).body("로그인 정보가 없습니다."));
+        try {
+            UserDto updatedUser = userService.update(userInfo, userDto);
+            if (updatedUser == null) {
+                throw new IllegalArgumentException("업데이트된 사용자 정보가 없습니다.");
+            }
+            userInfo.setNickname(updatedUser.getNickname());
+            session.setAttribute("userInfo", userInfo);
+
+            return ResponseEntity.ok("닉네임이 변경되었습니다.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("서버 오류가 발생했습니다.");
+        }
     }
 
     @DeleteMapping
     public ResponseEntity<?> delete(@RequestBody UserDto userDto, @LoginUser UserInfo userInfo) {
-        return Optional.ofNullable(userInfo)
-                .map(user -> {
-                    if (userService.delete(user, userDto)) {
-                        session.removeAttribute("userInfo");
-                        session.invalidate();
-                        return ResponseEntity.ok("탈퇴 성공");
-                    } else {
-                        return ResponseEntity.badRequest().body("사용자 탈퇴 실패");
-                    }
-                })
-                .orElseGet(() -> {
-                    return ResponseEntity.status(403).body("로그인 정보가 없습니다.");
-                });
+        try {
+            boolean isDeleted = userService.delete(userInfo, userDto);
+
+            if (isDeleted) {
+                session.removeAttribute("userInfo");
+                session.invalidate();
+                return ResponseEntity.ok("탈퇴 성공");
+            } else {
+                return ResponseEntity.badRequest().body("사용자 탈퇴 실패");
+            }
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("서버 오류: " + e.getMessage());
+        }
     }
 
     @PostMapping("/logout")
@@ -144,7 +155,7 @@ public class UserController {
                     return response ? ResponseEntity.ok("로그아웃 성공") : ResponseEntity.badRequest().body("로그아웃 실패");
                 })
                 .orElseGet(() -> {
-                    return ResponseEntity.status(403).body("로그인 정보가 없습니다.");
+                    return ResponseEntity.status(401).body("로그인 정보가 없습니다.");
                 });
     }
 }
