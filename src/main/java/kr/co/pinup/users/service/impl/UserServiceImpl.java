@@ -1,17 +1,16 @@
 package kr.co.pinup.users.service.impl;
 
-import jakarta.servlet.UnavailableException;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.users.error.UnauthorizedException;
 import kr.co.pinup.users.error.UserNotFoundException;
-import kr.co.pinup.users.oauth.OAuthLoginParams;
-import kr.co.pinup.users.oauth.OAuthProvider;
-import kr.co.pinup.users.oauth.OAuthResponse;
-import kr.co.pinup.users.oauth.OAuthService;
 import kr.co.pinup.users.model.UserDto;
 import kr.co.pinup.users.model.UserEntity;
 import kr.co.pinup.users.model.UserInfo;
 import kr.co.pinup.users.model.UserRepository;
+import kr.co.pinup.users.oauth.OAuthLoginParams;
+import kr.co.pinup.users.oauth.OAuthProvider;
+import kr.co.pinup.users.oauth.OAuthResponse;
+import kr.co.pinup.users.oauth.OAuthService;
 import kr.co.pinup.users.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,15 +72,13 @@ public class UserServiceImpl implements UserService {
     public UserDto findUser(UserInfo userInfo) {
         try {
             return userRepository.findByNickname(userInfo.getNickname())
-                    .map(userEntity -> {
-                        return UserDto.builder()
+                    .map(userEntity -> UserDto.builder()
                                 .name(userEntity.getName())
                                 .email(userEntity.getEmail())
                                 .nickname(userEntity.getNickname())
                                 .providerType(userEntity.getProviderType())
                                 .role(userEntity.getRole())
-                                .build();
-                    })
+                                .build())
                     .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         } catch (IllegalArgumentException e) {
             log.error("Error while fetching user: {}", e.getMessage());

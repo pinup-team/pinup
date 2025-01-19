@@ -1,6 +1,5 @@
 package kr.co.pinup.users.controller;
 
-import jakarta.servlet.UnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.users.error.UnauthorizedException;

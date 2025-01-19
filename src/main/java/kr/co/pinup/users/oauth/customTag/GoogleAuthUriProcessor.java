@@ -25,7 +25,7 @@ public class GoogleAuthUriProcessor extends AbstractElementTagProcessor {
     public GoogleAuthUriProcessor(String dialectPrefix, OauthConfig oauthConfig) {
         super(TemplateMode.HTML, dialectPrefix, null, false, ATTR_NAME, true, PRECEDENCE);
         this.oauthConfig = oauthConfig;
-        // OAuthConfig 초기화
+
         if (this.oauthConfig != null && this.oauthConfig.getRegistration() != null && this.oauthConfig.getProvider() != null) {
             this.googleRegistration = oauthConfig.getRegistration().get("google");
             this.googleProvider = oauthConfig.getProvider().get("google");

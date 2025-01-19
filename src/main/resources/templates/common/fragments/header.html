@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" th:fragment="headerFragment">
-<header>
+<header id="header">
     <div class="container">
         <div class="logo">
             <a href="/" th:text="'PinUp'">PinUp</a>
@@ -14,7 +14,7 @@
             </ul>
         </nav>
         <div class="user-actions">
-            <a href="/login" th:href="@{/templates/users/login}">Login</a>
+            <a href="/login" th:href="@{/users/login}">Login</a>
         </div>
     </div>
 </header>

@@ -37,7 +37,7 @@ public class ThymeleafConfig {
     @Bean
     public SpringTemplateEngine templateEngine() {
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-        templateEngine.setEnableSpringELCompiler(true); // Compiled SpringEL should speed up executions
+        templateEngine.setEnableSpringELCompiler(true);
         templateEngine.setTemplateResolver(templateResolver());
         templateEngine.addDialect(customDialect());  // CustomDialect 추가
         return templateEngine;

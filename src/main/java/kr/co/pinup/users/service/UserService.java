@@ -1,10 +1,10 @@
 package kr.co.pinup.users.service;
 
 import jakarta.servlet.http.HttpSession;
-import kr.co.pinup.users.oauth.OAuthLoginParams;
-import kr.co.pinup.users.oauth.OAuthProvider;
 import kr.co.pinup.users.model.UserDto;
 import kr.co.pinup.users.model.UserInfo;
+import kr.co.pinup.users.oauth.OAuthLoginParams;
+import kr.co.pinup.users.oauth.OAuthProvider;
 
 public interface UserService {
 

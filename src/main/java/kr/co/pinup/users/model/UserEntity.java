@@ -1,8 +1,8 @@
 package kr.co.pinup.users.model;
 
 import jakarta.persistence.*;
-import kr.co.pinup.users.oauth.OAuthProvider;
 import kr.co.pinup.users.model.enums.UserRole;
+import kr.co.pinup.users.oauth.OAuthProvider;
 import lombok.*;
 
 @Entity

@@ -23,7 +23,7 @@ public class NaverAuthUriProcessor extends AbstractElementTagProcessor {
     public NaverAuthUriProcessor(String dialectPrefix, OauthConfig oauthConfig) {
         super(TemplateMode.HTML, dialectPrefix, null, false, ATTR_NAME, true, PRECEDENCE);
         this.oauthConfig = oauthConfig;
-        // OAuthConfig 초기화
+
         if (this.oauthConfig != null && this.oauthConfig.getRegistration() != null && this.oauthConfig.getProvider() != null) {
             this.naverRegistration = oauthConfig.getRegistration().get("naver");
             this.naverProvider = oauthConfig.getProvider().get("naver");
