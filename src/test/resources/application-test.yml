@@ -43,7 +43,7 @@ spring:
               - email
             client-name: Naver
             authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8888/test/users/oauth/naver
+            redirect-uri: http://localhost:8888/test/members/oauth/naver
           google:
             client-id: test-google-id
             client-secret: test-google-secret
@@ -52,18 +52,18 @@ spring:
               - email
             client-name: Google
             authorization-grant-type: authorization_code
-            redirect-uri: http://localhost:8888/test/users/oauth/google
+            redirect-uri: http://localhost:8888/test/members/oauth/google
 
         provider:
           naver:
-            authorization-uri: http://localhost:8888/test/users/naver/authorize
-            token-uri: http://localhost:8888/test/users/naver/token
-            user-info-uri: http://localhost:8888/test/users/naver/userInfo
+            authorization-uri: http://localhost:8888/test/members/naver/authorize
+            token-uri: http://localhost:8888/test/members/naver/token
+            user-info-uri: http://localhost:8888/test/members/naver/userInfo
             user-name-attribute: response
           google:
-            authorization-uri: http://localhost:8888/test/users/google/authorize
-            token-uri: http://localhost:8888/test/users/google/token
-            user-info-uri: http://localhost:8888/test/users/google/userInfo
+            authorization-uri: http://localhost:8888/test/members/google/authorize
+            token-uri: http://localhost:8888/test/members/google/token
+            user-info-uri: http://localhost:8888/test/members/google/userInfo
             user-name-attribute: sub
 
 springdoc:
