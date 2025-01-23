@@ -139,7 +139,7 @@ public class S3ConfigTest {
         @Primary  // 기본 S3Client로 설정
         public S3Client testS3Client() {
             return S3Client.builder()
-                    .endpointOverride(URI.create("http://172.30.1.36:4566"))  // LocalStack 엔드포인트 설정
+                    .endpointOverride(URI.create("http://192.168.45.76:4566"))  // LocalStack 엔드포인트 설정
                     .region(Region.US_EAST_1)
                     .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("test", "test")))
                     .build();

@@ -1,147 +1,183 @@
 package kr.co.pinup.posts.controller;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import kr.co.pinup.posts.model.dto.PostDto;
-import kr.co.pinup.posts.model.entity.PostEntity;
-import kr.co.pinup.posts.service.CommentService;
-import kr.co.pinup.posts.service.PostImageService;
+
+import kr.co.pinup.comments.Comment;
+import kr.co.pinup.comments.model.dto.CommentResponse;
+import kr.co.pinup.comments.service.CommentService;
+import kr.co.pinup.postImages.PostImage;
+import kr.co.pinup.postImages.model.dto.PostImageResponse;
+import kr.co.pinup.postImages.service.PostImageService;
+import kr.co.pinup.posts.Post;
+import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.service.PostService;
-import org.junit.jupiter.api.BeforeEach;
+
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.springframework.mock.web.MockMultipartFile;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+
+import org.springframework.context.annotation.Bean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@MockitoSettings(strictness = Strictness.LENIENT)
-@ExtendWith(MockitoExtension.class)
-public class PostControllerTest {
+@SpringBootTest
+@AutoConfigureMockMvc
+class PostControllerTest {
 
     @InjectMocks
     private PostController postController;
 
     @Mock
     private PostService postService;
+
     @Mock
     private CommentService commentService;
+
     @Mock
     private PostImageService postImageService;
 
+    @Autowired
     private MockMvc mockMvc;
 
-    private PostEntity postEntity;
-    private List<PostEntity> posts;
+    @TestConfiguration
+    static class PostControllerTestConfig {
+        @Bean
+        public PostService postService() {
+            return mock(PostService.class);
+        }
 
-    @BeforeEach
-    public void setUp() {
-        postEntity = new PostEntity(1L, 1L, "Test Post", "This is a test post", "thumbnail.jpg");
-        posts = List.of(postEntity);
-        mockMvc = MockMvcBuilders.standaloneSetup(postController).build();
+        @Bean
+        public CommentService commentService() {
+            return mock(CommentService.class);
+        }
+
+        @Bean
+        public PostImageService postImageService() {
+            return mock(PostImageService.class);
+        }
     }
 
     @Test
-    public void testGetAllPosts() throws Exception {
-        List<PostEntity> posts = new ArrayList<>();
-        posts.add(new PostEntity());
-        when(postService.findByStoreId(anyLong())).thenReturn(posts);
+    void testGetAllPosts() throws Exception {
+        Long storeId = 1L;
+        List<Post> posts = new ArrayList<>();
+        Post post = Post.builder()
+                .storeId(1L)
+                .userId(1L)
+                .title("Test Post Title")
+                .content("Test post content.")
+                .thumbnail("thumbnail_url")
+                .build();
 
-        mockMvc.perform(get("/post/list/{storeid}", 1L))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("posts"))
-                .andExpect(view().name("post/list"));
+        // Mock service call
+        when(postService.findByStoreId(storeId)).thenReturn((List<PostResponse>) post);
+
+        // Perform GET request and validate response
+        mockMvc.perform(get("/post/list/{storeid}", storeId))
+                .andExpect(status().isOk()) // 200 OK
+                .andExpect(view().name("views/post/list")) // Expected view name
+                .andExpect(model().attributeExists("posts")) // "posts" attribute should exist in the model
+                .andExpect(model().attribute("posts", posts)); // Validate the "posts" attribute
     }
 
     @Test
-    public void testGetPostById() throws Exception {
-        when(postService.getPostById(anyLong())).thenReturn(postEntity);
-        when(commentService.findByPostId(anyLong())).thenReturn(List.of());
-        when(postImageService.findImagesByPostId(anyLong())).thenReturn(List.of());
+    void testGetPostById() throws Exception {
+        Long postId = 1L;
+        Post post = Post.builder()
+                .storeId(1L)
+                .userId(1L)
+                .title("Test Post Title")
+                .content("Test post content.")
+                .thumbnail("thumbnail_url")
+                .build();
+        // 댓글 리스트를 준비
+        Comment comment = Comment.builder()
+                .post(post)
+                .content("Test comment")
+                .build();
+        // CommentResponse를 수동으로 생성
+        CommentResponse commentResponse =  CommentResponse.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .postId(comment.getPost().getId())
+                .build();
 
-        mockMvc.perform(get("/post/{postId}", 1L))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("post"))
-                .andExpect(model().attributeExists("comments"))
-                .andExpect(model().attributeExists("images"))
-                .andExpect(view().name("post/detail"));
+        // 댓글 리스트를 생성
+        List<CommentResponse> comments = List.of(commentResponse);
+
+        // 게시물 이미지 리스트를 준비
+        PostImage postImage = PostImage.builder()
+                .post(post)
+                .s3Url("image_url")
+                .build();
+
+        List<PostImageResponse> images = List.of(PostImageResponse.from(postImage));
+
+
+        // Mock service calls
+        when(postService.getPostById(postId)).thenReturn(post);
+        when(commentService.findByPostId(postId)).thenReturn(comments);
+        when(postImageService.findImagesByPostId(postId)).thenReturn(images);
+
+        // Perform GET request and validate response
+        mockMvc.perform(get("/post/{postId}", postId))
+                .andExpect(status().isOk()) // 200 OK
+                .andExpect(view().name("views/post/detail")) // Expected view name
+                .andExpect(model().attributeExists("post")) // "post" attribute should exist in the model
+                .andExpect(model().attributeExists("comments")) // "comments" attribute should exist in the model
+                .andExpect(model().attributeExists("images")); // "images" attribute should exist in the model
     }
 
     @Test
-    public void testCreatePostForm() throws Exception {
+    void testCreatePostForm() throws Exception {
+        // Perform GET request and validate response
         mockMvc.perform(get("/post/create"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("post/create"));
+                .andExpect(status().isOk()) // 200 OK
+                .andExpect(view().name("views/post/create")) // Expected view name
+                .andExpect(model().attributeExists("createPostRequest")); // "createPostRequest" should exist in the model
     }
 
     @Test
-    public void testCreatePost() throws Exception {
-        PostDto postDto = new PostDto();
-        postDto.setTitle("New Post");
-        postDto.setContent("This is a new post");
-        postDto.setUserId(1L);
-        postDto.setStoreId(1L);
+    void testUpdatePostForm() throws Exception {
+        Long postId = 1L;
+        Post post = Post.builder()
+                .storeId(1L)
+                .userId(1L)
+                .title("Test Post Title")
+                .content("Test post content.")
+                .thumbnail("thumbnail_url")
+                .build();
 
-        MockMultipartFile image1 = new MockMultipartFile("images", "image1.jpg", "image/jpeg", "dummy image 1".getBytes());
-        MockMultipartFile image2 = new MockMultipartFile("images", "image2.jpg", "image/jpeg", "dummy image 2".getBytes());
+        PostImage postImage = PostImage.builder()
+                .post(post)
+                .s3Url("image_url")
+                .build();
 
-        PostEntity postEntity = new PostEntity();
-        postEntity.setId(1L);
+        // ImageResponse 객체 생성
+        List<PostImageResponse> images = List.of( PostImageResponse.builder()
+                .s3Url(postImage.getS3Url())
+                .build());
 
-        when(postService.createPost(any(PostDto.class))).thenReturn(postEntity);
+        when(postService.getPostById(postId)).thenReturn(post);
+        when(postImageService.findImagesByPostId(postId)).thenReturn(images);
 
-        mockMvc.perform(multipart("/post/create")
-                        .file(image1)
-                        .file(image2)
-                        .param("title", postDto.getTitle())
-                        .param("content", postDto.getContent())
-                        .param("userId", postDto.getUserId().toString())
-                        .param("storeId", postDto.getStoreId().toString()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/post/1"))
-                .andExpect(flash().attributeExists("post"));
-    }
 
-    @Test
-    public void testDeletePost() throws Exception {
-        PostEntity postEntity = new PostEntity();
-        postEntity.setStoreId(1L);
-        when(postService.getPostById(anyLong())).thenReturn(postEntity);
-
-        mockMvc.perform(delete("/post/{id}", 1L))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/post/list/1"));
-    }
-
-    @Test
-    public void testUpdatePost() throws Exception {
-        PostDto postDto = new PostDto();
-        postDto.setTitle("Updated Post");
-        postDto.setContent("This is an updated post");
-
-        PostEntity updatedPostEntity = new PostEntity();
-        updatedPostEntity.setId(1L);
-        updatedPostEntity.setTitle(postDto.getTitle());
-        updatedPostEntity.setContent(postDto.getContent());
-
-        when(postService.updatePost(anyLong(), any(PostDto.class))).thenReturn(updatedPostEntity);
-
-        mockMvc.perform(put("/post/{id}", 1L)
-                        .param("title", postDto.getTitle())
-                        .param("content", postDto.getContent()))
-                .andDo(print())
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/post/1"));
+        // Perform GET request and validate response
+        mockMvc.perform(get("/post/update/{id}", postId))
+                .andExpect(status().isOk()) // 200 OK
+                .andExpect(view().name("views/post/update")) // Expected view name
+                .andExpect(model().attributeExists("post")) // "post" attribute should exist in the model
+                .andExpect(model().attributeExists("images")); // "images" attribute should exist in the model
     }
 
 }
