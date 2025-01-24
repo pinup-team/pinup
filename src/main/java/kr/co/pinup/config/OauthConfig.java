@@ -1,4 +1,4 @@
-package kr.co.pinup.members.config;
+package kr.co.pinup.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

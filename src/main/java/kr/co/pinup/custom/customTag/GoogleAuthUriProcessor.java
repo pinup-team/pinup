@@ -1,6 +1,6 @@
 package kr.co.pinup.custom.customTag;
 
-import kr.co.pinup.members.config.OauthConfig;
+import kr.co.pinup.config.OauthConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.thymeleaf.context.ITemplateContext;
 import org.thymeleaf.model.IProcessableElementTag;

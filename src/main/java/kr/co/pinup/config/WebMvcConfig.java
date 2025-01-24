@@ -1,4 +1,4 @@
-package kr.co.pinup.members.config;
+package kr.co.pinup.config;
 
 import kr.co.pinup.custom.LoginMemberArgumentResolver;
 import lombok.RequiredArgsConstructor;

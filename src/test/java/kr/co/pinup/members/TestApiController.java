@@ -1,7 +1,7 @@
 package kr.co.pinup.members;
 
 import jakarta.servlet.http.HttpSession;
-import kr.co.pinup.members.config.OauthConfig;
+import kr.co.pinup.config.OauthConfig;
 import kr.co.pinup.oauth.google.GoogleResponse;
 import kr.co.pinup.oauth.google.GoogleToken;
 import kr.co.pinup.oauth.naver.NaverResponse;

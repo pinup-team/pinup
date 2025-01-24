@@ -1,6 +1,6 @@
 package kr.co.pinup.custom.customTag;
 
-import kr.co.pinup.members.config.OauthConfig;
+import kr.co.pinup.config.OauthConfig;
 import org.thymeleaf.dialect.AbstractProcessorDialect;
 import org.thymeleaf.processor.IProcessor;
 

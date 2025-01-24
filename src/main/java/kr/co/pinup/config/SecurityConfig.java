@@ -1,4 +1,4 @@
-package kr.co.pinup.members.config;
+package kr.co.pinup.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

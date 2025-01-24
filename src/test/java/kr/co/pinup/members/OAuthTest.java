@@ -3,7 +3,7 @@ package kr.co.pinup.members;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.PinupApplication;
-import kr.co.pinup.members.config.OauthConfig;
+import kr.co.pinup.config.OauthConfig;
 import kr.co.pinup.members.controller.MemberController;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;

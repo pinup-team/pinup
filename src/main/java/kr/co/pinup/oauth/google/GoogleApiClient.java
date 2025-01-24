@@ -2,7 +2,7 @@ package kr.co.pinup.oauth.google;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpSession;
-import kr.co.pinup.members.config.OauthConfig;
+import kr.co.pinup.config.OauthConfig;
 import kr.co.pinup.oauth.OAuthApiClient;
 import kr.co.pinup.oauth.OAuthLoginParams;
 import kr.co.pinup.oauth.OAuthProvider;
