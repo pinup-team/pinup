@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout}">
-<div layout:fragment="content">
-    <h2>Error!!</h2>
-    <p>message: <span th:text="${session.message}">Message</span></p>
-    <form action="/" method="get">
-        <button type="submit">홈으로 돌아가기</button>
-    </form>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pin-up</title>
+</head>
+<body>
+<h1>에러 페이지</h1>
+
+<div th:object="${error}">
+    <div th:text="*{status}"></div>
+    <div th:text="*{message}"></div>
 </div>
+</body>
 </html>
