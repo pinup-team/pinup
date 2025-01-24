@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: pinup-test
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/pinup
+    username: pinup
+    password: rlaehgmlWkd0106
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+  logging:
+    level:
+      org.hibernate.SQL: DEBUG
+      org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
+cloud:
+  aws:
+    s3:
+      endpoint: http://192.168.45.76:4566  # LocalStack S3 엔드포인트
+      region: us-east-1
+    credentials:
+      access-key: test
+      secret-key: test
+
+
+
