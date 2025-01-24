@@ -39,17 +39,17 @@ dependencies {
 	testImplementation 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	
+
 	implementation platform('software.amazon.awssdk:bom:2.20.15')
 	implementation 'software.amazon.awssdk:core:2.20.15'
 	implementation 'software.amazon.awssdk:s3:2.20.15'
-	
+
 	implementation "org.testcontainers:localstack:1.16.3"
 	testImplementation "cloud.localstack:localstack-utils:0.2.20"
-	
+
 	implementation 'org.hibernate.validator:hibernate-validator:6.2.1.Final'
 	implementation 'jakarta.validation:jakarta.validation-api:3.0.0'
-	
+
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
 	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
 	testImplementation 'org.mockito:mockito-core:5.12.0'
@@ -66,14 +66,8 @@ dependencies {
 	implementation group: 'org.javassist', name: 'javassist', version: '3.15.0-GA'
 	// google people
 	implementation 'com.google.apis:google-api-services-people:v1-rev20210419-1.31.0'
-	// 레이아웃
-	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
 	// wireMock
 	testImplementation 'org.wiremock:wiremock-standalone:3.9.1'
-	// h2 DB
-	testImplementation 'com.h2database:h2'
-	// validation
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 

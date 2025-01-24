@@ -1,7 +1,7 @@
 package kr.co.pinup.notices.model.dto;
 
 import kr.co.pinup.notices.Notice;
-import kr.co.pinup.users.MemberResponse;
+import kr.co.pinup.members.model.dto.MemberResponse;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -11,7 +11,7 @@ public record NoticeResponse(Long id, String title, String content, MemberRespon
 
     public NoticeResponse(Notice notice) {
         this(notice.getId(), notice.getTitle(), notice.getContent(),
-                MemberResponse.toResponse(notice.getMember()),
+                new MemberResponse(notice.getMember()),
                 notice.getCreatedAt(), notice.getUpdatedAt());
     }
 }

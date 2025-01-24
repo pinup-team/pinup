@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import kr.co.pinup.common.BaseEntity;
 import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
-import kr.co.pinup.users.Member;
+import kr.co.pinup.members.Member;
 import lombok.*;
 
 @Entity

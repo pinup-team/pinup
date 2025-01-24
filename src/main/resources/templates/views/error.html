@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout}">
-<div layout:fragment="content">
-    <h2>Error!!</h2>
-    <p>message: <span th:text="${session.message}">Message</span></p>
-    <form action="/" method="get">
-        <button type="submit">홈으로 돌아가기</button>
-    </form>
-</div>
-=======
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -24,6 +11,3 @@
     <div th:text="*{status}"></div>
     <div th:text="*{message}"></div>
 </div>
-</body>
->>>>>>> 5d02df9741ec3da902e9d17941158545f7e590dc
-</html>
