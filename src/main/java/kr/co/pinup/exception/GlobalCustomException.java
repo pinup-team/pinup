@@ -1,7 +1,6 @@
 package kr.co.pinup.exception;
 
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +18,7 @@ public abstract class GlobalCustomException extends RuntimeException {
         super(message, cause);
     }
 
-    protected abstract HttpStatus getHttpStatus();
+    protected abstract int getHttpStatusCode();
 
     public void addValidation(String fieldName, String message) {
         validation.put(fieldName, message);
