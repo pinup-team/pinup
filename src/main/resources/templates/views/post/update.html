@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Post</title>
+</head>
+<body>
+
+<h1>Update Post</h1>
+
+<form id="updatePostForm" enctype="multipart/form-data">
+  <input type="hidden" name="postId" th:value="${post?.id}" />
+  <input type="hidden" name="storeId" value="1" />
+  <input type="hidden" name="userId" value="1" />
+
+  <!-- 이미지 삭제를 위한 숨겨진 필드 -->
+  <input type="hidden" id="imagesToDelete" name="imagesToDelete" th:value="${imagesToDelete != null ? imagesToDelete : ''}" />
+
+  <div>
+    <h3>Current Images</h3>
+    <ul>
+      <th:block th:each="image : ${images}">
+        <li>
+          <img th:src="@{${image.s3Url}}" alt="Post Image" width="300px"/>
+          <input type="checkbox" name="imagesToDelete" th:value="${image.s3Url}"
+                 onclick="toggleImageToDelete('[[${image.s3Url}]]')"/>
+          <label>Delete</label>
+        </li>
+      </th:block>
+    </ul>
+  </div>
+
+  <!-- 제목 입력 -->
+  <label for="title">Title</label>
+  <input type="text" th:field="*{post.title}" id="title" name="title" required="true"/>
+
+  <br>
+
+  <!-- 내용 입력 -->
+  <label for="content">Content</label>
+  <textarea th:field="*{post.content}" id="content" name="content" required="true"></textarea>
+
+  <br>
+
+  <!-- 새로운 이미지 업로드 -->
+  <label for="images">Upload New Images</label>
+  <input type="file" name="images" id="images" multiple="multiple" />
+
+  <br>
+
+  <!-- 제출 버튼 -->
+  <button type="submit">Update</button>
+</form>
+
+<script>
+  function toggleImageToDelete(imageUrl) {
+    const imagesToDeleteField = document.getElementById('imagesToDelete');
+    let imagesToDelete = imagesToDeleteField.value ? imagesToDeleteField.value.split(',') : [];
+
+    if (imagesToDelete.includes(imageUrl)) {
+      imagesToDelete = imagesToDelete.filter(url => url !== imageUrl);
+    } else {
+      imagesToDelete.push(imageUrl);
+    }
+
+    imagesToDeleteField.value = imagesToDelete.join(',');
+  }
+
+  document.getElementById('updatePostForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const deleteImages = [];
+    document.querySelectorAll('input[name="imagesToDelete"]:checked').forEach(checkbox => {
+      deleteImages.push(checkbox.value);
+    });
+
+    const formData = new FormData(event.target);
+    formData.append('postImageRequest.imagesToDelete', deleteImages.join(','));
+
+    fetch('/api/post/' + formData.get('postId'), {
+      method: 'PUT',
+      body: formData
+    })
+            .then(response => response.json())
+            .then(data => {
+              console.log('게시물 업데이트 성공:', data);
+            })
+            .catch(error => {
+              console.error('게시물 업데이트 실패:', error);
+            });
+  });
+
+</script>
+
+</body>
+</html>

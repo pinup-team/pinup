@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Detail</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+
+<!-- 뒤로 가기 버튼 -->
+<a th:href="@{/post/list/{storeid}(storeid=${post.storeId})}">Back to Posts List</a>
+
+<h1>Post Detail</h1>
+<div th:text="*{#temporals.format(post.createdAt, 'yyyy-MM-dd')}"></div>
+<hr>
+
+<!-- 게시물 제목과 내용 -->
+<div>
+    <h2 th:text="${post != null ? post.title : 'No Title'}"></h2>
+    <p th:text="${post != null ? post.content : 'No Content'}"></p>
+</div>
+
+<hr>
+
+<!-- 이미지 리스트 출력 -->
+<h3>Images</h3>
+<div>
+    <ul>
+        <th:block th:each="image : ${post.postImages}">
+            <li>
+                <!-- 이미지 출력 -->
+                <img th:src="${image.s3Url}" alt="Post Image" width="300px"/>
+            </li>
+        </th:block>
+    </ul>
+</div>
+
+<hr>
+
+<div>
+    <button th:onclick="|location.href='@{/post/update/{id}(id=${post.id})}'|">수정</button>
+    <button th:onclick="removePost([[${post.id}]])">삭제</button>
+</div>
+
+<hr>
+
+<!-- 댓글 리스트 -->
+<h3>Comments</h3>
+<div id="comment-section">
+    <ul id="comment-list">
+        <th:block th:each="comment : ${post.comments}">
+            <li data-id="${comment.id}">
+                <p th:text="${comment.content}"></p>
+                <button type="button" class="delete-comment-btn" th:data-comment-id="${comment.id}">삭제</button>
+                <div th:text="*{#temporals.format(comment.createdAt, 'yyyy-MM-dd')}"></div>
+            </li>
+        </th:block>
+    </ul>
+</div>
+
+<!-- 댓글 추가 -->
+<div id="add-comment">
+    <form id="comment-form" method="post">
+        <input type="text" name="content" placeholder="댓글을 입력하세요" required />
+        <button type="submit" th:data-post-id="${post.id}">댓글 추가</button>
+    </form>
+</div>
+
+<script>
+    $(".delete-comment-btn").on("click", function(e) {
+        e.preventDefault();
+        console.log("삭제 버튼 클릭됨!");
+
+        const commentId = parseInt($(this).data("comment-id"), 10);
+        const $commentItem = $(this).closest("li");
+
+
+        if (isNaN(commentId)) {
+            console.error("잘못된 댓글 ID");
+            return;
+        }
+
+        $.ajax({
+            url: '/api/comment/' + commentId,  // 댓글 삭제 URL
+            type: 'DELETE',  // DELETE 요청
+            success: function(response) {
+                console.log("삭제 성공:", response); // 성공 응답 확인
+                $commentItem.remove();  // 댓글 삭제 성공 시 화면에서 해당 댓글 제거
+            },
+            error: function(xhr, status, error) {
+                console.error("삭제 실패:", xhr.responseText);  // 에러 처리
+                alert("댓글 삭제 실패: " + xhr.responseText);  // 에러 메시지 표시
+            }
+        });
+    });
+
+    $(document).ready(function() {
+        // 댓글 생성
+        $("#comment-form").on("submit", function(e) {
+            e.preventDefault();
+
+            const postId = parseInt($(this).find("button[type='submit']").data("post-id"), 10);
+
+            if (isNaN(postId)) {
+                console.error("postId 값이 유효하지 않습니다.");
+                return;
+            }
+
+            const content = $("input[name='content']").val();
+            if (!content.trim()) {
+                alert("댓글 내용을 입력하세요!");
+                return;
+            }
+
+            // AJAX 요청 (POST 방식으로 변경)
+            $.ajax({
+                url: '/api/comment/' + postId,  // URL을 적절하게 수정
+                type: 'POST',  // PUT에서 POST로 수정
+                contentType: 'application/json',
+                data: JSON.stringify({ content }),  // JSON 형식으로 데이터 전송
+                success: function(response) {
+                    console.log("댓글 생성 성공:", response);
+
+                    // 새로운 댓글을 HTML로 만들기
+                    const newCommentHtml = `
+                    <li data-id="${response.id}" style="display: none;">
+                        <p>${response.content}</p>
+                        <button type="button" class="delete-comment-btn" data-comment-id="${response.id}">삭제</button>
+                    </li>
+                `;
+                    const $newComment = $(newCommentHtml);
+
+                    // 댓글 리스트 맨 앞에 추가
+                    $("#comment-list").prepend($newComment);
+                    // 댓글 추가 애니메이션
+                    $newComment.fadeIn(500);
+
+                    // 댓글 입력 필드 초기화
+                    $("input[name='content']").val("").focus();
+                },
+                error: function(xhr, status, error) {
+                    console.error("댓글 생성 실패:", xhr.responseText);
+                    alert("댓글 생성 실패: " + xhr.responseText);
+                }
+            });
+        });
+    });
+
+
+    function removePost(postId) {
+        if (confirm("Are you sure you want to delete this post?")) {
+            fetch(`/api/post/${postId}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert("Post deleted successfully!");
+
+                        window.location.href = `/post/list/${post.storeId}`;
+                    } else {
+                        alert("Failed to delete the post.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error deleting the post:", error);
+                    alert("An error occurred while deleting the post.");
+                });
+        }
+    }
+</script>
+
+</body>
+</html>

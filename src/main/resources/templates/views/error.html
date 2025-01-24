@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -9,4 +10,20 @@
         <button type="submit">홈으로 돌아가기</button>
     </form>
 </div>
+=======
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Pin-up</title>
+</head>
+<body>
+<h1>에러 페이지</h1>
+
+<div th:object="${error}">
+    <div th:text="*{status}"></div>
+    <div th:text="*{message}"></div>
+</div>
+</body>
+>>>>>>> 5d02df9741ec3da902e9d17941158545f7e590dc
 </html>

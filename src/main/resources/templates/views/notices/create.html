@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
+<div layout:fragment="content">
+    <div>
+        <h1 th:text="'공지사항 작성'">공지사항 작성</h1>
+        <div>
+            <label for="title" th:for="title">제목</label>
+            <input type="text" name="title" id="title"
+                th:type="text" th:name="title" th:id="title" />
+            <div th:class="title-error" th:id="title-error"></div>
+        </div>
+        <div>
+            <label for="content" th:for="content">내용</label>
+            <textarea name="content" id="content"
+                th:name="content" th:id="content"></textarea>
+            <div th:class="content-error" th:id="content-error"></div>
+        </div>
+    </div>
+    <div>
+        <button th:onclick="createNotice()">작성</button>
+        <button th:onclick="|location.href='@{/notices}'|">뒤로가기</button>
+    </div>
+</div>
+</html>

@@ -27,12 +27,33 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+	
+	implementation platform('software.amazon.awssdk:bom:2.20.15')
+	implementation 'software.amazon.awssdk:core:2.20.15'
+	implementation 'software.amazon.awssdk:s3:2.20.15'
+	
+	implementation "org.testcontainers:localstack:1.16.3"
+	testImplementation "cloud.localstack:localstack-utils:0.2.20"
+	
+	implementation 'org.hibernate.validator:hibernate-validator:6.2.1.Final'
+	implementation 'jakarta.validation:jakarta.validation-api:3.0.0'
+	
+	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.4'
+	testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
+	testImplementation 'org.mockito:mockito-core:5.12.0'
+	testImplementation 'org.assertj:assertj-core:3.20.2'
 
 	// oauth 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -55,6 +76,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
+
 tasks.named('test') {
 	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
 }
