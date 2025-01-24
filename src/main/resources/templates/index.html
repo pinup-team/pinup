@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/layout}"
+      xmlns:oauth="http://oauth">
+
+<th:block layout:fragment="content">
+    <th:block th:if="${session.memberInfo == null}">
+        <a oauth:naverLoginUrl="커스텀 uri">
+            <button>NAVER 로그인</button>
+        </a>
+        <a oauth:googleLoginUrl="커스텀 uri">
+            <button>GOOGLE 로그인</button>
+        </a>
+        <p>
+            <button onclick="window.location.href='views/members/login'">로그인</button>
+        </p>
+    </th:block>
+
+    <th:block th:if="${session.memberInfo != null}">
+        <button th:onclick="logOut()">로그아웃</button>
+        <button onclick="window.location.href='views/members/profile'">마이페이지</button>
+        <p>Name: <span th:text="${session.memberInfo.nickname}">NickName</span></p>
+        <p>Role: <span th:text="${session.memberInfo.role}">Role</span></p>
+        <p>Provider: <span th:text="${session.memberInfo.provider}">Provider</span></p>
+    </th:block>
+</th:block>
+</html>
+
+<script src="/js/Member.js"></script>

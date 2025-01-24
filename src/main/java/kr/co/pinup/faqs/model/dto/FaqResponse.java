@@ -1,7 +1,7 @@
 package kr.co.pinup.faqs.model.dto;
 
 import kr.co.pinup.faqs.Faq;
-import kr.co.pinup.users.MemberResponse;
+import kr.co.pinup.members.model.dto.MemberResponse;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ public record FaqResponse(Long id, String question, String answer, String catego
 
     public FaqResponse(Faq faq) {
         this(faq.getId(), faq.getQuestion(), faq.getAnswer(), faq.getCategory().getName(),
-                MemberResponse.toResponse(faq.getMember()),
+                new MemberResponse(faq.getMember()),
                 faq.getCreatedAt(), faq.getUpdatedAt());
     }
 }

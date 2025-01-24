@@ -3,7 +3,7 @@ package kr.co.pinup.notices;
 import jakarta.persistence.*;
 import kr.co.pinup.common.BaseEntity;
 import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
-import kr.co.pinup.users.Member;
+import kr.co.pinup.members.Member;
 import lombok.*;
 
 @Entity
