@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
+<div class="container" layout:fragment="content">
+    <div>
+        <button id="create" th:onclick="|location.href='@{/notices/new}'|">글 작성</button>
+    </div>
+    <div th:each="notice: ${notices}" th:object="${notice}"
+         th:onclick="|location.href='@{/notices/{id}(id=*{id})}'|">
+        <div>
+            <div th:text="*{id}" hidden>id</div>
+            <div th:text="*{title}">title</div>
+            <div th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></div>
+        </div>
+    </div>
+</div>
+</html>

@@ -1,22 +1,26 @@
 package kr.co.pinup.exception;
 
-import org.springframework.http.HttpStatus;
+import lombok.Getter;
 
-public class GlobalCustomException extends RuntimeException {
+import java.util.HashMap;
+import java.util.Map;
 
-    private final HttpStatus status;
+@Getter
+public abstract class GlobalCustomException extends RuntimeException {
 
-    public GlobalCustomException(String message, HttpStatus status) {
+    private final Map<String, String> validation = new HashMap<>();
+
+    public GlobalCustomException(String message) {
         super(message);
-        this.status = status;
     }
 
-    public GlobalCustomException(String message, HttpStatus status, Throwable cause) {
+    public GlobalCustomException(String message, Throwable cause) {
         super(message, cause);
-        this.status = status;
     }
 
-    public HttpStatus getStatus() {
-        return status;
+    protected abstract int getHttpStatusCode();
+
+    public void addValidation(String fieldName, String message) {
+        validation.put(fieldName, message);
     }
 }

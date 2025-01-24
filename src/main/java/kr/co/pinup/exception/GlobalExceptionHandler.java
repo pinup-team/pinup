@@ -1,28 +1,67 @@
 package kr.co.pinup.exception;
 
-import org.springframework.http.HttpStatus;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-
-import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.ui.Model;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+
+@Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ResponseBody
+    @ResponseStatus(BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> invalidRequestHandler(MethodArgumentNotValidException ex) {
+        int status = ex.getStatusCode().value();
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(status)
+                .message("잘못된 요청입니다.")
+                .build();
 
-    // 공통 에러 응답 빌더 (ErrorResponse DTO 사용)
-    private ResponseEntity<ErrorResponse> buildErrorResponse(String message, HttpStatus status, String details) {
-        ErrorResponse errorResponse = new ErrorResponse("error", message);
-        if (details != null) {
-            errorResponse.setDetails(details);
+        for (FieldError fieldError : ex.getFieldErrors()) {
+            errorResponse.addValidation(fieldError.getField(), fieldError.getDefaultMessage());
         }
-        return ResponseEntity.status(status).body(errorResponse);
+
+        return ResponseEntity.status(status)
+                .body(errorResponse);
     }
 
-    // CustomAppException 핸들러 (모든 하위 클래스 포함)
     @ExceptionHandler(GlobalCustomException.class)
-    public ResponseEntity<ErrorResponse> handleCustomAppException(GlobalCustomException ex) {
-        return buildErrorResponse(ex.getMessage(), ex.getStatus(), null);
+    public String customException(GlobalCustomException ex, HttpServletResponse response, Model model) {
+        int status = ex.getHttpStatusCode();
+        model.addAttribute("error", ErrorResponse.builder()
+                .status(status)
+                .message(ex.getMessage())
+                .validation(ex.getValidation())
+                .build());
+
+        response.setStatus(status);
+
+        return "views/error";
     }
 
+    @ResponseStatus(INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(Exception.class)
+    public String exception(Exception ex, HttpServletResponse response, Model model) {
+        log.error("[Exception]", ex);
+        int status = INTERNAL_SERVER_ERROR.value();
+        model.addAttribute("error", ErrorResponse.builder()
+                .status(status)
+                .message(ex.getMessage())
+                .build());
+
+        response.setStatus(status);
+
+        return "views/error";
+    }
 }
