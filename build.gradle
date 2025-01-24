@@ -52,14 +52,8 @@ dependencies {
 	implementation group: 'org.javassist', name: 'javassist', version: '3.15.0-GA'
 	// google people
 	implementation 'com.google.apis:google-api-services-people:v1-rev20210419-1.31.0'
-	// 레이아웃
-	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
 	// wireMock
 	testImplementation 'org.wiremock:wiremock-standalone:3.9.1'
-	// h2 DB
-	testImplementation 'com.h2database:h2'
-	// validation
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
 tasks.named('test') {
