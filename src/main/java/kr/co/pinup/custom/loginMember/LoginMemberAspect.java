@@ -1,4 +1,4 @@
-package kr.co.pinup.custom;
+package kr.co.pinup.custom.loginMember;
 
 import jakarta.servlet.http.HttpServletRequest;
 import kr.co.pinup.exception.common.UnauthorizedException;
@@ -14,7 +14,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class LoginMemberAspect {
 
-    @Around("@annotation(kr.co.pinup.custom.LoginMember)")  // @LoginMember 어노테이션이 붙은 메서드에 적용
+    @Around("@annotation(kr.co.pinup.custom.loginMember.LoginMember)")  // @LoginMember 어노테이션이 붙은 메서드에 적용
     public Object checkLogin(ProceedingJoinPoint joinPoint) throws Throwable {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
         MemberInfo memberInfo = (MemberInfo) request.getSession().getAttribute("memberInfo");
