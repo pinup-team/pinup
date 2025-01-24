@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
+<div layout:fragment="content">
+    <h1>FAQ 작성</h1>
+    <div>
+        <label th:for="category">카테고리</label>
+        <select th:name="category" th:id="category">
+            <option th:value="${null}" th:text="선택">선택</option>
+            <option th:each="entry : ${category.entrySet()}"
+                    th:value="${entry.key}"
+                    th:text="${entry.value}">이용</option>
+        </select>
+        <div th:id="category-error"></div>
+    </div>
+    <div>
+        <label th:for="question">질문 내용</label>
+        <input th:type="text" th:name="question" th:id="question" />
+        <div th:id="question-error"></div>
+    </div>
+    <div>
+        <label th:for="answer">답변 내용</label>
+        <input th:type="text" th:name="answer" th:id="answer">
+        <div th:id="answer-error"></div>
+    </div>
+    <div>
+        <button th:onclick="createFaq()" th:text="작성">작성</button>
+        <button th:onclick="|location.href='@{/faqs}'|" th:text="뒤로가기">뒤로가기</button>
+    </div>
+</div>
+</html>

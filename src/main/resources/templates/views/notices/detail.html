@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
+<div layout:fragment="content">
+  <div>
+    <h1 th:text="'공지사항'">공지사항</h1>
+    <div>
+      <button th:onclick="|location.href='@{/notices/{id}/update(id=${notice.id})}'|">수정</button>
+      <button th:onclick="removeNotice([[${notice.id}]])">삭제</button>
+      <button th:onclick="|location.href='@{/notices}'|">뒤로가기</button>
+    </div>
+    <div>
+      <div th:object="${notice}">
+        <p>
+          <b>제목:</b>
+          <span th:text="*{title}">제목</span>
+        </p>
+        <p>
+          <b>내용:</b>
+          <span th:text="*{content}">내용</span>
+        </p>
+        <p>
+          <b>작성날짜:</b>
+          <span th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}">작성날짜</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+</html>
