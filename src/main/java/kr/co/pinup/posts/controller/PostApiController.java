@@ -1,7 +1,6 @@
 package kr.co.pinup.posts.controller;
 
 import jakarta.validation.Valid;
-import kr.co.pinup.comments.Comment;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
@@ -76,9 +75,9 @@ public class PostApiController {
     @PutMapping("/{id}")
     public ResponseEntity<Post> updatePost(@PathVariable Long id,
                                            @ModelAttribute @Valid UpdatePostRequest updatePostRequest,
+                                           @RequestParam("imagesToDelete") List<String> imagesToDelete,
                                            @RequestParam("images") MultipartFile[] images) {
-
-        Post post = postService.updatePost(id, updatePostRequest,images);
+        Post post = postService.updatePost(id, updatePostRequest,images,imagesToDelete);
         return ResponseEntity.ok(post);
     }
 }

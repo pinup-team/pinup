@@ -93,7 +93,11 @@ public class PostImageService  {
 
     public void deleteSelectedImages(Long postId, PostImageRequest postImageRequest) {
 
+        System.out.println("deleteSelectedImages: "+postImageRequest.getImagesToDelete());
+
         List<String> imagesToDelete = postImageRequest.getImagesToDelete();
+
+        System.out.println("deleteSelectedImages: "+imagesToDelete);
 
         if (imagesToDelete != null && !imagesToDelete.isEmpty()) {
 

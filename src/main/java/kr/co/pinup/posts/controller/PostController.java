@@ -1,10 +1,8 @@
 package kr.co.pinup.posts.controller;
 
 import kr.co.pinup.comments.service.CommentService;
-import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
 
-import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.service.PostService;
 import lombok.RequiredArgsConstructor;
