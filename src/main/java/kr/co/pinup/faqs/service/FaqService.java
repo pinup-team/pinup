@@ -8,6 +8,8 @@ import kr.co.pinup.faqs.model.dto.FaqCreateRequest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
 import kr.co.pinup.members.Member;
+import kr.co.pinup.members.exception.MemberNotFoundException;
+import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +27,9 @@ public class FaqService {
     private final FaqRepository faqRepository;
     private final MemberRepository memberRepository;
 
-    public void save(FaqCreateRequest request) {
-        // TODO : 임시 로직 / merge 후 수정 필요
-        List<Member> members = memberRepository.findAll();
+    public void save(MemberInfo memberInfo, FaqCreateRequest request) {
+        Member member = memberRepository.findByNickname(memberInfo.getNickname())
+                .orElseThrow(() -> new MemberNotFoundException(memberInfo.getNickname() + "님을 찾을 수 없습니다."));
 
         FaqCategory category = FaqCategory.valueOf(request.category().toUpperCase());
 
@@ -35,7 +37,7 @@ public class FaqService {
                 .question(request.question())
                 .answer(request.answer())
                 .category(category)
-                .member(members.get(0))
+                .member(member)
                 .build();
 
         faqRepository.save(faq);
