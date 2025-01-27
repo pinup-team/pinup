@@ -89,7 +89,7 @@ const updateNotice = async (id) => {
     })
 
     if (response.status === 204) {
-        location.href = 'http://localhost:8080/notices'
+        location.href = `http://localhost:8080/notices/${id}`
     }
     if (response.status === 400) {
         const data = await response.json()

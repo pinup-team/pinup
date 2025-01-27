@@ -1,14 +1,16 @@
 package kr.co.pinup.notices;
 
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.notices.exception.NoticeNotFound;
 import kr.co.pinup.notices.model.dto.NoticeCreateRequest;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
 import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
 import kr.co.pinup.notices.repository.NoticeRepository;
 import kr.co.pinup.notices.service.NoticeService;
-import kr.co.pinup.users.Member;
-import kr.co.pinup.users.MemberRepository;
-import kr.co.pinup.users.enums.UserRole;
+import kr.co.pinup.oauth.OAuthProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,8 +44,20 @@ class NoticeServiceTest {
     @Autowired
     MemberRepository memberRepository;
 
+    Member member;
+
     @BeforeEach
     void setUp() {
+        member = Member.builder()
+                .email("test@naver.com")
+                .name("test")
+                .nickname("두려운고양이")
+                .providerType(OAuthProvider.NAVER)
+                .providerId("hdiJZoHQ-XDUkGvVCDLr1_NnTNZGcJjyxSAEUFjEi6A")
+                .role(MemberRole.ROLE_ADMIN)
+                .build();
+        memberRepository.save(member);
+
         noticeRepository.deleteAll();
     }
 
@@ -62,13 +76,11 @@ class NoticeServiceTest {
     @DisplayName("공지사항 작성")
     void save(String title, String content) {
         // given
-        Member member = Member.builder()
-                .email("user1@gmail.com")
-                .name("user1")
-                .nickname("user1")
-                .role(UserRole.ROLE_USER)
+        MemberInfo memberInfo = MemberInfo.builder()
+                .nickname("두려운고양이")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_ADMIN)
                 .build();
-        memberRepository.save(member);
 
         NoticeCreateRequest noticeCreate = NoticeCreateRequest.builder()
                 .title(title)
@@ -76,7 +88,7 @@ class NoticeServiceTest {
                 .build();
 
         // when
-        noticeService.save(noticeCreate);
+        noticeService.save(memberInfo, noticeCreate);
 
         // then
         assertThat(noticeRepository.count()).isEqualTo(1L);
@@ -92,20 +104,11 @@ class NoticeServiceTest {
         String title2 = "공지사항 제목2";
         String content2 = "공지사항 내용2";
 
-        Member member = Member.builder()
-                .email("user1@gmail.com")
-                .name("user1")
-                .nickname("user1")
-                .role(UserRole.ROLE_USER)
-                .build();
-        memberRepository.save(member);
-
         Notice request1 = Notice.builder()
                 .title(title1)
                 .content(content1)
                 .member(member)
                 .build();
-
         Notice request2 = Notice.builder()
                 .title(title2)
                 .content(content2)
@@ -128,14 +131,6 @@ class NoticeServiceTest {
     @DisplayName("공지사항 단일 조회")
     void find(String title, String content) {
         // given
-        Member member = Member.builder()
-                .email("user1@gmail.com")
-                .name("user1")
-                .nickname("user1")
-                .role(UserRole.ROLE_USER)
-                .build();
-        memberRepository.save(member);
-
         Notice request = Notice.builder()
                 .title(title)
                 .content(content)
@@ -171,14 +166,6 @@ class NoticeServiceTest {
     @DisplayName("공지사항 제목 수정")
     void update(String title, String content) {
         // given
-        Member member = Member.builder()
-                .email("user1@gmail.com")
-                .name("user1")
-                .nickname("user1")
-                .role(UserRole.ROLE_USER)
-                .build();
-        memberRepository.save(member);
-
         Notice notice = Notice.builder()
                 .title(title)
                 .content(content)
@@ -224,14 +211,6 @@ class NoticeServiceTest {
     @DisplayName("공지사항 삭제")
     void remove(String title, String content) {
         // given
-        Member member = Member.builder()
-                .email("user1@gmail.com")
-                .name("user1")
-                .nickname("user1")
-                .role(UserRole.ROLE_USER)
-                .build();
-        memberRepository.save(member);
-
         Notice notice = Notice.builder()
                 .title(title)
                 .content(content)

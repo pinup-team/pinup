@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
 
         response.setStatus(status);
 
-        return "views/error";
+        return "error";
     }
 
     @ResponseStatus(INTERNAL_SERVER_ERROR)
@@ -62,6 +62,6 @@ public class GlobalExceptionHandler {
 
         response.setStatus(status);
 
-        return "views/error";
+        return "error";
     }
 }
