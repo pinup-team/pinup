@@ -24,9 +24,8 @@ public class PostController {
 
     @GetMapping("/list/{storeid}")
     public String getAllPosts(@PathVariable Long storeid, Model model) {
-        log.info("getAllPosts {}", postService.findByStoreId(storeid));
         model.addAttribute("posts", postService.findByStoreId(storeid));
-        return "views/post/list";
+        return "views/posts/list";
     }
 
     @GetMapping("/{postId}")
@@ -36,13 +35,13 @@ public class PostController {
         model.addAttribute("comments", commentService.findByPostId(postId));
         model.addAttribute("images", postImageService.findImagesByPostId(postId));
 
-        return "views/post/detail";
+        return "views/posts/detail";
     }
 
     @GetMapping("/create")
     public String createPostForm(Model model) {
         model.addAttribute("createPostRequest", new CreatePostRequest());
-        return "views/post/create";
+        return "views/posts/create";
     }
 
     @GetMapping("/update/{id}")
@@ -51,7 +50,7 @@ public class PostController {
         model.addAttribute("post", postService.getPostById(id));
         model.addAttribute("images", postImageService.findImagesByPostId(id));
 
-        return "views/post/update";
+        return "views/posts/update";
     }
 
 }

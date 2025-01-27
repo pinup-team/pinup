@@ -1,14 +1,15 @@
 package kr.co.pinup.notices;
 
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.notices.exception.NoticeNotFound;
 import kr.co.pinup.notices.model.dto.NoticeCreateRequest;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
 import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
 import kr.co.pinup.notices.repository.NoticeRepository;
 import kr.co.pinup.notices.service.NoticeService;
-import kr.co.pinup.users.Member;
-import kr.co.pinup.users.MemberRepository;
-import kr.co.pinup.users.enums.UserRole;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -66,7 +67,7 @@ class NoticeServiceTest {
                 .email("user1@gmail.com")
                 .name("user1")
                 .nickname("user1")
-                .role(UserRole.ROLE_USER)
+                .role(MemberRole.ROLE_USER)
                 .build();
         memberRepository.save(member);
 
@@ -96,7 +97,7 @@ class NoticeServiceTest {
                 .email("user1@gmail.com")
                 .name("user1")
                 .nickname("user1")
-                .role(UserRole.ROLE_USER)
+                .role(MemberRole.ROLE_USER)
                 .build();
         memberRepository.save(member);
 
@@ -132,7 +133,7 @@ class NoticeServiceTest {
                 .email("user1@gmail.com")
                 .name("user1")
                 .nickname("user1")
-                .role(UserRole.ROLE_USER)
+                .role(MemberRole.ROLE_USER)
                 .build();
         memberRepository.save(member);
 
@@ -175,7 +176,7 @@ class NoticeServiceTest {
                 .email("user1@gmail.com")
                 .name("user1")
                 .nickname("user1")
-                .role(UserRole.ROLE_USER)
+                .role(MemberRole.ROLE_USER)
                 .build();
         memberRepository.save(member);
 
@@ -228,7 +229,7 @@ class NoticeServiceTest {
                 .email("user1@gmail.com")
                 .name("user1")
                 .nickname("user1")
-                .role(UserRole.ROLE_USER)
+                .role(MemberRole.ROLE_USER)
                 .build();
         memberRepository.save(member);
 

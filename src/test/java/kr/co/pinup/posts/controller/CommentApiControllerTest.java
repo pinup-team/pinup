@@ -30,7 +30,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 
-@ExtendWith(MockitoExtension.class)  // Mockito 확장자를 사용하여 Mockito 테스트를 진행
+@ExtendWith(MockitoExtension.class)
 class CommentApiControllerTest {
 
     @InjectMocks
@@ -44,13 +44,12 @@ class CommentApiControllerTest {
 
     @BeforeEach
     void setUp() {
-        objectMapper = new ObjectMapper();  // ObjectMapper 명시적 초기화
+        objectMapper = new ObjectMapper();
         mockMvc = MockMvcBuilders.standaloneSetup(commentApiController).build();
     }
 
     @Test
     public void testCreateComment() throws Exception {
-        // given
         Long postId = 1L;
 
         CreateCommentRequest createCommentRequest = CreateCommentRequest.builder()
@@ -67,16 +66,14 @@ class CommentApiControllerTest {
         when(commentService.createComment(eq(postId), any(CreateCommentRequest.class)))
                 .thenReturn(commentResponse);
 
-        // when & then
-        mockMvc.perform(post("/api/comment/{postId}", postId)  // Correct HTTP method is POST
-                        .contentType(MediaType.APPLICATION_JSON)  // Correctly set the content type
-                        .content(objectMapper.writeValueAsString(createCommentRequest)))  // Ensure this correctly serializes your object
-                .andExpect(status().isCreated())  // Expecting 201 Created
+        mockMvc.perform(post("/api/comment/{postId}", postId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(createCommentRequest)))
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.content").value("This is a test comment"))
                 .andExpect(jsonPath("$.userId").value(1L))
                 .andExpect(jsonPath("$.postId").value(postId));
 
-        // commentService 호출 여부 검증
         verify(commentService).createComment(eq(postId), any(CreateCommentRequest.class));
     }
 

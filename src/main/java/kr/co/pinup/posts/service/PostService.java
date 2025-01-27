@@ -32,13 +32,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
     private final PostRepository postRepository;
     private final PostImageService postImageService;
 
     @Transactional
-    public Post createPost(CreatePostRequest createPostRequest, MultipartFile[] images) {
+    public PostResponse createPost(CreatePostRequest createPostRequest, MultipartFile[] images) {
 
         Post post = Post.builder()
                 .storeId(1L)
@@ -59,7 +57,7 @@ public class PostService {
             post.updateThumbnail(postImages.get(0).getS3Url());
         }
 
-        return postRepository.save(post);
+        return PostResponse.from(post);
     }
 
     public List<PostResponse> findByStoreId(Long storeId) {

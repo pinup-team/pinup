@@ -7,9 +7,10 @@ import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
 import kr.co.pinup.faqs.repository.FaqRepository;
 import kr.co.pinup.faqs.service.FaqService;
-import kr.co.pinup.users.Member;
-import kr.co.pinup.users.MemberRepository;
-import kr.co.pinup.users.enums.UserRole;
+
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.members.repository.MemberRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -67,7 +68,7 @@ class FaqServiceTest {
                 .email("user1@gmail.com")
                 .name("user1")
                 .nickname("user1")
-                .role(UserRole.ROLE_USER)
+                .role(MemberRole.ROLE_USER)
                 .build();
         memberRepository.save(member);
 
@@ -97,7 +98,7 @@ class FaqServiceTest {
                 .email("user1@gmail.com")
                 .name("user1")
                 .nickname("user1")
-                .role(UserRole.ROLE_USER)
+                .role(MemberRole.ROLE_USER)
                 .build();
         memberRepository.save(member);
 
@@ -130,7 +131,7 @@ class FaqServiceTest {
                 .email("user1@gmail.com")
                 .name("user1")
                 .nickname("user1")
-                .role(UserRole.ROLE_USER)
+                .role(MemberRole.ROLE_USER)
                 .build();
         memberRepository.save(member);
 
@@ -173,7 +174,7 @@ class FaqServiceTest {
                 .email("user1@gmail.com")
                 .name("user1")
                 .nickname("user1")
-                .role(UserRole.ROLE_USER)
+                .role(MemberRole.ROLE_USER)
                 .build();
         memberRepository.save(member);
 
@@ -229,7 +230,7 @@ class FaqServiceTest {
                 .email("user1@gmail.com")
                 .name("user1")
                 .nickname("user1")
-                .role(UserRole.ROLE_USER)
+                .role(MemberRole.ROLE_USER)
                 .build();
         memberRepository.save(member);
 
