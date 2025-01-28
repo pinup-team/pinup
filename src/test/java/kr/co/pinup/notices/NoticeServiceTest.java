@@ -23,7 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -99,30 +101,23 @@ class NoticeServiceTest {
     @DisplayName("공지사항 전체 조회")
     void findAll() {
         // given
-        String title1 = "공지사항 제목1";
-        String content1 = "공지사항 내용1";
-        String title2 = "공지사항 제목2";
-        String content2 = "공지사항 내용2";
-
-        Notice request1 = Notice.builder()
-                .title(title1)
-                .content(content1)
-                .member(member)
-                .build();
-        Notice request2 = Notice.builder()
-                .title(title2)
-                .content(content2)
-                .member(member)
-                .build();
-        noticeRepository.saveAll(List.of(request1, request2));
+        List<Notice> request = IntStream.range(1, 3)
+                .mapToObj(i -> Notice.builder()
+                        .title("공지사항 제목 " + i)
+                        .content("공지사항 내용 " + i)
+                        .member(member)
+                        .createdAt(LocalDateTime.now().plusNanos(i * 1000000000L))
+                        .build())
+                .toList();
+        noticeRepository.saveAll(request);
 
         // when
         List<NoticeResponse> notices = noticeService.findAll();
 
         // then
         assertThat(noticeRepository.count()).isEqualTo(2L);
-        assertThat(notices.get(0).title()).isEqualTo(title2);
-        assertThat(notices.get(0).content()).isEqualTo(content2);
+        assertThat(notices.get(0).title()).isEqualTo("공지사항 제목 2");
+        assertThat(notices.get(0).content()).isEqualTo("공지사항 내용 2");
     }
 
     @Transactional
