@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'kr.co'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1-BETA'
 
 java {
 	toolchain {
@@ -69,4 +69,12 @@ tasks.named('test') {
 	testLogging {
 		events "passed", "skipped", "failed"
 	}
+}
+
+bootJar {
+	enabled = true
+}
+
+jar {
+	enabled = false
 }
