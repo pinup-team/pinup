@@ -1,12 +1,16 @@
 package kr.co.pinup.faqs.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.exception.ErrorResponse;
 import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.faqs.exception.FaqNotFound;
 import kr.co.pinup.faqs.model.dto.FaqCreateRequest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
+import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.oauth.OAuthProvider;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -14,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,11 +41,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Import(SecurityConfigTest.class)
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(FaqApiController.class)
 class FaqApiControllerTest {
 
-    static final String VIEWS_ERROR = "views/error";
+    static final String VIEWS_ERROR = "error";
 
     @Autowired
     private MockMvc mockMvc;
@@ -54,6 +61,11 @@ class FaqApiControllerTest {
     @DisplayName("FAQ 저장")
     void save() throws Exception {
         // given
+        MemberInfo mockMemberInfo = MemberInfo.builder()
+                .nickname("두려운고양이")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_ADMIN)
+                .build();
         FaqCreateRequest request = FaqCreateRequest.builder()
                 .category("USE")
                 .question("이거 어떻게 해야 하나요?")
@@ -64,8 +76,9 @@ class FaqApiControllerTest {
 
         // expected
         mockMvc.perform(post("/api/faqs")
-                .contentType(APPLICATION_JSON)
-                .content(body))
+                        .contentType(APPLICATION_JSON)
+                        .sessionAttr("userInfo", mockMemberInfo)
+                        .content(body))
                 .andExpect(status().isCreated())
                 .andDo(print());
     }
@@ -269,7 +282,11 @@ class FaqApiControllerTest {
     void update() throws Exception {
         // given
         long faqId = 1L;
-
+        MemberInfo mockMemberInfo = MemberInfo.builder()
+                .nickname("두려운고양이")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_ADMIN)
+                .build();
         FaqUpdateRequest request = FaqUpdateRequest.builder()
                 .category("USE")
                 .question("질문")
@@ -281,6 +298,7 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("userInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isNoContent())
                 .andDo(print());
@@ -395,7 +413,11 @@ class FaqApiControllerTest {
     void updateWithNonExistId() throws Exception {
         // given
         long faqId = Long.MAX_VALUE;
-
+        MemberInfo mockMemberInfo = MemberInfo.builder()
+                .nickname("두려운고양이")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_ADMIN)
+                .build();
         FaqUpdateRequest request = FaqUpdateRequest.builder()
                 .category("USE")
                 .question("질문")
@@ -410,6 +432,7 @@ class FaqApiControllerTest {
         // expected
         MvcResult result = mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("userInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isNotFound())
                 .andExpect(view().name(VIEWS_ERROR))
@@ -427,12 +450,18 @@ class FaqApiControllerTest {
     void remove() throws Exception {
         // given
         long faqId = 1L;
+        MemberInfo mockMemberInfo = MemberInfo.builder()
+                .nickname("두려운고양이")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_ADMIN)
+                .build();
 
         // when
         doNothing().when(faqService).remove(faqId);
 
         // expected
-        mockMvc.perform(delete("/api/faqs/{faqId}", faqId))
+        mockMvc.perform(delete("/api/faqs/{faqId}", faqId)
+                        .sessionAttr("userInfo", mockMemberInfo))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
@@ -442,12 +471,18 @@ class FaqApiControllerTest {
     void removeWithNonExistId() throws Exception {
         // given
         long faqId = Long.MAX_VALUE;
+        MemberInfo mockMemberInfo = MemberInfo.builder()
+                .nickname("두려운고양이")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_ADMIN)
+                .build();
 
         // when
         doThrow(new FaqNotFound()).when(faqService).remove(faqId);
 
         // expected
-        MvcResult result = mockMvc.perform(delete("/api/faqs/{faqId}", faqId))
+        MvcResult result = mockMvc.perform(delete("/api/faqs/{faqId}", faqId)
+                        .sessionAttr("userInfo", mockMemberInfo))
                 .andExpect(status().isNotFound())
                 .andExpect(view().name(VIEWS_ERROR))
                 .andExpect(model().attributeExists("error"))
