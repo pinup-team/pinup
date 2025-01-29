@@ -1,7 +1,6 @@
 package kr.co.pinup.postImages.exception.postimage;
 
 import kr.co.pinup.exception.GlobalCustomException;
-import org.springframework.http.HttpStatus;
 // check
 public class PostImageUploadException extends GlobalCustomException {
 

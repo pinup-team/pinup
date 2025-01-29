@@ -1,7 +1,6 @@
 package kr.co.pinup.oauth.naver;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.config.OauthConfig;
 import kr.co.pinup.oauth.OAuthApiClient;
 import kr.co.pinup.oauth.OAuthLoginParams;
@@ -64,7 +63,7 @@ public class NaverApiClient implements OAuthApiClient {
     }
 
     @Override
-    public boolean revokeAccessToken(HttpSession session, String accessToken) {
+    public boolean revokeAccessToken(String accessToken) {
         NaverToken tokenResponse = naverWebClient.post()
                 .uri(uriBuilder -> URI.create(UriComponentsBuilder.fromHttpUrl(naverProvider.getTokenUri())
                         .queryParam("grant_type", "delete")

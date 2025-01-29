@@ -1,6 +1,6 @@
 // 로그아웃
 function logOut() {
-    fetch('/users/logout', {
+    fetch('/api/members/logout', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -33,21 +33,22 @@ function updateAccount() {
     };
     console.log("updatedProfile", updatedProfile)
 
-    fetch('/users', {
+    fetch('/api/members', {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(updatedProfile)
     })
-        .then(response => response.text().then(text => {
-            alert(text);
-            if (response.ok) {
+        .then(response => response.text())
+        .then(text => {
+            if (text === "수정 성공") {
+                alert(text);
                 window.location.reload();
-            } else if (response.status >= 403 && response.status < 500) {
-                window.location.href = "/";
+            } else {
+                alert(text);
             }
-        }))
+        })
         .catch(error => {
             console.error('Error:', error);
             alert('서버와의 연결에 실패했습니다.');
@@ -56,7 +57,7 @@ function updateAccount() {
 
 // 탈퇴
 function deleteAccount() {
-    fetch('/users', {
+    fetch('/api/members', {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
@@ -76,4 +77,8 @@ function deleteAccount() {
             console.error('Error:', error);
             alert('서버와의 연결에 실패했습니다.');
         });
+}
+
+function redirectToHome() {
+    window.location.href = "/";
 }

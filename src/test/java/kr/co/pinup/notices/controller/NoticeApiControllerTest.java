@@ -2,11 +2,11 @@ package kr.co.pinup.notices.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.pinup.exception.ErrorResponse;
-import kr.co.pinup.notices.service.NoticeService;
 import kr.co.pinup.notices.exception.NoticeNotFound;
 import kr.co.pinup.notices.model.dto.NoticeCreateRequest;
-import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
+import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
+import kr.co.pinup.notices.service.NoticeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,7 +20,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
 import java.util.stream.IntStream;

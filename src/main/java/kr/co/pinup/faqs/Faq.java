@@ -2,8 +2,8 @@ package kr.co.pinup.faqs;
 
 import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
-import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
+import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.members.Member;
 import lombok.*;
 

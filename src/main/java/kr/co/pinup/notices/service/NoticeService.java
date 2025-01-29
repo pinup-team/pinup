@@ -1,14 +1,14 @@
 package kr.co.pinup.notices.service;
 
 import jakarta.transaction.Transactional;
-import kr.co.pinup.notices.repository.NoticeRepository;
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.notices.Notice;
 import kr.co.pinup.notices.exception.NoticeNotFound;
 import kr.co.pinup.notices.model.dto.NoticeCreateRequest;
-import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
-import kr.co.pinup.members.Member;
-import kr.co.pinup.members.repository.MemberRepository;
+import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
+import kr.co.pinup.notices.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

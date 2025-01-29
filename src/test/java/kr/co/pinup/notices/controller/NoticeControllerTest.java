@@ -1,7 +1,7 @@
 package kr.co.pinup.notices.controller;
 
-import kr.co.pinup.notices.service.NoticeService;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
+import kr.co.pinup.notices.service.NoticeService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

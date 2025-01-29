@@ -1,7 +1,6 @@
 package kr.co.pinup.posts.controller;
 
 import jakarta.validation.Valid;
-import kr.co.pinup.comments.Comment;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;

@@ -6,7 +6,6 @@ import kr.co.pinup.BaseEntity;
 import kr.co.pinup.comments.Comment;
 import kr.co.pinup.postImages.PostImage;
 import lombok.*;
-import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
 import java.util.List;

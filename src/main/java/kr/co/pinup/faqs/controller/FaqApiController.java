@@ -1,10 +1,10 @@
 package kr.co.pinup.faqs.controller;
 
 import jakarta.validation.Valid;
-import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.faqs.model.dto.FaqCreateRequest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
+import kr.co.pinup.faqs.service.FaqService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

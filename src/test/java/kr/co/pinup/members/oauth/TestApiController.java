@@ -1,4 +1,4 @@
-package kr.co.pinup.members;
+package kr.co.pinup.members.oauth;
 
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.config.OauthConfig;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/test/users")
+@RequestMapping("/test/api/members")
 public class TestApiController {
     private final OauthConfig oauthConfig;
     private final CodecProperties codecProperties;

@@ -1,6 +1,7 @@
 package kr.co.pinup.config;
 
 import kr.co.pinup.custom.customTag.CustomDialect;
+import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -24,13 +25,15 @@ public class ThymeleafConfig {
     @Bean
     public SpringResourceTemplateResolver templateResolver() {
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
-        templateResolver.setPrefix("classpath:/templates/");
+        // TODO: hot reload를 위해 임시로 file 파일 자체를 읽도록 수정
+        templateResolver.setPrefix("file:src/main/resources/templates/");
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode(TemplateMode.HTML);
         templateResolver.setCharacterEncoding("UTF-8");
         // TODO: Template cache is true by default. Set to false if you want
         // templates to be automatically updated when modified.
-        templateResolver.setCacheable(true);
+        // TODO: hot reload를 위해 임시로 false로 설정
+        templateResolver.setCacheable(false);
         return templateResolver;
     }
 
@@ -40,6 +43,7 @@ public class ThymeleafConfig {
         templateEngine.setEnableSpringELCompiler(true);
         templateEngine.setTemplateResolver(templateResolver());
         templateEngine.addDialect(customDialect());  // CustomDialect 추가
+        templateEngine.addDialect(new LayoutDialect());
         return templateEngine;
     }
 

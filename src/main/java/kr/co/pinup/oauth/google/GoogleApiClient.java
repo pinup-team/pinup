@@ -1,7 +1,6 @@
 package kr.co.pinup.oauth.google;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.config.OauthConfig;
 import kr.co.pinup.oauth.OAuthApiClient;
 import kr.co.pinup.oauth.OAuthLoginParams;
@@ -65,7 +64,7 @@ public class GoogleApiClient implements OAuthApiClient {
     }
 
     @Override
-    public boolean revokeAccessToken(HttpSession session, String accessToken) {
+    public boolean revokeAccessToken(String accessToken) {
         return Boolean.TRUE.equals(googleWebClient.post()
                 .uri(uriBuilder -> uriBuilder
                         .scheme("https")

@@ -1,7 +1,7 @@
 package kr.co.pinup.notices.model.dto;
 
-import kr.co.pinup.notices.Notice;
 import kr.co.pinup.members.model.dto.MemberResponse;
+import kr.co.pinup.notices.Notice;
 import lombok.Builder;
 
 import java.time.LocalDateTime;

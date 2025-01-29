@@ -1,7 +1,7 @@
 package kr.co.pinup.faqs.controller;
 
-import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
+import kr.co.pinup.faqs.service.FaqService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
