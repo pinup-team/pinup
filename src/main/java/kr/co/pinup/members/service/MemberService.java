@@ -78,7 +78,7 @@ public class MemberService {
     }
 
     public MemberResponse findMember(MemberInfo memberInfo) {
-        return memberRepository.findByNickname(memberInfo.getNickname())
+        return memberRepository.findByNickname(memberInfo.nickname())
                 .map(MemberResponse::new)
                 .orElseThrow(MemberNotFoundException::new);
     }
@@ -88,23 +88,23 @@ public class MemberService {
             throw new MemberBadRequestException("회원 정보가 누락되었습니다.");
         }
 
-        if (memberRequest.getEmail() == null) {
+        if (memberRequest.email() == null) {
             throw new MemberBadRequestException("이메일은 null일 수 없습니다.");
         }
 
-        Member member = memberRepository.findByNickname(memberInfo.getNickname())
+        Member member = memberRepository.findByNickname(memberInfo.nickname())
                 .orElseThrow(() -> new MemberNotFoundException());
 
-        if (!memberRequest.getEmail().equals(member.getEmail())) {
+        if (!memberRequest.email().equals(member.getEmail())) {
             throw new MemberBadRequestException("이메일이 일치하지 않습니다.");
         }
 
-        if (memberRepository.findByNickname(memberRequest.getNickname()).isPresent()) {
-            throw new MemberBadRequestException("\"" + memberRequest.getNickname() + "\"은 중복된 닉네임입니다.");
+        if (memberRepository.findByNickname(memberRequest.nickname()).isPresent()) {
+            throw new MemberBadRequestException("\"" + memberRequest.nickname() + "\"은 중복된 닉네임입니다.");
         }
 
         try {
-            member.setNickname(memberRequest.getNickname());
+            member.setNickname(memberRequest.nickname());
             Member savedMember = memberRepository.save(member);
             return new MemberResponse(savedMember);
         } catch (DataIntegrityViolationException e) {
@@ -115,14 +115,14 @@ public class MemberService {
     }
 
     public boolean delete(MemberInfo memberInfo, MemberRequest memberRequest) {
-        Member member = memberRepository.findByNickname(memberInfo.getNickname())
+        Member member = memberRepository.findByNickname(memberInfo.nickname())
                 .orElseThrow(() -> new MemberNotFoundException());
 
-        if (memberRequest.getEmail() == null) {
+        if (memberRequest.email() == null) {
             throw new MemberBadRequestException("이메일이 제공되지 않았습니다.");
         }
 
-        if (!memberRequest.getEmail().equals(member.getEmail())) {
+        if (!memberRequest.email().equals(member.getEmail())) {
             throw new UnauthorizedException("권한이 없습니다.");
         }
 

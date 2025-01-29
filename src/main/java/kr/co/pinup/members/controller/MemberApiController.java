@@ -86,7 +86,7 @@ public class MemberApiController {
     public ResponseEntity<?> update(@Validated @RequestBody MemberRequest memberRequest, @LoginMember MemberInfo memberInfo,
                                     HttpSession session) {
         MemberResponse updatedMember = memberService.update(memberInfo, memberRequest);
-        session.setAttribute("memberInfo", new MemberInfo(updatedMember.getNickname(), memberInfo.getProvider(), memberInfo.getRole()));
+        session.setAttribute("memberInfo", MemberInfo.builder().nickname(updatedMember.getNickname()).provider(memberInfo.provider()).role(memberInfo.role()).build());
 
         log.info("Nickname updated to: {}", updatedMember.getNickname());
         return ResponseEntity.ok("닉네임이 변경되었습니다.");
@@ -109,7 +109,7 @@ public class MemberApiController {
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@LoginMember MemberInfo memberInfo, HttpServletRequest request) {
         return Optional.ofNullable(memberInfo).map(member -> {
-            boolean response = memberService.logout(member.getProvider(), request);
+            boolean response = memberService.logout(member.provider(), request);
 
             ResponseCookie deleteCookie = ResponseCookie.from("Authorization", "")
                     .path("/")
