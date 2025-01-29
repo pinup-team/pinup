@@ -23,11 +23,11 @@ function logOut() {
 
 // 수정
 function updateAccount() {
-    var nickname = document.getElementById('nickname').value;
-    var updatedProfile = {
+    const nickname = document.getElementById('nickname').value;
+    const updatedProfile = {
         name: profile.name,
         email: profile.email,
-        nickname: nickname,
+        nickname,
         providerType: profile.providerType,
         role: profile.role
     };

@@ -32,9 +32,6 @@ import static org.mockito.Mockito.*;
 public class MemberServiceTest {
     MockMvc mockMvc;
 
-//    @MockitoBean
-//    MemberController memberController;
-
     @Mock
     private MemberRepository memberRepository;
 
@@ -109,35 +106,32 @@ public class MemberServiceTest {
     }
 
     @Test
-    @DisplayName("MemberLogin 검증")
+    @DisplayName("로그인 검증")
     public void testLogin() {
         when(memberRepository.findByEmail(member.getEmail())).thenReturn(Optional.ofNullable(member));
 
     }
 
     @Test
+    @DisplayName("회원 수정_정상")
     public void testUpdate_WithValidRequest_ShouldReturnUpdatedMember() {
-        // given
-        when(memberRepository.findByNickname(memberInfo.getNickname()))
+        when(memberRepository.findByNickname(memberInfo.nickname()))
                 .thenReturn(Optional.of(member));
-        when(memberRepository.findByNickname(memberRequest.getNickname()))
+        when(memberRepository.findByNickname(memberRequest.nickname()))
                 .thenReturn(Optional.empty());
 
-        // when
         MemberResponse response = memberService.update(memberInfo, memberRequest);
 
-        // then
         assertNotNull(response);
         assertEquals("newNickname", response.getNickname());
         verify(memberRepository).save(member);
     }
 
     @Test
+    @DisplayName("회원 수정_Request 누락")
     public void testUpdate_WithNullMemberRequest_ShouldThrowMemberBadRequestException() {
-        // given
         memberRequest = null;
 
-        // when & then
         MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
             memberService.update(memberInfo, memberRequest);
         });
@@ -145,11 +139,10 @@ public class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("회원 수정_MemberInfo 누락")
     public void testUpdate_WithNullMemberInfo_ShouldThrowMemberBadRequestException() {
-        // given
         memberInfo = null;
 
-        // when & then
         MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
             memberService.update(memberInfo, memberRequest);
         });
@@ -157,6 +150,7 @@ public class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("회원 수정_Email Null")
     public void testUpdate_WithNullEmail_ShouldThrowMemberBadRequestException() {
         MemberRequest testRequest = new MemberRequest(
                 "test",
@@ -166,7 +160,6 @@ public class MemberServiceTest {
                 MemberRole.ROLE_USER
         );
 
-        // when & then
         MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
             memberService.update(memberInfo, testRequest);
         });
@@ -174,9 +167,9 @@ public class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("회원 수정_Email 일치하지 않음")
     public void testUpdate_WithEmailNotMatching_ShouldThrowMemberBadRequestException() {
-        // given
-        when(memberRepository.findByNickname(memberInfo.getNickname()))
+        when(memberRepository.findByNickname(memberInfo.nickname()))
                 .thenReturn(Optional.of(member));
         MemberRequest testRequest = new MemberRequest(
                 "test",
@@ -186,7 +179,6 @@ public class MemberServiceTest {
                 MemberRole.ROLE_USER
         );
 
-        // when & then
         MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
             memberService.update(memberInfo, testRequest);
         });
@@ -194,11 +186,11 @@ public class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("회원 수정_Nickname 중복")
     public void testUpdate_WithDuplicateNickname_ShouldThrowMemberBadRequestException() {
-        // given
-        when(memberRepository.findByNickname(memberInfo.getNickname()))
+        when(memberRepository.findByNickname(memberInfo.nickname()))
                 .thenReturn(Optional.of(member));
-        when(memberRepository.findByNickname(memberRequest.getNickname()))
+        when(memberRepository.findByNickname(memberRequest.nickname()))
                 .thenReturn(Optional.of(Member.builder()
                         .name("test")
                         .email("otherEmail@example.com")
@@ -208,7 +200,6 @@ public class MemberServiceTest {
                         .role(MemberRole.ROLE_USER)
                         .build()));
 
-        // when & then
         MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
             memberService.update(memberInfo, memberRequest);
         });
@@ -216,15 +207,14 @@ public class MemberServiceTest {
     }
 
     @Test
+    @DisplayName("회원 수정_저장 중 오류 발생")
     public void testUpdate_WithExceptionInSave_ShouldThrowMemberServiceException() {
-        // given
-        when(memberRepository.findByNickname(memberInfo.getNickname()))
+        when(memberRepository.findByNickname(memberInfo.nickname()))
                 .thenReturn(Optional.of(member));
-        when(memberRepository.findByNickname(memberRequest.getNickname()))
+        when(memberRepository.findByNickname(memberRequest.nickname()))
                 .thenReturn(Optional.empty());
         doThrow(new RuntimeException("Database error")).when(memberRepository).save(member);
 
-        // when & then
         MemberServiceException exception = assertThrows(MemberServiceException.class, () -> {
             memberService.update(memberInfo, memberRequest);
         });

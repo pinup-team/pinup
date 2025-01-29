@@ -9,6 +9,7 @@ import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -79,6 +80,7 @@ public class MemberApiControllerTest {
     }
 
     @Test
+    @DisplayName("회원 정보 업데이트")
     void testUpdateMember() throws Exception {
         MemberRequest memberRequest = new MemberRequest("test", "test@naver.com", "updatedNickname", OAuthProvider.NAVER, MemberRole.ROLE_USER);
         MemberResponse updatedMemberResponse = new MemberResponse(1L, "test", "test@naver.com", "updatedNickname", OAuthProvider.NAVER, MemberRole.ROLE_USER);
@@ -93,6 +95,7 @@ public class MemberApiControllerTest {
     }
 
     @Test
+    @DisplayName("회원 탈퇴")
     void testDeleteMember() throws Exception {
         MemberRequest memberRequest = new MemberRequest("test", "test@naver.com", "testNickname", OAuthProvider.NAVER, MemberRole.ROLE_USER);
         when(memberService.delete(any(), any())).thenReturn(true);
@@ -106,6 +109,7 @@ public class MemberApiControllerTest {
     }
 
     @Test
+    @DisplayName("로그아웃")
     void testLogout() throws Exception {
         when(memberService.logout(any(), any())).thenReturn(true);
 
@@ -116,6 +120,7 @@ public class MemberApiControllerTest {
     }
 
     @Test
+    @DisplayName("로그인 정보 없는 로그아웃")
     void testLogoutWithoutLoginInfo() throws Exception {
         mockMvc.perform(post("/api/members/logout"))
                 .andExpect(status().isUnauthorized())

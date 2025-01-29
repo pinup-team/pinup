@@ -27,7 +27,11 @@ public class SecurityConfig {
                 )
                 .oauth2Login(oauth -> oauth
                         .loginPage("/login").permitAll()
-                );
+                )
+                .sessionManagement(session -> session
+                        .invalidSessionUrl("/")
+                        .maximumSessions(1)
+                        .expiredUrl("/"));
 
         return http.build();
     }
