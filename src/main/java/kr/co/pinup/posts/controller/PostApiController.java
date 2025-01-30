@@ -41,27 +41,16 @@ public class PostApiController {
         List<CommentResponse> comments = commentService.findByPostId(postId);
         List<PostImageResponse> images = postImageService.findImagesByPostId(postId);
 
-        return PostDetailResponse.builder()
-                .id(post.getId())
-                .storeId(post.getStoreId())
-                .userId(post.getUserId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .thumbnail(post.getThumbnail())
-                .createdAt(post.getCreatedAt())
-                .updatedAt(post.getUpdatedAt())
-                .comments(CommentResponse.fromList(comments))
-                .postImages(PostImageResponse.fromList(images))
-                .build();
+        return PostDetailResponse.postDetailResponse(post, comments, images);
     }
 
+
     @PostMapping("/create")
-    public ResponseEntity<Post> createPost(
+    public ResponseEntity<PostResponse> createPost(
             @ModelAttribute @Valid CreatePostRequest createPostRequest,
             @RequestParam("images") MultipartFile[] images) {
 
-        Post post = postService.createPost(createPostRequest, images);
-        return ResponseEntity.status(HttpStatus.CREATED).body(post);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(createPostRequest, images));
     }
 
 

@@ -1,12 +1,14 @@
 package kr.co.pinup.posts.model.dto;
 
 import kr.co.pinup.posts.Post;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class PostResponse {
     private Long id;
