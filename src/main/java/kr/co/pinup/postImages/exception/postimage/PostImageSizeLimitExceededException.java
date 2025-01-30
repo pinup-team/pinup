@@ -2,21 +2,23 @@ package kr.co.pinup.postImages.exception.postimage;
 
 import kr.co.pinup.exception.GlobalCustomException;
 import org.springframework.http.HttpStatus;
-// check
+import org.springframework.web.bind.annotation.ResponseStatus;
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class PostImageSizeLimitExceededException extends GlobalCustomException {
 
-    public PostImageSizeLimitExceededException(String message) {
-//        super(message, HttpStatus.BAD_REQUEST);
-        super(message);
+    private static final String DEFAULT_MESSAGE = "이미지 크기 제한을 초과했습니다.";
+
+    public PostImageSizeLimitExceededException() {
+        this(DEFAULT_MESSAGE);
     }
 
-    public PostImageSizeLimitExceededException(String message, Throwable cause) {
-//        super(message, HttpStatus.BAD_REQUEST, cause); // 부모 생성자 호출
-        super(message, cause);
+    public PostImageSizeLimitExceededException(String message) {
+        super(message);
     }
 
     @Override
     protected int getHttpStatusCode() {
-        return 0;
+        return HttpStatus.BAD_REQUEST.value();
     }
 }
