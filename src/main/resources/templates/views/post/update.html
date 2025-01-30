@@ -14,18 +14,15 @@
   <input type="hidden" name="storeId" value="1" />
   <input type="hidden" name="userId" value="1" />
 
-  <!-- 이미지 삭제를 위한 숨겨진 필드 -->
-  <input type="hidden" id="imagesToDelete" name="imagesToDelete" th:value="${imagesToDelete != null ? imagesToDelete : ''}" />
-
   <div>
     <h3>Current Images</h3>
+    <input type="hidden" id="imagesToDelete" name="imagesToDelete" th:value="${imagesToDelete != null ? imagesToDelete : ''}" />
     <ul>
       <th:block th:each="image : ${images}">
         <li>
-          <img th:src="@{${image.s3Url}}" alt="Post Image" width="300px"/>
+          <img th:src="${image.s3Url}" alt="Post Image" width="300px"/>
           <input type="checkbox" name="imagesToDelete" th:value="${image.s3Url}"
-                 onclick="toggleImageToDelete('[[${image.s3Url}]]')"/>
-          <label>Delete</label>
+                 th:data-image-url="${image.s3Url}" onclick="toggleImageToDelete(this)"/>
         </li>
       </th:block>
     </ul>
@@ -54,42 +51,90 @@
 </form>
 
 <script>
-  function toggleImageToDelete(imageUrl) {
+  function toggleImageToDelete(checkboxElement) {
+    const imageUrl = checkboxElement.getAttribute('data-image-url');  // data-image-url 속성에서 값 가져오기
     const imagesToDeleteField = document.getElementById('imagesToDelete');
-    let imagesToDelete = imagesToDeleteField.value ? imagesToDeleteField.value.split(',') : [];
 
-    if (imagesToDelete.includes(imageUrl)) {
-      imagesToDelete = imagesToDelete.filter(url => url !== imageUrl);
+    // imagesToDeleteField.value가 없으면 빈 배열을, 있으면 ','로 구분된 값들을 Set으로 변환하여 중복을 제거
+    let imagesToDelete = imagesToDeleteField.value ? new Set(imagesToDeleteField.value.split(',')) : new Set();
+
+    if (checkboxElement.checked) {
+      // 체크되었을 때만 추가
+      imagesToDelete.add(imageUrl);
     } else {
-      imagesToDelete.push(imageUrl);
+      // 체크 해제되었을 때만 삭제
+      imagesToDelete.delete(imageUrl);
     }
 
-    imagesToDeleteField.value = imagesToDelete.join(',');
+    // Set을 다시 ','로 구분된 문자열로 변환하여 value에 저장
+    imagesToDeleteField.value = Array.from(imagesToDelete).join(',');
   }
-
-  document.getElementById('updatePostForm').addEventListener('submit', function(event) {
+  document.getElementById('updatePostForm').addEventListener('submit', function (event) {
     event.preventDefault();
-
-    const deleteImages = [];
-    document.querySelectorAll('input[name="imagesToDelete"]:checked').forEach(checkbox => {
-      deleteImages.push(checkbox.value);
-    });
+    // imagesToDeleteField.value를 활용해 삭제할 이미지 URL을 가져옴
+    const imagesToDelete = document.getElementById('imagesToDelete').value.split(',').filter(Boolean);
 
     const formData = new FormData(event.target);
-    formData.append('postImageRequest.imagesToDelete', deleteImages.join(','));
+
+    // submit 전에 imagesToDelete 값을 콘솔로 확인하여 중복이 있는지 확인
+    console.log("Images to delete:", imagesToDelete);
+
+    if (imagesToDelete.length > 0) {
+      // imagesToDelete 배열을 쉼표로 구분된 문자열로 변환
+      formData.set('imagesToDelete', imagesToDelete.join(','));
+    }
 
     fetch('/api/post/' + formData.get('postId'), {
       method: 'PUT',
-      body: formData
+      body: formData, // FormData 그대로 전송
     })
             .then(response => response.json())
             .then(data => {
-              console.log('게시물 업데이트 성공:', data);
+              if (data.id) {
+                alert("Post updated successfully!");
+                window.location.href = `/post/${data.id}`;
+              } else {
+                alert("Failed to update the post.");
+              }
             })
             .catch(error => {
-              console.error('게시물 업데이트 실패:', error);
+              console.error("Error deleting the post:", error);
+              alert("An error occurred while deleting the post.");
             });
   });
+
+
+  // document.getElementById('updatePostForm').addEventListener('submit', function(event) {
+  //   event.preventDefault();
+  //
+  //   const deleteImages = Array.from(imagesToDelete);
+  //   // document.querySelectorAll('input[name="imagesToDelete"]:checked').forEach(checkbox => {
+  //   //   deleteImages.push(checkbox.value);
+  //   // });
+  //
+  //   const formData = new FormData(event.target);
+  //
+  //   if (deleteImages.length > 0) {
+  //     formData.append('imagesToDelete', JSON.stringify(deleteImages));
+  //   }
+  //
+  //   fetch('/api/post/' + formData.get('postId'), {
+  //     method: 'PUT',
+  //     body: JSON.stringify(formData),
+  //   })
+  //           .then(response => response.json())
+  //           .then(data => {
+  //             if (data.id) {
+  //               alert("Post created successfully!");
+  //               window.location.href = `/post/${data.id}`;
+  //             } else {
+  //               alert("Failed to create the post.");
+  //             }
+  //           })
+  //           .catch(error => {
+  //             console.error('게시물 업데이트 실패:', error);
+  //           });
+  // });
 
 </script>
 
