@@ -1,12 +1,20 @@
 package kr.co.pinup.faqs.controller;
 
-import kr.co.pinup.faqs.service.FaqService;
+import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
+import kr.co.pinup.faqs.service.FaqService;
+import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.members.service.MemberService;
+import kr.co.pinup.oauth.OAuthProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -20,11 +28,12 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@Import(SecurityConfigTest.class)
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(FaqController.class)
 class FaqControllerTest {
 
-    static final String VIEW_NAME = "views/faqs";
+    static final String VIEW_PATH = "views/faqs";
 
     @Autowired
     MockMvc mockMvc;
@@ -32,8 +41,12 @@ class FaqControllerTest {
     @MockitoBean
     FaqService faqService;
 
+    @MockitoBean
+    MemberService memberService;
+
     @Test
     @DisplayName("FAQ 리스트 페이지 이동")
+    @WithAnonymousUser
     void listPage() throws Exception {
         // given
         List<FaqResponse> mockFaqs = IntStream.range(0, 5)
@@ -50,7 +63,7 @@ class FaqControllerTest {
         // expected
         mockMvc.perform(get("/faqs"))
                 .andExpect(status().isOk())
-                .andExpect(view().name(VIEW_NAME + "/list"))
+                .andExpect(view().name(VIEW_PATH + "/list"))
                 .andExpect(model().attributeExists("faqs"))
                 .andExpect(model().attribute("faqs", is(mockFaqs)))
                 .andDo(print());
@@ -59,10 +72,18 @@ class FaqControllerTest {
     @Test
     @DisplayName("FAQ 생성 페이지 이동")
     void newPage() throws Exception {
+        // given
+        MemberInfo mockMemberInfo = MemberInfo.builder()
+                .nickname("두려운고양이")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_ADMIN)
+                .build();
+
         // expected
-        mockMvc.perform(get("/faqs/new"))
+        mockMvc.perform(get("/faqs/new")
+                        .sessionAttr("memberInfo", mockMemberInfo))
                 .andExpect(status().isOk())
-                .andExpect(view().name(VIEW_NAME + "/create"))
+                .andExpect(view().name(VIEW_PATH + "/create"))
                 .andExpect(model().attributeExists("category"))
                 .andExpect(model().attribute("category", is(not(empty()))))
                 .andExpect(model().attribute("category", hasEntry("USE", "이용")))
@@ -73,9 +94,15 @@ class FaqControllerTest {
 
     @Test
     @DisplayName("FAQ 수정 페이지 이동")
+    @WithMockUser(username = "testuser", roles = "ADMIN")
     void updatePage() throws Exception {
         // given
         long faqId = 1L;
+        MemberInfo mockMemberInfo = MemberInfo.builder()
+                .nickname("두려운고양이")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_ADMIN)
+                .build();
         FaqResponse mockFaq = FaqResponse.builder()
                 .category("이용")
                 .question("질문")
@@ -86,9 +113,10 @@ class FaqControllerTest {
         when(faqService.find(faqId)).thenReturn(mockFaq);
 
         // expected
-        mockMvc.perform(get("/faqs/{faqId}/update", faqId))
+        mockMvc.perform(get("/faqs/{faqId}/update", faqId)
+                        .sessionAttr("memberInfo", mockMemberInfo))
                 .andExpect(status().isOk())
-                .andExpect(view().name(VIEW_NAME + "/update"))
+                .andExpect(view().name(VIEW_PATH + "/update"))
                 .andExpect(model().attributeExists("category"))
                 .andExpect(model().attributeExists("faq"))
                 .andExpect(model().attribute("category", is(not(empty()))))

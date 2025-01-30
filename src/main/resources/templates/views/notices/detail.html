@@ -3,10 +3,10 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/support}">
 
-<div layout:fragment="content">
+<div layout:fragment="support-content">
   <div>
     <h1 th:text="'공지사항'">공지사항</h1>
-    <div>
+    <div th:if="${profile != null && profile.getRole() == T(kr.co.pinup.members.model.enums.MemberRole).ROLE_ADMIN}">
       <button th:onclick="|location.href='@{/notices/{id}/update(id=${notice.id})}'|">수정</button>
       <button th:onclick="removeNotice([[${notice.id}]])">삭제</button>
       <button th:onclick="|location.href='@{/notices}'|">뒤로가기</button>

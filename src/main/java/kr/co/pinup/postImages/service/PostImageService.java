@@ -10,8 +10,6 @@ import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.posts.Post;
-
-import kr.co.pinup.posts.model.dto.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

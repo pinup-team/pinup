@@ -3,15 +3,15 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/support}">
 
-  <div class="container" layout:fragment="content">
-    <div>
+  <div class="container" layout:fragment="support-content">
+    <div th:if="${profile != null && profile.getRole() == T(kr.co.pinup.members.model.enums.MemberRole).ROLE_ADMIN}">
       <button th:onclick="|location.href='@{/faqs/new}'|">FAQ 작성</button>
     </div>
     <div th:each="faq : ${faqs}" th:object="${faq}">
       <div th:text="*{category}"></div>
       <div th:text="*{question}"></div>
       <div th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></div>
-      <div>
+      <div th:if="${profile != null && profile.getRole() == T(kr.co.pinup.members.model.enums.MemberRole).ROLE_ADMIN}">
         <button th:onclick="|location.href='@{/faqs/{id}/update(id=*{id})}'|" th:text="수정">수정</button>
         <button th:onclick="removeFaq([[*{id}]])" th:text="삭제">삭제</button>
       </div>

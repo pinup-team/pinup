@@ -1,10 +1,10 @@
 package kr.co.pinup.members.service;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import jakarta.validation.Valid;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
-import kr.co.pinup.members.exception.MemberNotFoundException;
+import kr.co.pinup.members.exception.*;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.dto.MemberResponse;
@@ -15,12 +15,11 @@ import kr.co.pinup.oauth.OAuthResponse;
 import kr.co.pinup.oauth.OAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 @Slf4j
@@ -32,22 +31,32 @@ public class MemberService {
     private final OAuthService oAuthService;
 
     public MemberInfo login(OAuthLoginParams params, HttpSession session) {
-        OAuthResponse oAuthResponse = oAuthService.request(params, session);
-        Member user = findOrCreateUser(oAuthResponse);
-        return MemberInfo.builder()
-                .nickname(user.getNickname())
-                .provider(user.getProviderType())
-                .role(user.getRole())
-                .build();
+        try {
+            OAuthResponse oAuthResponse = oAuthService.request(params, session);
+            Member member = findOrCreateMember(oAuthResponse);
+            return MemberInfo.builder()
+                    .nickname(member.getNickname())
+                    .provider(member.getProviderType())
+                    .role(member.getRole())
+                    .build();
+        } catch (OAuthProviderNotFoundException e) {
+            throw new OAuthProviderNotFoundException("지원되지 않는 OAuth 공급자입니다.");
+        } catch (OAuthTokenRequestException e) {
+            throw new OAuthTokenRequestException("OAuth 토큰 요청 중 오류가 발생했습니다.");
+        } catch (OAuthTokenNotFoundException e) {
+            throw new OAuthTokenNotFoundException("OAuth 토큰을 찾을 수 없습니다.");
+        } catch (UnauthorizedException e) {
+            throw new UnauthorizedException("OAuth 로그인 중 오류가 발생했습니다.");
+        }
     }
 
-    private Member findOrCreateUser(OAuthResponse oAuthResponse) {
+    private Member findOrCreateMember(OAuthResponse oAuthResponse) {
         return memberRepository.findByEmail(oAuthResponse.getEmail())
-                .orElseGet(() -> newUser(oAuthResponse));
+                .orElseGet(() -> newMember(oAuthResponse));
     }
 
-    private Member newUser(OAuthResponse oAuthResponse) {
-        Member user = Member.builder()
+    private Member newMember(OAuthResponse oAuthResponse) {
+        Member member = Member.builder()
                 .name(oAuthResponse.getName())
                 .email(oAuthResponse.getEmail())
                 .nickname(makeNickname())
@@ -55,7 +64,7 @@ public class MemberService {
                 .providerId(oAuthResponse.getId())
                 .build();
 
-        return memberRepository.save(user);
+        return memberRepository.save(member);
     }
 
     public String makeNickname() {
@@ -63,81 +72,75 @@ public class MemberService {
         do {
             String randomAdjective = getRandomItem(ADJECTIVES);
             String randomNoun = getRandomItem(NOUNS);
-            nickname = randomAdjective + randomNoun;
+            nickname = randomAdjective + " " + randomNoun;
         } while (memberRepository.existsByNickname(nickname));
         return nickname;
     }
 
-    public MemberResponse findUser(MemberInfo memberInfo) {
-        try {
-            return memberRepository.findByNickname(memberInfo.getNickname())
-                    .map(member -> new MemberResponse(member))
-                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        } catch (IllegalArgumentException e) {
-            log.error("Error while fetching user: {}", e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            log.error("Unexpected error occurred while fetching user: {}", e.getMessage());
-            throw new RuntimeException("서버 오류가 발생했습니다.");
-        }
+    public MemberResponse findMember(MemberInfo memberInfo) {
+        return memberRepository.findByNickname(memberInfo.nickname())
+                .map(MemberResponse::new)
+                .orElseThrow(MemberNotFoundException::new);
     }
 
     public MemberResponse update(MemberInfo memberInfo, MemberRequest memberRequest) {
-        if (memberRequest.getEmail() == null) {
-            throw new IllegalArgumentException("이메일은 null일 수 없습니다.");
+        Member member = memberRepository.findByNickname(memberInfo.nickname())
+                .orElseThrow(() -> new MemberNotFoundException());
+
+        if (!memberRequest.email().equals(member.getEmail())) {
+            throw new MemberBadRequestException("이메일이 일치하지 않습니다.");
         }
 
-        Member member = memberRepository.findByNickname(memberInfo.getNickname())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
-
-        if (!memberRequest.getEmail().equals(member.getEmail())) {
-            throw new IllegalArgumentException("이메일이 일치하지 않습니다.");
+        if (memberRepository.findByNickname(memberRequest.nickname()).isPresent()) {
+            throw new MemberBadRequestException("\"" + memberRequest.nickname() + "\"은 중복된 닉네임입니다.");
         }
 
-        if (memberRepository.findByNickname(memberRequest.getNickname()).isPresent()) {
-            throw new IllegalArgumentException("\""+ memberRequest.getNickname()+"\"은 중복된 닉네임입니다.");
+        try {
+            member.setNickname(memberRequest.nickname());
+            Member savedMember = memberRepository.save(member);
+            return new MemberResponse(savedMember);
+        } catch (DataIntegrityViolationException e) {
+            throw new MemberServiceException("회원 정보 저장 중 제약 조건 위반이 발생했습니다.", e);
+        } catch (Exception e) {
+            throw new MemberServiceException("회원 정보 저장 중 오류가 발생했습니다.", e);
         }
-
-        member.setNickname(memberRequest.getNickname());
-        Member savedUser = memberRepository.save(member);
-
-        return new MemberResponse(savedUser);
     }
 
     public boolean delete(MemberInfo memberInfo, MemberRequest memberRequest) {
-        try {
-            Optional<Member> userEntityOptional = memberRepository.findByNickname(memberInfo.getNickname());
+        Member member = memberRepository.findByNickname(memberInfo.nickname())
+                .orElseThrow(() -> new MemberNotFoundException());
 
-            if (userEntityOptional.isPresent()) {
-                Member member = userEntityOptional.get();
-                if (memberRequest.getEmail().equals(member.getEmail())) {
-                    memberRepository.delete(member);
-                    return true;
-                } else {
-                    throw new UnauthorizedException("권한이 없습니다.");
-                }
-            } else {
-                throw new MemberNotFoundException("사용자를 찾을 수 없습니다.");
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("An error occurred while deleting the user: " + e.getMessage(), e);
+        if (!memberRequest.email().equals(member.getEmail())) {
+            throw new UnauthorizedException("권한이 없습니다.");
         }
+
+        try {
+            memberRepository.delete(member);
+        } catch (Exception e) {
+            throw new MemberServiceException("회원 삭제 중 오류가 발생했습니다.", e);
+        }
+
+        return true;
+    }
+
+    public boolean logout(OAuthProvider oAuthProvider, HttpServletRequest request) {
+        log.info("Logging out with provider {}", oAuthProvider);
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            throw new UnauthorizedException("세션이 존재하지 않습니다. 다시 로그인 해주세요.");
+        }
+
+        boolean response = oAuthService.revoke(oAuthProvider, request);
+        if (response) {
+            session.invalidate();
+        }
+        return response;
     }
 
     private String getRandomItem(List<String> items) {
         Random random = new Random();
         int index = random.nextInt(items.size());
         return items.get(index);
-    }
-
-    public boolean logout(OAuthProvider oAuthProvider, HttpSession session) {
-        log.info("LogOut {}", oAuthProvider);
-        boolean response = oAuthService.revoke(oAuthProvider, session);
-
-        if (response) {
-            session.invalidate();
-        }
-        return response;
     }
 
     private static final List<String> ADJECTIVES = List.of(

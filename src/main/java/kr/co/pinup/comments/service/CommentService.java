@@ -3,15 +3,12 @@ package kr.co.pinup.comments.service;
 import jakarta.transaction.Transactional;
 import kr.co.pinup.comments.Comment;
 import kr.co.pinup.comments.exception.comment.CommentNotFoundException;
-
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.model.dto.CreateCommentRequest;
 import kr.co.pinup.comments.repository.CommentRepository;
 import kr.co.pinup.posts.Post;
-
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.repository.PostRepository;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

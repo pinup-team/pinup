@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{common/layouts/layout}">
-<div layout:fragment="content">
+      layout:decorate="~{layouts/layout}">
+
+<div class="container" layout:fragment="content">
     <th:block th:if="${session.memberInfo == null}">
         <p>잘못된 접근입니다.</p>
     </th:block>
@@ -20,7 +21,7 @@
             <tr>
                 <td>닉네임</td>
                 <td><input type="text" th:field="*{nickname}" th:placeholder="닉네임" id="nickname"></td>
-<!--                <div type="text" th:errors="*{nickname}"></div>-->
+                <!--                <div type="text" th:errors="*{nickname}"></div>-->
             </tr>
             <tr>
                 <td>가입경로</td>
@@ -35,9 +36,7 @@
         <button type="button" onclick="updateAccount()">수정</button>
         <button type="button" onclick="deleteAccount()">탈퇴</button>
     </th:block>
-    <form action="/" method="get">
-        <button type="submit">홈으로 돌아가기</button>
-    </form>
+    <div><button onclick="redirectToHome()">홈으로 돌아가기</button></div>
 </div>
 </html>
 

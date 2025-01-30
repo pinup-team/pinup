@@ -3,14 +3,12 @@ package kr.co.pinup.posts.service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
-
 import kr.co.pinup.posts.exception.post.PostDeleteFailedException;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;

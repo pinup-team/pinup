@@ -61,13 +61,51 @@ public class MemberTest {
     private MockHttpSession session;
     private ObjectMapper objectMapper;
 
-    private MemberInfo testInfo = new MemberInfo("네이버TestUser", OAuthProvider.NAVER, MemberRole.ROLE_USER);
-    private MemberRequest testRequest = new MemberRequest("test", "test@naver.com", "네이버TestUser", OAuthProvider.NAVER, MemberRole.ROLE_USER);
-    private MemberResponse testResponse = new MemberResponse(1L, "test", "test@naver.com", "네이버TestUser", OAuthProvider.NAVER, MemberRole.ROLE_USER);
+    private MemberInfo testInfo = MemberInfo.builder()
+            .nickname("네이버TestMember")
+            .provider(OAuthProvider.NAVER)
+            .role(MemberRole.ROLE_USER)
+            .build();
 
-    private MemberInfo mockTestInfo = new MemberInfo("mockNickname", OAuthProvider.NAVER, MemberRole.ROLE_USER);
-    private MemberRequest mockTestRequest = new MemberRequest("mock", "mock@naver.com", "mockNickname", OAuthProvider.NAVER, MemberRole.ROLE_USER);
-    private MemberResponse mockTestResponse = new MemberResponse(1L, "mock", "mock@naver.com", "mockNickname", OAuthProvider.NAVER, MemberRole.ROLE_USER);
+    private MemberRequest testRequest = MemberRequest.builder()
+            .name("test")
+            .email("test@naver.com")
+            .nickname("네이버TestMember")
+            .providerType(OAuthProvider.NAVER)
+            .role(MemberRole.ROLE_USER)
+            .build();
+
+    private MemberResponse testResponse = MemberResponse.builder()
+            .id(1L)
+            .name("test")
+            .email("test@naver.com")
+            .nickname("네이버TestMember")
+            .providerType(OAuthProvider.NAVER)
+            .role(MemberRole.ROLE_USER)
+            .build();
+
+    private MemberInfo mockTestInfo = MemberInfo.builder()
+            .nickname("mockNickname")
+            .provider(OAuthProvider.NAVER)
+            .role(MemberRole.ROLE_USER)
+            .build();
+
+    private MemberRequest mockTestRequest = MemberRequest.builder()
+            .name("mock")
+            .email("mock@naver.com")
+            .nickname("mockNickname")
+            .providerType(OAuthProvider.NAVER)
+            .role(MemberRole.ROLE_USER)
+            .build();
+
+    private MemberResponse mockTestResponse = MemberResponse.builder()
+            .id(1L)
+            .name("mock")
+            .email("mock@naver.com")
+            .nickname("mockNickname")
+            .providerType(OAuthProvider.NAVER)
+            .role(MemberRole.ROLE_USER)
+            .build();
 
     @BeforeEach
     void setUp() {
@@ -75,7 +113,7 @@ public class MemberTest {
         jdbcTemplate = new JdbcTemplate(dataSource);
 
         jdbcTemplate.update("INSERT INTO members (name, email, nickname, provider_type, provider_id, role) VALUES (?, ?, ?, ?, ?, ?)",
-                "test", "test@naver.com", "네이버TestUser", "NAVER", "123456789", "ROLE_USER");
+                "test", "test@naver.com", "네이버TestMember", OAuthProvider.NAVER, "123456789", MemberRole.ROLE_USER);
 
         mockMvc = MockMvcBuilders.standaloneSetup(memberController).build();
         session = new MockHttpSession();
@@ -91,7 +129,7 @@ public class MemberTest {
     @Test
     void testLogin() {
         // Given
-        String expectedView = "users/login";
+        String expectedView = "/views/members/login";
 
         // When
         String view = memberController.login();
@@ -102,19 +140,19 @@ public class MemberTest {
 
     @Nested
     @DisplayName("유저 조회 테스트")
-    class findUser {
+    class findMember {
         @Test
         void 조회_성공() throws Exception { // CHECK
-            given(memberService.findUser(testInfo)).willReturn(testResponse);
+            given(memberService.findMember(testInfo)).willReturn(testResponse);
 
             MockHttpSession session = new MockHttpSession();
 
-            mockMvc.perform(get("/users/profile")
+            mockMvc.perform(get("/members/profile")
                             .session(session)
-                            .sessionAttr("userInfo", testInfo))
+                            .sessionAttr("memberInfo", testInfo))
                     .andExpect(status().isOk())
 //                    .andExpect(view().name("error"))
-                    .andExpect(view().name("users/profile"))
+                    .andExpect(view().name("/view/members/profile"))
                     .andExpect(model().attribute("profile", testResponse))
                     .andDo(print());
         }
@@ -127,12 +165,12 @@ public class MemberTest {
                     .role(MemberRole.ROLE_USER)
                     .build();
 
-            given(memberService.findUser(memberInfo)).willReturn(null);
+            given(memberService.findMember(memberInfo)).willReturn(null);
 
             MockHttpSession session = new MockHttpSession();
-            session.setAttribute("userInfo", memberInfo);
+            session.setAttribute("memberInfo", memberInfo);
 
-            mockMvc.perform(get("/users/profile")
+            mockMvc.perform(get("/members/profile")
                             .session(session))
                     .andExpect(status().isOk())
                     .andExpect(view().name("error"))
@@ -141,8 +179,8 @@ public class MemberTest {
         }
 
         @Test
-        void 조회_UserInfo없음() throws Exception { // CHECK
-            mockMvc.perform(get("/users/profile"))
+        void 조회_MemberInfo없음() throws Exception { // CHECK
+            mockMvc.perform(get("/members/profile"))
                     .andExpect(status().isOk())
                     .andExpect(view().name("error"))
                     .andExpect(model().attribute("message", "로그인 정보가 없습니다."))
@@ -150,11 +188,11 @@ public class MemberTest {
         }
 
         @Test
-        void 조회_UserInfo있음_유저정보없음() throws Exception {
-            given(memberService.findUser(mockTestInfo)).willReturn(null);
+        void 조회_MemberInfo있음_유저정보없음() throws Exception {
+            given(memberService.findMember(mockTestInfo)).willReturn(null);
 
-            mockMvc.perform(get("/users/profile")
-                            .sessionAttr("userInfo", mockTestInfo))
+            mockMvc.perform(get("/members/profile")
+                            .sessionAttr("memberInfo", mockTestInfo))
                     .andExpect(status().isOk())
                     .andExpect(view().name("error"))
                     .andExpect(model().attribute("message", "사용자를 찾을 수 없습니다."))
@@ -164,13 +202,13 @@ public class MemberTest {
 
     @Nested
     @DisplayName("유저 수정 테스트") // CHECK
-    class updateUser {
+    class updateMember {
         @Test
         void 수정_성공() throws Exception {
             given(memberService.update(testInfo, testRequest)).willReturn(testResponse);
 
-            mockMvc.perform(MockMvcRequestBuilders.patch("/users")
-                            .sessionAttr("userInfo", testInfo)
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/members")
+                            .sessionAttr("memberInfo", testInfo)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(new ObjectMapper().writeValueAsString(testResponse)))
                     .andExpect(status().isOk())
@@ -185,8 +223,8 @@ public class MemberTest {
             given(memberService.update(testInfo, memberRequest)).willThrow(new IllegalArgumentException("\"" + memberRequest.getNickname() + "\"은 중복된 닉네임입니다."));
 //            given(userService.update(mockUserInfo, memberDto)).willReturn(memberDto);
 
-            mockMvc.perform(MockMvcRequestBuilders.patch("/users")
-                            .sessionAttr("userInfo", testInfo)
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/members")
+                            .sessionAttr("memberInfo", testInfo)
                             .contentType("application/json")
                             .content(objectMapper.writeValueAsString(memberRequest)))
                     .andExpect(status().isBadRequest())
@@ -195,9 +233,9 @@ public class MemberTest {
         }
 
         @Test
-        void 수정_실패_UserInfo없음() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.patch("/users")
-                            .sessionAttr("userInfo", eq(null))
+        void 수정_실패_MemberInfo없음() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders.patch("/api/members")
+                            .sessionAttr("memberInfo", eq(null))
                             .contentType("application/json")
                             .content(objectMapper.writeValueAsString(testRequest)))
                     .andExpect(status().is4xxClientError())
@@ -208,13 +246,13 @@ public class MemberTest {
 
     @Nested
     @DisplayName("유저 탈퇴 테스트") // CHECK
-    class deleteUser {
+    class deleteMember {
         @Test
         void 탈퇴_성공() throws Exception {
             given(memberService.delete(testInfo, testRequest)).willReturn(true);
 
-            mockMvc.perform(MockMvcRequestBuilders.delete("/users")
-                            .sessionAttr("userInfo", testInfo)
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/members")
+                            .sessionAttr("memberInfo", testInfo)
                             .contentType("application/json")
                             .content(objectMapper.writeValueAsString(testRequest)))
                     .andExpect(status().isOk())
@@ -223,11 +261,11 @@ public class MemberTest {
         }
 
         @Test
-        void 탈퇴_실패_UserNotFound() throws Exception {
-            given(memberService.delete(mockTestInfo, mockTestRequest)).willThrow(new MemberNotFoundException("사용자를 찾을 수 없습니다."));
+        void 탈퇴_실패_MemberNotFound() throws Exception {
+            given(memberService.delete(mockTestInfo, mockTestRequest)).willThrow(new MemberNotFoundException());
 
-            mockMvc.perform(MockMvcRequestBuilders.delete("/users")
-                            .sessionAttr("userInfo", mockTestInfo)
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/members")
+                            .sessionAttr("memberInfo", mockTestInfo)
                             .contentType("application/json")
                             .content(objectMapper.writeValueAsString(mockTestRequest)))
                     .andExpect(status().isNotFound())
@@ -243,8 +281,8 @@ public class MemberTest {
         void 탈퇴_실패_EmailNotEqual() throws Exception {
             given(memberService.delete(testInfo, mockTestRequest)).willThrow(new UnauthorizedException("권한이 없습니다."));
 
-            mockMvc.perform(MockMvcRequestBuilders.delete("/users")
-                            .sessionAttr("userInfo", testInfo)
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/members")
+                            .sessionAttr("memberInfo", testInfo)
                             .contentType("application/json")
                             .content(objectMapper.writeValueAsString(mockTestRequest)))
                     .andExpect(status().isUnauthorized())
@@ -257,9 +295,9 @@ public class MemberTest {
         }
 
         @Test
-        void 탈퇴_실패_UserDtoNull() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.delete("/users")
-                            .sessionAttr("userInfo", testInfo)
+        void 탈퇴_실패_MemberDtoNull() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/members")
+                            .sessionAttr("memberInfo", testInfo)
                             .contentType("application/json")
                             .content(""))
                     .andExpect(status().isBadRequest())
@@ -267,8 +305,8 @@ public class MemberTest {
         }
 
         @Test
-        void 탈퇴_실패_UserInfoNull() throws Exception {
-            mockMvc.perform(MockMvcRequestBuilders.delete("/users")
+        void 탈퇴_실패_MemberInfoNull() throws Exception {
+            mockMvc.perform(MockMvcRequestBuilders.delete("/api/members")
                             .contentType("application/json")
                             .content(objectMapper.writeValueAsString(testRequest)))
                     .andExpect(status().isUnauthorized())

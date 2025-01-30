@@ -1,4 +1,4 @@
-package kr.co.pinup.members;
+package kr.co.pinup.members.oauth;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import jakarta.servlet.http.HttpSession;

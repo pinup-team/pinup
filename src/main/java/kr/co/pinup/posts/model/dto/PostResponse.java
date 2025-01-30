@@ -1,7 +1,8 @@
 package kr.co.pinup.posts.model.dto;
 
 import kr.co.pinup.posts.Post;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
