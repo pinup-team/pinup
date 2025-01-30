@@ -13,6 +13,10 @@ public class MemberNotFoundException extends GlobalCustomException {
         super(MESSAGE);
     }
 
+    public MemberNotFoundException(String message) {
+        super(message);
+    }
+
     @Override
     public int getHttpStatusCode() {
         return HttpStatus.NOT_FOUND.value();

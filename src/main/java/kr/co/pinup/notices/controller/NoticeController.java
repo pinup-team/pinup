@@ -56,7 +56,7 @@ public class NoticeController {
         ensureAuthenticated(memberInfo);
         ensureAdminRole(memberInfo);
 
-        model.addAttribute("profile", memberService.findUser(memberInfo));
+        model.addAttribute("profile", memberService.findMember(memberInfo));
         model.addAttribute("notice", noticeService.find(noticeId));
 
         return VIEW_PATH + "/update";
@@ -64,7 +64,7 @@ public class NoticeController {
 
     private MemberResponse getMember(MemberInfo memberInfo) {
         if (memberInfo != null) {
-            return memberService.findUser(memberInfo);
+            return memberService.findMember(memberInfo);
         }
 
         return null;
@@ -78,7 +78,7 @@ public class NoticeController {
     }
 
     private void ensureAdminRole(MemberInfo memberInfo) {
-        if (MemberRole.ROLE_ADMIN != memberInfo.getRole()) {
+        if (MemberRole.ROLE_ADMIN != memberInfo.role()) {
             throw new ForbiddenException("액세스할 수 있는 권한이 없습니다.");
         }
     }

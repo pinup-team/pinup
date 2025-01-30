@@ -40,8 +40,8 @@ public class NoticeService {
     }
 
     public void save(MemberInfo memberInfo, NoticeCreateRequest noticeCreate) {
-        Member member = memberRepository.findByNickname(memberInfo.getNickname())
-                .orElseThrow(() -> new MemberNotFoundException(memberInfo.getNickname() + "님을 찾을 수 없습니다."));
+        Member member = memberRepository.findByNickname(memberInfo.nickname())
+                .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
 
         Notice notice = Notice.builder()
                 .title(noticeCreate.title())
