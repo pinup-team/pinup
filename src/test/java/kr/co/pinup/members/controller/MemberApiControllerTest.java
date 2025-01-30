@@ -50,7 +50,7 @@ public class MemberApiControllerTest {
     private Member member;
     private MemberInfo memberInfo;
     private MemberRequest memberRequest;
-    private MemberResponse memberResponse;
+    private MemberResponse updatedMemberResponse;
 
     @BeforeEach
     void setUp() {
@@ -78,11 +78,11 @@ public class MemberApiControllerTest {
                 .providerType(OAuthProvider.NAVER)
                 .role(MemberRole.ROLE_USER)
                 .build();
-        memberResponse = MemberResponse.builder()
+        updatedMemberResponse = MemberResponse.builder()
                 .id(1L)
                 .name("test")
                 .email("test@naver.com")
-                .nickname("네이버TestMember")
+                .nickname("updatedTestNickname")
                 .providerType(OAuthProvider.NAVER)
                 .role(MemberRole.ROLE_USER)
                 .build();
@@ -98,8 +98,6 @@ public class MemberApiControllerTest {
     @WithMockUser
     @DisplayName("회원 정보 업데이트")
     void testUpdateMember() throws Exception {
-        MemberResponse updatedMemberResponse = new MemberResponse(1L, "test", "test@naver.com", "updatedNickname", OAuthProvider.NAVER, MemberRole.ROLE_USER);
-
         when(memberService.update(any(MemberInfo.class), any(MemberRequest.class))).thenReturn(updatedMemberResponse);
 
         mockMvc.perform(patch("/api/members")
