@@ -77,7 +77,7 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("userInfo", mockMemberInfo)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isCreated())
                 .andDo(print());
@@ -298,7 +298,7 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("userInfo", mockMemberInfo)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isNoContent())
                 .andDo(print());
@@ -432,7 +432,7 @@ class FaqApiControllerTest {
         // expected
         MvcResult result = mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("userInfo", mockMemberInfo)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isNotFound())
                 .andExpect(view().name(VIEWS_ERROR))
@@ -461,7 +461,7 @@ class FaqApiControllerTest {
 
         // expected
         mockMvc.perform(delete("/api/faqs/{faqId}", faqId)
-                        .sessionAttr("userInfo", mockMemberInfo))
+                        .sessionAttr("memberInfo", mockMemberInfo))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
@@ -482,7 +482,7 @@ class FaqApiControllerTest {
 
         // expected
         MvcResult result = mockMvc.perform(delete("/api/faqs/{faqId}", faqId)
-                        .sessionAttr("userInfo", mockMemberInfo))
+                        .sessionAttr("memberInfo", mockMemberInfo))
                 .andExpect(status().isNotFound())
                 .andExpect(view().name(VIEWS_ERROR))
                 .andExpect(model().attributeExists("error"))

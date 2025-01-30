@@ -3,8 +3,6 @@ package kr.co.pinup.posts.model.dto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
-
-
 import lombok.*;
 
 @Setter

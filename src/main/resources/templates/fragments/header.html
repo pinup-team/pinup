@@ -1,23 +1,25 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <header id="header" th:fragment="headerFragment">
-    <div class="container">
-        <div class="logo">
-            <a href="/" th:text="'PinUp'">PinUp</a>
-        </div>
-        <nav>
-            <ul>
-                <li><a href="/" th:href="@{/}">Home</a></li>
-                <li><a href="/about" th:href="@{/about}">About</a></li>
-                <li><a href="/services" th:href="@{/services}">Services</a></li>
-                <li><a href="/contact" th:href="@{/contact}">Contact</a></li>
-                <li><a href="/notices" th:href="@{/notices}">공지사항</a></li>
-                <li><a href="/faqs" th:href="@{/faqs}">FAQ</a></li>
-            </ul>
-        </nav>
-        <div class="user-actions">
-            <a href="/login" th:href="@{/templates/views/members/login}">Login</a>
-        </div>
+    <div class="logo"><a href="/" th:text="'PinUp'">PinUp</a></div>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}">Home</a></li>
+            <li><a th:href="@{/about}">About</a></li>
+            <li><a th:href="@{/services}">Services</a></li>
+            <li><a th:href="@{/contact}">Contact</a></li>
+        </ul>
+    </nav>
+    <div class="user-actions">
+        <th:block th:if="${session.memberInfo == null}">
+            <a th:href="@{/templates/views/members/login}">Login</a>
+        </th:block>
+        <th:block th:if="${session.memberInfo != null}">
+            <button th:onclick="logOut()">로그아웃</button>
+            <button onclick="window.location.href='/members/profile'">마이페이지</button>
+        </th:block>
     </div>
 </header>
 </html>
+
+<script src="/js/member.js"></script>

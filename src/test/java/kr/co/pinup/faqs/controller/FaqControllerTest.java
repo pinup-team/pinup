@@ -81,7 +81,7 @@ class FaqControllerTest {
 
         // expected
         mockMvc.perform(get("/faqs/new")
-                        .sessionAttr("userInfo", mockMemberInfo))
+                        .sessionAttr("memberInfo", mockMemberInfo))
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/create"))
                 .andExpect(model().attributeExists("category"))
@@ -114,7 +114,7 @@ class FaqControllerTest {
 
         // expected
         mockMvc.perform(get("/faqs/{faqId}/update", faqId)
-                        .sessionAttr("userInfo", mockMemberInfo))
+                        .sessionAttr("memberInfo", mockMemberInfo))
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/update"))
                 .andExpect(model().attributeExists("category"))

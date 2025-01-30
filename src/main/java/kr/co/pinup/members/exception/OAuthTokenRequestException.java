@@ -1,12 +1,12 @@
-package kr.co.pinup.exception.common;
+package kr.co.pinup.members.exception;
 
 import kr.co.pinup.exception.GlobalCustomException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
-public class UnauthorizedException extends GlobalCustomException {
-    public UnauthorizedException(String message) {
+public class OAuthTokenRequestException extends GlobalCustomException {
+    public OAuthTokenRequestException(String message) {
         super(message);
     }
 

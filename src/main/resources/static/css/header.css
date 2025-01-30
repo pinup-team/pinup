@@ -1,0 +1,19 @@
+#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+}
+
+/* 네비게이션 메뉴를 가로로 정렬 */
+#header nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#header nav ul li {
+    margin: 0 10px;
+}

@@ -77,7 +77,7 @@ class NoticeControllerTest {
 
         // expected
         mockMvc.perform(get("/notices/new")
-                        .sessionAttr("userInfo", mockMemberInfo))
+                        .sessionAttr("memberInfo", mockMemberInfo))
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/create"))
                 .andDo(print());
@@ -128,7 +128,7 @@ class NoticeControllerTest {
 
         // expected
         mockMvc.perform(get("/notices/{noticeId}/update", noticeId)
-                        .sessionAttr("userInfo", mockMemberInfo))
+                        .sessionAttr("memberInfo", mockMemberInfo))
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/update"))
                 .andExpect(model().attributeExists("notice"))

@@ -4,14 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
 </head>
 <body>
-<header th:replace="~{fragments/header :: headerFragment}"></header>
+<div th:replace="~{fragments/header::headerFragment}"></div>
 
-<th:block layout:fragment="content">
+<div layout:fragment="content">
 
-</th:block>
+</div>
 
-<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
+<div th:replace="~{fragments/footer::footerFragment}"></div>
 </body>
 </html>

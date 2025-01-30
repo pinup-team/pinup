@@ -83,7 +83,7 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(post("/api/notices")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("userInfo", mockMemberInfo)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isCreated())
                 .andDo(print());
@@ -177,7 +177,7 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(post("/api/notices")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("userInfo", mockMemberInfo)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -275,7 +275,7 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("userInfo", mockMemberInfo)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isNoContent())
                 .andDo(print());
@@ -352,7 +352,7 @@ class NoticeApiControllerTest {
         // expected
         MvcResult result = mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("userInfo", mockMemberInfo)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isNotFound())
                 .andExpect(view().name(VIEWS_ERROR))
@@ -382,7 +382,7 @@ class NoticeApiControllerTest {
 
         // expected
         mockMvc.perform(delete("/api/notices/{noticeId}", noticeId)
-                        .sessionAttr("userInfo", mockMemberInfo))
+                        .sessionAttr("memberInfo", mockMemberInfo))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
@@ -404,7 +404,7 @@ class NoticeApiControllerTest {
 
         // expected
         MvcResult result = mockMvc.perform(delete("/api/notices/{noticeId}", noticeId)
-                        .sessionAttr("userInfo", mockMemberInfo))
+                        .sessionAttr("memberInfo", mockMemberInfo))
                 .andExpect(status().isNotFound())
                 .andExpect(view().name(VIEWS_ERROR))
                 .andExpect(model().attributeExists("error"))

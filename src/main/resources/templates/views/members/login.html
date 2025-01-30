@@ -1,17 +1,16 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+<html lang="ko"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}"
       xmlns:oauth="http://oauth">
-<div layout:fragment="content">
-    <div th:fragment="content">
-        <p>로그인 페이지입니다</p>
-        <a oauth:naverLoginUrl="커스텀 uri">
-            <button>NAVER 로그인</button>
-        </a>
-        <a oauth:googleLoginUrl="커스텀 uri">
-            <button>GOOGLE 로그인</button>
-        </a>
-    </div>
+
+<div class="container" layout:fragment="content">
+    <p>로그인 페이지입니다</p>
+    <a oauth:naverLoginUrl="커스텀 uri">
+        <button>NAVER 로그인</button>
+    </a>
+    <a oauth:googleLoginUrl="커스텀 uri">
+        <button>GOOGLE 로그인</button>
+    </a>
 </div>
 </html>

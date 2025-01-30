@@ -5,16 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class MemberNotFoundException extends GlobalCustomException {
-
-    private static final String MESSAGE = "사용자를 찾을 수 없습니다.";
-
-    public MemberNotFoundException() {
-        super(MESSAGE);
+public class OAuthTokenNotFoundException extends GlobalCustomException {
+    public OAuthTokenNotFoundException(String message) {
+        super(message);
     }
-
     @Override
-    public int getHttpStatusCode() {
+    protected int getHttpStatusCode() {
         return HttpStatus.NOT_FOUND.value();
     }
 }

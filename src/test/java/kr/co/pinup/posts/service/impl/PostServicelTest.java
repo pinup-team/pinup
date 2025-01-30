@@ -1,13 +1,12 @@
 package kr.co.pinup.posts.service.impl;
 
 
+import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.service.PostImageService;
+import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
-
-import kr.co.pinup.posts.Post;
-import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.repository.PostRepository;
 import kr.co.pinup.posts.service.PostService;
@@ -28,11 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -139,7 +134,7 @@ public class PostServicelTest {
     void testUpdatePost() throws IOException {
         // given
         Post post = Post.builder()
-                .id(1L)  // ID를 명시적으로 설정합니다.
+//                .id(1L)  // ID를 명시적으로 설정합니다.
                 .title("Test Post")
                 .content("Test Content")
                 .thumbnail("thumbnail.png")
