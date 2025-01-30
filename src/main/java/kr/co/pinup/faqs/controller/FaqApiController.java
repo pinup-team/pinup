@@ -77,7 +77,7 @@ public class FaqApiController {
     }
 
     private void ensureAdminRole(MemberInfo memberInfo) {
-        if (MemberRole.ROLE_ADMIN != memberInfo.getRole()) {
+        if (MemberRole.ROLE_ADMIN != memberInfo.role()) {
             throw new ForbiddenException("액세스할 수 있는 권한이 없습니다.");
         }
     }
