@@ -100,9 +100,9 @@ public class MemberService {
             Member savedMember = memberRepository.save(member);
             return new MemberResponse(savedMember);
         } catch (DataIntegrityViolationException e) {
-            throw new MemberServiceException("회원 정보 저장 중 제약 조건 위반이 발생했습니다.", e);
+            throw new MemberServiceException("회원 정보 저장 중 제약 조건 위반이 발생했습니다.");
         } catch (Exception e) {
-            throw new MemberServiceException("회원 정보 저장 중 오류가 발생했습니다.", e);
+            throw new MemberServiceException("회원 정보 저장 중 오류가 발생했습니다.");
         }
     }
 
@@ -117,7 +117,7 @@ public class MemberService {
         try {
             memberRepository.delete(member);
         } catch (Exception e) {
-            throw new MemberServiceException("회원 삭제 중 오류가 발생했습니다.", e);
+            throw new MemberServiceException("회원 삭제 중 오류가 발생했습니다.");
         }
 
         return true;
