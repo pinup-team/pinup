@@ -50,21 +50,13 @@ public class MemberApiController {
         session.setAttribute("memberInfo", memberInfo);
 
         String accessToken = session.getAttribute("accessToken").toString();
-        session.removeAttribute("accessToken");
+        // TODO 도희 :  accessToken header에 들어가지 않으므로, 당분간 session에서 처리
+        //        session.removeAttribute("accessToken");
 
-        ResponseCookie cookie = ResponseCookie.from("Authorization", accessToken)
-                .path("/")
-                .httpOnly(false)
-                .secure(false)
-                .sameSite("Strict")
-                .maxAge(3600)
-                .build();
+        HttpHeaders headers = controlCookie(accessToken, 3600);
+        headers.setLocation(URI.create("/"));
 
         log.info("Login successful: {}", memberInfo);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/"));
-        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
-
         return ResponseEntity.status(302)
                 .headers(headers)
                 .build();
@@ -111,21 +103,26 @@ public class MemberApiController {
         return Optional.ofNullable(memberInfo).map(member -> {
             boolean response = memberService.logout(member.provider(), request);
 
-            ResponseCookie deleteCookie = ResponseCookie.from("Authorization", "")
-                    .path("/")
-                    .httpOnly(false)
-                    .secure(false)
-                    .sameSite("Strict")
-                    .maxAge(0)
-                    .build();
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+            HttpHeaders headers = controlCookie("", 0);
 
             return response ? ResponseEntity.ok().headers(headers).body("로그아웃 성공")
                     : ResponseEntity.badRequest().body("로그아웃 실패");
         }).orElseGet(() -> {
             return ResponseEntity.status(401).body("로그인 정보가 없습니다.");
         });
+    }
+
+    private HttpHeaders controlCookie(String accessToken, int age) {
+        ResponseCookie cookie = ResponseCookie.from("Authorization", accessToken)
+                .path("/")
+                .httpOnly(false)
+                .secure(false)
+                .sameSite("Strict")
+                .maxAge(age)
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
+        return headers;
     }
 }

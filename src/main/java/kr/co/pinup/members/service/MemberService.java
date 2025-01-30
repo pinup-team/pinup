@@ -72,7 +72,7 @@ public class MemberService {
         do {
             String randomAdjective = getRandomItem(ADJECTIVES);
             String randomNoun = getRandomItem(NOUNS);
-            nickname = randomAdjective + randomNoun;
+            nickname = randomAdjective + " " + randomNoun;
         } while (memberRepository.existsByNickname(nickname));
         return nickname;
     }
@@ -84,14 +84,6 @@ public class MemberService {
     }
 
     public MemberResponse update(MemberInfo memberInfo, MemberRequest memberRequest) {
-        if (memberRequest == null || memberInfo == null) {
-            throw new MemberBadRequestException("회원 정보가 누락되었습니다.");
-        }
-
-        if (memberRequest.email() == null) {
-            throw new MemberBadRequestException("이메일은 null일 수 없습니다.");
-        }
-
         Member member = memberRepository.findByNickname(memberInfo.nickname())
                 .orElseThrow(() -> new MemberNotFoundException());
 
@@ -117,10 +109,6 @@ public class MemberService {
     public boolean delete(MemberInfo memberInfo, MemberRequest memberRequest) {
         Member member = memberRepository.findByNickname(memberInfo.nickname())
                 .orElseThrow(() -> new MemberNotFoundException());
-
-        if (memberRequest.email() == null) {
-            throw new MemberBadRequestException("이메일이 제공되지 않았습니다.");
-        }
 
         if (!memberRequest.email().equals(member.getEmail())) {
             throw new UnauthorizedException("권한이 없습니다.");

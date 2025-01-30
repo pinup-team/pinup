@@ -32,12 +32,4 @@ public class LoginMemberAspect {
 
         return joinPoint.proceed(args);
     }
-//    @Before("@annotation(kr.co.pinup.custom.loginMember.LoginMember) && args(memberInfo,..)")
-//    public void loginMemberHandler(MemberInfo memberInfo) {
-//        if (memberInfo == null) {
-//            throw new UnauthorizedException("로그인 정보가 없습니다.");
-//        }
-//
-//        System.out.println("로그인된 사용자 정보: " + memberInfo);
-//    }
 }
