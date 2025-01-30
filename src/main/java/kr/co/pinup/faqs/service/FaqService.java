@@ -28,8 +28,8 @@ public class FaqService {
     private final MemberRepository memberRepository;
 
     public void save(MemberInfo memberInfo, FaqCreateRequest request) {
-        Member member = memberRepository.findByNickname(memberInfo.getNickname())
-                .orElseThrow(() -> new MemberNotFoundException(memberInfo.getNickname() + "님을 찾을 수 없습니다."));
+        Member member = memberRepository.findByNickname(memberInfo.nickname())
+                .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
 
         FaqCategory category = FaqCategory.valueOf(request.category().toUpperCase());
 

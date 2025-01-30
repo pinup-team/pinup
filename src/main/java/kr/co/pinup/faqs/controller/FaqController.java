@@ -55,7 +55,7 @@ public class FaqController {
         ensureAuthenticated(memberInfo);
         ensureAdminRole(memberInfo);
 
-        model.addAttribute("profile", memberService.findUser(memberInfo));
+        model.addAttribute("profile", memberService.findMember(memberInfo));
         model.addAttribute("category", getFaqCategoryToMap());
         model.addAttribute("faq", faqService.find(faqId));
 
@@ -69,7 +69,7 @@ public class FaqController {
 
     private MemberResponse getMember(MemberInfo memberInfo) {
         if (memberInfo != null) {
-            return memberService.findUser(memberInfo);
+            return memberService.findMember(memberInfo);
         }
 
         return null;
@@ -83,7 +83,7 @@ public class FaqController {
     }
 
     private void ensureAdminRole(MemberInfo memberInfo) {
-        if (MemberRole.ROLE_ADMIN != memberInfo.getRole()) {
+        if (MemberRole.ROLE_ADMIN != memberInfo.role()) {
             throw new ForbiddenException("액세스할 수 있는 권한이 없습니다.");
         }
     }
