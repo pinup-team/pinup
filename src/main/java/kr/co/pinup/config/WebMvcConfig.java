@@ -1,6 +1,6 @@
 package kr.co.pinup.config;
 
-import kr.co.pinup.custom.LoginMemberArgumentResolver;
+import kr.co.pinup.custom.loginMember.LoginMemberArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -21,6 +21,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:/static/images/empty.ico");
+        registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:/images/empty.ico");
     }
 }

@@ -3,7 +3,7 @@ package kr.co.pinup.members.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-import kr.co.pinup.custom.LoginMember;
+import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.exception.MemberNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;

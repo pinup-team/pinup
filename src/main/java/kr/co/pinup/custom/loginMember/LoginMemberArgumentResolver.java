@@ -1,4 +1,4 @@
-package kr.co.pinup.custom;
+package kr.co.pinup.custom.loginMember;
 
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.members.model.dto.MemberInfo;
