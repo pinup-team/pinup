@@ -25,7 +25,7 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@ActiveProfiles("test")  // application-test.yml 활성화
+@ActiveProfiles("test")  // application.yml 활성화
 public class S3ConfigTest {
 
     @Autowired
