@@ -7,26 +7,21 @@ import kr.co.pinup.oauth.google.GoogleToken;
 import kr.co.pinup.oauth.naver.NaverResponse;
 import kr.co.pinup.oauth.naver.NaverToken;
 import org.springframework.boot.autoconfigure.codec.CodecProperties;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/test/api/members")
 public class TestApiController {
     private final OauthConfig oauthConfig;
     private final CodecProperties codecProperties;
     private OauthConfig.Registration naverRegistration;
-    private OauthConfig.Provider naverProvider;
     private OauthConfig.Registration googleRegistration;
-    private OauthConfig.Provider googleProvider;
     HttpSession session;
 
     public TestApiController(OauthConfig oauthConfig, CodecProperties codecProperties) {
         this.oauthConfig = oauthConfig;
         this.naverRegistration = oauthConfig.getRegistration().get("naver");
-        this.naverProvider = oauthConfig.getProvider().get("naver");
         this.googleRegistration = oauthConfig.getRegistration().get("google");
-        this.googleProvider = oauthConfig.getProvider().get("google");
         this.codecProperties = codecProperties;
     }
 

@@ -1,6 +1,8 @@
 package kr.co.pinup.members.oauth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.PinupApplication;
 import kr.co.pinup.config.OauthConfig;
@@ -12,11 +14,13 @@ import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.oauth.google.GoogleLoginParams;
 import kr.co.pinup.oauth.naver.NaverLoginParams;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestConstructor;
@@ -25,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -63,6 +68,8 @@ public class OAuthTest {
     private OauthConfig.Provider googleProvider;
     HttpSession session;
 
+    private ObjectMapper objectMapper;
+
     public OAuthTest(MockMvc mockMvc, MemberService memberService, OauthConfig oauthConfig) {
         this.mockMvc = mockMvc;
         this.memberService = memberService;
@@ -81,7 +88,7 @@ public class OAuthTest {
         System.out.println("WireMock server started on port 8888");
 
         // Naver Token 요청 모킹
-        wireMockServer.stubFor(post(urlEqualTo("/test/users/naver/token"))
+        wireMockServer.stubFor(post(urlEqualTo("/test/members/naver/token"))
 //                wireMockServer.stubFor(post(urlEqualTo(naverProvider.getTokenUri()))
                 .withQueryParam("client_id", matching(naverRegistration.getClientId()))
                 .withQueryParam("client_secret", matching(naverRegistration.getClientSecret()))
@@ -91,13 +98,13 @@ public class OAuthTest {
                 .willReturn(aResponse().withStatus(200).withBody("{ \"access_token\": \"mock-access-token-oauthTestCode\", \"refresh_token\": \"mock-refresh-token\", \"token_type\": \"Bearer\", \"expires_in\": \"3600\" }")));
 
         // Naver MemberInfo 요청 모킹
-        wireMockServer.stubFor(post(urlEqualTo("/test/users/naver/userInfo"))
+        wireMockServer.stubFor(post(urlEqualTo("/test/members/naver/userInfo"))
 //                wireMockServer.stubFor(post(urlEqualTo(naverProvider.getUserInfoUri()))
                 .withHeader("Authorization", matching("Bearer mock-access-token-oauthTestCode"))
                 .willReturn(aResponse().withStatus(200).withBody("{ \"response\": { \"id\": \"123456789\", \"name\": \"test user\", \"email\": \"testuser@naver.com\" }}")));
 
         // Google Token 요청 모킹
-        wireMockServer.stubFor(post(urlEqualTo("/test/users/google/token"))
+        wireMockServer.stubFor(post(urlEqualTo("/test/members/google/token"))
 //                wireMockServer.stubFor(post(urlEqualTo(googleProvider.getTokenUri()))
                 .withQueryParam("client_id", matching(googleRegistration.getClientId()))
                 .withQueryParam("client_secret", matching(googleRegistration.getClientSecret()))
@@ -107,11 +114,12 @@ public class OAuthTest {
                 .willReturn(aResponse().withStatus(200).withBody("{ \"access_token\": \"mock-access-token-oauthTestCode\", \"refresh_token\": \"mock-refresh-token\", \"token_type\": \"Bearer\", \"expires_in\": \"3600\", \"scope\": \"read\" }")));
 
         // Google MemberInfo 요청 모킹
-        wireMockServer.stubFor(post(urlEqualTo("/test/users/google/userInfo"))
+        wireMockServer.stubFor(post(urlEqualTo("/test/members/google/userInfo"))
 //                wireMockServer.stubFor(post(urlEqualTo(googleProvider.getUserInfoUri()))
                 .withHeader("Authorization", matching("Bearer mock-access-token-oauthTestCode"))
                 .willReturn(aResponse().withStatus(200).withBody("{ \"id\": \"a1b2c3d4e5_f6g7h8\", \"name\": \"test user\", \"email\": \"testuser@google.com\" }")));
-    }
+
+        objectMapper = new ObjectMapper();}
 
     @AfterEach
     void tearDown() {
@@ -139,8 +147,10 @@ public class OAuthTest {
                     .build();
             given(memberService.login(naverParams, eq(null))).willReturn(memberInfo);
 
-            mockMvc.perform(get("/users/oauth/naver")
-                            .sessionAttr("memberInfo", memberInfo))
+            System.out.println("naverTokenUri: " + naverProvider.getTokenUri());
+            mockMvc.perform(get("/api/members/oauth/naver")
+                            .content(objectMapper.writeValueAsString(naverParams))
+                    )
                     .andExpect(status().is3xxRedirection())
                     .andExpect(redirectedUrl("/"))
                     .andDo(print());
@@ -159,8 +169,9 @@ public class OAuthTest {
                     .build();
             given(memberService.login(googleParams, eq(null))).willReturn(memberInfo);
 
-            mockMvc.perform(get("/users/oauth/google")
-                            .sessionAttr("memberInfo", memberInfo))
+            mockMvc.perform(get("/api/members/oauth/google")
+                            .content(objectMapper.writeValueAsString(googleParams))
+                    )
                     .andExpect(status().is3xxRedirection()) // 리디렉션 확인
                     .andExpect(redirectedUrl("/")) // "/"로 리디렉션
                     .andDo(print());

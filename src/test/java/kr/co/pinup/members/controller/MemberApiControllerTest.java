@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -25,21 +26,23 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import javax.sql.DataSource;
 
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(MemberApiController.class)
 public class MemberApiControllerTest {
+
     @Autowired
+    private MockMvc mockMvc;
+
+    @Mock
     private MemberService memberService;
 
     @InjectMocks
     private MemberApiController memberApiController;
 
-    private MockMvc mockMvc;
     private MockHttpSession session;
     private MemberInfo testMemberInfo;
 
@@ -51,7 +54,8 @@ public class MemberApiControllerTest {
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(memberApiController).build();
         session = new MockHttpSession();
-        testMemberInfo = new MemberInfo("testNickname", OAuthProvider.NAVER, MemberRole.ROLE_USER);
+        testMemberInfo = MemberInfo.builder().nickname("testNickname").provider(OAuthProvider.NAVER).role(MemberRole.ROLE_USER).build();
+        session.setAttribute("memberInfo", testMemberInfo);
         objectMapper = new ObjectMapper();
 
         DataSource dataSource = new DriverManagerDataSource("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1", "sa", "");
@@ -84,14 +88,19 @@ public class MemberApiControllerTest {
     void testUpdateMember() throws Exception {
         MemberRequest memberRequest = new MemberRequest("test", "test@naver.com", "updatedNickname", OAuthProvider.NAVER, MemberRole.ROLE_USER);
         MemberResponse updatedMemberResponse = new MemberResponse(1L, "test", "test@naver.com", "updatedNickname", OAuthProvider.NAVER, MemberRole.ROLE_USER);
-        when(memberService.update(any(), any())).thenReturn(updatedMemberResponse);
+        when(memberService.update(any(MemberInfo.class), any(MemberRequest.class))).thenReturn(updatedMemberResponse);
 
         mockMvc.perform(patch("/api/members")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(memberRequest))
-                        .sessionAttr("memberInfo", testMemberInfo))
+                        .content(objectMapper.writeValueAsString(memberRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().string("닉네임이 변경되었습니다."));
+
+        // memberService.update()가 한 번 호출되었는지 검증
+        verify(memberService, times(1)).update(any(MemberInfo.class), any(MemberRequest.class));
+
+        // 세션이 업데이트되었는지 검증
+        verify(session, times(1)).setAttribute(eq("memberInfo"), any(MemberInfo.class));
     }
 
     @Test

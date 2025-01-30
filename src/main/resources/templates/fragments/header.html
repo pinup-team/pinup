@@ -12,7 +12,7 @@
     </nav>
     <div class="user-actions">
         <th:block th:if="${session.memberInfo == null}">
-            <a th:href="@{/templates/views/members/login}">Login</a>
+            <a th:href="@{/members/login}">Login</a>
         </th:block>
         <th:block th:if="${session.memberInfo != null}">
             <button th:onclick="logOut()">로그아웃</button>

@@ -50,9 +50,12 @@ public class MemberApiController {
         session.setAttribute("memberInfo", memberInfo);
 
         String accessToken = session.getAttribute("accessToken").toString();
-        // TODO 도희 :  accessToken header에 들어가지 않으므로, 당분간 session에서 처리
-        //        session.removeAttribute("accessToken");
-
+//         TODO 도희 :accessToken header에 들어가기 성공, 당분간 session에서 처리
+//        session.removeAttribute("accessToken");
+//
+//        System.out.println("Set-Cookie Header: " + headers.get(HttpHeaders.SET_COOKIE));
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setLocation(URI.create("/"));
         HttpHeaders headers = controlCookie(accessToken, 3600);
         headers.setLocation(URI.create("/"));
 
@@ -105,7 +108,10 @@ public class MemberApiController {
 
             HttpHeaders headers = controlCookie("", 0);
 
-            return response ? ResponseEntity.ok().headers(headers).body("로그아웃 성공")
+            return response ?
+                    ResponseEntity.ok()
+//                            .headers(headers)
+                            .body("로그아웃 성공")
                     : ResponseEntity.badRequest().body("로그아웃 실패");
         }).orElseGet(() -> {
             return ResponseEntity.status(401).body("로그인 정보가 없습니다.");
