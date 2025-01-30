@@ -4,7 +4,9 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import kr.co.pinup.postImages.PostImage;
+import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
+import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostDeleteFailedException;
@@ -18,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -86,49 +89,46 @@ public class PostService {
         }
     }
 
-    //TODO Post 업데이트 처리시 comment 양방향으로 오류 발생 후에 처리
     @Transactional
-    public Post updatePost(Long id, UpdatePostRequest updatePostRequest, MultipartFile[] images) {
+    public Post updatePost(Long id, UpdatePostRequest updatePostRequest, MultipartFile[] images, List<String> imagesToDelete) {
 
-        Post existingPost  = postRepository.findById(id)
+        Post existingPost = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + id));
 
         PostImageRequest postImageRequest = PostImageRequest.builder()
                 .images(Arrays.asList(images))
-                .imagesToDelete(updatePostRequest.getPostImageRequest().getImagesToDelete())
-                .postId(existingPost.getId())
+                .imagesToDelete(imagesToDelete != null ? imagesToDelete : new ArrayList<>())
                 .build();
 
-        if (updatePostRequest.getPostImageRequest() != null) {
+        boolean thumbnailUpdated = false;
 
-            if (updatePostRequest.getPostImageRequest().getImagesToDelete() != null && !updatePostRequest.getPostImageRequest().getImagesToDelete().isEmpty()) {
-                postImageService.deleteSelectedImages(id, updatePostRequest.getPostImageRequest());
+            if (postImageRequest.getImagesToDelete() != null && !postImageRequest.getImagesToDelete().isEmpty()) {
+
+                postImageService.deleteSelectedImages(id, postImageRequest);
+                List<PostImageResponse> remainingImages = postImageService.findImagesByPostId(id);
+                if (!remainingImages.isEmpty()) {
+                    existingPost.updateThumbnail(remainingImages.get(0).getS3Url());
+                    thumbnailUpdated = true;
+                } else if (postImageRequest.getImages() == null || postImageRequest.getImages().isEmpty()) {
+                    throw new PostImageNotFoundException("썸네일을 설정할 수 없습니다. 게시물에 남은 이미지가 없습니다.");
+                }
+            } else {
+                log.info("삭제할 이미지가 없습니다.");
             }
 
-            if (updatePostRequest.getPostImageRequest().getImages() != null && !updatePostRequest.getPostImageRequest().getImages().isEmpty()) {
-
+            if (postImageRequest != null && postImageRequest.getImages() != null) {
                 List<PostImage> postImages = postImageService.savePostImages(postImageRequest, existingPost);
 
                 if (!postImages.isEmpty()) {
-                    PostImage firstImage = postImageService.findFirstImageByPostId(existingPost.getId());
-                    if (firstImage != null) {
-                        existingPost = existingPost.toBuilder()
-                                .thumbnail(firstImage.getS3Url())  // 썸네일 설정
-                                .build();
+                    if (!thumbnailUpdated) {
+                        existingPost.updateThumbnail(postImages.get(0).getS3Url());
                     }
+                } else {
+                    throw new PostImageNotFoundException("새로운 이미지를 추가했으나 썸네일을 설정할 수 없습니다.");
                 }
             }
-        }
 
-//        List<Comment> clonedComments = new ArrayList<>(existingPost.getComments());
-//        List<PostImage> clonedPostImages = new ArrayList<>(existingPost.getPostImages());
-
-        existingPost = existingPost.toBuilder()
-                .title(updatePostRequest.getTitle())
-                .content(updatePostRequest.getContent())
-//                .comments(clonedComments)
-//                .postImages(clonedPostImages)
-                .build();
+        existingPost.update(updatePostRequest.getTitle(), updatePostRequest.getContent());
 
         return postRepository.save(existingPost);
     }

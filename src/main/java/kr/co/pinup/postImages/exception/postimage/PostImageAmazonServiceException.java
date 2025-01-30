@@ -1,23 +1,24 @@
 package kr.co.pinup.postImages.exception.postimage;
 
 import kr.co.pinup.exception.GlobalCustomException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-// check
+@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class PostImageAmazonServiceException extends GlobalCustomException {
 
-    public PostImageAmazonServiceException(String message) {
-//        super(message, HttpStatus.INTERNAL_SERVER_ERROR);
-        super(message);
+    private static final String DEFAULT_MESSAGE = "Amazon S3 서비스에서 문제가 발생했습니다.";
+
+    public PostImageAmazonServiceException() {
+        this(DEFAULT_MESSAGE);
     }
 
-    public PostImageAmazonServiceException(String message, Throwable cause) {
-//        super(message, HttpStatus.INTERNAL_SERVER_ERROR, cause);
-        super(message, cause);
+    public PostImageAmazonServiceException(String message) {
+        super(message);
     }
 
     @Override
     protected int getHttpStatusCode() {
-        return 0;
+        return HttpStatus.INTERNAL_SERVER_ERROR.value();
     }
 }
-

@@ -36,17 +36,23 @@ public class Post extends BaseEntity {
 
     // @OneToMany: 하나의 게시글에는 여러 개의 이미지를 가질 수 있다.
     @Builder.Default
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
     private List<PostImage> postImages = new ArrayList<>();
 
     // @OneToMany: 하나의 게시글에는 여러 개의 댓글을 가질 수 있다.
     @Builder.Default
-    @OneToMany(mappedBy = "post", cascade = {CascadeType.REMOVE}, orphanRemoval = true)
-    @JsonManagedReference
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
+
 
     public void updateThumbnail(String thumbnail) {
         this.thumbnail = thumbnail;
     }
+
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
+
 }
 

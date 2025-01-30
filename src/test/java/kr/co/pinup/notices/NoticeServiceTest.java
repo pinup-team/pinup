@@ -1,6 +1,7 @@
 package kr.co.pinup.notices;
 
 import kr.co.pinup.members.Member;
+import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.notices.exception.NoticeNotFound;
@@ -9,6 +10,7 @@ import kr.co.pinup.notices.model.dto.NoticeResponse;
 import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
 import kr.co.pinup.notices.repository.NoticeRepository;
 import kr.co.pinup.notices.service.NoticeService;
+import kr.co.pinup.oauth.OAuthProvider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +46,20 @@ class NoticeServiceTest {
     @Autowired
     MemberRepository memberRepository;
 
+    Member member;
+
     @BeforeEach
     void setUp() {
+        member = Member.builder()
+                .email("test@naver.com")
+                .name("test")
+                .nickname("두려운고양이")
+                .providerType(OAuthProvider.NAVER)
+                .providerId("hdiJZoHQ-XDUkGvVCDLr1_NnTNZGcJjyxSAEUFjEi6A")
+                .role(MemberRole.ROLE_ADMIN)
+                .build();
+        memberRepository.save(member);
+
         noticeRepository.deleteAll();
     }
 
@@ -62,13 +78,11 @@ class NoticeServiceTest {
     @DisplayName("공지사항 작성")
     void save(String title, String content) {
         // given
-        Member member = Member.builder()
-                .email("user1@gmail.com")
-                .name("user1")
-                .nickname("user1")
-                .role(MemberRole.ROLE_USER)
+        MemberInfo memberInfo = MemberInfo.builder()
+                .nickname("두려운고양이")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_ADMIN)
                 .build();
-        memberRepository.save(member);
 
         NoticeCreateRequest noticeCreate = NoticeCreateRequest.builder()
                 .title(title)
@@ -76,7 +90,7 @@ class NoticeServiceTest {
                 .build();
 
         // when
-        noticeService.save(noticeCreate);
+        noticeService.save(memberInfo, noticeCreate);
 
         // then
         assertThat(noticeRepository.count()).isEqualTo(1L);
@@ -87,39 +101,23 @@ class NoticeServiceTest {
     @DisplayName("공지사항 전체 조회")
     void findAll() {
         // given
-        String title1 = "공지사항 제목1";
-        String content1 = "공지사항 내용1";
-        String title2 = "공지사항 제목2";
-        String content2 = "공지사항 내용2";
-
-        Member member = Member.builder()
-                .email("user1@gmail.com")
-                .name("user1")
-                .nickname("user1")
-                .role(MemberRole.ROLE_USER)
-                .build();
-        memberRepository.save(member);
-
-        Notice request1 = Notice.builder()
-                .title(title1)
-                .content(content1)
-                .member(member)
-                .build();
-
-        Notice request2 = Notice.builder()
-                .title(title2)
-                .content(content2)
-                .member(member)
-                .build();
-        noticeRepository.saveAll(List.of(request1, request2));
+        List<Notice> request = IntStream.range(1, 3)
+                .mapToObj(i -> Notice.builder()
+                        .title("공지사항 제목 " + i)
+                        .content("공지사항 내용 " + i)
+                        .member(member)
+                        .createdAt(LocalDateTime.now().plusNanos(i * 1000000000L))
+                        .build())
+                .toList();
+        noticeRepository.saveAll(request);
 
         // when
         List<NoticeResponse> notices = noticeService.findAll();
 
         // then
         assertThat(noticeRepository.count()).isEqualTo(2L);
-        assertThat(notices.get(0).title()).isEqualTo(title2);
-        assertThat(notices.get(0).content()).isEqualTo(content2);
+        assertThat(notices.get(0).title()).isEqualTo("공지사항 제목 2");
+        assertThat(notices.get(0).content()).isEqualTo("공지사항 내용 2");
     }
 
     @Transactional
@@ -128,14 +126,6 @@ class NoticeServiceTest {
     @DisplayName("공지사항 단일 조회")
     void find(String title, String content) {
         // given
-        Member member = Member.builder()
-                .email("user1@gmail.com")
-                .name("user1")
-                .nickname("user1")
-                .role(MemberRole.ROLE_USER)
-                .build();
-        memberRepository.save(member);
-
         Notice request = Notice.builder()
                 .title(title)
                 .content(content)
@@ -171,14 +161,6 @@ class NoticeServiceTest {
     @DisplayName("공지사항 제목 수정")
     void update(String title, String content) {
         // given
-        Member member = Member.builder()
-                .email("user1@gmail.com")
-                .name("user1")
-                .nickname("user1")
-                .role(MemberRole.ROLE_USER)
-                .build();
-        memberRepository.save(member);
-
         Notice notice = Notice.builder()
                 .title(title)
                 .content(content)
@@ -224,14 +206,6 @@ class NoticeServiceTest {
     @DisplayName("공지사항 삭제")
     void remove(String title, String content) {
         // given
-        Member member = Member.builder()
-                .email("user1@gmail.com")
-                .name("user1")
-                .nickname("user1")
-                .role(MemberRole.ROLE_USER)
-                .build();
-        memberRepository.save(member);
-
         Notice notice = Notice.builder()
                 .title(title)
                 .content(content)

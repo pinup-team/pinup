@@ -1,22 +1,24 @@
 package kr.co.pinup.postImages.exception.postimage;
 
 import kr.co.pinup.exception.GlobalCustomException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-// check
+@ResponseStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
 public class PostImageFormatNotSupportedException extends GlobalCustomException {
 
-    public PostImageFormatNotSupportedException(String message) {
-//        super(message, HttpStatus.UNSUPPORTED_MEDIA_TYPE);
-        super(message);
+    private static final String DEFAULT_MESSAGE = "지원되지 않는 이미지 형식입니다.";
+
+    public PostImageFormatNotSupportedException() {
+        this(DEFAULT_MESSAGE);
     }
 
-    public PostImageFormatNotSupportedException(String message, Throwable cause) {
-//        super(message, HttpStatus.UNSUPPORTED_MEDIA_TYPE, cause); // 부모 생성자 호출
-        super(message, cause);
+    public PostImageFormatNotSupportedException(String message) {
+        super(message);
     }
 
     @Override
     protected int getHttpStatusCode() {
-        return 0;
+        return HttpStatus.UNSUPPORTED_MEDIA_TYPE.value();
     }
 }
