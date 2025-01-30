@@ -1,27 +1,26 @@
 package kr.co.pinup.posts.service;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-
+import kr.co.pinup.comments.Comment;
 import kr.co.pinup.comments.exception.comment.CommentNotFoundException;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.model.dto.CreateCommentRequest;
 import kr.co.pinup.comments.repository.CommentRepository;
 import kr.co.pinup.comments.service.CommentService;
-import kr.co.pinup.posts.exception.post.PostNotFoundException;
-import kr.co.pinup.comments.Comment;
 import kr.co.pinup.posts.Post;
-
+import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.repository.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CommentServiceTest {

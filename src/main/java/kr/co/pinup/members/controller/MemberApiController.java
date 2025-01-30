@@ -79,7 +79,7 @@ public class MemberApiController {
 
     @PatchMapping
     public ResponseEntity<?> update(@Validated @RequestBody MemberRequest memberRequest, @LoginMember MemberInfo memberInfo,
-                                    HttpSession session) {
+                                                    HttpSession session) {
         MemberResponse updatedMember = memberService.update(memberInfo, memberRequest);
         session.setAttribute("memberInfo", MemberInfo.builder().nickname(updatedMember.getNickname()).provider(memberInfo.provider()).role(memberInfo.role()).build());
 
@@ -88,13 +88,13 @@ public class MemberApiController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> delete(@RequestBody MemberRequest memberRequest, @LoginMember MemberInfo memberInfo,
+    public ResponseEntity<?> delete(@Validated @RequestBody MemberRequest memberRequest, @LoginMember MemberInfo memberInfo,
                                     HttpSession session) {
         boolean isDeleted = memberService.delete(memberInfo, memberRequest);
         if (isDeleted) {
             session.invalidate();
             log.info("Member deleted successfully");
-            return ResponseEntity.ok("탈퇴 성공");
+            return ResponseEntity.ok().body("탈퇴 성공");
         } else {
             log.warn("Member deletion failed");
             return ResponseEntity.badRequest().body("사용자 탈퇴 실패");

@@ -1,14 +1,11 @@
 package kr.co.pinup.oauth;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.members.exception.OAuthProviderNotFoundException;
-import kr.co.pinup.members.exception.OAuthTokenNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

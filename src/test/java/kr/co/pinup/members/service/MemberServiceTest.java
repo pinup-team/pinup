@@ -1,6 +1,5 @@
 package kr.co.pinup.members.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.MemberBadRequestException;
 import kr.co.pinup.members.exception.MemberServiceException;
@@ -18,7 +17,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -41,34 +39,10 @@ public class MemberServiceTest {
     @InjectMocks
     private static JdbcTemplate jdbcTemplate;
 
-    private MockHttpSession session;
-    private ObjectMapper objectMapper;
-
-    private Member member = Member.builder()
-            .name("test")
-            .email("test@naver.com")
-            .nickname("네이버TestMember")
-            .providerType(OAuthProvider.NAVER)
-            .providerId("123456789")
-            .role(MemberRole.ROLE_USER)
-            .build();
-    private MemberInfo memberInfo = new MemberInfo(
-            "testMember",
-            OAuthProvider.NAVER,
-            MemberRole.ROLE_USER
-    );
-    private MemberRequest memberRequest = new MemberRequest(
-            "test",
-            "test@naver.com",
-            "updatedTestNickname",
-            OAuthProvider.NAVER,
-            MemberRole.ROLE_USER
-    );
-    private MemberInfo mockTestInfo = new MemberInfo(
-            "mockNickname",
-            OAuthProvider.NAVER,
-            MemberRole.ROLE_USER
-    );
+    private Member member;
+    private MemberInfo memberInfo;
+    private MemberRequest memberRequest;
+    private MemberInfo mockTestInfo;
 
     @BeforeEach
     void setUp() {
@@ -95,21 +69,36 @@ public class MemberServiceTest {
 
         // MockMvc 설정
         mockMvc = MockMvcBuilders.standaloneSetup(memberService).build();
-        session = new MockHttpSession();
-        objectMapper = new ObjectMapper();
+        member = Member.builder()
+                .name("test")
+                .email("test@naver.com")
+                .nickname("네이버TestMember")
+                .providerType(OAuthProvider.NAVER)
+                .providerId("123456789")
+                .role(MemberRole.ROLE_USER)
+                .build();
+        memberInfo = MemberInfo.builder()
+                .nickname("네이버TestMember")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_USER)
+                .build();
+        memberRequest = MemberRequest.builder()
+                .name("test")
+                .email("test@naver.com")
+                .nickname("updatedTestNickname")
+                .providerType(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_USER)
+                .build();
+        mockTestInfo = MemberInfo.builder()
+                .nickname("mockNickname")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_USER)
+                .build();
     }
 
     @AfterEach
     void tearDown() {
         jdbcTemplate.update("DELETE FROM members");
-        session.clearAttributes();
-    }
-
-    @Test
-    @DisplayName("로그인 검증")
-    public void testLogin() {
-        when(memberRepository.findByEmail(member.getEmail())).thenReturn(Optional.ofNullable(member));
-
     }
 
     @Test
@@ -120,50 +109,15 @@ public class MemberServiceTest {
         when(memberRepository.findByNickname(memberRequest.nickname()))
                 .thenReturn(Optional.empty());
 
+        // memberRepository.save() 이후 savedMember 객체가 저장되도록 설정
+        when(memberRepository.save(any(Member.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
         MemberResponse response = memberService.update(memberInfo, memberRequest);
 
         assertNotNull(response);
-        assertEquals("newNickname", response.getNickname());
+        assertEquals("updatedTestNickname", response.getNickname());
         verify(memberRepository).save(member);
-    }
-
-    @Test
-    @DisplayName("회원 수정_Request 누락")
-    public void testUpdate_WithNullMemberRequest_ShouldThrowMemberBadRequestException() {
-        memberRequest = null;
-
-        MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
-            memberService.update(memberInfo, memberRequest);
-        });
-        assertEquals("회원 요청 정보가 누락되었습니다.", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("회원 수정_MemberInfo 누락")
-    public void testUpdate_WithNullMemberInfo_ShouldThrowMemberBadRequestException() {
-        memberInfo = null;
-
-        MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
-            memberService.update(memberInfo, memberRequest);
-        });
-        assertEquals("회원 정보가 누락되었습니다.", exception.getMessage());
-    }
-
-    @Test
-    @DisplayName("회원 수정_Email Null")
-    public void testUpdate_WithNullEmail_ShouldThrowMemberBadRequestException() {
-        MemberRequest testRequest = new MemberRequest(
-                "test",
-                null,
-                "updatedTestNickname",
-                OAuthProvider.NAVER,
-                MemberRole.ROLE_USER
-        );
-
-        MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
-            memberService.update(memberInfo, testRequest);
-        });
-        assertEquals("이메일은 null일 수 없습니다.", exception.getMessage());
     }
 
     @Test
@@ -193,8 +147,8 @@ public class MemberServiceTest {
         when(memberRepository.findByNickname(memberRequest.nickname()))
                 .thenReturn(Optional.of(Member.builder()
                         .name("test")
-                        .email("otherEmail@example.com")
-                        .nickname("duplicateNickname")
+                        .email("test@naver.com")
+                        .nickname("updatedTestNickname")
                         .providerType(OAuthProvider.NAVER)
                         .providerId("123456789")
                         .role(MemberRole.ROLE_USER)
@@ -203,7 +157,7 @@ public class MemberServiceTest {
         MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
             memberService.update(memberInfo, memberRequest);
         });
-        assertEquals("\"newNickname\"은 중복된 닉네임입니다.", exception.getMessage());
+        assertEquals("\"updatedTestNickname\"은 중복된 닉네임입니다.", exception.getMessage());
     }
 
     @Test

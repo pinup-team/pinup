@@ -2,16 +2,15 @@ package kr.co.pinup.posts.controller;
 
 import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.postImages.service.PostImageService;
-
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.service.PostService;
 import lombok.RequiredArgsConstructor;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Slf4j
 @Controller
