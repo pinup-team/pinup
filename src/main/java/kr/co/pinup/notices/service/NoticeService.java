@@ -1,14 +1,16 @@
 package kr.co.pinup.notices.service;
 
 import jakarta.transaction.Transactional;
-import kr.co.pinup.notices.repository.NoticeRepository;
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.exception.MemberNotFoundException;
+import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.notices.Notice;
 import kr.co.pinup.notices.exception.NoticeNotFound;
 import kr.co.pinup.notices.model.dto.NoticeCreateRequest;
-import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
-import kr.co.pinup.members.Member;
-import kr.co.pinup.members.repository.MemberRepository;
+import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
+import kr.co.pinup.notices.repository.NoticeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,8 +23,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NoticeService {
 
-    private final NoticeRepository noticeRepository;
     private final MemberRepository memberRepository;
+    private final NoticeRepository noticeRepository;
 
     public List<NoticeResponse> findAll() {
         return noticeRepository.findAllByOrderByCreatedAtDesc()
@@ -37,14 +39,14 @@ public class NoticeService {
                 .orElseThrow(NoticeNotFound::new);
     }
 
-    public void save(NoticeCreateRequest noticeCreate) {
-        // TODO : 임시 로직 / merge 후 수정 필요
-        List<Member> members = memberRepository.findAll();
+    public void save(MemberInfo memberInfo, NoticeCreateRequest noticeCreate) {
+        Member member = memberRepository.findByNickname(memberInfo.getNickname())
+                .orElseThrow(() -> new MemberNotFoundException(memberInfo.getNickname() + "님을 찾을 수 없습니다."));
 
         Notice notice = Notice.builder()
                 .title(noticeCreate.title())
                 .content(noticeCreate.content())
-                .member(members.get(0))
+                .member(member)
                 .build();
 
         noticeRepository.save(notice);

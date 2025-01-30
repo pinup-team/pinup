@@ -1,19 +1,27 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/support}">
 
-<div class="container" layout:fragment="content">
-    <div>
+<div class="container" layout:fragment="support-content">
+    <div th:if="${profile != null && profile.getRole() == T(kr.co.pinup.members.model.enums.MemberRole).ROLE_ADMIN}">
         <button id="create" th:onclick="|location.href='@{/notices/new}'|">글 작성</button>
     </div>
-    <div th:each="notice: ${notices}" th:object="${notice}"
-         th:onclick="|location.href='@{/notices/{id}(id=*{id})}'|">
-        <div>
-            <div th:text="*{id}" hidden>id</div>
-            <div th:text="*{title}">title</div>
-            <div th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></div>
+
+    <th:block th:if="${#lists.isEmpty(notices)}">
+        <p>공지사항 목록이 없습니다.</p>
+    </th:block>
+
+    <th:block th:if="${!#lists.isEmpty(notices)}">
+        <div th:each="notice: ${notices}" th:object="${notice}"
+             th:onclick="|location.href='@{/notices/{id}(id=*{id})}'|">
+            <div>
+                <div th:text="*{id}" hidden>id</div>
+                <div th:text="*{title}">title</div>
+                <div th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></div>
+            </div>
         </div>
-    </div>
+    </th:block>
 </div>
 </html>

@@ -6,12 +6,12 @@
     <title>Title</title>
 </head>
 <body>
-<header th:replace="common/fragments/header :: headerFragment"></header>
+<header th:replace="~{fragments/header :: headerFragment}"></header>
 
 <th:block layout:fragment="content">
 
 </th:block>
 
-<footer th:replace="common/fragments/footer :: footerFragment"></footer>
+<footer th:replace="~{fragments/footer :: footerFragment}"></footer>
 </body>
 </html>
