@@ -1,11 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Update Post</title>
-</head>
-<body>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
+<div layout:fragment="support-content">
 
 <h1>Update Post</h1>
 
@@ -28,115 +26,23 @@
     </ul>
   </div>
 
-  <!-- 제목 입력 -->
   <label for="title">Title</label>
   <input type="text" th:field="*{post.title}" id="title" name="title" required="true"/>
 
   <br>
 
-  <!-- 내용 입력 -->
   <label for="content">Content</label>
   <textarea th:field="*{post.content}" id="content" name="content" required="true"></textarea>
 
   <br>
 
-  <!-- 새로운 이미지 업로드 -->
   <label for="images">Upload New Images</label>
   <input type="file" name="images" id="images" multiple="multiple" />
 
   <br>
 
-  <!-- 제출 버튼 -->
   <button type="submit">Update</button>
 </form>
 
-<script>
-  function toggleImageToDelete(checkboxElement) {
-    const imageUrl = checkboxElement.getAttribute('data-image-url');  // data-image-url 속성에서 값 가져오기
-    const imagesToDeleteField = document.getElementById('imagesToDelete');
-
-    // imagesToDeleteField.value가 없으면 빈 배열을, 있으면 ','로 구분된 값들을 Set으로 변환하여 중복을 제거
-    let imagesToDelete = imagesToDeleteField.value ? new Set(imagesToDeleteField.value.split(',')) : new Set();
-
-    if (checkboxElement.checked) {
-      // 체크되었을 때만 추가
-      imagesToDelete.add(imageUrl);
-    } else {
-      // 체크 해제되었을 때만 삭제
-      imagesToDelete.delete(imageUrl);
-    }
-
-    // Set을 다시 ','로 구분된 문자열로 변환하여 value에 저장
-    imagesToDeleteField.value = Array.from(imagesToDelete).join(',');
-  }
-  document.getElementById('updatePostForm').addEventListener('submit', function (event) {
-    event.preventDefault();
-    // imagesToDeleteField.value를 활용해 삭제할 이미지 URL을 가져옴
-    const imagesToDelete = document.getElementById('imagesToDelete').value.split(',').filter(Boolean);
-
-    const formData = new FormData(event.target);
-
-    // submit 전에 imagesToDelete 값을 콘솔로 확인하여 중복이 있는지 확인
-    console.log("Images to delete:", imagesToDelete);
-
-    if (imagesToDelete.length > 0) {
-      // imagesToDelete 배열을 쉼표로 구분된 문자열로 변환
-      formData.set('imagesToDelete', imagesToDelete.join(','));
-    }
-
-    fetch('/api/post/' + formData.get('postId'), {
-      method: 'PUT',
-      body: formData, // FormData 그대로 전송
-    })
-            .then(response => response.json())
-            .then(data => {
-              if (data.id) {
-                alert("Post updated successfully!");
-                window.location.href = `/post/${data.id}`;
-              } else {
-                alert("Failed to update the post.");
-              }
-            })
-            .catch(error => {
-              console.error("Error deleting the post:", error);
-              alert("An error occurred while deleting the post.");
-            });
-  });
-
-
-  // document.getElementById('updatePostForm').addEventListener('submit', function(event) {
-  //   event.preventDefault();
-  //
-  //   const deleteImages = Array.from(imagesToDelete);
-  //   // document.querySelectorAll('input[name="imagesToDelete"]:checked').forEach(checkbox => {
-  //   //   deleteImages.push(checkbox.value);
-  //   // });
-  //
-  //   const formData = new FormData(event.target);
-  //
-  //   if (deleteImages.length > 0) {
-  //     formData.append('imagesToDelete', JSON.stringify(deleteImages));
-  //   }
-  //
-  //   fetch('/api/post/' + formData.get('postId'), {
-  //     method: 'PUT',
-  //     body: JSON.stringify(formData),
-  //   })
-  //           .then(response => response.json())
-  //           .then(data => {
-  //             if (data.id) {
-  //               alert("Post created successfully!");
-  //               window.location.href = `/post/${data.id}`;
-  //             } else {
-  //               alert("Failed to create the post.");
-  //             }
-  //           })
-  //           .catch(error => {
-  //             console.error('게시물 업데이트 실패:', error);
-  //           });
-  // });
-
-</script>
-
-</body>
+</div>
 </html>

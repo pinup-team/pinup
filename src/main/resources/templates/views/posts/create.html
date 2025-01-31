@@ -1,61 +1,29 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Post</title>
-</head>
-<body>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
+<div layout:fragment="support-content">
 
 <h1>Create Post</h1>
 
 <form id="postForm" enctype="multipart/form-data">
 
-  <!-- 제목 입력 -->
   <label for="title">Title</label>
   <input type="text" id="title" name="title" required/>
   <br><br>
 
-  <!-- 내용 입력 -->
   <label for="content">Content</label>
   <textarea id="content" name="content" required></textarea>
   <br><br>
 
-  <!-- 이미지 입력 -->
   <label for="images">Images</label>
   <input type="file" id="images" name="images" multiple/>
   <br><br>
 
-  <!-- 제출 버튼 -->
   <button type="button" onclick="submitPost()">Submit</button>
 
 </form>
 
-<script>
-  function submitPost() {
-    const form = document.getElementById("postForm");
-    const formData = new FormData(form);
-
-    fetch("/api/post/create", {
-      method: "POST",
-      body: formData
-    })
-            .then(response => response.json()) // JSON 형태로 응답 처리
-            .then(data => {
-              if (data.id) {
-                alert("Post created successfully!");
-                // 생성된 게시글의 상세 페이지로 이동
-                window.location.href = `/post/${data.id}`;
-              } else {
-                alert("Failed to create the post.");
-              }
-            })
-            .catch(error => {
-              console.error("Error creating post:", error);
-              alert("An error occurred while creating the post.");
-            });
-  }
-</script>
-
-</body>
+</div>
 </html>

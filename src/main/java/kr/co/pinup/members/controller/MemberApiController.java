@@ -58,7 +58,7 @@ public class MemberApiController {
 
         log.info("Login successful: {}", memberInfo);
         return ResponseEntity.status(302)
-                .headers(headers)
+//                .headers(headers)
                 .build();
     }
 
@@ -105,7 +105,10 @@ public class MemberApiController {
 
             HttpHeaders headers = controlCookie("", 0);
 
-            return response ? ResponseEntity.ok().headers(headers).body("로그아웃 성공")
+            return response ?
+                    ResponseEntity.ok()
+//                            .headers(headers)
+                            .body("로그아웃 성공")
                     : ResponseEntity.badRequest().body("로그아웃 실패");
         }).orElseGet(() -> {
             return ResponseEntity.status(401).body("로그인 정보가 없습니다.");

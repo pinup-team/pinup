@@ -220,7 +220,7 @@ public class MemberTest {
         void 수정_실패_중복닉네임() throws Exception {
             MemberRequest memberRequest = new MemberRequest("test", "test@naver.com", "조용한고래", OAuthProvider.NAVER, MemberRole.ROLE_USER);
 
-            given(memberService.update(testInfo, memberRequest)).willThrow(new IllegalArgumentException("\"" + memberRequest.getNickname() + "\"은 중복된 닉네임입니다."));
+            given(memberService.update(testInfo, memberRequest)).willThrow(new IllegalArgumentException("\"" + memberRequest.nickname() + "\"은 중복된 닉네임입니다."));
 //            given(userService.update(mockUserInfo, memberDto)).willReturn(memberDto);
 
             mockMvc.perform(MockMvcRequestBuilders.patch("/api/members")

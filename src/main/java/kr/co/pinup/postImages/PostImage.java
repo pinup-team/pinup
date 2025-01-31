@@ -1,6 +1,6 @@
 package kr.co.pinup.postImages;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
 import kr.co.pinup.posts.Post;
@@ -16,9 +16,9 @@ import lombok.*;
 @Table(name = "post_images")
 public class PostImage extends BaseEntity {
 
-    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
+    @JsonBackReference
     private Post post;  // 게시글과의 관계
 
     @Column(name = "url", nullable = false)

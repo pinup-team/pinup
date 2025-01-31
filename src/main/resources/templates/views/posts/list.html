@@ -1,29 +1,33 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Posts List</title>
 </head>
+
 <body>
-<h1>Posts List</h1>
+<div layout:fragment="support-content">
+    <h1>Posts List</h1>
 
-<button onclick="location.href='/post/create'">Write New Post</button>
+    <button onclick="location.href='/post/create'">Write New Post</button>
 
-<ul>
+    <ul>
+        <th:block th:if="${#lists.isEmpty(posts)}">
+            <p>No posts available. Please create a new post.</p>
+        </th:block>
 
-    <th:block th:if="${#lists.isEmpty(posts)}">
-        <p>No posts available. Please create a new post.</p>
-    </th:block>
-
-    <th:block th:each="post : ${posts}">
-        <li>
-            <a th:href="@{'/post/' + ${post.id}}">
-                <img th:src="@{${post.thumbnail}}" alt="Thumbnail" width="100px" height="100px"/>
-                <span th:text="${post.title}"></span>
-            </a>
-        </li>
-    </th:block>
-</ul>
+        <th:block th:each="post : ${posts}">
+            <li>
+                <a th:href="@{'/post/' + ${post.id}}">
+                    <img th:src="@{${post.thumbnail}}" alt="Thumbnail" width="100px" height="100px"/>
+                    <span th:text="${post.title}"></span>
+                </a>
+            </li>
+        </th:block>
+    </ul>
+</div>
 </body>
 </html>
