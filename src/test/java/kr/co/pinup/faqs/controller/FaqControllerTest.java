@@ -7,6 +7,7 @@ import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,9 +45,19 @@ class FaqControllerTest {
     @MockitoBean
     MemberService memberService;
 
+    MemberInfo mockMemberInfo;
+
+    @BeforeEach
+    void setUp() {
+        mockMemberInfo = MemberInfo.builder()
+                .nickname("두려운고양이")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_ADMIN)
+                .build();
+    }
+
     @Test
     @DisplayName("FAQ 리스트 페이지 이동")
-    @WithAnonymousUser
     void listPage() throws Exception {
         // given
         List<FaqResponse> mockFaqs = IntStream.range(0, 5)
@@ -61,7 +72,8 @@ class FaqControllerTest {
         when(faqService.findAll()).thenReturn(mockFaqs);
 
         // expected
-        mockMvc.perform(get("/faqs"))
+        mockMvc.perform(get("/faqs")
+                        .sessionAttr("memberInfo", mockMemberInfo))
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/list"))
                 .andExpect(model().attributeExists("faqs"))
@@ -73,11 +85,6 @@ class FaqControllerTest {
     @DisplayName("FAQ 생성 페이지 이동")
     void newPage() throws Exception {
         // given
-        MemberInfo mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
 
         // expected
         mockMvc.perform(get("/faqs/new")
@@ -94,15 +101,9 @@ class FaqControllerTest {
 
     @Test
     @DisplayName("FAQ 수정 페이지 이동")
-    @WithMockUser(username = "testuser", roles = "ADMIN")
     void updatePage() throws Exception {
         // given
         long faqId = 1L;
-        MemberInfo mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
         FaqResponse mockFaq = FaqResponse.builder()
                 .category("이용")
                 .question("질문")

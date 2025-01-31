@@ -7,12 +7,12 @@ import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.members.Member;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "faqs")
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Faq extends BaseEntity {
 
     @Column(nullable = false, length = 100)
@@ -28,17 +28,6 @@ public class Faq extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
-
-    @Builder
-    public Faq(String question, String answer, FaqCategory category,
-               Member member, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.question = question;
-        this.answer = answer;
-        this.category = category;
-        this.member = member;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
 
     public void update(FaqUpdateRequest faqUpdate) {
         question = faqUpdate.question();

@@ -13,6 +13,7 @@ import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.oauth.OAuthProvider;
 import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +28,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.*;
@@ -57,15 +59,21 @@ class FaqApiControllerTest {
     @MockitoBean
     private FaqService faqService;
 
-    @Test
-    @DisplayName("FAQ 저장")
-    void save() throws Exception {
-        // given
-        MemberInfo mockMemberInfo = MemberInfo.builder()
+    MemberInfo mockMemberInfo;
+
+    @BeforeEach
+    void setUp() {
+        mockMemberInfo = MemberInfo.builder()
                 .nickname("두려운고양이")
                 .provider(OAuthProvider.NAVER)
                 .role(MemberRole.ROLE_ADMIN)
                 .build();
+    }
+
+    @Test
+    @DisplayName("FAQ 저장")
+    void save() throws Exception {
+        // given
         FaqCreateRequest request = FaqCreateRequest.builder()
                 .category("USE")
                 .question("이거 어떻게 해야 하나요?")
@@ -96,8 +104,9 @@ class FaqApiControllerTest {
 
         // expected
         mockMvc.perform(post("/api/faqs")
-                .contentType(APPLICATION_JSON)
-                .content(body))
+                        .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
+                        .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
@@ -120,6 +129,7 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -144,6 +154,7 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -168,6 +179,7 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -192,6 +204,7 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -282,11 +295,6 @@ class FaqApiControllerTest {
     void update() throws Exception {
         // given
         long faqId = 1L;
-        MemberInfo mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
         FaqUpdateRequest request = FaqUpdateRequest.builder()
                 .category("USE")
                 .question("질문")
@@ -309,7 +317,6 @@ class FaqApiControllerTest {
     void invalidQuestionToUpdate() throws Exception {
         // given
         long faqId = 1L;
-
         FaqUpdateRequest request = FaqUpdateRequest.builder()
                 .category("USE")
                 .answer("이렇게 저렇게 하시면 됩니다.")
@@ -320,6 +327,7 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -334,7 +342,6 @@ class FaqApiControllerTest {
     void invalidQuestionLengthToUpdate() throws Exception {
         // given
         long faqId = 1L;
-
         FaqUpdateRequest request = FaqUpdateRequest.builder()
                 .category("USE")
                 .question("A".repeat(101))
@@ -346,6 +353,7 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -361,7 +369,6 @@ class FaqApiControllerTest {
     void invalidAnswerToUpdate() throws Exception {
         // given
         long faqId = 1L;
-
         FaqUpdateRequest request = FaqUpdateRequest.builder()
                 .category("USE")
                 .question("이거 어떻게 해야 하나요?")
@@ -372,6 +379,7 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -386,7 +394,6 @@ class FaqApiControllerTest {
     void invalidAnswerLengthToUpdate() throws Exception {
         // given
         long faqId = 1L;
-
         FaqUpdateRequest request = FaqUpdateRequest.builder()
                 .category("USE")
                 .question("이거 어떻게 해야 하나요?")
@@ -398,6 +405,7 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -413,11 +421,6 @@ class FaqApiControllerTest {
     void updateWithNonExistId() throws Exception {
         // given
         long faqId = Long.MAX_VALUE;
-        MemberInfo mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
         FaqUpdateRequest request = FaqUpdateRequest.builder()
                 .category("USE")
                 .question("질문")
@@ -440,7 +443,9 @@ class FaqApiControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ErrorResponse response = (ErrorResponse) result.getModelAndView().getModel().get("error");
+        ErrorResponse response = (ErrorResponse) Objects.requireNonNull(result.getModelAndView())
+                .getModel()
+                .get("error");
         assertThat(response.status()).isEqualTo(NOT_FOUND.value());
         assertThat(response.message()).isEqualTo("FAQ가 존재하지 않습니다.");
     }
@@ -450,11 +455,6 @@ class FaqApiControllerTest {
     void remove() throws Exception {
         // given
         long faqId = 1L;
-        MemberInfo mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
 
         // when
         doNothing().when(faqService).remove(faqId);
@@ -471,11 +471,6 @@ class FaqApiControllerTest {
     void removeWithNonExistId() throws Exception {
         // given
         long faqId = Long.MAX_VALUE;
-        MemberInfo mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
 
         // when
         doThrow(new FaqNotFound()).when(faqService).remove(faqId);
@@ -489,7 +484,9 @@ class FaqApiControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ErrorResponse response = (ErrorResponse) result.getModelAndView().getModel().get("error");
+        ErrorResponse response = (ErrorResponse) Objects.requireNonNull(result.getModelAndView())
+                .getModel()
+                .get("error");
         assertThat(response.status()).isEqualTo(NOT_FOUND.value());
         assertThat(response.message()).isEqualTo("FAQ가 존재하지 않습니다.");
     }
