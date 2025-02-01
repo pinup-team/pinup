@@ -76,7 +76,7 @@ public class MemberControllerTest {
     }
 
     @Test
-    @WithMockMember
+    @WithMockMember(nickname = "test", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     @DisplayName("마이 페이지 이동")
     void memberProfile() throws Exception {
         MemberInfo memberInfo = new MemberInfo("네이버TestMember", OAuthProvider.NAVER, MemberRole.ROLE_USER);

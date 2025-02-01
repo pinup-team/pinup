@@ -34,33 +34,23 @@ public class MemberService {
     private final OAuthService oAuthService;
 
     public MemberInfo login(OAuthLoginParams params, HttpSession session) {
-        try {
-            OAuthResponse oAuthResponse = oAuthService.request(params, session);
-            Member member = findOrCreateMember(oAuthResponse);
-            MemberInfo memberInfo = MemberInfo.builder()
-                    .nickname(member.getNickname())
-                    .provider(member.getProviderType())
-                    .role(member.getRole())
-                    .build();
+        OAuthResponse oAuthResponse = oAuthService.request(params, session);
+        Member member = findOrCreateMember(oAuthResponse);
+        MemberInfo memberInfo = MemberInfo.builder()
+                .nickname(member.getNickname())
+                .provider(member.getProviderType())
+                .role(member.getRole())
+                .build();
 
-            // SecurityContext에 저장
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(memberInfo, null, memberInfo.getAuthorities());
+        // SecurityContext에 저장
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(memberInfo, null, memberInfo.getAuthorities());
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            // 현재 jwt를 사용하지 않고 세션 기반으로 인증하고 있기 때문에 SecurityContext 자체를 저장해야함
-            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        // 현재 jwt를 사용하지 않고 세션 기반으로 인증하고 있기 때문에 SecurityContext 자체를 저장해야함
+        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 
-            return memberInfo;
-        } catch (OAuthProviderNotFoundException e) {
-            throw new OAuthProviderNotFoundException("지원되지 않는 OAuth 공급자입니다.");
-        } catch (OAuthTokenRequestException e) {
-            throw new OAuthTokenRequestException("OAuth 토큰 요청 중 오류가 발생했습니다.");
-        } catch (OAuthTokenNotFoundException e) {
-            throw new OAuthTokenNotFoundException("OAuth 토큰을 찾을 수 없습니다.");
-        } catch (UnauthorizedException e) {
-            throw new OAuth2AuthenticationException();
-        }
+        return memberInfo;
     }
 
     private Member findOrCreateMember(OAuthResponse oAuthResponse) {
@@ -160,7 +150,7 @@ public class MemberService {
 
         String accessToken = (String) session.getAttribute("accessToken");
         if (accessToken == null || accessToken.isEmpty()) {
-            throw new OAuthTokenNotFoundException("Access token이 존재하지 않습니다.");
+            throw new OAuthTokenNotFoundException("OAuth 토큰을 찾을 수 없습니다.");
         }
 
         boolean response = oAuthService.revoke(oAuthProvider, accessToken);

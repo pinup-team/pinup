@@ -14,8 +14,6 @@ public class LoginMemberAspect {
 
     @Around("@annotation(kr.co.pinup.custom.loginMember.LoginMember)")  // @LoginMember 어노테이션이 붙은 메서드에 적용
     public Object checkLogin(ProceedingJoinPoint joinPoint) throws Throwable {
-//        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-//        MemberInfo memberInfo = (MemberInfo) request.getSession().getAttribute("memberInfo");
         MemberInfo memberInfo = (MemberInfo) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         if (memberInfo == null) {

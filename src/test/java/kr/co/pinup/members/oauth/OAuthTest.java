@@ -122,7 +122,6 @@ public class OAuthTest {
         wireMockServer.stop();  // 테스트 후 WireMock 서버 정지
     }
 
-    // CHECK 로그인/회원가입하면 바로 UserInfo로 return하기 때문에 회원가입은 nickname으로 인해 테스트 불가
     @Nested
     @DisplayName("OAuth 로그인/회원가입 테스트")
     class OAuthLoginTests {

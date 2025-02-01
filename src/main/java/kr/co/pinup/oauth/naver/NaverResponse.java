@@ -4,28 +4,27 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.oauth.OAuthResponse;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
+@Builder
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NaverResponse implements OAuthResponse {
     @JsonProperty("response")
     public Response response;
 
     @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Response {
         private String id;
         private String name;
         private String email;
-
-        public Response(String id, String name, String email) {
-            this.id = id;
-            this.name = name;
-            this.email = email;
-        }
     }
 
     @Override

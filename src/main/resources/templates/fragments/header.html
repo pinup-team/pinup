@@ -15,11 +15,11 @@
             <a th:href="@{/members/login}">Login</a>
         </th:block>
         <th:block th:if="${session.memberInfo != null}">
-            <button th:onclick="logOut()">로그아웃</button>
-            <button onclick="window.location.href='/members/profile'">마이페이지</button>
+            <button th:onclick="|logOut()|">로그아웃</button>
+            <button th:onclick="|window.location.href='/members/profile'|">마이페이지</button>
         </th:block>
     </div>
 </header>
 </html>
-
+<!--TODO 헤더에서 로그아웃안됨!-->
 <script src="/js/member.js"></script>

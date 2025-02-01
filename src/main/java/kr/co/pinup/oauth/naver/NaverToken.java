@@ -1,13 +1,12 @@
 package kr.co.pinup.oauth.naver;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Setter
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class NaverToken {
     @JsonProperty("access_token")
     private String accessToken;
