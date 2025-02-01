@@ -1,10 +1,10 @@
 package kr.co.pinup.members.service;
 
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpServletRequest;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
-import kr.co.pinup.members.exception.*;
+import kr.co.pinup.members.exception.MemberBadRequestException;
+import kr.co.pinup.members.exception.MemberNotFoundException;
+import kr.co.pinup.members.exception.MemberServiceException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.dto.MemberResponse;
