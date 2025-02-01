@@ -81,7 +81,6 @@ public class MemberApiController {
     public ResponseEntity<?> update(@Validated @RequestBody MemberRequest memberRequest, @LoginMember MemberInfo memberInfo,
                                                     HttpSession session) {
         MemberResponse updatedMember = memberService.update(memberInfo, memberRequest);
-        session.setAttribute("memberInfo", MemberInfo.builder().nickname(updatedMember.getNickname()).provider(memberInfo.provider()).role(memberInfo.role()).build());
 
         log.info("Nickname updated to: {}", updatedMember.getNickname());
         return ResponseEntity.ok("닉네임이 변경되었습니다.");
@@ -103,19 +102,14 @@ public class MemberApiController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@LoginMember MemberInfo memberInfo, HttpServletRequest request) {
-        return Optional.ofNullable(memberInfo).map(member -> {
-            boolean response = memberService.logout(member.provider(), request);
-
+        if (memberService.logout(memberInfo.provider(), request)) {
             HttpHeaders headers = controlCookie("", 0);
-
-            return response ?
-                    ResponseEntity.ok()
-//                            .headers(headers)
-                            .body("로그아웃 성공")
-                    : ResponseEntity.badRequest().body("로그아웃 실패");
-        }).orElseGet(() -> {
-            return ResponseEntity.status(401).body("로그인 정보가 없습니다.");
-        });
+            return ResponseEntity.ok()
+//                    .headers(headers)
+                    .body("로그아웃 성공");
+        } else {
+            return ResponseEntity.badRequest().body("로그아웃 실패");
+        }
     }
 
     private HttpHeaders controlCookie(String accessToken, int age) {

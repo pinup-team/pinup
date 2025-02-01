@@ -1,6 +1,5 @@
 package kr.co.pinup.oauth;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.members.exception.OAuthProviderNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
@@ -33,7 +32,7 @@ public class OAuthService {
         return client.requestOauth(accessToken);
     }
 
-    public boolean revoke(OAuthProvider oAuthProvider, HttpServletRequest request) {
+    public boolean revoke(OAuthProvider oAuthProvider, String accessToken) {
         OAuthApiClient client = Optional.ofNullable(clients.get(oAuthProvider))
                 .orElseThrow(() -> new OAuthProviderNotFoundException("지원하지 않는 OAuth 제공자입니다."));
 
@@ -44,7 +43,6 @@ public class OAuthService {
 //                .findFirst()
 //                .orElseThrow(() -> new OAuthTokenNotFoundException("엑세스 토큰이 존재하지 않습니다."));
 
-        String accessToken = (String) request.getSession().getAttribute("accessToken");
         return client.revokeAccessToken(accessToken);
     }
 }

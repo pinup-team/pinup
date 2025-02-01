@@ -1,4 +1,4 @@
-package kr.co.pinup.members.annotation;
+package kr.co.pinup.members.custom;
 
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.extension.ExtendWith;

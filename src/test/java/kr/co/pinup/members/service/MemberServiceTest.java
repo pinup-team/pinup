@@ -1,10 +1,10 @@
 package kr.co.pinup.members.service;
 
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
-import kr.co.pinup.members.exception.MemberBadRequestException;
-import kr.co.pinup.members.exception.MemberNotFoundException;
-import kr.co.pinup.members.exception.MemberServiceException;
+import kr.co.pinup.members.exception.*;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.dto.MemberResponse;
@@ -15,17 +15,15 @@ import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import javax.sql.DataSource;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@kr.co.pinup.members.annotation.MemberServiceTest
+@kr.co.pinup.members.custom.MemberServiceTest
 public class MemberServiceTest {
     MockMvc mockMvc;
 

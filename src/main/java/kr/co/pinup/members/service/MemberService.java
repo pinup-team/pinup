@@ -16,6 +16,9 @@ import kr.co.pinup.oauth.OAuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,11 +37,21 @@ public class MemberService {
         try {
             OAuthResponse oAuthResponse = oAuthService.request(params, session);
             Member member = findOrCreateMember(oAuthResponse);
-            return MemberInfo.builder()
+            MemberInfo memberInfo = MemberInfo.builder()
                     .nickname(member.getNickname())
                     .provider(member.getProviderType())
                     .role(member.getRole())
                     .build();
+
+            // SecurityContext에 저장
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(memberInfo, null, memberInfo.getAuthorities());
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // 현재 jwt를 사용하지 않고 세션 기반으로 인증하고 있기 때문에 SecurityContext 자체를 저장해야함
+            session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
+
+            return memberInfo;
         } catch (OAuthProviderNotFoundException e) {
             throw new OAuthProviderNotFoundException("지원되지 않는 OAuth 공급자입니다.");
         } catch (OAuthTokenRequestException e) {
@@ -46,7 +59,7 @@ public class MemberService {
         } catch (OAuthTokenNotFoundException e) {
             throw new OAuthTokenNotFoundException("OAuth 토큰을 찾을 수 없습니다.");
         } catch (UnauthorizedException e) {
-            throw new UnauthorizedException("OAuth 로그인 중 오류가 발생했습니다.");
+            throw new OAuth2AuthenticationException();
         }
     }
 
@@ -98,6 +111,17 @@ public class MemberService {
         try {
             member.setNickname(memberRequest.nickname());
             Member savedMember = memberRepository.save(member);
+
+            MemberInfo updatedMemberInfo = MemberInfo.builder()
+                    .nickname(savedMember.getNickname())
+                    .provider(memberInfo.provider())
+                    .role(memberInfo.role())
+                    .build();
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(updatedMemberInfo, null, updatedMemberInfo.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
             return new MemberResponse(savedMember);
         } catch (DataIntegrityViolationException e) {
             throw new MemberServiceException("회원 정보 저장 중 제약 조건 위반이 발생했습니다.");
@@ -125,16 +149,29 @@ public class MemberService {
 
     public boolean logout(OAuthProvider oAuthProvider, HttpServletRequest request) {
         log.info("Logging out with provider {}", oAuthProvider);
+        if (oAuthProvider == null) {
+            throw new OAuthProviderNotFoundException("OAuth 제공자가 없습니다.");
+        }
+
         HttpSession session = request.getSession(false);
         if (session == null) {
             throw new UnauthorizedException("세션이 존재하지 않습니다. 다시 로그인 해주세요.");
         }
 
-        boolean response = oAuthService.revoke(oAuthProvider, request);
-        if (response) {
-            session.invalidate();
+        String accessToken = (String) session.getAttribute("accessToken");
+        if (accessToken == null || accessToken.isEmpty()) {
+            throw new OAuthTokenNotFoundException("Access token이 존재하지 않습니다.");
         }
-        return response;
+
+        boolean response = oAuthService.revoke(oAuthProvider, accessToken);
+        if (!response) {
+            throw new OAuth2AuthenticationException("OAuth 로그아웃 중 오류가 발생했습니다.");
+        }
+
+        SecurityContextHolder.clearContext();
+        session.invalidate();
+
+        return true;
     }
 
     private String getRandomItem(List<String> items) {
