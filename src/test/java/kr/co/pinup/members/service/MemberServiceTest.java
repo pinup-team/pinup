@@ -45,28 +45,24 @@ public class MemberServiceTest {
 
     @BeforeEach
     void setUp() {
-        // H2 데이터베이스 설정
-        DataSource dataSource = new DriverManagerDataSource("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1", "sa", "");
-        jdbcTemplate = new JdbcTemplate(dataSource);
+//        DataSource dataSource = new DriverManagerDataSource("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1", "sa", "");
+//        jdbcTemplate = new JdbcTemplate(dataSource);
+//
+//        jdbcTemplate.update("CREATE TABLE IF NOT EXISTS members (" +
+//                "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
+//                "name VARCHAR(50) NOT NULL," +
+//                "email VARCHAR(100) NOT NULL UNIQUE," +
+//                "nickname VARCHAR(50) NOT NULL UNIQUE," +
+//                "provider_type VARCHAR(50) NOT NULL," +
+//                "provider_id VARCHAR(255) NOT NULL," +
+//                "role VARCHAR(50) NOT NULL," +
+//                "created_at TIMESTAMP," +
+//                "updated_at TIMESTAMP" +
+//                ")");
+//
+//        jdbcTemplate.update("INSERT INTO members (name, email, nickname, provider_type, provider_id, role) VALUES (?, ?, ?, ?, ?, ?)",
+//                "test", "test@naver.com", "네이버TestMember", OAuthProvider.NAVER.toString(), "123456789", MemberRole.ROLE_USER.toString());
 
-        // members 테이블 생성
-        jdbcTemplate.update("CREATE TABLE IF NOT EXISTS members (" +
-                "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
-                "name VARCHAR(50) NOT NULL," +
-                "email VARCHAR(100) NOT NULL UNIQUE," +
-                "nickname VARCHAR(50) NOT NULL UNIQUE," +
-                "provider_type VARCHAR(50) NOT NULL," +
-                "provider_id VARCHAR(255) NOT NULL," +
-                "role VARCHAR(50) NOT NULL," +
-                "created_at TIMESTAMP," +
-                "updated_at TIMESTAMP" +
-                ")");
-
-        // 데이터 삽입
-        jdbcTemplate.update("INSERT INTO members (name, email, nickname, provider_type, provider_id, role) VALUES (?, ?, ?, ?, ?, ?)",
-                "test", "test@naver.com", "네이버TestMember", OAuthProvider.NAVER.toString(), "123456789", MemberRole.ROLE_USER.toString());
-
-        // MockMvc 설정
         mockMvc = MockMvcBuilders.standaloneSetup(memberService).build();
         member = Member.builder()
                 .name("test")
@@ -97,7 +93,7 @@ public class MemberServiceTest {
 
     @AfterEach
     void tearDown() {
-        jdbcTemplate.update("DELETE FROM members");
+//        jdbcTemplate.update("DELETE FROM members");
     }
 
     @Nested

@@ -108,12 +108,6 @@ public class MemberApiControllerTest {
                 .andExpect(status().isOk());
 //                .andExpect(content().string("닉네임이 변경되었습니다."))
 //                .andExpect(model().attribute("memberInfo", hasProperty("nickname", equalTo("updatedTestNickname"))));
-
-//                .andExpect(jsonPath("$.code").exists())
-//                .andExpect(jsonPath("$.message").exists())
-//                .andExpect(jsonPath("$.code").value(200))
-//                .andExpect(jsonPath("$.message").value("닉네임이 변경되었습니다."))
-//                .andExpect(model().attribute("memberInfo", hasProperty("nickname", equalTo("updatedNickname")))); // 세션에 저장된 memberInfo 검증
     }
 
     @Test

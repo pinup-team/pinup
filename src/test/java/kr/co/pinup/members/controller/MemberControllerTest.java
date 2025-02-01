@@ -86,7 +86,5 @@ public class MemberControllerTest {
                 .getViewName();
 
         assertEquals("members/profile", viewName);
-        // 호출이 안됨
-//        verify(memberService, times(1)).findMember(any(MemberInfo.class));
     }
 }
