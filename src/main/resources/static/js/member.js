@@ -10,7 +10,7 @@ function logOut() {
         .then(text => {
             if (text === "로그아웃 성공") {
                 alert(text);
-                window.location.href = "/";
+                window.location.replace("/");
             } else {
                 alert(text);
             }

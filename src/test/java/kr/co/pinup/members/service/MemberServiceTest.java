@@ -2,23 +2,20 @@ package kr.co.pinup.members.service;
 
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
-import kr.co.pinup.members.exception.*;
+import kr.co.pinup.members.exception.MemberBadRequestException;
+import kr.co.pinup.members.exception.MemberNotFoundException;
+import kr.co.pinup.members.exception.MemberServiceException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.OAuthProvider;
-import kr.co.pinup.oauth.OAuthResponse;
 import kr.co.pinup.oauth.OAuthService;
-import kr.co.pinup.oauth.naver.NaverLoginParams;
-import kr.co.pinup.oauth.naver.NaverResponse;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 

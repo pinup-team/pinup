@@ -8,7 +8,6 @@ import kr.co.pinup.members.exception.OAuth2AuthenticationException;
 import kr.co.pinup.members.exception.OAuthProviderNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
-import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.members.service.MemberService;
@@ -22,13 +21,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
