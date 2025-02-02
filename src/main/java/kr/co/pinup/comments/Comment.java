@@ -17,7 +17,6 @@ public class Comment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    @JsonBackReference
     private Post post;
 
     @Column(name = "user_id", nullable = false)

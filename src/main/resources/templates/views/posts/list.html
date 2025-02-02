@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/support}">
+      layout:decorate="~{layouts/layout}">
 
 <head>
     <meta charset="UTF-8">
@@ -9,7 +9,7 @@
 </head>
 
 <body>
-<div layout:fragment="support-content">
+<div layout:fragment="content">
     <h1>Posts List</h1>
 
     <button onclick="location.href='/post/create'">Write New Post</button>

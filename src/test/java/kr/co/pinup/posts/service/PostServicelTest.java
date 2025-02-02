@@ -1,6 +1,5 @@
 package kr.co.pinup.posts.service;
 
-
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
@@ -11,11 +10,13 @@ import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.repository.PostRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
@@ -39,16 +40,17 @@ public class PostServicelTest {
     @Mock
     private PostImageService postImageService;
 
+    @DisplayName("게시물 생성 (이미지 포함)")
     @Test
     void testCreatePost() {
-        // Given
         CreatePostRequest createPostRequest = CreatePostRequest.builder()
                 .title("New Post")
                 .content("This is a new post.")
                 .build();
 
-        MultipartFile[] images = new MultipartFile[0];
-
+        MultipartFile[] images = new MultipartFile[] {
+                new MockMultipartFile("image1", "image1.jpg", "image/jpeg", "image_data".getBytes())
+        };
         Post post = Post.builder()
                 .storeId(1L)
                 .userId(1L)
@@ -65,20 +67,16 @@ public class PostServicelTest {
                 .build();
 
         PostImageRequest postImageRequest = PostImageRequest.builder()
-                .images(Collections.emptyList())
+                .images(List.of(images))
                 .build();
 
-        // Mock repository save
         when(postRepository.save(any(Post.class))).thenReturn(post);
 
-        // Mock postImageService
         when(postImageService.savePostImages(any(PostImageRequest.class), any(Post.class)))
                 .thenReturn(Collections.singletonList(new PostImage(post, "image_url")));
 
-        // When
         PostResponse result = postService.createPost(createPostRequest, images);
 
-        // Then
         assertNotNull(result);
         assertEquals("New Post", result.getTitle());
         assertEquals("image_url", result.getThumbnail());
@@ -87,6 +85,7 @@ public class PostServicelTest {
         verify(postImageService).savePostImages(any(PostImageRequest.class), any(Post.class));
     }
 
+    @DisplayName("Store ID에 대한 게시물 목록 조회")
     @Test
     void testFindByStoreId() {
         // Given
@@ -112,6 +111,7 @@ public class PostServicelTest {
         verify(postRepository).findByStoreId(storeId);
     }
 
+    @DisplayName("게시물 ID로 게시물 조회")
     @Test
     void testGetPostById() {
         // Given
@@ -125,19 +125,16 @@ public class PostServicelTest {
 
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
-        // When
         Post result = postService.getPostById(postId);
 
-        // Then
         assertNotNull(result);
         assertEquals("Post Title", result.getTitle());
 
         verify(postRepository).findById(postId);
     }
-
+    @DisplayName("게시물 삭제(이미지 삭제 포함)")
     @Test
     void testDeletePost() {
-        // Given
         Long postId = 1L;
 
         Post post = Post.builder()
@@ -147,18 +144,16 @@ public class PostServicelTest {
 
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
-        // When
         postService.deletePost(postId);
 
-        // Then
         verify(postRepository).findById(postId);
         verify(postImageService).deleteAllByPost(postId);
         verify(postRepository).delete(post);
     }
 
+    @DisplayName("게시물 수정 (이미지 삭제/업로드 포함)")
     @Test
     void testUpdatePost() {
-        // Given
         Long postId = 1L;
 
         UpdatePostRequest updatePostRequest = UpdatePostRequest.builder()
@@ -172,7 +167,7 @@ public class PostServicelTest {
                 .build();
 
         PostImageRequest postImageRequest = PostImageRequest.builder()
-                .images(Collections.emptyList()) // 빈 이미지 리스트
+                .images(Collections.emptyList())
                 .imagesToDelete(Collections.singletonList("image1_url"))
                 .build();
 
@@ -180,17 +175,15 @@ public class PostServicelTest {
                 .s3Url("new_image_url")
                 .build();
 
-        // 기존 저장된 이미지를 삭제한 뒤 남아있는 이미지를 반환하도록 설정
+
         when(postRepository.findById(postId)).thenReturn(Optional.of(existingPost));
         when(postImageService.findImagesByPostId(postId)).thenReturn(Collections.singletonList(postImageResponse));
         when(postImageService.savePostImages(any(PostImageRequest.class), eq(existingPost)))
-                .thenReturn(Collections.singletonList(PostImage.builder().s3Url("new_image_url").build())); // 새로운 이미지 추가 시 반환값 설정
+                .thenReturn(Collections.singletonList(PostImage.builder().s3Url("new_image_url").build()));
         when(postRepository.save(any(Post.class))).thenReturn(existingPost);
 
-        // When
         Post result = postService.updatePost(postId, updatePostRequest, new MultipartFile[0], Collections.singletonList("image1_url"));
 
-        // Then
         assertNotNull(result);
         assertEquals("Updated Title", result.getTitle());
         assertEquals("Updated Content", result.getContent());

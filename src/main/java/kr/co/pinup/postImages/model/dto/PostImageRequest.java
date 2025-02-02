@@ -14,8 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PostImageRequest {
-
-    private Long postId;
     private List<MultipartFile> images;
     private List<String> imagesToDelete;
 }

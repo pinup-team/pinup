@@ -16,6 +16,7 @@ import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.service.PostService;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -73,6 +74,7 @@ class PostControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(postController).build();
     }
 
+    @DisplayName("게시글 목록 조회 페이지 로드")
     @Test
     void testGetAllPosts() throws Exception {
         Long storeId = 1L;
@@ -97,7 +99,7 @@ class PostControllerTest {
                 .andExpect(model().attribute("posts", posts));
     }
 
-
+    @DisplayName("게시글 상세 조회 페이지 로드")
     @Test
     void testGetPostById() throws Exception {
         Long postId = 1L;
@@ -139,6 +141,7 @@ class PostControllerTest {
                 .andExpect(model().attributeExists("images"));
     }
 
+    @DisplayName("게시글 생성 폼 페이지 로드")
     @Test
     void testCreatePostForm() throws Exception {
         mockMvc.perform(get("/post/create"))
@@ -147,6 +150,7 @@ class PostControllerTest {
                 .andExpect(model().attributeExists("createPostRequest"));
     }
 
+    @DisplayName("게시글 수정 폼 페이지 로드")
     @Test
     void testUpdatePostForm() throws Exception {
         Long postId = 1L;
@@ -179,6 +183,5 @@ class PostControllerTest {
                 .andExpect(model().attribute("post", post))
                 .andExpect(model().attribute("images", images));
     }
-
 
 }

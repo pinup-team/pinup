@@ -19,7 +19,7 @@ public class PostImage extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     @JsonBackReference
-    private Post post;  // 게시글과의 관계
+    private Post post;
 
     @Column(name = "url", nullable = false)
     private String s3Url;
