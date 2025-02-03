@@ -44,7 +44,7 @@ public class FaqService {
     }
 
     public List<FaqResponse> findAll() {
-        return faqRepository.findAllByOrderByCreatedAtDesc()
+        return faqRepository.findAllByOrderByCreatedAtDescIdDesc()
                 .stream()
                 .map(FaqResponse::new)
                 .collect(Collectors.toList());

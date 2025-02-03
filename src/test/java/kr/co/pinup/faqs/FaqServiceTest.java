@@ -112,7 +112,6 @@ class FaqServiceTest {
                         .question("이거 어떻게 해야 하나요 " + i + "?")
                         .answer("이렇게 하시면 됩니다. " + i)
                         .member(member)
-                        .createdAt(LocalDateTime.now().plusNanos(i * 1000000000L))
                         .build())
                 .toList();
         faqRepository.saveAll(request);

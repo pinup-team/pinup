@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface FaqRepository extends JpaRepository<Faq, Long> {
 
-    List<Faq> findAllByOrderByCreatedAtDesc();
+    List<Faq> findAllByOrderByCreatedAtDescIdDesc();
 }
