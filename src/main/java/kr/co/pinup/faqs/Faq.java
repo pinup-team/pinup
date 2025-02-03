@@ -5,10 +5,7 @@ import kr.co.pinup.BaseEntity;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
 import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.members.Member;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "faqs")

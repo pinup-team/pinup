@@ -2,6 +2,7 @@ package kr.co.pinup.members.service;
 
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
+import kr.co.pinup.members.custom.MemberTestAnnotation;
 import kr.co.pinup.members.exception.MemberBadRequestException;
 import kr.co.pinup.members.exception.MemberNotFoundException;
 import kr.co.pinup.members.exception.MemberServiceException;
@@ -11,11 +12,9 @@ import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.OAuthProvider;
-import kr.co.pinup.oauth.OAuthService;
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -24,7 +23,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@kr.co.pinup.members.custom.MemberServiceTest
+@MemberTestAnnotation
 public class MemberServiceTest {
     MockMvc mockMvc;
 
@@ -34,12 +33,6 @@ public class MemberServiceTest {
     @InjectMocks
     private MemberService memberService;
 
-    @InjectMocks
-    private OAuthService oAuthService;
-
-    @InjectMocks
-    private static JdbcTemplate jdbcTemplate;
-
     private Member member;
     private MemberInfo memberInfo;
     private MemberRequest memberRequest;
@@ -47,24 +40,6 @@ public class MemberServiceTest {
 
     @BeforeEach
     void setUp() {
-//        DataSource dataSource = new DriverManagerDataSource("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1", "sa", "");
-//        jdbcTemplate = new JdbcTemplate(dataSource);
-//
-//        jdbcTemplate.update("CREATE TABLE IF NOT EXISTS members (" +
-//                "id BIGINT AUTO_INCREMENT PRIMARY KEY," +
-//                "name VARCHAR(50) NOT NULL," +
-//                "email VARCHAR(100) NOT NULL UNIQUE," +
-//                "nickname VARCHAR(50) NOT NULL UNIQUE," +
-//                "provider_type VARCHAR(50) NOT NULL," +
-//                "provider_id VARCHAR(255) NOT NULL," +
-//                "role VARCHAR(50) NOT NULL," +
-//                "created_at TIMESTAMP," +
-//                "updated_at TIMESTAMP" +
-//                ")");
-//
-//        jdbcTemplate.update("INSERT INTO members (name, email, nickname, provider_type, provider_id, role) VALUES (?, ?, ?, ?, ?, ?)",
-//                "test", "test@naver.com", "네이버TestMember", OAuthProvider.NAVER.toString(), "123456789", MemberRole.ROLE_USER.toString());
-
         mockMvc = MockMvcBuilders.standaloneSetup(memberService).build();
         member = Member.builder()
                 .name("test")

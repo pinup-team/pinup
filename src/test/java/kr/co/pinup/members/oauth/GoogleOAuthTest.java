@@ -3,7 +3,7 @@ package kr.co.pinup.members.oauth;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
-import kr.co.pinup.members.custom.MemberServiceTest;
+import kr.co.pinup.members.custom.MemberTestAnnotation;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
 import kr.co.pinup.members.exception.OAuthProviderNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenNotFoundException;
@@ -35,7 +35,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@MemberServiceTest
+@MemberTestAnnotation
 public class GoogleOAuthTest {
     @Mock
     private MemberRepository memberRepository;
