@@ -23,7 +23,6 @@ public class CreatePostRequest {
 
     private String thumbnail;
 
-    @NotEmpty(message = "이미는 꼭 추가 해주세요.")
     private PostImageRequest postImageRequest;
 
 }

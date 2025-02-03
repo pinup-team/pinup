@@ -6,6 +6,7 @@ import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.model.dto.CreateCommentRequest;
 import kr.co.pinup.comments.service.CommentService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,7 +23,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @ExtendWith(MockitoExtension.class)
 class CommentApiControllerTest {
@@ -41,7 +41,7 @@ class CommentApiControllerTest {
         objectMapper = new ObjectMapper();
         mockMvc = MockMvcBuilders.standaloneSetup(commentApiController).build();
     }
-
+    @DisplayName("댓글 생성")
     @Test
     public void testCreateComment() throws Exception {
         Long postId = 1L;
@@ -71,10 +71,7 @@ class CommentApiControllerTest {
         verify(commentService).createComment(eq(postId), any(CreateCommentRequest.class));
     }
 
-
-
-
-
+    @DisplayName("댓글 삭제")
     @Test
     public void testDeleteComment() throws Exception {
 
