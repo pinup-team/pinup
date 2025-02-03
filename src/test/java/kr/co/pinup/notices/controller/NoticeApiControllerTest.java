@@ -3,7 +3,7 @@ package kr.co.pinup.notices.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.exception.ErrorResponse;
-import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.notices.exception.NoticeNotFound;
 import kr.co.pinup.notices.model.dto.NoticeCreateRequest;
@@ -11,7 +11,6 @@ import kr.co.pinup.notices.model.dto.NoticeResponse;
 import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
 import kr.co.pinup.notices.service.NoticeService;
 import kr.co.pinup.oauth.OAuthProvider;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,22 +58,12 @@ class NoticeApiControllerTest {
     @MockitoBean
     NoticeService noticeService;
 
-    MemberInfo mockMemberInfo;
-
-    @BeforeEach
-    void setUp() {
-        mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
-    }
-
     static Stream<Arguments> noticeProvider() {
         return Stream.of(arguments("공지사항 제목", "공지사항 내용"));
     }
 
     @ParameterizedTest
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @MethodSource("noticeProvider")
     @DisplayName("공지사항 저장")
     void save(String title, String content) throws Exception {
@@ -89,13 +78,13 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(post("/api/notices")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isCreated())
                 .andDo(print());
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 저장 시 title 값은 필수이다")
     void invalidTitleToSave() throws Exception {
         // given
@@ -108,7 +97,6 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(post("/api/notices")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -119,6 +107,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 저장 시 title 길이는 1~100까지 이다")
     void invalidTitleLengthToSave() throws Exception {
         // given
@@ -132,7 +121,6 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(post("/api/notices")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -143,6 +131,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 저장 시 content 값은 필수이다")
     void invalidContentToSave() throws Exception {
         // given
@@ -155,7 +144,6 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(post("/api/notices")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -166,6 +154,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 저장 시 content 길이는 1~200까지 이다")
     void invalidContentLengthToSave() throws Exception {
         // given
@@ -179,7 +168,6 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(post("/api/notices")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -260,6 +248,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 수정")
     void update() throws Exception {
         // given
@@ -273,13 +262,13 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 수정은 title 값이 필수다")
     void invalidTitleToUpdate() throws Exception {
         // given
@@ -292,7 +281,6 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -305,6 +293,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 수정은 content 값이 필수다")
     void invalidContentToUpdate() throws Exception {
         // given
@@ -317,7 +306,6 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -330,6 +318,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("존재하지 않는 공지사항 수정")
     void updateError() throws Exception {
         // given
@@ -346,7 +335,6 @@ class NoticeApiControllerTest {
         // expected
         MvcResult result = mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isNotFound())
                 .andExpect(view().name(VIEWS_ERROR))
@@ -360,6 +348,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 삭제")
     void deleteTest() throws Exception {
         // given
@@ -369,13 +358,13 @@ class NoticeApiControllerTest {
         doNothing().when(noticeService).remove(noticeId);
 
         // expected
-        mockMvc.perform(delete("/api/notices/{noticeId}", noticeId)
-                        .sessionAttr("memberInfo", mockMemberInfo))
+        mockMvc.perform(delete("/api/notices/{noticeId}", noticeId))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("존재하지 않는 공지사항 삭제")
     void deleteError() throws Exception {
         // given
@@ -385,8 +374,7 @@ class NoticeApiControllerTest {
         doThrow(new NoticeNotFound()).when(noticeService).remove(noticeId);
 
         // expected
-        MvcResult result = mockMvc.perform(delete("/api/notices/{noticeId}", noticeId)
-                        .sessionAttr("memberInfo", mockMemberInfo))
+        MvcResult result = mockMvc.perform(delete("/api/notices/{noticeId}", noticeId))
                 .andExpect(status().isNotFound())
                 .andExpect(view().name(VIEWS_ERROR))
                 .andExpect(model().attributeExists("error"))

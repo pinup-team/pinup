@@ -12,5 +12,5 @@ import java.lang.annotation.*;
 @Inherited
 @Transactional
 @ExtendWith(MockitoExtension.class)
-public @interface MemberServiceTest {
+public @interface MemberTestAnnotation {
 }

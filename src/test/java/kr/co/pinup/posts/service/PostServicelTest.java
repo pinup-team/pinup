@@ -1,12 +1,11 @@
 package kr.co.pinup.posts.service;
 
+import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
-import kr.co.pinup.posts.model.dto.CreatePostRequest;
-
 import kr.co.pinup.posts.Post;
-import kr.co.pinup.postImages.PostImage;
+import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.repository.PostRepository;
@@ -19,13 +18,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

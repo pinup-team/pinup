@@ -3,19 +3,16 @@ package kr.co.pinup.faqs.controller;
 import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.service.FaqService;
-import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -45,18 +42,8 @@ class FaqControllerTest {
     @MockitoBean
     MemberService memberService;
 
-    MemberInfo mockMemberInfo;
-
-    @BeforeEach
-    void setUp() {
-        mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
-    }
-
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 리스트 페이지 이동")
     void listPage() throws Exception {
         // given
@@ -72,8 +59,7 @@ class FaqControllerTest {
         when(faqService.findAll()).thenReturn(mockFaqs);
 
         // expected
-        mockMvc.perform(get("/faqs")
-                        .sessionAttr("memberInfo", mockMemberInfo))
+        mockMvc.perform(get("/faqs"))
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/list"))
                 .andExpect(model().attributeExists("faqs"))
@@ -82,13 +68,13 @@ class FaqControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 생성 페이지 이동")
     void newPage() throws Exception {
         // given
 
         // expected
-        mockMvc.perform(get("/faqs/new")
-                        .sessionAttr("memberInfo", mockMemberInfo))
+        mockMvc.perform(get("/faqs/new"))
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/create"))
                 .andExpect(model().attributeExists("category"))
@@ -100,6 +86,7 @@ class FaqControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 수정 페이지 이동")
     void updatePage() throws Exception {
         // given
@@ -114,8 +101,7 @@ class FaqControllerTest {
         when(faqService.find(faqId)).thenReturn(mockFaq);
 
         // expected
-        mockMvc.perform(get("/faqs/{faqId}/update", faqId)
-                        .sessionAttr("memberInfo", mockMemberInfo))
+        mockMvc.perform(get("/faqs/{faqId}/update", faqId))
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/update"))
                 .andExpect(model().attributeExists("category"))
