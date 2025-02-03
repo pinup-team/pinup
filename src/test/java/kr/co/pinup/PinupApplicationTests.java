@@ -30,6 +30,6 @@ public class PinupApplicationTests {
 	@Test
 	void checkDatasourceUrl() {
 		assertNotNull(datasourceUrl);
-		assertEquals("jdbc:postgresql://localhost:5432/pinup", datasourceUrl);
+		assertEquals("jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE", datasourceUrl);
 	}
 }

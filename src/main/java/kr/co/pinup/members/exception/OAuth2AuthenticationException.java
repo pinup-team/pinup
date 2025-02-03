@@ -5,15 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.UNAUTHORIZED)
-public class OAuthTokenRequestException extends GlobalCustomException {
+public class OAuth2AuthenticationException extends GlobalCustomException {
 
-    private static final String DEFAULT_MESSAGE = "OAuth 토큰 요청이 잘못되었습니다.";
+    private static final String DEFAULT_MESSAGE = "OAuth 로그인 중 오류가 발생했습니다.";
 
-    public OAuthTokenRequestException() {
+    public OAuth2AuthenticationException() {
         super(DEFAULT_MESSAGE);
     }
 
-    public OAuthTokenRequestException(String message) {
+    public OAuth2AuthenticationException(String message) {
         super(message);
     }
 

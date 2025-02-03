@@ -12,14 +12,12 @@
     </nav>
     <div class="user-actions">
         <th:block th:if="${session.memberInfo == null}">
-            <a th:href="@{/templates/views/members/login}">Login</a>
+            <a th:href="@{/members/login}">Login</a>
         </th:block>
         <th:block th:if="${session.memberInfo != null}">
-            <button th:onclick="logOut()">로그아웃</button>
-            <button onclick="window.location.href='/members/profile'">마이페이지</button>
+            <button th:onclick="|logOut()|">로그아웃</button>
+            <button th:onclick="|window.location.href='/members/profile'|">마이페이지</button>
         </th:block>
     </div>
 </header>
 </html>
-
-<script src="/js/member.js"></script>

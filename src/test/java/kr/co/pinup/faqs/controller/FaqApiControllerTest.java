@@ -3,41 +3,34 @@ package kr.co.pinup.faqs.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.exception.ErrorResponse;
-import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.faqs.exception.FaqNotFound;
 import kr.co.pinup.faqs.model.dto.FaqCreateRequest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
-import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.faqs.service.FaqService;
+import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.oauth.OAuthProvider;
-import org.assertj.core.api.Assertions;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -59,18 +52,8 @@ class FaqApiControllerTest {
     @MockitoBean
     private FaqService faqService;
 
-    MemberInfo mockMemberInfo;
-
-    @BeforeEach
-    void setUp() {
-        mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
-    }
-
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 저장")
     void save() throws Exception {
         // given
@@ -85,13 +68,13 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isCreated())
                 .andDo(print());
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 저장시 category는 필수 값이다")
     void invalidCategoryToSave() throws Exception {
         // given
@@ -105,7 +88,6 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -116,6 +98,7 @@ class FaqApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 저장시 question은 필수 값이다")
     void invalidQuestionToSave() throws Exception {
         // given
@@ -129,7 +112,6 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -140,6 +122,7 @@ class FaqApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 저장시 question 길이는 1~100까지 이다")
     void invalidQuestionLengthToSave() throws Exception {
         // given
@@ -154,7 +137,6 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -166,6 +148,7 @@ class FaqApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 저장시 answer 값은 필수다")
     void invalidAnswerToSave() throws Exception {
         // given
@@ -179,7 +162,6 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -190,6 +172,7 @@ class FaqApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 저장시 answer 길이는 1~200까지 이다")
     void invalidAnswerLengthToSave() throws Exception {
         // given
@@ -204,7 +187,6 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -291,6 +273,7 @@ class FaqApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 수정")
     void update() throws Exception {
         // given
@@ -306,13 +289,13 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 수정시 question은 필수 값이다")
     void invalidQuestionToUpdate() throws Exception {
         // given
@@ -327,7 +310,6 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -338,6 +320,7 @@ class FaqApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 수정시 question 길이는 1~100까지 이다")
     void invalidQuestionLengthToUpdate() throws Exception {
         // given
@@ -353,7 +336,6 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -365,6 +347,7 @@ class FaqApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 수정시 answer 값은 필수다")
     void invalidAnswerToUpdate() throws Exception {
         // given
@@ -379,7 +362,6 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -390,6 +372,7 @@ class FaqApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 수정시 answer 길이는 1~200까지 이다")
     void invalidAnswerLengthToUpdate() throws Exception {
         // given
@@ -405,7 +388,6 @@ class FaqApiControllerTest {
         // expected
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -417,6 +399,7 @@ class FaqApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("존재하지 않는 ID로 수정시 에러")
     void updateWithNonExistId() throws Exception {
         // given
@@ -435,7 +418,6 @@ class FaqApiControllerTest {
         // expected
         MvcResult result = mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
-                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isNotFound())
                 .andExpect(view().name(VIEWS_ERROR))
@@ -451,6 +433,7 @@ class FaqApiControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 삭제")
     void remove() throws Exception {
         // given
@@ -460,13 +443,13 @@ class FaqApiControllerTest {
         doNothing().when(faqService).remove(faqId);
 
         // expected
-        mockMvc.perform(delete("/api/faqs/{faqId}", faqId)
-                        .sessionAttr("memberInfo", mockMemberInfo))
+        mockMvc.perform(delete("/api/faqs/{faqId}", faqId))
                 .andExpect(status().isNoContent())
                 .andDo(print());
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("존재하지 않는 ID로 삭제시 에러")
     void removeWithNonExistId() throws Exception {
         // given
@@ -476,8 +459,7 @@ class FaqApiControllerTest {
         doThrow(new FaqNotFound()).when(faqService).remove(faqId);
 
         // expected
-        MvcResult result = mockMvc.perform(delete("/api/faqs/{faqId}", faqId)
-                        .sessionAttr("memberInfo", mockMemberInfo))
+        MvcResult result = mockMvc.perform(delete("/api/faqs/{faqId}", faqId))
                 .andExpect(status().isNotFound())
                 .andExpect(view().name(VIEWS_ERROR))
                 .andExpect(model().attributeExists("error"))

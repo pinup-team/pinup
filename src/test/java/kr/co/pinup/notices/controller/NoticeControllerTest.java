@@ -1,13 +1,12 @@
 package kr.co.pinup.notices.controller;
 
 import kr.co.pinup.config.SecurityConfigTest;
-import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
 import kr.co.pinup.notices.service.NoticeService;
 import kr.co.pinup.oauth.OAuthProvider;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,18 +42,8 @@ class NoticeControllerTest {
     @MockitoBean
     NoticeService noticeService;
 
-    MemberInfo mockMemberInfo;
-
-    @BeforeEach
-    void setUp() {
-        mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
-    }
-
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 리스트 페이지 이동")
     void listPage() throws Exception {
         // given
@@ -69,8 +58,7 @@ class NoticeControllerTest {
         when(noticeService.findAll()).thenReturn(mockNotices);
 
         // expected
-        mockMvc.perform(get("/notices")
-                        .sessionAttr("memberInfo", mockMemberInfo))
+        mockMvc.perform(get("/notices"))
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/list"))
                 .andExpect(model().attributeExists("notices"))
@@ -79,19 +67,20 @@ class NoticeControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 생성 페이지 이동")
     void newPage() throws Exception {
         // given
 
         // expected
-        mockMvc.perform(get("/notices/new")
-                        .sessionAttr("memberInfo", mockMemberInfo))
+        mockMvc.perform(get("/notices/new"))
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/create"))
                 .andDo(print());
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 상세 페이지 이동")
     void detailPage() throws Exception {
         // given
@@ -105,8 +94,7 @@ class NoticeControllerTest {
         when(noticeService.find(noticeId)).thenReturn(mockNotice);
 
         // expected
-        mockMvc.perform(get("/notices/{noticeId}", noticeId)
-                        .sessionAttr("memberInfo", mockMemberInfo))
+        mockMvc.perform(get("/notices/{noticeId}", noticeId))
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/detail"))
                 .andExpect(model().attributeExists("notice"))
@@ -115,6 +103,7 @@ class NoticeControllerTest {
     }
 
     @Test
+    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 수정 페이지 이동")
     void updatePage() throws Exception {
         // given
@@ -128,8 +117,7 @@ class NoticeControllerTest {
         when(noticeService.find(noticeId)).thenReturn(mockNotice);
 
         // expected
-        mockMvc.perform(get("/notices/{noticeId}/update", noticeId)
-                        .sessionAttr("memberInfo", mockMemberInfo))
+        mockMvc.perform(get("/notices/{noticeId}/update", noticeId))
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/update"))
                 .andExpect(model().attributeExists("notice"))
