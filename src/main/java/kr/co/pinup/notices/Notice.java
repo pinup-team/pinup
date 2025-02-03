@@ -1,21 +1,17 @@
 package kr.co.pinup.notices;
 
 import jakarta.persistence.*;
-
 import kr.co.pinup.BaseEntity;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
 @Table(name = "notices")
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class Notice extends BaseEntity {
 
     @Column(nullable = false, length = 100)
@@ -27,15 +23,6 @@ public class Notice extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private Member member;
-
-    @Builder
-    public Notice(String title, String content, Member member, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        this.title = title;
-        this.content = content;
-        this.member = member;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
 
     public void update(NoticeUpdateRequest update) {
         title = update.title();

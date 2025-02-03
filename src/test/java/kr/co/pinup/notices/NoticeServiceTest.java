@@ -23,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -103,11 +102,10 @@ class NoticeServiceTest {
         // given
         List<Notice> request = IntStream.range(1, 3)
                 .mapToObj(i -> Notice.builder()
-                        .title("공지사항 제목 " + i)
-                        .content("공지사항 내용 " + i)
-                        .member(member)
-                        .createdAt(LocalDateTime.now().plusNanos(i * 1000000000L))
-                        .build())
+                            .title("공지사항 제목 " + i)
+                            .content("공지사항 내용 " + i)
+                            .member(member)
+                            .build())
                 .toList();
         noticeRepository.saveAll(request);
 

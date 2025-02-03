@@ -11,6 +11,7 @@ import kr.co.pinup.notices.model.dto.NoticeResponse;
 import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
 import kr.co.pinup.notices.service.NoticeService;
 import kr.co.pinup.oauth.OAuthProvider;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,13 +22,13 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -58,6 +59,17 @@ class NoticeApiControllerTest {
     @MockitoBean
     NoticeService noticeService;
 
+    MemberInfo mockMemberInfo;
+
+    @BeforeEach
+    void setUp() {
+        mockMemberInfo = MemberInfo.builder()
+                .nickname("두려운고양이")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_ADMIN)
+                .build();
+    }
+
     static Stream<Arguments> noticeProvider() {
         return Stream.of(arguments("공지사항 제목", "공지사항 내용"));
     }
@@ -65,14 +77,8 @@ class NoticeApiControllerTest {
     @ParameterizedTest
     @MethodSource("noticeProvider")
     @DisplayName("공지사항 저장")
-    @WithMockUser(username = "testuser", roles = "ADMIN")
     void save(String title, String content) throws Exception {
         // given
-        MemberInfo mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
         NoticeCreateRequest request = NoticeCreateRequest.builder()
                 .title(title)
                 .content(content)
@@ -102,6 +108,7 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(post("/api/notices")
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -124,8 +131,9 @@ class NoticeApiControllerTest {
 
         // expected
         mockMvc.perform(post("/api/notices")
-                .contentType(APPLICATION_JSON)
-                .content(body))
+                        .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
+                        .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
@@ -146,8 +154,9 @@ class NoticeApiControllerTest {
 
         // expected
         mockMvc.perform(post("/api/notices")
-                .contentType(APPLICATION_JSON)
-                .content(body))
+                        .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
+                        .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
@@ -158,15 +167,8 @@ class NoticeApiControllerTest {
 
     @Test
     @DisplayName("공지사항 저장 시 content 길이는 1~200까지 이다")
-    @WithMockUser(username = "testuser", roles = "ADMIN")
     void invalidContentLengthToSave() throws Exception {
         // given
-        MemberInfo mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
-
         NoticeCreateRequest request = NoticeCreateRequest.builder()
                 .title("공지사항 제목")
                 .content("A".repeat(201))
@@ -192,7 +194,7 @@ class NoticeApiControllerTest {
     void findAll() throws Exception {
         // given
         List<NoticeResponse> notices = IntStream.range(0, 10)
-                .mapToObj(i ->  NoticeResponse.builder()
+                .mapToObj(i -> NoticeResponse.builder()
                         .title("공지사항 제목 " + (10 - i))
                         .content("공지사항 내용 " + (10 - i))
                         .build())
@@ -250,22 +252,18 @@ class NoticeApiControllerTest {
                 .andDo(print())
                 .andReturn();
 
-        ErrorResponse response = (ErrorResponse) result.getModelAndView().getModel().get("error");
+        ErrorResponse response = (ErrorResponse) Objects.requireNonNull(result.getModelAndView())
+                .getModel()
+                .get("error");
         assertThat(response.status()).isEqualTo(NOT_FOUND.value());
         assertThat(response.message()).isEqualTo("공지사항이 존재하지 않습니다.");
     }
-    
+
     @Test
     @DisplayName("공지사항 수정")
-    @WithMockUser(username = "testuser", roles = "ADMIN")
     void update() throws Exception {
         // given
         long noticeId = 1L;
-        MemberInfo mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
         NoticeUpdateRequest request = NoticeUpdateRequest.builder()
                 .title("공지사항 제목 수정")
                 .content("공지사항 내용")
@@ -294,6 +292,7 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -318,6 +317,7 @@ class NoticeApiControllerTest {
         // expected
         mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
+                        .sessionAttr("memberInfo", mockMemberInfo)
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
@@ -331,15 +331,9 @@ class NoticeApiControllerTest {
 
     @Test
     @DisplayName("존재하지 않는 공지사항 수정")
-    @WithMockUser(username = "testuser", roles = "ADMIN")
     void updateError() throws Exception {
         // given
         long noticeId = 99999L;
-        MemberInfo mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
         NoticeUpdateRequest request = NoticeUpdateRequest.builder()
                 .title("공지사항 수정")
                 .content("공지사항 내용")
@@ -367,15 +361,9 @@ class NoticeApiControllerTest {
 
     @Test
     @DisplayName("공지사항 삭제")
-    @WithMockUser(username = "testuser", roles = "ADMIN")
     void deleteTest() throws Exception {
         // given
         long noticeId = 1L;
-        MemberInfo mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
 
         // when
         doNothing().when(noticeService).remove(noticeId);
@@ -389,15 +377,9 @@ class NoticeApiControllerTest {
 
     @Test
     @DisplayName("존재하지 않는 공지사항 삭제")
-    @WithMockUser(username = "testuser", roles = "ADMIN")
     void deleteError() throws Exception {
         // given
         long noticeId = 99999L;
-        MemberInfo mockMemberInfo = MemberInfo.builder()
-                .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_ADMIN)
-                .build();
 
         // when
         doThrow(new NoticeNotFound()).when(noticeService).remove(noticeId);
