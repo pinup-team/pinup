@@ -9,24 +9,27 @@ import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.service.PostService;
+
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
-
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -73,6 +76,7 @@ class PostApiControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(postApiController).build();
     }
 
+    @DisplayName("게시글 목록 조회")
     @Test
     void testGetAllPosts() throws Exception {
         PostResponse postResponse = PostResponse.builder()
@@ -90,7 +94,7 @@ class PostApiControllerTest {
                 .andDo(print())
                 .andExpect(content().json("[{'id': 1, 'title': 'Title 1', 'content': 'Content 1'}]"));
     }
-
+    @DisplayName("게시글 ID로 조회")
     @Test
     void testGetPostById() throws Exception {
         Long postId = 1L;
@@ -119,7 +123,7 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.postImages[0].s3Url").value("image1.jpg"));
     }
 
-
+    @DisplayName("게시글 생성")
     @Test
     void testCreatePost() throws Exception {
         CreatePostRequest createPostRequest = CreatePostRequest.builder()
@@ -150,7 +154,7 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.thumbnail").value("Thumbnail"));
     }
 
-
+    @DisplayName("게시글 삭제")
     @Test
     void testDeletePost() throws Exception {
         Long postId = 1L;
@@ -161,7 +165,7 @@ class PostApiControllerTest {
                 .andExpect(status().isNoContent());
     }
 
-
+    @DisplayName("게시글 수정")
     @Test
     void testUpdatePost() throws Exception {
         Long postId = 1L;

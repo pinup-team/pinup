@@ -9,6 +9,7 @@ import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.repository.PostRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,9 +35,9 @@ public class CommentServiceTest {
     @Mock
     private PostRepository postRepository;
 
+    @DisplayName("게시글 ID로 댓글 조회")
     @Test
     void testFindByPostId() {
-        // Given
         Long postId = 1L;
         List<CommentResponse> commentResponses = List.of(
                 CommentResponse.builder()
@@ -56,40 +57,36 @@ public class CommentServiceTest {
         );
 
         when(commentRepository.findByPostId(postId)).thenReturn(commentResponses);
-        // When
         List<CommentResponse> result = commentService.findByPostId(postId);
-        // Then
         assertNotNull(result);
         assertEquals(2, result.size());
         verify(commentRepository).findByPostId(postId);
     }
 
+    @DisplayName("댓글 삭제")
     @Test
     void testDeleteComment() {
-        // Given
         Long commentId = 1L;
         when(commentRepository.existsById(commentId)).thenReturn(true);
-        // When
         commentService.deleteComment(commentId);
-        // Then
         verify(commentRepository).existsById(commentId);
         verify(commentRepository).deleteById(commentId);
     }
 
+    @DisplayName("댓글 삭제 실패 - 존재하지 않는 댓글")
     @Test
     void testDeleteComment_NotFound() {
-        // Given
         Long commentId = 1L;
         when(commentRepository.existsById(commentId)).thenReturn(false);
-        // When / Then
         assertThrows(CommentNotFoundException.class, () -> commentService.deleteComment(commentId));
         verify(commentRepository).existsById(commentId);
         verify(commentRepository, never()).deleteById(commentId);
     }
 
+    @DisplayName("댓글 생성")
     @Test
     void testCreateComment() {
-        // Given
+
         Long postId = 1L;
         String commentContent = "Test Comment";
         CreateCommentRequest createCommentRequest = CreateCommentRequest.builder()
@@ -136,10 +133,9 @@ public class CommentServiceTest {
         verify(commentRepository).save(any(Comment.class));
     }
 
-
+    @DisplayName("댓글 생성 실패 - 존재하지 않는 게시글")
     @Test
     void testCreateComment_PostNotFound() {
-        // Given
         Long postId = 1L;
         CreateCommentRequest createCommentRequest = CreateCommentRequest.builder()
                 .content("Test Comment")

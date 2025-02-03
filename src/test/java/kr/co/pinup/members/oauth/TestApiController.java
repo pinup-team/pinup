@@ -117,5 +117,4 @@ public class TestApiController {
         }
     }
 
-    // CHECK 구글은 HTTP 직접 만들어서 보냇기 때문에 TEST 안됨!
 }

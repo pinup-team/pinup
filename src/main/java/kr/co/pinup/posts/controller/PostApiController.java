@@ -44,22 +44,19 @@ public class PostApiController {
         return PostDetailResponse.postDetailResponse(post, comments, images);
     }
 
-
     @PostMapping("/create")
     public ResponseEntity<PostResponse> createPost(
             @ModelAttribute @Valid CreatePostRequest createPostRequest,
-            @RequestParam("images") MultipartFile[] images) {
+            @RequestParam(value = "images", required = true) MultipartFile[] images) {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(createPostRequest, images));
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id) {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
-
 
     @PutMapping("/{id}")
     public ResponseEntity<Post> updatePost(@PathVariable Long id,

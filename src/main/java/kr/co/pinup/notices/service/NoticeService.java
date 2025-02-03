@@ -27,7 +27,7 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
 
     public List<NoticeResponse> findAll() {
-        return noticeRepository.findAllByOrderByCreatedAtDesc()
+        return noticeRepository.findAllByOrderByCreatedAtDescIdDesc()
                 .stream()
                 .map(NoticeResponse::new)
                 .collect(Collectors.toList());

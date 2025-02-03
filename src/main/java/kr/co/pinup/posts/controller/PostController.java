@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 @RequestMapping("/post")
 public class PostController {
+
+    private static final String VIEW_PATH = "views/posts";
+
     private final PostService postService;
     private final CommentService commentService;
     private final PostImageService postImageService;
@@ -24,7 +27,7 @@ public class PostController {
     @GetMapping("/list/{storeid}")
     public String getAllPosts(@PathVariable Long storeid, Model model) {
         model.addAttribute("posts", postService.findByStoreId(storeid));
-        return "views/posts/list";
+        return VIEW_PATH + "/list";
     }
 
     @GetMapping("/{postId}")
@@ -34,13 +37,13 @@ public class PostController {
         model.addAttribute("comments", commentService.findByPostId(postId));
         model.addAttribute("images", postImageService.findImagesByPostId(postId));
 
-        return "views/posts/detail";
+        return VIEW_PATH + "/detail";
     }
 
     @GetMapping("/create")
     public String createPostForm(Model model) {
         model.addAttribute("createPostRequest", new CreatePostRequest());
-        return "views/posts/create";
+        return VIEW_PATH + "/create";
     }
 
     @GetMapping("/update/{id}")
@@ -49,7 +52,7 @@ public class PostController {
         model.addAttribute("post", postService.getPostById(id));
         model.addAttribute("images", postImageService.findImagesByPostId(id));
 
-        return "views/posts/update";
+        return VIEW_PATH + "/update";
     }
 
 }

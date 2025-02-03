@@ -1,6 +1,8 @@
 package kr.co.pinup.posts.service;
 
-import kr.co.pinup.postImages.PostImage;
+import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+
 import kr.co.pinup.postImages.exception.postimage.PostImageDeleteFailedException;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
 import kr.co.pinup.postImages.exception.postimage.PostImageUploadException;
@@ -8,14 +10,16 @@ import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.postImages.service.PostImageService;
+
 import kr.co.pinup.posts.Post;
+import kr.co.pinup.postImages.PostImage;
+
 import kr.co.pinup.posts.repository.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,10 +34,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-
 @ExtendWith(SpringExtension.class)
 public class PostImageServiceTest {
 
@@ -44,7 +44,7 @@ public class PostImageServiceTest {
     private PostImageRepository postImageRepository;
 
     @Mock
-    private S3Client s3Client; // @Mock을 사용하여 Mock 객체 선언
+    private S3Client s3Client;
     @Mock
     private PostRepository postRepository;
     @Mock
@@ -79,6 +79,7 @@ public class PostImageServiceTest {
                 .build();
     }
 
+    @DisplayName("이미지가 없는 경우 이미지 저장 실패")
     @Test
     void testSavePostImages_Failure_NoImages() {
         postImageRequest = PostImageRequest.builder()
@@ -90,7 +91,7 @@ public class PostImageServiceTest {
             postImageService.savePostImages(postImageRequest, post);
         });
     }
-    // deleteAllByPost 테스트
+    @DisplayName("게시물에 이미지가 없을 때 전체 삭제 실행 안 됨")
     @Test
     void testDeleteAllByPost_WhenNoImages() {
         Long postId = 1L;
@@ -102,6 +103,7 @@ public class PostImageServiceTest {
         verify(postImageRepository, never()).deleteAllByPostId(postId);
     }
 
+    @DisplayName("게시물에 이미지가 있을 때 전체 삭제 성공")
     @Test
     public void testDeleteAllByPost_WhenImagesExist() {
         PostImage image1 = new PostImage(post, "https://example.com/image1.jpg");
@@ -115,6 +117,7 @@ public class PostImageServiceTest {
         verify(postImageRepository, times(1)).deleteAllByPostId(post.getId());
     }
 
+    @DisplayName("S3 삭제 실패 시 이미지 전체 삭제 예외 발생")
     @Test
     public void testDeleteAllByPost_WhenS3DeleteFails() {
         PostImage image1 = new PostImage(post, "https://example.com/image1.jpg");
@@ -129,7 +132,7 @@ public class PostImageServiceTest {
         verify(postImageRepository, never()).deleteAllByPostId(post.getId());
     }
 
-    // deleteSelectedImages 테스트
+    @DisplayName("선택한 이미지 삭제 - 삭제할 이미지가 없는 경우 예외 발생")
     @Test
     void testDeleteSelectedImages_WhenImagesToDeleteIsEmpty() {
         Long postId = 1L;
@@ -144,6 +147,7 @@ public class PostImageServiceTest {
         assertTrue(exception.getMessage().contains("삭제할 이미지 URL이 없습니다."));
     }
 
+    @DisplayName("선택한 이미지 삭제 - 존재하는 이미지 삭제 성공")
     @Test
     public void testDeleteSelectedImages_WhenImagesExist() {
         String imageUrl = "https://example.com/image1.jpg";
@@ -162,6 +166,7 @@ public class PostImageServiceTest {
         verify(postImageRepository, times(1)).deleteAll(Collections.singletonList(image));
     }
 
+    @DisplayName("선택한 이미지 삭제 - S3 삭제 실패 시 예외 발생")
     @Test
     public void testDeleteSelectedImages_WhenS3DeleteFails() {
         String imageUrl = "https://example.com/image1.jpg";
@@ -184,7 +189,7 @@ public class PostImageServiceTest {
         verify(postImageRepository, never()).deleteAll(Collections.singletonList(image));
     }
 
-
+    @DisplayName("게시글 ID로 이미지 조회 - 이미지가 있는 경우")
     @Test
     public void testFindImagesByPostId_withImages() {
         String fileUrl = "https://s3.amazonaws.com/testBucket/testImage.jpg";
@@ -214,7 +219,7 @@ public class PostImageServiceTest {
         assertEquals(fileUrl, result.get(0).getS3Url(), "The S3 URL should match the expected URL");
     }
 
-
+    @DisplayName("게시글 ID로 이미지 조회 - 이미지가 없는 경우")
     @Test
     public void testFindImagesByPostId_noImages() {
 

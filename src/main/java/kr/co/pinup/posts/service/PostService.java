@@ -71,13 +71,11 @@ public class PostService {
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + postId));
-
         try {
             postImageService.deleteAllByPost(postId);
         } catch (Exception e) {
             throw new PostDeleteFailedException("게시글 삭제 중 이미지 삭제 실패. ID: " + postId);
         }
-
         try {
             postRepository.delete(post);
         } catch (Exception e) {
@@ -99,7 +97,6 @@ public class PostService {
         boolean thumbnailUpdated = false;
 
             if (postImageRequest.getImagesToDelete() != null && !postImageRequest.getImagesToDelete().isEmpty()) {
-
                 postImageService.deleteSelectedImages(id, postImageRequest);
                 List<PostImageResponse> remainingImages = postImageService.findImagesByPostId(id);
                 if (!remainingImages.isEmpty()) {
@@ -114,7 +111,6 @@ public class PostService {
 
             if (postImageRequest != null && postImageRequest.getImages() != null) {
                 List<PostImage> postImages = postImageService.savePostImages(postImageRequest, existingPost);
-
                 if (!postImages.isEmpty()) {
                     if (!thumbnailUpdated) {
                         existingPost.updateThumbnail(postImages.get(0).getS3Url());

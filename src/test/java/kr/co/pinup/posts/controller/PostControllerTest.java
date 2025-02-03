@@ -1,5 +1,10 @@
 package kr.co.pinup.posts.controller;
 
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+
 import kr.co.pinup.comments.Comment;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
@@ -9,24 +14,23 @@ import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.service.PostService;
+
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -70,6 +74,7 @@ class PostControllerTest {
         mockMvc = MockMvcBuilders.standaloneSetup(postController).build();
     }
 
+    @DisplayName("게시글 목록 조회 페이지 로드")
     @Test
     void testGetAllPosts() throws Exception {
         Long storeId = 1L;
@@ -87,14 +92,14 @@ class PostControllerTest {
 
         when(postService.findByStoreId(storeId)).thenReturn(posts);
 
-        mockMvc.perform(get("/posts/list/{storeid}", storeId))
+        mockMvc.perform(get("/post/list/{storeid}", storeId))
                 .andExpect(status().isOk())
-                .andExpect(view().name("views/post/list"))
+                .andExpect(view().name("views/posts/list"))
                 .andExpect(model().attributeExists("posts"))
                 .andExpect(model().attribute("posts", posts));
     }
 
-
+    @DisplayName("게시글 상세 조회 페이지 로드")
     @Test
     void testGetPostById() throws Exception {
         Long postId = 1L;
@@ -128,22 +133,24 @@ class PostControllerTest {
         when(commentService.findByPostId(postId)).thenReturn(comments);
         when(postImageService.findImagesByPostId(postId)).thenReturn(images);
 
-        mockMvc.perform(get("/posts/{postId}", postId))
+        mockMvc.perform(get("/post/{postId}", postId))
                 .andExpect(status().isOk())
-                .andExpect(view().name("views/post/detail"))
+                .andExpect(view().name("views/posts/detail"))
                 .andExpect(model().attributeExists("post"))
                 .andExpect(model().attributeExists("comments"))
                 .andExpect(model().attributeExists("images"));
     }
 
+    @DisplayName("게시글 생성 폼 페이지 로드")
     @Test
     void testCreatePostForm() throws Exception {
-        mockMvc.perform(get("/posts/create"))
+        mockMvc.perform(get("/post/create"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("views/post/create"))
+                .andExpect(view().name("views/posts/create"))
                 .andExpect(model().attributeExists("createPostRequest"));
     }
 
+    @DisplayName("게시글 수정 폼 페이지 로드")
     @Test
     void testUpdatePostForm() throws Exception {
         Long postId = 1L;
@@ -168,14 +175,13 @@ class PostControllerTest {
         when(postService.getPostById(postId)).thenReturn(post);
         when(postImageService.findImagesByPostId(postId)).thenReturn(images);
 
-        mockMvc.perform(get("/posts/update/{id}", postId))
+        mockMvc.perform(get("/post/update/{id}", postId))
                 .andExpect(status().isOk())
-                .andExpect(view().name("views/post/update"))
+                .andExpect(view().name("views/posts/update"))
                 .andExpect(model().attributeExists("post"))
                 .andExpect(model().attributeExists("images"))
                 .andExpect(model().attribute("post", post))
                 .andExpect(model().attribute("images", images));
     }
-
 
 }
