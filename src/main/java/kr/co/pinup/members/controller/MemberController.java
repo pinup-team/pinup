@@ -29,7 +29,6 @@ public class MemberController {
     public String memberProfile(@LoginMember MemberInfo memberInfo, Model model) {
         MemberResponse memberResponse = memberService.findMember(memberInfo);
         model.addAttribute("profile", memberResponse);
-
-        return "/views/members/profile";
+        return "views/members/profile";
     }
 }

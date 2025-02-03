@@ -2,13 +2,17 @@ package kr.co.pinup.oauth.google;
 
 import kr.co.pinup.oauth.OAuthLoginParams;
 import kr.co.pinup.oauth.OAuthProvider;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class GoogleLoginParams implements OAuthLoginParams {
     private String code;
     private String state;

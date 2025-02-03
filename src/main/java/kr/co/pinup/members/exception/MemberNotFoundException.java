@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class MemberNotFoundException extends GlobalCustomException {
 
-    private static final String MESSAGE = "사용자를 찾을 수 없습니다.";
+    private static final String DEFAULT_MESSAGE = "사용자를 찾을 수 없습니다.";
 
     public MemberNotFoundException() {
-        super(MESSAGE);
+        super(DEFAULT_MESSAGE);
     }
 
     public MemberNotFoundException(String message) {

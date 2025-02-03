@@ -1,6 +1,5 @@
 package kr.co.pinup.posts;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
 import kr.co.pinup.comments.Comment;

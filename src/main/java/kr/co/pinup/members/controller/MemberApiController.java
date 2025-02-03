@@ -50,15 +50,18 @@ public class MemberApiController {
         session.setAttribute("memberInfo", memberInfo);
 
         String accessToken = session.getAttribute("accessToken").toString();
-        // TODO 도희 :  accessToken header에 들어가지 않으므로, 당분간 session에서 처리
-        //        session.removeAttribute("accessToken");
-
+//         TODO 도희 :accessToken header에 들어가기 성공, 당분간 session에서 처리
+//        session.removeAttribute("accessToken");
+//
+//        System.out.println("Set-Cookie Header: " + headers.get(HttpHeaders.SET_COOKIE));
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.setLocation(URI.create("/"));
         HttpHeaders headers = controlCookie(accessToken, 3600);
         headers.setLocation(URI.create("/"));
 
         log.info("Login successful: {}", memberInfo);
         return ResponseEntity.status(302)
-//                .headers(headers)
+                .headers(headers)
                 .build();
     }
 
@@ -76,22 +79,21 @@ public class MemberApiController {
 
     @PatchMapping
     public ResponseEntity<?> update(@Validated @RequestBody MemberRequest memberRequest, @LoginMember MemberInfo memberInfo,
-                                    HttpSession session) {
+                                                    HttpSession session) {
         MemberResponse updatedMember = memberService.update(memberInfo, memberRequest);
-        session.setAttribute("memberInfo", MemberInfo.builder().nickname(updatedMember.getNickname()).provider(memberInfo.provider()).role(memberInfo.role()).build());
 
         log.info("Nickname updated to: {}", updatedMember.getNickname());
         return ResponseEntity.ok("닉네임이 변경되었습니다.");
     }
 
     @DeleteMapping
-    public ResponseEntity<?> delete(@RequestBody MemberRequest memberRequest, @LoginMember MemberInfo memberInfo,
+    public ResponseEntity<?> delete(@Validated @RequestBody MemberRequest memberRequest, @LoginMember MemberInfo memberInfo,
                                     HttpSession session) {
         boolean isDeleted = memberService.delete(memberInfo, memberRequest);
         if (isDeleted) {
             session.invalidate();
             log.info("Member deleted successfully");
-            return ResponseEntity.ok("탈퇴 성공");
+            return ResponseEntity.ok().body("탈퇴 성공");
         } else {
             log.warn("Member deletion failed");
             return ResponseEntity.badRequest().body("사용자 탈퇴 실패");
@@ -100,19 +102,14 @@ public class MemberApiController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@LoginMember MemberInfo memberInfo, HttpServletRequest request) {
-        return Optional.ofNullable(memberInfo).map(member -> {
-            boolean response = memberService.logout(member.provider(), request);
-
+        if (memberService.logout(memberInfo.provider(), request)) {
             HttpHeaders headers = controlCookie("", 0);
-
-            return response ?
-                    ResponseEntity.ok()
-//                            .headers(headers)
-                            .body("로그아웃 성공")
-                    : ResponseEntity.badRequest().body("로그아웃 실패");
-        }).orElseGet(() -> {
-            return ResponseEntity.status(401).body("로그인 정보가 없습니다.");
-        });
+            return ResponseEntity.ok()
+//                    .headers(headers)
+                    .body("로그아웃 성공");
+        } else {
+            return ResponseEntity.badRequest().body("로그아웃 실패");
+        }
     }
 
     private HttpHeaders controlCookie(String accessToken, int age) {

@@ -7,26 +7,21 @@ import kr.co.pinup.oauth.google.GoogleToken;
 import kr.co.pinup.oauth.naver.NaverResponse;
 import kr.co.pinup.oauth.naver.NaverToken;
 import org.springframework.boot.autoconfigure.codec.CodecProperties;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/test/api/members")
 public class TestApiController {
     private final OauthConfig oauthConfig;
     private final CodecProperties codecProperties;
     private OauthConfig.Registration naverRegistration;
-    private OauthConfig.Provider naverProvider;
     private OauthConfig.Registration googleRegistration;
-    private OauthConfig.Provider googleProvider;
     HttpSession session;
 
     public TestApiController(OauthConfig oauthConfig, CodecProperties codecProperties) {
         this.oauthConfig = oauthConfig;
         this.naverRegistration = oauthConfig.getRegistration().get("naver");
-        this.naverProvider = oauthConfig.getProvider().get("naver");
         this.googleRegistration = oauthConfig.getRegistration().get("google");
-        this.googleProvider = oauthConfig.getProvider().get("google");
         this.codecProperties = codecProperties;
     }
 
@@ -37,10 +32,10 @@ public class TestApiController {
         if(clientId.equals(naverRegistration.getClientId()) && clientSecret.equals(naverRegistration.getClientSecret())
                 && grantType.equals(naverRegistration.getAuthorizationGrantType()) && code.equals("oauthTestCode") && state.equals("oauthTestState")) {
             NaverToken mockToken = new NaverToken();
-            mockToken.setAccessToken("mock-access-token-" + code);
-            mockToken.setRefreshToken("mock-refresh-token");
-            mockToken.setTokenType("Bearer");
-            mockToken.setExpiresIn(String.valueOf(3600));
+//            mockToken.setAccessToken("mock-access-token-" + code);
+//            mockToken.setRefreshToken("mock-refresh-token");
+//            mockToken.setTokenType("Bearer");
+//            mockToken.setExpiresIn(String.valueOf(3600));
 
             return mockToken;
         } else {
@@ -59,7 +54,7 @@ public class TestApiController {
                     "123456789", "테스트 네이버 사용자", "testuser@naver.com"
             );
 
-            NaverResponse mockNaverResponse = new NaverResponse();
+            NaverResponse mockNaverResponse = NaverResponse.builder().response(NaverResponse.Response.builder().id("testId").name("testUser").email("test@naver.com").build()).build();
             mockNaverResponse.response = response;
 
             return mockNaverResponse;
@@ -75,10 +70,10 @@ public class TestApiController {
         if(clientId.equals(naverRegistration.getClientId()) && clientSecret.equals(naverRegistration.getClientSecret())
                 && grantType.equals(naverRegistration.getAuthorizationGrantType()) && code.equals("oauthTestCode") && state.equals("oauthTestState")) {
             NaverToken mockToken = new NaverToken();
-            mockToken.setAccessToken(null);
-            mockToken.setRefreshToken("mock-refresh-token");
-            mockToken.setTokenType("Bearer");
-            mockToken.setExpiresIn(String.valueOf(3600));
+//            mockToken.setAccessToken(null);
+//            mockToken.setRefreshToken("mock-refresh-token");
+//            mockToken.setTokenType("Bearer");
+//            mockToken.setExpiresIn(String.valueOf(3600));
 
             return mockToken;
         } else {

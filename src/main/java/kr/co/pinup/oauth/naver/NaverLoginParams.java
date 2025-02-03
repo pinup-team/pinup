@@ -2,13 +2,17 @@ package kr.co.pinup.oauth.naver;
 
 import kr.co.pinup.oauth.OAuthLoginParams;
 import kr.co.pinup.oauth.OAuthProvider;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class NaverLoginParams implements OAuthLoginParams {
     private String code;
     private String state;

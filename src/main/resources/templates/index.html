@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}">
-
+<!--TODO 이제 session에 저장하지 않기 때문에, 어떻게 확인할 지 생각해봐야함. update 시 securityContextHolder에도 적용이 되지만 여기서는 변경되지 않음-->
 <div class="container" layout:fragment="content">
     <th:block th:if="${session.memberInfo == null}">
         <p>메인 페이지입니다.</p>

@@ -3,6 +3,7 @@ package kr.co.pinup.members.model.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.oauth.OAuthProvider;
@@ -25,11 +26,11 @@ public record MemberRequest(
         String nickname,
 
         @Schema(description = "OAuth제공자")
-        @NotBlank(message = "OAuth제공자는 빈 값일 수 없습니다.")
+        @NotNull(message = "OAuth제공자는 빈 값일 수 없습니다.")
         OAuthProvider providerType,
 
         @Schema(description = "권한")
-        @NotBlank(message = "권한은 빈 값일 수 없습니다.")
+        @NotNull(message = "권한은 빈 값일 수 없습니다.")
         MemberRole role
 ) {
 }

@@ -10,14 +10,14 @@ function logOut() {
         .then(text => {
             if (text === "로그아웃 성공") {
                 alert(text);
-                window.location.href = "/";
+                window.location.replace("/");
             } else {
                 alert(text);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('서버와의 연결에 실패했습니다.');
+            console.error('로그아웃 중 오류 발생:', error);
+            alert('로그아웃 중 오류가 발생했습니다.');
         });
 }
 

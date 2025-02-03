@@ -7,6 +7,12 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class MemberBadRequestException extends GlobalCustomException {
 
+    private static final String DEFAULT_MESSAGE = "회원 정보가 잘못되었습니다.";
+
+    public MemberBadRequestException() {
+        super(DEFAULT_MESSAGE);
+    }
+
     public MemberBadRequestException(String message) {
         super(message);
     }
