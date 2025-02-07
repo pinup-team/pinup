@@ -13,7 +13,6 @@ import software.amazon.awssdk.services.s3.S3Client;
 import java.net.URI;
 import java.time.Duration;
 
-
 @Configuration
 public class S3Config {
 
@@ -42,11 +41,10 @@ public class S3Config {
                     .overrideConfiguration(ClientOverrideConfiguration.builder()
                             .apiCallTimeout(Duration.ofMinutes(2))
                             .apiCallAttemptTimeout(Duration.ofSeconds(30))
-                            .build()) // 타임아웃 설정
+                            .build())
                     .build();
         }
 
-        // 일반적인 AWS 리전 설정
         return S3Client.builder()
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
