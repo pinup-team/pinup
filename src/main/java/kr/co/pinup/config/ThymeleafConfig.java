@@ -25,15 +25,11 @@ public class ThymeleafConfig {
     @Bean
     public SpringResourceTemplateResolver templateResolver() {
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
-        // TODO: hot reload를 위해 임시로 file 파일 자체를 읽도록 수정
-//        templateResolver.setPrefix("classpath:/templates/");
-        templateResolver.setPrefix("file:src/main/resources/templates/");
+        templateResolver.setPrefix("classpath:/templates/");
         templateResolver.setSuffix(".html");
         templateResolver.setTemplateMode(TemplateMode.HTML);
         templateResolver.setCharacterEncoding("UTF-8");
-        // TODO: hot reload를 위해 임시로 false로 설정
-//        templateResolver.setCacheable(true);
-        templateResolver.setCacheable(false);
+        templateResolver.setCacheable(true);
         return templateResolver;
     }
 
