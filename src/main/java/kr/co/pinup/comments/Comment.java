@@ -1,5 +1,6 @@
 package kr.co.pinup.comments;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
 import kr.co.pinup.posts.Post;
@@ -15,6 +16,7 @@ public class Comment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
+    @JsonBackReference
     private Post post;
 
     @Column(name = "user_id", nullable = false)
