@@ -9,35 +9,14 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
-@Getter
 @Builder
-public class PostDetailResponse {
+public record PostDetailResponse(Long id, Long storeId, Long userId, String title, String content,
+                                 String thumbnail, LocalDateTime createdAt, LocalDateTime updatedAt,
+                                 List<CommentResponse> comments, List<PostImageResponse> postImages) {
 
-    private Long id;
-    private Long storeId;
-    private Long userId;
-    private String title;
-    private String content;
-    private String thumbnail;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private List<CommentResponse> comments;
-    private List<PostImageResponse> postImages;
-
-    public static PostDetailResponse postDetailResponse(Post post, List<CommentResponse> comments, List<PostImageResponse> images) {
-        return PostDetailResponse.builder()
-                .id(post.getId())
-                .storeId(post.getStoreId())
-                .userId(post.getUserId())
-                .title(post.getTitle())
-                .content(post.getContent())
-                .thumbnail(post.getThumbnail())
-                .createdAt(post.getCreatedAt())
-                .updatedAt(post.getUpdatedAt())
-                .comments(comments)
-                .postImages(images)
-                .build();
+    public static PostDetailResponse from(Post post, List<CommentResponse> comments, List<PostImageResponse> images) {
+        return new PostDetailResponse(post.getId(), post.getStoreId(), post.getUserId(),
+                post.getTitle(), post.getContent(), post.getThumbnail(),
+                post.getCreatedAt(), post.getUpdatedAt(), comments, images);
     }
-
 }

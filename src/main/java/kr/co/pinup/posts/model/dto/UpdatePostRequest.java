@@ -5,25 +5,21 @@ import jakarta.validation.constraints.Size;
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import lombok.*;
 
-@Setter
-@Getter
+
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UpdatePostRequest {
-    private Long postId;
-    private Long storeId;
-    private Long userId;
+public record UpdatePostRequest(
+        Long postId,
+        Long storeId,
+        Long userId,
 
-    @NotEmpty(message = "제목을 입력해주세요.")
-    @Size(min = 1, max = 100, message = "제목은 1자 이상, 100자 이하로 입력해주세요.")
-    private String title;
+        @NotEmpty(message = "제목을 입력해주세요.")
+        @Size(min = 1, max = 100, message = "제목은 1자 이상, 100자 이하로 입력해주세요.")
+        String title,
 
-    @NotEmpty(message = "내용을 입력해주세요.")
-    private String content;
+        @NotEmpty(message = "내용을 입력해주세요.")
+        @Size(min = 1, max = 2000, message = "내용은 1자 이상, 2000자 이하로 입력해주세요.")
+        String content,
 
-    private String thumbnail;
-
-    private PostImageRequest postImageRequest;
-
+        String thumbnail
+) {
 }

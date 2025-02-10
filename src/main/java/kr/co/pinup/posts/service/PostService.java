@@ -37,8 +37,8 @@ public class PostService {
         Post post = Post.builder()
                 .storeId(1L)
                 .userId(1L)
-                .title(createPostRequest.getTitle())
-                .content(createPostRequest.getContent())
+                .title(createPostRequest.title())
+                .content(createPostRequest.content())
                 .build();
 
         post = postRepository.save(post);
@@ -120,7 +120,7 @@ public class PostService {
                 }
             }
 
-        existingPost.update(updatePostRequest.getTitle(), updatePostRequest.getContent());
+        existingPost.update(updatePostRequest.title(), updatePostRequest.content());
 
         return postRepository.save(existingPost);
     }

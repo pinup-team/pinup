@@ -129,7 +129,6 @@ class PostApiControllerTest {
         CreatePostRequest createPostRequest = CreatePostRequest.builder()
                 .title("Title 1")
                 .content("Content 1")
-                .thumbnail("Thumbnail")
                 .build();
         PostResponse createdPostResponseDto = PostResponse.builder()
                 .id(1L)

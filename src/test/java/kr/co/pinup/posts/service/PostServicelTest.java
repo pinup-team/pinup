@@ -52,8 +52,8 @@ public class PostServicelTest {
         Post post = Post.builder()
                 .storeId(1L)
                 .userId(1L)
-                .title(createPostRequest.getTitle())
-                .content(createPostRequest.getContent())
+                .title(createPostRequest.title())
+                .content(createPostRequest.content())
                 .build();
 
         Post savedPost = Post.builder()
@@ -76,8 +76,8 @@ public class PostServicelTest {
         PostResponse result = postService.createPost(createPostRequest, images);
 
         assertNotNull(result);
-        assertEquals("New Post", result.getTitle());
-        assertEquals("image_url", result.getThumbnail());
+        assertEquals("New Post", result.title());
+        assertEquals("image_url", result.thumbnail());
 
         verify(postRepository).save(any(Post.class));
         verify(postImageService).savePostImages(any(PostImageRequest.class), any(Post.class));
@@ -104,7 +104,7 @@ public class PostServicelTest {
         // Then
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("Post Title", result.get(0).getTitle());
+        assertEquals("Post Title", result.get(0).title());
 
         verify(postRepository).findByStoreId(storeId);
     }
