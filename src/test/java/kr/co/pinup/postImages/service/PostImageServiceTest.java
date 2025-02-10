@@ -1,13 +1,14 @@
-package kr.co.pinup.posts.service;
+package kr.co.pinup.postImages.service;
 
+import kr.co.pinup.custom.s3.S3Service;
+import kr.co.pinup.custom.s3.exception.s3.ImageDeleteFailedException;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageDeleteFailedException;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
-import kr.co.pinup.postImages.exception.postimage.PostImageUploadException;
+import kr.co.pinup.postImages.exception.postimage.PostImageSaveFailedException;
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
-import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.repository.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +45,7 @@ public class PostImageServiceTest {
     private PostImageRepository postImageRepository;
 
     @Mock
-    private S3Client s3Client;
+    private S3Service s3Service;
     @Mock
     private PostRepository postRepository;
     @Mock
@@ -86,50 +87,69 @@ public class PostImageServiceTest {
                 .images(null)
                 .build();
 
-
-        assertThrows(PostImageUploadException.class, () -> {
+        assertThrows(PostImageNotFoundException.class, () -> {
             postImageService.savePostImages(postImageRequest, post);
         });
     }
+
     @DisplayName("게시물에 이미지가 없을 때 전체 삭제 실행 안 됨")
     @Test
     void testDeleteAllByPost_WhenNoImages() {
         Long postId = 1L;
+
         when(postImageRepository.findByPostId(postId)).thenReturn(Collections.emptyList());
 
         postImageService.deleteAllByPost(postId);
 
-        verify(s3Client, never()).deleteObject((DeleteObjectRequest) any());
+        verify(s3Service, never()).deleteFromS3(anyString());
+
         verify(postImageRepository, never()).deleteAllByPostId(postId);
     }
 
-    @DisplayName("게시물에 이미지가 있을 때 전체 삭제 성공")
+    @DisplayName("S3 삭제 성공 시 이미지 전체 삭제 성공")
     @Test
-    public void testDeleteAllByPost_WhenImagesExist() {
-        PostImage image1 = new PostImage(post, "https://example.com/image1.jpg");
-        PostImage image2 = new PostImage(post, "https://example.com/image2.jpg");
+    public void testDeleteAllByPost_WhenS3DeleteSucceeds() {
 
-        when(postImageRepository.findByPostId(post.getId())).thenReturn(Arrays.asList(image1, image2));
+        String imageUrl = "https://example.com/image1.jpg";
+        String fileName = "image1.jpg";
+        PostImage image1 = new PostImage(post, imageUrl);
+
+        when(postImageRepository.findByPostId(post.getId())).thenReturn(Collections.singletonList(image1));
+
+        doReturn(fileName).when(s3Service).extractFileName(imageUrl);
+
+        doNothing().when(s3Service).deleteFromS3(fileName);
 
         postImageService.deleteAllByPost(post.getId());
 
-        verify(s3Client, times(2)).deleteObject(any(DeleteObjectRequest.class));
-        verify(postImageRepository, times(1)).deleteAllByPostId(post.getId());
+        verify(s3Service).deleteFromS3(fileName);
+
+        verify(postImageRepository).deleteAllByPostId(post.getId());
     }
 
     @DisplayName("S3 삭제 실패 시 이미지 전체 삭제 예외 발생")
     @Test
     public void testDeleteAllByPost_WhenS3DeleteFails() {
-        PostImage image1 = new PostImage(post, "https://example.com/image1.jpg");
+
+        String imageUrl = "https://example.com/image1.jpg";
+        String fileName = "image1.jpg";
+        PostImage image1 = new PostImage(post, imageUrl);
 
         when(postImageRepository.findByPostId(post.getId())).thenReturn(Collections.singletonList(image1));
-        doThrow(S3Exception.class).when(s3Client).deleteObject(any(DeleteObjectRequest.class));
+
+        when(s3Service.extractFileName(imageUrl)).thenReturn(fileName);
+
+        doThrow(new ImageDeleteFailedException("S3에서 파일 삭제 실패"))
+                .when(s3Service).deleteFromS3(fileName);
 
         PostImageDeleteFailedException exception = assertThrows(PostImageDeleteFailedException.class, () ->
                 postImageService.deleteAllByPost(post.getId()));
 
-        assertTrue(exception.getMessage().contains("S3에서 이미지 삭제 실패"));
+        assertTrue(exception.getMessage().contains("이미지 삭제 중 문제가 발생했습니다."));
+
         verify(postImageRepository, never()).deleteAllByPostId(post.getId());
+
+        verify(s3Service).deleteFromS3(fileName);
     }
 
     @DisplayName("선택한 이미지 삭제 - 삭제할 이미지가 없는 경우 예외 발생")
@@ -137,7 +157,7 @@ public class PostImageServiceTest {
     void testDeleteSelectedImages_WhenImagesToDeleteIsEmpty() {
         Long postId = 1L;
         PostImageRequest postImageRequest = PostImageRequest.builder()
-                .imagesToDelete(Collections.emptyList())  // Set imagesToDelete to an empty list
+                .imagesToDelete(Collections.emptyList())
                 .build();
 
         PostImageNotFoundException exception = assertThrows(PostImageNotFoundException.class, () -> {
@@ -156,13 +176,16 @@ public class PostImageServiceTest {
         when(postImageRepository.findByPostIdAndS3UrlIn(post.getId(), Collections.singletonList(imageUrl)))
                 .thenReturn(Collections.singletonList(image));
 
+        String fileName = "image1.jpg";
+        when(s3Service.extractFileName(imageUrl)).thenReturn(fileName);
+
         PostImageRequest request = PostImageRequest.builder()
                 .imagesToDelete(Collections.singletonList(imageUrl))
                 .build();
 
         postImageService.deleteSelectedImages(post.getId(), request);
 
-        verify(s3Client, times(1)).deleteObject(any(DeleteObjectRequest.class));
+        verify(s3Service, times(1)).deleteFromS3(fileName);
         verify(postImageRepository, times(1)).deleteAll(Collections.singletonList(image));
     }
 
@@ -170,14 +193,17 @@ public class PostImageServiceTest {
     @Test
     public void testDeleteSelectedImages_WhenS3DeleteFails() {
         String imageUrl = "https://example.com/image1.jpg";
+        String fileName = "image1.jpg";
         PostImage image = new PostImage(post, imageUrl);
 
         when(postImageRepository.findByPostIdAndS3UrlIn(post.getId(), Collections.singletonList(imageUrl)))
                 .thenReturn(Collections.singletonList(image));
 
-        doThrow(S3Exception.class).when(s3Client).deleteObject(any(DeleteObjectRequest.class));
+        when(s3Service.extractFileName(imageUrl)).thenReturn(fileName);
 
-        PostImageDeleteFailedException exception = assertThrows(PostImageDeleteFailedException.class, () -> {
+        doThrow(new ImageDeleteFailedException("S3에서 파일 삭제 실패: " + fileName)).when(s3Service).deleteFromS3(fileName);
+
+        ImageDeleteFailedException exception = assertThrows(ImageDeleteFailedException.class, () -> {
             PostImageRequest request = PostImageRequest.builder()
                     .imagesToDelete(Collections.singletonList(imageUrl))
                     .build();
@@ -185,8 +211,11 @@ public class PostImageServiceTest {
             postImageService.deleteSelectedImages(post.getId(), request);
         });
 
-        assertTrue(exception.getMessage().contains("S3에서 이미지 삭제 실패"));
-        verify(postImageRepository, never()).deleteAll(Collections.singletonList(image));
+        assertTrue(exception.getMessage().contains("이미지 삭제 중 문제가 발생했습니다."));
+
+        verify(s3Service, times(1)).deleteFromS3(fileName);
+
+        verify(postImageRepository, never()).deleteAll(anyList());
     }
 
     @DisplayName("게시글 ID로 이미지 조회 - 이미지가 있는 경우")
