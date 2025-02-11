@@ -1,11 +1,10 @@
-package kr.co.pinup.posts.service;
+package kr.co.pinup.comments.service;
 
 import kr.co.pinup.comments.Comment;
 import kr.co.pinup.comments.exception.comment.CommentNotFoundException;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.model.dto.CreateCommentRequest;
 import kr.co.pinup.comments.repository.CommentRepository;
-import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.repository.PostRepository;
@@ -123,11 +122,11 @@ public class CommentServiceTest {
         CommentResponse result = commentService.createComment(postId, createCommentRequest);
 
         assertNotNull(result);
-        assertEquals(1L, expectedResponse.getId());
-        assertEquals(expectedResponse.getPostId(), result.getPostId());
-        assertEquals(expectedResponse.getUserId(), result.getUserId());
-        assertEquals(expectedResponse.getContent(), result.getContent());
-        assertEquals(expectedResponse.getCreatedAt(), result.getCreatedAt());
+        assertEquals(1L, expectedResponse.id());
+        assertEquals(expectedResponse.postId(), result.postId());
+        assertEquals(expectedResponse.userId(), result.userId());
+        assertEquals(expectedResponse.content(), result.content());
+        assertEquals(expectedResponse.createdAt(), result.createdAt());
 
         verify(postRepository).findById(postId);
         verify(commentRepository).save(any(Comment.class));
