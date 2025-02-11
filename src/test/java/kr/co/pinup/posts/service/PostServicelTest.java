@@ -1,6 +1,7 @@
 package kr.co.pinup.posts.service;
 
 import kr.co.pinup.postImages.PostImage;
+import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
@@ -22,8 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -86,7 +86,7 @@ public class PostServicelTest {
     @DisplayName("Store ID에 대한 게시물 목록 조회")
     @Test
     void testFindByStoreId() {
-        // Given
+
         Long storeId = 1L;
 
         Post post = Post.builder()
@@ -98,10 +98,8 @@ public class PostServicelTest {
 
         when(postRepository.findByStoreId(storeId)).thenReturn(Collections.singletonList(post));
 
-        // When
         List<PostResponse> result = postService.findByStoreId(storeId);
 
-        // Then
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("Post Title", result.get(0).title());
@@ -151,7 +149,8 @@ public class PostServicelTest {
 
     @DisplayName("게시물 수정 (이미지 삭제/업로드 포함)")
     @Test
-    void testUpdatePost() {
+    void testUpdatePostWithImages() {
+
         Long postId = 1L;
 
         UpdatePostRequest updatePostRequest = UpdatePostRequest.builder()
@@ -164,32 +163,130 @@ public class PostServicelTest {
                 .content("Old Content")
                 .build();
 
-        PostImageRequest postImageRequest = PostImageRequest.builder()
-                .images(Collections.emptyList())
-                .imagesToDelete(Collections.singletonList("image1_url"))
+        List<String> imagesToDelete = Collections.singletonList("image1_url");
+
+        PostImageResponse remainingImage = PostImageResponse.builder()
+                .s3Url("remaining_image_url")
                 .build();
 
-        PostImageResponse postImageResponse = PostImageResponse.builder()
+        when(postRepository.findById(postId)).thenReturn(Optional.of(existingPost));
+        when(postImageService.findImagesByPostId(postId)).thenReturn(Collections.singletonList(remainingImage));
+        when(postRepository.save(any(Post.class))).thenReturn(existingPost);
+
+        Post result = postService.updatePost(postId, updatePostRequest, new MultipartFile[0], imagesToDelete);
+
+        assertNotNull(result);
+        assertEquals("Updated Title", result.getTitle());
+        assertEquals("Updated Content", result.getContent());
+        assertEquals("remaining_image_url", existingPost.getThumbnail());
+
+        verify(postRepository).findById(postId);
+        verify(postImageService).deleteSelectedImages(eq(postId), any(PostImageRequest.class));
+        verify(postImageService).findImagesByPostId(postId);
+        verify(postRepository).save(existingPost);
+    }
+
+    @DisplayName("게시물 수정 (이미지만 업로드)")
+    @Test
+    void testUpdatePostWithNewImages() {
+
+        Long postId = 1L;
+
+        UpdatePostRequest updatePostRequest = UpdatePostRequest.builder()
+                .title("Updated Title")
+                .content("Updated Content")
+                .build();
+
+        Post existingPost = Post.builder()
+                .title("Old Title")
+                .content("Old Content")
+                .build();
+
+        MultipartFile mockImage = mock(MultipartFile.class);
+        MultipartFile[] newImages = {mockImage};
+
+        PostImage uploadedImage = PostImage.builder()
                 .s3Url("new_image_url")
                 .build();
 
-
         when(postRepository.findById(postId)).thenReturn(Optional.of(existingPost));
-        when(postImageService.findImagesByPostId(postId)).thenReturn(Collections.singletonList(postImageResponse));
         when(postImageService.savePostImages(any(PostImageRequest.class), eq(existingPost)))
-                .thenReturn(Collections.singletonList(PostImage.builder().s3Url("new_image_url").build()));
+                .thenReturn(Collections.singletonList(uploadedImage));
         when(postRepository.save(any(Post.class))).thenReturn(existingPost);
 
-        Post result = postService.updatePost(postId, updatePostRequest, new MultipartFile[0], Collections.singletonList("image1_url"));
+        Post result = postService.updatePost(postId, updatePostRequest, newImages, Collections.emptyList());
+
+        assertNotNull(result);
+        assertEquals("Updated Title", result.getTitle());
+        assertEquals("Updated Content", result.getContent());
+        assertEquals("new_image_url", existingPost.getThumbnail());
+
+        verify(postRepository).findById(postId);
+        verify(postImageService).savePostImages(any(PostImageRequest.class), eq(existingPost));
+        verify(postRepository).save(existingPost);
+    }
+
+    @DisplayName("게시물 수정 (제목과 내용만 변경, 이미지 변경 없음)")
+    @Test
+    void testUpdatePostWithoutImageChanges() {
+
+        Long postId = 1L;
+
+        UpdatePostRequest updatePostRequest = UpdatePostRequest.builder()
+                .title("Updated Title")
+                .content("Updated Content")
+                .build();
+
+        Post existingPost = Post.builder()
+                .title("Old Title")
+                .content("Old Content")
+                .build();
+
+        when(postRepository.findById(postId)).thenReturn(Optional.of(existingPost));
+        when(postRepository.save(any(Post.class))).thenReturn(existingPost);
+
+        Post result = postService.updatePost(postId, updatePostRequest, new MultipartFile[0], Collections.emptyList());
 
         assertNotNull(result);
         assertEquals("Updated Title", result.getTitle());
         assertEquals("Updated Content", result.getContent());
 
         verify(postRepository).findById(postId);
+        verify(postRepository).save(existingPost);
+
+        verify(postImageService, never()).deleteSelectedImages(anyLong(), any(PostImageRequest.class));
+        verify(postImageService, never()).findImagesByPostId(anyLong());
+        verify(postImageService, never()).savePostImages(any(PostImageRequest.class), any(Post.class));
+    }
+
+    @DisplayName("게시물 수정 (모든 이미지 삭제 후 예외 발생)")
+    @Test
+    void testUpdatePostWithAllImagesDeleted() {
+        Long postId = 1L;
+
+        UpdatePostRequest updatePostRequest = UpdatePostRequest.builder()
+                .title("Updated Title")
+                .content("Updated Content")
+                .build();
+
+        Post existingPost = Post.builder()
+                .title("Old Title")
+                .content("Old Content")
+                .build();
+
+        List<String> imagesToDelete = Collections.singletonList("image1_url");
+
+        when(postRepository.findById(postId)).thenReturn(Optional.of(existingPost));
+        when(postImageService.findImagesByPostId(postId)).thenReturn(Collections.emptyList());
+
+        assertThrows(PostImageNotFoundException.class, () -> {
+            postService.updatePost(postId, updatePostRequest, new MultipartFile[0], imagesToDelete);
+        });
+
+        verify(postRepository).findById(postId);
         verify(postImageService).deleteSelectedImages(eq(postId), any(PostImageRequest.class));
         verify(postImageService).findImagesByPostId(postId);
-        verify(postRepository).save(existingPost);
+        verify(postRepository, never()).save(existingPost);
     }
 
 }
