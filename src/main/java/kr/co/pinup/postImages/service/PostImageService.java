@@ -26,7 +26,7 @@ public class PostImageService  {
     private final S3Service s3Service;
     private final PostImageRepository postImageRepository;
 
-    private String pathPrefix = "post";
+    private static final String PATH_PREFIX = "post";
 
     @Transactional
     public List<PostImage> savePostImages(PostImageRequest postImageRequest, Post post) {
@@ -34,7 +34,7 @@ public class PostImageService  {
             throw new PostImageNotFoundException("업로드할 이미지가 없습니다.");
         }
 
-        List<String> imageUrls = uploadFiles(postImageRequest.getImages(),pathPrefix);
+        List<String> imageUrls = uploadFiles(postImageRequest.getImages(),PATH_PREFIX);
 
         List<PostImage> postImages = imageUrls.stream()
                 .map(s3Url -> new PostImage(post, s3Url))
