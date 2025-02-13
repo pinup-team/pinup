@@ -5,19 +5,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-public class PostImageUploadException extends GlobalCustomException {
+public class PostImageSaveFailedException extends GlobalCustomException {
 
-    private static final String DEFAULT_MESSAGE = "이미지 업로드에 실패했습니다.";
+    private static final String DEFAULT_MESSAGE = "이미지 저장에 실패했습니다.";
 
-    public PostImageUploadException() {
+    public PostImageSaveFailedException() {
         this(DEFAULT_MESSAGE);
     }
 
-    public PostImageUploadException(String message) {
+    public PostImageSaveFailedException(String message) {
         super(message);
     }
 
-    public PostImageUploadException(String message, Throwable cause) {
+    public PostImageSaveFailedException(String message, Throwable cause) {
         super(message, cause);
     }
 
