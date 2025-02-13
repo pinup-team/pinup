@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.delete-comment-btn').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.preventDefault();
+    const commentList = document.getElementById('comment-list'); // 댓글 리스트
 
-            const commentId = button.getAttribute('data-comment-id');
-            const commentItem = button.closest('li');
+    commentList.addEventListener('click', async (e) => {
+
+        if (e.target && e.target.classList.contains('delete-comment-btn')) {
+            const commentId = e.target.getAttribute('data-comment-id');
+            const commentItem = e.target.closest('li');
 
             try {
                 const response = await fetch(`/api/comment/${commentId}`, {
@@ -12,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (response.ok) {
-                    commentItem.remove();
+                    commentItem.remove(); // 삭제된 댓글을 화면에서 제거
                 } else {
                     throw new Error('댓글 삭제 실패');
                 }
@@ -20,9 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('댓글 삭제 실패:', error);
                 alert("댓글 삭제 실패: " + error.message);
             }
-        });
+        }
     });
 });
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const commentForm = document.getElementById('comment-form');
@@ -50,8 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 if (response.ok) {
-                    const newComment = await response.json(); // 서버 응답으로 받은 댓글 데이터
-                    console.log('서버 응답 데이터:', newComment);
+                    const newComment = await response.json();
 
                     const newCommentElement = document.createElement('li');
                     newCommentElement.setAttribute('data-id', newComment.id);
