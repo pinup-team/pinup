@@ -41,7 +41,7 @@ public class PostApiController {
         List<CommentResponse> comments = commentService.findByPostId(postId);
         List<PostImageResponse> images = postImageService.findImagesByPostId(postId);
 
-        return PostDetailResponse.postDetailResponse(post, comments, images);
+        return PostDetailResponse.from(post, comments, images);
     }
 
     @PostMapping("/create")
