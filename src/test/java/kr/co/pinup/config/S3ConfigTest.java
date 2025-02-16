@@ -4,10 +4,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.test.context.ActiveProfiles;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -23,13 +25,15 @@ import java.nio.charset.StandardCharsets;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-//@ActiveProfiles("test")  // application.yml 활성화
+@ActiveProfiles("test")
 public class S3ConfigTest {
 
     @Autowired
     private S3Client s3Client;
 
-    private final String bucketName = "pinup";
+    @Value("${cloud.aws.s3.bucket}")
+    String bucketName;
+
     private final String keyName = "test-file.txt";
     private final String fileContent = "This is a test file.";
 
@@ -132,12 +136,14 @@ public class S3ConfigTest {
 
     @TestConfiguration
     static class S3TestConfig {
+        @Value("${cloud.aws.s3.endpoint}")
+        String endpoint;
 
         @Bean
-        @Primary  // 기본 S3Client로 설정
+        @Primary
         public S3Client testS3Client() {
             return S3Client.builder()
-                    .endpointOverride(URI.create("http://127.0.0.1:4566"))
+                    .endpointOverride(URI.create(endpoint))
                     .region(Region.US_EAST_1)
                     .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("test", "test")))
                     .build();

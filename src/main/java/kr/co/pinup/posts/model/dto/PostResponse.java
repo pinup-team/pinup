@@ -5,21 +5,9 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
-public class PostResponse {
-    private Long id;
-    private Long storeId;
-    private Long userId;
-    private String title;
-    private String content;
-    private String thumbnail;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
+public record PostResponse(Long id, Long storeId, Long userId, String title, String content,
+                           String thumbnail, LocalDateTime createdAt, LocalDateTime updatedAt) {
 
     public static PostResponse from(Post post) {
         return new PostResponse(post.getId(), post.getStoreId(), post.getUserId(),
@@ -27,3 +15,4 @@ public class PostResponse {
                 post.getCreatedAt(), post.getUpdatedAt());
     }
 }
+

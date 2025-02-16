@@ -24,7 +24,7 @@ public class Post extends BaseEntity {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "title", nullable = false, length = 255)
+    @Column(name = "title", nullable = false, length = 100)
     private String title;
 
     @Column(name = "content", nullable = false, length = 2000)
@@ -39,6 +39,7 @@ public class Post extends BaseEntity {
     private List<PostImage> postImages = new ArrayList<>();
 
     @Builder.Default
+    @JsonManagedReference
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 

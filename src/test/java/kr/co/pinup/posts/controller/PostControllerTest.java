@@ -19,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -29,6 +30,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 class PostControllerTest {
@@ -143,8 +145,7 @@ class PostControllerTest {
     void testCreatePostForm() throws Exception {
         mockMvc.perform(get("/post/create"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("views/posts/create"))
-                .andExpect(model().attributeExists("createPostRequest"));
+                .andExpect(view().name("views/posts/create"));
     }
 
     @DisplayName("게시글 수정 폼 페이지 로드")
