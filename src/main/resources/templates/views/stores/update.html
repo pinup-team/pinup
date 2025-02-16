@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>팝업스토어 수정</title>
+    <script defer src="/js/store.js"></script>
+</head>
+<body>
+<h1>팝업스토어 수정</h1>
+<form id="updateForm" th:data-store-id="${store.id}">
+    <label>이름: <input type="text" name="name" th:value="${store.name}" required></label><br>
+    <label>설명: <input type="text" name="description" th:value="${store.description}" required></label><br>
+    <label>카테고리:
+        <select name="categoryId">
+            <option value="1" th:selected="${store.category.id == 1}">카테고리 1</option>
+            <option value="2" th:selected="${store.category.id == 2}">카테고리 2</option>
+            <option value="3" th:selected="${store.category.id == 3}">카테고리 3</option>
+        </select>
+    </label><br>
+    <label>위치 ID: <input type="number" name="locationId" th:value="${store.location.id}" required></label><br>
+    <label>시작 날짜: <input type="date" name="startDate" th:value="${store.startDate}" required></label><br>
+    <label>종료 날짜: <input type="date" name="endDate" th:value="${store.endDate}" required></label><br>
+    <button type="submit">수정</button>
+</form>
+<a href="/stores">목록으로 돌아가기</a>
+</body>
+</html>

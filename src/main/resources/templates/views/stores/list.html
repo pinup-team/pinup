@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>팝업스토어 목록</title>
+    <script defer src="/js/store.js"></script>
+</head>
+<body>
+<h1>팝업스토어 목록</h1>
+<ul>
+    <li th:each="store : ${stores}">
+        <a th:href="@{/stores/{id}(id=${store.id})}" th:text="${store.name}"></a>
+        <button class="delete-btn" th:data-store-id="${store.id}">삭제</button>
+    </li>
+</ul>
+<a href="/stores/create">새 팝업스토어 추가</a>
+</body>
+</html>

@@ -13,6 +13,7 @@ import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
 import kr.co.pinup.stores.model.dto.StoreSummaryResponse;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
+import kr.co.pinup.stores.model.enums.Status;
 import kr.co.pinup.stores.repository.StoreRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -35,8 +36,6 @@ public class StoreService {
         this.locationRepository = locationRepository;
         this.storeCategoryRepository = storeCategoryRepository;
     }
-
-    //TODO 업데이트 만들기
 
     @Transactional
     public StoreResponse updateStore(Long id, StoreUpdateRequest request) {
@@ -95,8 +94,12 @@ public class StoreService {
         StoreCategory category = categoryRepository.findById(request.categoryId())
                 .orElseThrow(StoreNotFoundException::new);
 
+        log.info("StoreCategory - {}", category.getId());
+
         Location location = locationRepository.findById(request.locationId())
                 .orElseThrow(LocationNotFoundException::new);
+
+        log.info("StoreCategory - {}", location.getId());
 
         Store store = Store.builder()
                 .name(request.name())
@@ -105,7 +108,7 @@ public class StoreService {
                 .location(location)
                 .startDate(request.startDate())
                 .endDate(request.endDate())
-                .status(request.status())
+                .status(Status.RESOLVED)
                 .imageUrl(request.imageUrl())
                 .build();
 
@@ -117,13 +120,13 @@ public class StoreService {
 
     @Transactional
     public void deleteStore(Long id) {
-//        log.info("팝업스토어 삭제 요청 - ID: {}", id);
+        log.info("팝업스토어 삭제 요청 - ID: {}", id);
 
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
 
         storeRepository.delete(store);
-//        log.info("팝업스토어 삭제 완료 - ID: {}", id);
+        log.info("팝업스토어 삭제 완료 - ID: {}", id);
     }
 
 }

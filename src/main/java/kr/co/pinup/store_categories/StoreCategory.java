@@ -12,10 +12,6 @@ import lombok.*;
 @Table(name = "store_categories")
 public class StoreCategory extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(nullable = false)
     private String name;
 }

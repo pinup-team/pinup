@@ -2,6 +2,7 @@ package kr.co.pinup.stores.controller;
 
 
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.validation.Valid;
 import kr.co.pinup.stores.model.dto.StoreRequest;
@@ -16,13 +17,10 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/api/stores")
+@RequiredArgsConstructor
 public class StoreApiController {
 
     private final StoreService storeService;
-
-    public StoreApiController(StoreService storeService) {
-        this.storeService = storeService;
-    }
 
     @PatchMapping("/{id}")
     public ResponseEntity<StoreResponse> updateStore(@PathVariable Long id, @Valid @RequestBody StoreUpdateRequest request) {
@@ -30,7 +28,7 @@ public class StoreApiController {
         return ResponseEntity.ok(storeService.updateStore(id, request));
     }
 
-    @GetMapping
+    @GetMapping("/summary")
     public ResponseEntity<List<StoreSummaryResponse>> getStores() {
         log.info("홈페이지 팝업스토어 목록 요청됨");
         return ResponseEntity.ok(storeService.getStoreSummaries());
@@ -51,6 +49,7 @@ public class StoreApiController {
     @PostMapping
     public ResponseEntity<StoreResponse> createStore(@Valid @RequestBody StoreRequest request) {
         log.info("팝업스토어 생성 요청 - 이름: {}", request.name());
+        log.info("팝업스토어 생성 요청 - {}", request.toString());
         return ResponseEntity.ok(storeService.createStore(request));
     }
 

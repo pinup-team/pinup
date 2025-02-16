@@ -14,10 +14,6 @@ import java.time.LocalDateTime;
 @Table(name = "locations")
 public class Location extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
     @Column(nullable = false)
     private String name;
 
@@ -40,7 +36,7 @@ public class Location extends BaseEntity {
     private String address;
 
     @Column(name = "address_detail", nullable = false)
-    private String addressDetail; // 상세주소
+    private String addressDetail;
 
 }
 
