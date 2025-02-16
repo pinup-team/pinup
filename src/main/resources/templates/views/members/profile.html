@@ -4,10 +4,10 @@
       layout:decorate="~{layouts/layout}">
 
 <div class="container" layout:fragment="content">
-    <th:block th:if="${session.memberInfo == null}">
+    <th:block sec:authorize="isAnonymous()">
         <p>잘못된 접근입니다.</p>
     </th:block>
-    <th:block th:if="${session.memberInfo != null}">
+    <th:block sec:authorize="isAuthenticated()">
         <table class="table" th:object="${profile}">
             <tbody>
             <tr>

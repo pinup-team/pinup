@@ -1,16 +1,19 @@
 package kr.co.pinup.oauth.naver;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import kr.co.pinup.config.OauthConfig;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
+import kr.co.pinup.members.exception.OAuthTokenNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
-import kr.co.pinup.oauth.OAuthApiClient;
-import kr.co.pinup.oauth.OAuthLoginParams;
-import kr.co.pinup.oauth.OAuthProvider;
+import kr.co.pinup.oauth.*;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.http.HttpHeaders;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -36,7 +39,7 @@ public class NaverApiClient implements OAuthApiClient {
     }
 
     @Override
-    public String requestAccessToken(OAuthLoginParams params) {
+    public NaverToken requestAccessToken(OAuthLoginParams params) {
         try {
             NaverToken tokenResponse = naverWebClient.get()
                     .uri(uriBuilder -> URI.create(UriComponentsBuilder.fromHttpUrl(naverProvider.getTokenUri())
@@ -53,20 +56,20 @@ public class NaverApiClient implements OAuthApiClient {
                     .block();
 
             if (tokenResponse == null || tokenResponse.getAccessToken() == null) {
-                throw new OAuthTokenRequestException("네이버에서 액세스 토큰을 가져오지 못했습니다");
+                throw new OAuthTokenRequestException("네이버에서 액세스 토큰을 가져오지 못했습니다.");
             }
-            return tokenResponse.getAccessToken();
+            return tokenResponse;
         } catch (Exception e) {
-            throw new OAuthTokenRequestException("액세스 토큰 요청 중 오류 발생: " + e.getMessage());
+            throw new OAuthTokenRequestException("Naver 액세스 토큰 요청 중 오류 발생: " + e.getMessage());
         }
     }
 
     @Override
-    public NaverResponse requestOauth(String accessToken) {
+    public Pair<OAuthResponse, OAuthToken> requestOauth(OAuthToken token) {
         try {
             NaverResponse userDto = naverWebClient.get()
                     .uri(naverProvider.getUserInfoUri())
-                    .header("Authorization", "Bearer " + accessToken)
+                    .header("Authorization", "Bearer " + token.getAccessToken())
                     .retrieve()
                     .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
                             clientResponse -> Mono.error(new OAuth2AuthenticationException("네이버에서 사용자 정보를 가져오는 중 오류가 발생했습니다: " + clientResponse.statusCode())))
@@ -76,9 +79,34 @@ public class NaverApiClient implements OAuthApiClient {
             if (userDto == null) {
                 throw new OAuth2AuthenticationException("네이버에서 사용자 정보를 가져오지 못했습니다");
             }
-            return userDto;
+            return Pair.of(userDto, token);
         } catch (Exception e) {
-            throw new OAuth2AuthenticationException("사용자 정보 요청 중 오류 발생: " + e.getMessage());
+            throw new OAuth2AuthenticationException("Naver 사용자 정보 요청 중 오류 발생: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public NaverToken refreshAccessToken(String refreshToken) {
+        try {
+            NaverToken tokenResponse = naverWebClient.get()
+                    .uri(uriBuilder -> URI.create(UriComponentsBuilder.fromHttpUrl(naverProvider.getTokenUri())
+                            .queryParam("grant_type", "refresh_token")
+                            .queryParam("client_id", naverRegistration.getClientId())
+                            .queryParam("client_secret", naverRegistration.getClientSecret())
+                            .queryParam("refresh_token", refreshToken)
+                            .toUriString()))
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
+                            clientResponse -> Mono.error(new OAuthTokenRequestException("네이버에서 토큰을 가져오는 중 오류가 발생했습니다: " + clientResponse.statusCode())))
+                    .bodyToMono(NaverToken.class)
+                    .block();
+
+            if (tokenResponse == null || tokenResponse.getAccessToken() == null) {
+                throw new OAuthTokenRequestException("네이버에서 액세스 토큰을 다시 가져오지 못했습니다");
+            }
+            return tokenResponse;
+        } catch (Exception e) {
+            throw new OAuthTokenRequestException("Naver 액세스 토큰 재요청 중 오류 발생: " + e.getMessage());
         }
     }
 
@@ -104,7 +132,7 @@ public class NaverApiClient implements OAuthApiClient {
             }
             return true;
         } catch (Exception e) {
-            throw new OAuthTokenRequestException("액세스 토큰 취소 중 오류 발생: " + e.getMessage());
+            throw new OAuthTokenRequestException("Naver 액세스 토큰 취소 중 오류 발생: " + e.getMessage());
         }
     }
 }

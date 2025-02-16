@@ -1,17 +1,30 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout}">
-<!--TODO 이제 session에 저장하지 않기 때문에, 어떻게 확인할 지 생각해봐야함. update 시 securityContextHolder에도 적용이 되지만 여기서는 변경되지 않음-->
+      layout:decorate="~{layouts/layout}" xmlns:oauth="http://www.w3.org/1999/xhtml">
 <div class="container" layout:fragment="content">
-    <th:block th:if="${session.memberInfo == null}">
+    <div sec:authorize="hasRole('ROLE_ADMIN')">
+        관리자만 볼 수 있는 콘텐츠
+    </div>
+    <!-- 인증되지 않은 사용자에게만 메인 페이지를 보여줌 -->
+<!--    <th:block th:if="${#authentication == null}">-->
+    <th:block sec:authorize="isAnonymous()">
         <p>메인 페이지입니다.</p>
     </th:block>
 
-    <th:block th:if="${session.memberInfo != null}">
-        <p>Name: <span th:text="${session.memberInfo.nickname}">NickName</span></p>
-        <p>Role: <span th:text="${session.memberInfo.role}">Role</span></p>
-        <p>Provider: <span th:text="${session.memberInfo.provider}">Provider</span></p>
+    <!-- 인증된 사용자에게만 사용자 정보를 보여줌 -->
+<!--&lt;!&ndash;    <th:block th:if="${#authentication != null}">&ndash;&gt;-->
+<!--    <p>Authentication: <span th:text="${#authentication}">Authentication</span></p>-->
+<!--    <p>Principal: <span th:text="${#authentication.principal}">Principal</span></p>-->
+<!--    <p>Name: <span th:text="${#authentication.principal.nickname}">NickName</span></p>-->
+<!--    <p>Role: <span th:text="${#authentication.authorities}">Role</span></p>-->
+<!--    <p>Provider: <span th:text="${#authentication.principal.provider}">Provider</span></p>-->
+    <th:block sec:authorize="isAuthenticated()">
+<!--        <p>Name: <span sec:authentication="name">Name</span> </p>-->
+        <p>Nickname: <span sec:authentication="principal.nickname">Nickname</span></p>
+        <p>Role: <span sec:authentication="principal.role">Role</span></p>
+        <p>Provider: <span sec:authentication="principal.provider">Provider</span></p>
     </th:block>
 </div>
 </html>

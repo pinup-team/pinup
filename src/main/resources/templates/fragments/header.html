@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <header id="header" th:fragment="headerFragment">
     <div class="logo"><a href="/" th:text="'PinUp'">PinUp</a></div>
     <nav>
@@ -11,10 +12,10 @@
         </ul>
     </nav>
     <div class="user-actions">
-        <th:block th:if="${session.memberInfo == null}">
+        <th:block sec:authorize="isAnonymous()">
             <a th:href="@{/members/login}">Login</a>
         </th:block>
-        <th:block th:if="${session.memberInfo != null}">
+        <th:block sec:authorize="isAuthenticated()">
             <button th:onclick="|logOut()|">로그아웃</button>
             <button th:onclick="|window.location.href='/members/profile'|">마이페이지</button>
         </th:block>

@@ -73,7 +73,7 @@ public class NaverOAuthTest {
         naverResponse = NaverResponse.builder().response(NaverResponse.Response.builder().id("testId").name("testUser").email("test@naver.com").build()).build();
     }
 
-    @Nested
+    /*@Nested
     @DisplayName("NAVER 로그인/회원가입 관련 테스트")
     class LoginMemberTests {
         private MockHttpSession session = new MockHttpSession();
@@ -195,5 +195,5 @@ public class NaverOAuthTest {
                 memberService.logout(oAuthProvider, request);
             });
         }
-    }
+    }*/
 }

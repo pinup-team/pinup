@@ -1,14 +1,14 @@
 package kr.co.pinup.oauth.google;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import kr.co.pinup.oauth.OAuthToken;
+import lombok.*;
 
-@Setter
 @Getter
+@Builder
 @NoArgsConstructor
-public class GoogleToken {
+@AllArgsConstructor
+public class GoogleToken implements OAuthToken {
     @JsonProperty("access_token")
     private String accessToken;
 
@@ -23,4 +23,14 @@ public class GoogleToken {
 
     @JsonProperty("scope")
     private String scope;
+
+    @Override
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    @Override
+    public String getRefreshToken() {
+        return refreshToken;
+    }
 }

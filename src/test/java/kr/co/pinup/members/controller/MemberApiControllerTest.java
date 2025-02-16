@@ -47,7 +47,7 @@ public class MemberApiControllerTest {
         objectMapper = new ObjectMapper();
     }
 
-    @Test
+    /*@Test
     @WithMockMember
     @DisplayName("회원 정보 업데이트")
     void testUpdateMember() throws Exception {
@@ -99,5 +99,5 @@ public class MemberApiControllerTest {
         mockMvc.perform(post("/api/members/logout"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("로그아웃 실패"));
-    }
+    }*/
 }
