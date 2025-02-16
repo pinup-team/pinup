@@ -1,7 +1,6 @@
-package kr.co.pinup.posts.controller;
+package kr.co.pinup.comments.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.co.pinup.comments.controller.CommentApiController;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.model.dto.CreateCommentRequest;
 import kr.co.pinup.comments.service.CommentService;

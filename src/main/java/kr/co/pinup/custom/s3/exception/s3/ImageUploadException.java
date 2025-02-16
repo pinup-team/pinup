@@ -1,23 +1,23 @@
-package kr.co.pinup.postImages.exception.postimage;
+package kr.co.pinup.custom.s3.exception.s3;
 
 import kr.co.pinup.exception.GlobalCustomException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-public class PostImageDeleteFailedException extends GlobalCustomException {
+public class ImageUploadException extends GlobalCustomException {
 
-    private static final String DEFAULT_MESSAGE = "이미지 삭제에 실패했습니다.";
+    private static final String DEFAULT_MESSAGE = "이미지 업로드에 실패했습니다.";
 
-    public PostImageDeleteFailedException() {
+    public ImageUploadException() {
         this(DEFAULT_MESSAGE);
     }
 
-    public PostImageDeleteFailedException(String message) {
+    public ImageUploadException(String message) {
         super(message);
     }
 
-    public PostImageDeleteFailedException(String message, Throwable cause) {
+    public ImageUploadException(String message, Throwable cause) {
         super(message, cause);
     }
 
@@ -26,4 +26,3 @@ public class PostImageDeleteFailedException extends GlobalCustomException {
         return HttpStatus.INTERNAL_SERVER_ERROR.value();
     }
 }
-
