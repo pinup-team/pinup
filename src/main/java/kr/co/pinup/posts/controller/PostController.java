@@ -42,7 +42,7 @@ public class PostController {
 
     @GetMapping("/create")
     public String createPostForm(Model model) {
-        model.addAttribute("createPostRequest", new CreatePostRequest());
+        //model.addAttribute("createPostRequest", new CreatePostRequest());
         return VIEW_PATH + "/create";
     }
 

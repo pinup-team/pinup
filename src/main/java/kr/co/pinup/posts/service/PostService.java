@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,8 +38,8 @@ public class PostService {
         Post post = Post.builder()
                 .storeId(1L)
                 .userId(1L)
-                .title(createPostRequest.getTitle())
-                .content(createPostRequest.getContent())
+                .title(createPostRequest.title())
+                .content(createPostRequest.content())
                 .build();
 
         post = postRepository.save(post);
@@ -89,38 +90,35 @@ public class PostService {
         Post existingPost = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + id));
 
+        boolean hasNewImages = images != null && images.length > 0 && Arrays.stream(images).noneMatch(MultipartFile::isEmpty);
+        boolean hasImagesToDelete = imagesToDelete != null && !imagesToDelete.isEmpty();
+
+        existingPost.update(updatePostRequest.title(), updatePostRequest.content());
+
+        if (!hasNewImages && !hasImagesToDelete) {
+            return postRepository.save(existingPost);
+        }
+
         PostImageRequest postImageRequest = PostImageRequest.builder()
-                .images(Arrays.asList(images))
-                .imagesToDelete(imagesToDelete != null ? imagesToDelete : new ArrayList<>())
+                .images(hasNewImages ? Arrays.asList(images) : Collections.emptyList())
+                .imagesToDelete(hasImagesToDelete ? imagesToDelete : Collections.emptyList())
                 .build();
 
-        boolean thumbnailUpdated = false;
+        if (hasImagesToDelete) {
+            postImageService.deleteSelectedImages(id, postImageRequest);
+        }
 
-            if (postImageRequest.getImagesToDelete() != null && !postImageRequest.getImagesToDelete().isEmpty()) {
-                postImageService.deleteSelectedImages(id, postImageRequest);
-                List<PostImageResponse> remainingImages = postImageService.findImagesByPostId(id);
-                if (!remainingImages.isEmpty()) {
-                    existingPost.updateThumbnail(remainingImages.get(0).getS3Url());
-                    thumbnailUpdated = true;
-                } else if (postImageRequest.getImages() == null || postImageRequest.getImages().isEmpty()) {
-                    throw new PostImageNotFoundException("썸네일을 설정할 수 없습니다. 게시물에 남은 이미지가 없습니다.");
-                }
-            } else {
-                log.info("삭제할 이미지가 없습니다.");
-            }
+        List<PostImageResponse> remainingImages = postImageService.findImagesByPostId(id);
 
-            if (postImageRequest != null && postImageRequest.getImages() != null) {
-                List<PostImage> postImages = postImageService.savePostImages(postImageRequest, existingPost);
-                if (!postImages.isEmpty()) {
-                    if (!thumbnailUpdated) {
-                        existingPost.updateThumbnail(postImages.get(0).getS3Url());
-                    }
-                } else {
-                    throw new PostImageNotFoundException("새로운 이미지를 추가했으나 썸네일을 설정할 수 없습니다.");
-                }
-            }
+        List<PostImage> uploadedImages = hasNewImages ? postImageService.savePostImages(postImageRequest, existingPost) : Collections.emptyList();
 
-        existingPost.update(updatePostRequest.getTitle(), updatePostRequest.getContent());
+        if (!remainingImages.isEmpty()) {
+            existingPost.updateThumbnail(remainingImages.get(0).getS3Url());
+        } else if (!uploadedImages.isEmpty()) {
+            existingPost.updateThumbnail(uploadedImages.get(0).getS3Url());
+        } else {
+            throw new PostImageNotFoundException("썸네일을 설정할 수 없습니다. 게시물에 남은 이미지가 없습니다.");
+        }
 
         return postRepository.save(existingPost);
     }

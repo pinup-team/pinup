@@ -145,8 +145,7 @@ class PostControllerTest {
     void testCreatePostForm() throws Exception {
         mockMvc.perform(get("/post/create"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("views/posts/create"))
-                .andExpect(model().attributeExists("createPostRequest"));
+                .andExpect(view().name("views/posts/create"));
     }
 
     @DisplayName("게시글 수정 폼 페이지 로드")
