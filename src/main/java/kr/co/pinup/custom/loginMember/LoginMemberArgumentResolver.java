@@ -4,6 +4,7 @@ import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -23,13 +24,13 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
     @Override
     public MemberInfo resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
                                       NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//
-//        if (authentication == null || ! (authentication.getPrincipal() instanceof MemberInfo)) {
-//            throw new UnauthorizedException("로그인 정보가 없습니다.");
-//        }
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if(authentication instanceof AnonymousAuthenticationToken) {
+            System.out.println("Anonymous AuthenticationToken");
+            return null;
+        }
+
         if (authentication != null && authentication.isAuthenticated()) {
             System.out.println("LoginMemberArgumentResolver Authentication: " + authentication.getName());
         } else {

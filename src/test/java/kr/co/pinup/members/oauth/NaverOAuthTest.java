@@ -1,12 +1,7 @@
 package kr.co.pinup.members.oauth;
 
-import jakarta.servlet.http.HttpSession;
-import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.MemberTestAnnotation;
-import kr.co.pinup.members.exception.OAuth2AuthenticationException;
-import kr.co.pinup.members.exception.OAuthProviderNotFoundException;
-import kr.co.pinup.members.exception.OAuthTokenNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
@@ -16,24 +11,8 @@ import kr.co.pinup.oauth.OAuthService;
 import kr.co.pinup.oauth.naver.NaverLoginParams;
 import kr.co.pinup.oauth.naver.NaverResponse;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @MemberTestAnnotation
 public class NaverOAuthTest {

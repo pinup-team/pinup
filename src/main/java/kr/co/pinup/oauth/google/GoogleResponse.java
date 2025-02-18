@@ -3,7 +3,6 @@ package kr.co.pinup.oauth.google;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.oauth.OAuthResponse;
-import kr.co.pinup.oauth.OAuthToken;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

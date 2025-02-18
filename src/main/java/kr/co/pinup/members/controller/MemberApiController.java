@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import kr.co.pinup.custom.loginMember.LoginMember;
+import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.exception.OAuthTokenNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -14,7 +15,6 @@ import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthLoginParams;
 import kr.co.pinup.oauth.OAuthResponse;
 import kr.co.pinup.oauth.OAuthToken;
-import kr.co.pinup.oauth.OAuthTokenUtils;
 import kr.co.pinup.oauth.google.GoogleLoginParams;
 import kr.co.pinup.oauth.naver.NaverLoginParams;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +30,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.security.Security;
 import java.util.Optional;
 
 @Slf4j
@@ -52,9 +53,6 @@ public class MemberApiController {
         return loginProcess(params, request, response);
     }
 
-    // TODO 로그인 성공, ACCESSTOKEN HEADER에 들어가는 것ㄱ도 확인 완료
-    // 로그인 로직 다 긑나고 나서 /으로 안돌아감 이것도 확인해야함
-    // 그런데 아직 F12 들어가서 COOKIE에서 REFRESHTOKEN 확인 안되는 중, 이거 들어올 수 잇또록 해야함
     private ResponseEntity<?> loginProcess(OAuthLoginParams params, HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(true);
 
@@ -73,7 +71,7 @@ public class MemberApiController {
         headers.setLocation(URI.create("/"));
 
         // 리프레시 토큰을 HttpOnly 쿠키에 저장
-        OAuthTokenUtils.setRefreshTokenToCookie(response, headers, oAuthToken.getRefreshToken());
+        SecurityUtil.setRefreshTokenToCookie(response, oAuthToken.getRefreshToken());
         /*Cookie refreshTokenCookie = new Cookie("refreshToken", oAuthToken.getRefreshToken());
         refreshTokenCookie.setHttpOnly(true);  // 클라이언트에서 접근할 수 없도록 설정
         refreshTokenCookie.setPath("/");  // 쿠키가 유효한 경로 설정
@@ -88,11 +86,11 @@ public class MemberApiController {
         System.out.println("MemberApiController : Refresh Token 쿠키에 저장됨: " + refreshTokenCookie.getValue() + "/" + refreshTokenCookie.getPath() + "/" + refreshTokenCookie.getMaxAge());*/
 
         // 액세스 토큰을 Authorization 헤더에 추가하여 요청
-        OAuthTokenUtils.addAccessTokenToHeader(headers, oAuthToken.getAccessToken());
+//        SecurityUtil.addAccessTokenToHeader(headers, oAuthToken.getAccessToken());
         /*
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Bearer " + oAuthToken.getAccessToken());  // Authorization 헤더에 액세스 토큰 추가
-//        headers.add(HttpHeaders.SET_COOKIE, cookie.toString()); // 필요없음, addCookie해서 ㄱㅊ*/
+//        headers.add(HttpHeaders.SET_COOKIE, cookie.toString()); // 필요없음, addCookie해서 ㄱㅊ
 
         // 1. Authorization 헤더에서 Access Token 추출
         String accessToken = String.valueOf(headers.getFirst("Authorization")); // "Bearer <accessToken>"
@@ -101,7 +99,7 @@ public class MemberApiController {
         } else {
             throw new OAuthTokenNotFoundException("MemberApiController : 엑세스 토큰 요청에 실패했습니다.");
         }
-        System.out.println("MemberApiController : Authorization 헤더에 추가된 액세스 토큰: Bearer " + accessToken);
+        System.out.println("MemberApiController : Authorization 헤더에 추가된 액세스 토큰: Bearer " + accessToken);*/
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -154,11 +152,10 @@ public class MemberApiController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@LoginMember MemberInfo memberInfo, HttpServletRequest request) {
-        if (memberService.logout(memberInfo.provider(), OAuthTokenUtils.getAccessTokenFromHeader(request))) {
+        if (memberService.logout(memberInfo.provider(), SecurityUtil.getAccessTokenFromSecurityContext())) {
             request.getSession(false).invalidate();
-            HttpHeaders headers = controlHeader("", 0);
+            SecurityUtil.clearContextWithRefreshToken(request);
             return ResponseEntity.ok()
-                    .headers(headers)
                     .body("로그아웃 성공");
         } else {
             return ResponseEntity.badRequest().body("로그아웃 실패");

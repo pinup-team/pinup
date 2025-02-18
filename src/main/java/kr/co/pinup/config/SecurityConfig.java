@@ -41,13 +41,14 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/**").permitAll()
-//                                .requestMatchers("/resources/**", "/static/**", "/templates/**").permitAll()
-//                                .requestMatchers("/", "/members/login", "/api/members/oauth/**").permitAll()
+//                        .requestMatchers("/**").permitAll()
+//                                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+                                .requestMatchers( "/static/**", "/templates/**").permitAll()
+                                .requestMatchers("/", "/members/login", "/members/profile", "/api/members/oauth/**", "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
-                        .loginPage("/login").permitAll()
+                        .loginPage("/members/login").permitAll()
                 )
                 .sessionManagement(session -> {
                     session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
@@ -61,8 +62,8 @@ public class SecurityConfig {
 //                        .maximumSessions(1)
 //                        .expiredUrl("/")
 //                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .securityContext(securityContext -> securityContext.requireExplicitSave(false))
                 .securityContext(securityContext -> securityContext
+                        .requireExplicitSave(false)
                         .securityContextRepository(new HttpSessionSecurityContextRepository())
                 );
 

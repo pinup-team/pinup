@@ -1,9 +1,8 @@
 package kr.co.pinup.members.service;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.*;
@@ -16,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -38,12 +36,12 @@ public class MemberService {
     public Pair<OAuthResponse, OAuthToken> login(OAuthLoginParams params, HttpSession session) {
         Pair<OAuthResponse, OAuthToken> oAuthResponseOAuthTokenPair = oAuthService.request(params);
         OAuthToken oAuthToken = oAuthResponseOAuthTokenPair.getRight();
-        System.out.println("MemberService : OAuthToken = " + oAuthToken.getAccessToken()+"/"+oAuthToken.getRefreshToken());
+        System.out.println("MemberService : OAuthToken = " + oAuthToken.getAccessToken() + "/" + oAuthToken.getRefreshToken());
         if (oAuthToken == null) {
             throw new UnauthorizedException("MemberService : OAuth token is null");
         }
         OAuthResponse oAuthResponse = oAuthResponseOAuthTokenPair.getLeft();
-        System.out.println("MemberService : OAuthResponse = " + oAuthResponse.getEmail()+"/"+oAuthResponse.getId()+"/"+oAuthResponse.getName());
+        System.out.println("MemberService : OAuthResponse = " + oAuthResponse.getEmail() + "/" + oAuthResponse.getId() + "/" + oAuthResponse.getName());
         if (oAuthResponse == null) {
             throw new UnauthorizedException("MemberService : OAuth response is null");
         }
@@ -58,6 +56,9 @@ public class MemberService {
         // SecurityContext에 저장
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(memberInfo, null, memberInfo.getAuthorities());
+
+        // AccessToken 우선은 SecurityContext에 저장 setDetails
+        authentication.setDetails(oAuthToken.getAccessToken()); // `accessToken`을 details에 설정
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         // TODO 지우기
@@ -106,7 +107,7 @@ public class MemberService {
 
     public MemberResponse findMember(MemberInfo memberInfo, HttpServletRequest request) {
         // 2. Cookie에서 Refresh Token 확인
-        String refreshToken = OAuthTokenUtils.getRefreshTokenFromCookie(request);
+        String refreshToken = SecurityUtil.getRefreshTokenFromCookie(request);
         if (refreshToken != null) {
             System.out.println("MemberService : Refresh Token이 쿠키에 존재합니다: " + refreshToken);
         } else {

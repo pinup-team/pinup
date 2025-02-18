@@ -63,9 +63,7 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 
 	// thymeleaf에서 sec 네임 스페이스 활성화하기 위한 spring security thymeleaf 의존성
-//	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity5:3.0.4.RELEASE'
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-//	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6:3.1.1.RELEASE'
 	// 자동 애플리케이션 재시작 지원을 위한 의존성 주입
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 }

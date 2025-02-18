@@ -1,7 +1,6 @@
 package kr.co.pinup.oauth.google;
 
 import jakarta.annotation.PostConstruct;
-import jakarta.servlet.http.HttpServletResponse;
 import kr.co.pinup.config.OauthConfig;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;

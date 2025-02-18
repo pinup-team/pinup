@@ -5,18 +5,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class OAuthAccessTokenNotFound extends GlobalCustomException {
+public class OAuthRefreshTokenNotFoundException extends GlobalCustomException {
 
-    private static final String DEFAULT_MESSAGE = "Access Token을 찾을 수 없습니다.";
+    private static final String DEFAULT_MESSAGE = "Refresh Token을 찾을 수 없습니다.";
 
-    public OAuthAccessTokenNotFound() {
+    public OAuthRefreshTokenNotFoundException() {
         super(DEFAULT_MESSAGE);
     }
 
-    public OAuthAccessTokenNotFound(String message) {
+    public OAuthRefreshTokenNotFoundException(String message) {
         super(message);
     }
-
     @Override
     protected int getHttpStatusCode() {
         return HttpStatus.NOT_FOUND.value();

@@ -5,7 +5,6 @@ import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.members.service.MemberService;
-import kr.co.pinup.oauth.OAuthTokenUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;

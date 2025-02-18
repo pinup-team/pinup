@@ -4,7 +4,6 @@ import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.posts.Post;
 import lombok.Builder;
-import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
