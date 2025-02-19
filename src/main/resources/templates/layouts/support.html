@@ -1,21 +1,18 @@
-<!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}">
-
 <head>
-  <meta charset="UTF-8">
-  <title>Pin-up</title>
+  <link rel="stylesheet" th:href="@{/css/support.css}" />
+  <script type="text/javascript" th:src="@{/js/support.js}"></script>
   <script type="text/javascript" th:src="@{/js/notice.js}"></script>
   <script type="text/javascript" th:src="@{/js/faq.js}"></script>
 </head>
 
 <body>
-<div layout:fragment="content">
+  <main th:class="home_content_wrap" layout:fragment="content">
+    <div th:replace="~{fragments/supportNavigate :: support-navigate}"></div>
 
-  <nav th:replace="~{fragments/supportNavigate :: support-navigate}"></nav>
-
-  <div layout:fragment="support-content"></div>
-</div>
+    <div layout:fragment="support-content"></div>
+  </main>
 </body>
 </html>
