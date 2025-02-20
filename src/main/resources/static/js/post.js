@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
-    console.log("DOM fully loaded and parsed");
     initializeCarousel();
 });
 
@@ -94,7 +93,6 @@ function removePost(postId, storeId) {
     }
 }
 
-// 파일 선택 시 파일명 표시 & 이미지 미리보기 기능 추가
 function fileCheck(event) {
     const fileInput = event.target;
     const fileName = document.getElementById("fileName");
@@ -130,7 +128,6 @@ function fileCheck(event) {
     }
 }
 
-// 파일 업로드 버튼 클릭 시 input 트리거
 function fileUpload() {
     document.getElementById("images").click();
 }

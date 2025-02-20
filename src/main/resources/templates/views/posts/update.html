@@ -14,7 +14,6 @@
               <input type="hidden" name="storeId" value="1" />
               <input type="hidden" name="userId" value="1" />
 
-              <!-- 기존 사진 목록 (삭제 가능) -->
               <div class="row">
                 <h3>현재 사진</h3>
                 <input type="hidden" id="imagesToDelete" name="imagesToDelete" th:value="${imagesToDelete != null ? imagesToDelete : ''}" />
@@ -34,11 +33,9 @@
                 </div>
               </div>
 
-              <!-- 새로운 사진 업로드 -->
               <h3>업로드 사진</h3>
               <div class="row preview-box" id="previewContainer"></div>
 
-              <!-- 이미지 업로드 -->
               <div class="row">
                 <label class="col-2 col-form-label">이미지</label>
                 <div class="col-10 d-flex align-items-center">
@@ -48,14 +45,13 @@
                 </div>
               </div>
 
-              <!-- 제목 -->
               <div class="row">
                 <label for="title" class="col-2 col-form-label">게시판 제목</label>
                 <div class="col-10">
                   <input class="form-control" type="text" th:field="*{post.title}" id="title" name="title" required maxlength="100"/>
                 </div>
               </div>
-              <!-- 내용 수정 -->
+
               <div class="row">
                 <label for="content" class="col-2 col-form-label">내용 수정</label>
                 <div class="col-10">
