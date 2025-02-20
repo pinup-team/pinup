@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.exception.common.UnauthorizedException;
+import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberRequest;
@@ -59,55 +60,14 @@ public class MemberApiController {
         Pair<OAuthResponse, OAuthToken> oAuthResponseOAuthTokenPair = memberService.login(params, session);
 
         OAuthToken oAuthToken = oAuthResponseOAuthTokenPair.getRight();
-        if (oAuthToken == null) {
-            throw new UnauthorizedException("MemberService : OAuth token is null");
-        }
-        OAuthResponse oAuthResponse = oAuthResponseOAuthTokenPair.getLeft();
-        if (oAuthResponse == null) {
-            throw new UnauthorizedException("MemberService : OAuth response is null");
-        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("/"));
 
         // 리프레시 토큰을 HttpOnly 쿠키에 저장
         SecurityUtil.setRefreshTokenToCookie(response, oAuthToken.getRefreshToken());
-        /*Cookie refreshTokenCookie = new Cookie("refreshToken", oAuthToken.getRefreshToken());
-        refreshTokenCookie.setHttpOnly(true);  // 클라이언트에서 접근할 수 없도록 설정
-        refreshTokenCookie.setPath("/");  // 쿠키가 유효한 경로 설정
-        refreshTokenCookie.setMaxAge(60 * 60 * 24);  // 쿠키의 유효 기간 설정 (예시: 1일)
-//        refreshTokenCookie.setSecure(true);  // HTTPS에서만 쿠키가 전송되도록 설정
-//
-//        // 쿠키를 응답 헤더에 추가
-        response.setHeader("Set-Cookie", "refreshToken=" + refreshTokenCookie.getValue() +
-                "; HttpOnly; Path=/; Max-Age=86400; SameSite=None");
 
-        // 쿠키에 저장된 refreshToken 확인 (로그로 출력)
-        System.out.println("MemberApiController : Refresh Token 쿠키에 저장됨: " + refreshTokenCookie.getValue() + "/" + refreshTokenCookie.getPath() + "/" + refreshTokenCookie.getMaxAge());*/
-
-        // 액세스 토큰을 Authorization 헤더에 추가하여 요청
-//        SecurityUtil.addAccessTokenToHeader(headers, oAuthToken.getAccessToken());
-        /*
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + oAuthToken.getAccessToken());  // Authorization 헤더에 액세스 토큰 추가
-//        headers.add(HttpHeaders.SET_COOKIE, cookie.toString()); // 필요없음, addCookie해서 ㄱㅊ
-
-        // 1. Authorization 헤더에서 Access Token 추출
-        String accessToken = String.valueOf(headers.getFirst("Authorization")); // "Bearer <accessToken>"
-        if (accessToken != null && accessToken.startsWith("Bearer ")) {
-            accessToken = accessToken.substring(7); // "Bearer " 이후 부분만 추출
-        } else {
-            throw new OAuthTokenNotFoundException("MemberApiController : 엑세스 토큰 요청에 실패했습니다.");
-        }
-        System.out.println("MemberApiController : Authorization 헤더에 추가된 액세스 토큰: Bearer " + accessToken);*/
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            System.out.println("MemberApiController Authentication: " + authentication.getName());
-        } else {
-            System.out.println("MemberApiController Authentication not found");
-        }
-        MemberInfo memberInfo = (MemberInfo) authentication.getPrincipal();
+        MemberInfo memberInfo = SecurityUtil.getMemberInfo();
 
         log.info("Login successful: {}", memberInfo);
         return ResponseEntity.status(302)
@@ -128,8 +88,7 @@ public class MemberApiController {
     }
 
     @PatchMapping
-    public ResponseEntity<?> update(@Validated @RequestBody MemberRequest memberRequest, @LoginMember MemberInfo memberInfo,
-                                    HttpSession session) {
+    public ResponseEntity<?> update(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
         MemberResponse updatedMember = memberService.update(memberInfo, memberRequest);
 
         log.info("Nickname updated to: {}", updatedMember.getNickname());
@@ -137,7 +96,7 @@ public class MemberApiController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> delete(@Validated @RequestBody MemberRequest memberRequest, @LoginMember MemberInfo memberInfo,
+    public ResponseEntity<?> delete(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest,
                                     HttpSession session) {
         boolean isDeleted = memberService.delete(memberInfo, memberRequest);
         if (isDeleted) {
@@ -151,28 +110,17 @@ public class MemberApiController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@LoginMember MemberInfo memberInfo, HttpServletRequest request) {
-        if (memberService.logout(memberInfo.provider(), SecurityUtil.getAccessTokenFromSecurityContext())) {
-            request.getSession(false).invalidate();
-            SecurityUtil.clearContextWithRefreshToken(request);
+    public ResponseEntity<?> logout(@LoginMember MemberInfo memberInfo) {
+        String accessToken = SecurityUtil.getAccessTokenFromSecurityContext();
+        if(accessToken == null) {
+            throw new OAuthAccessTokenNotFoundException();
+        }
+        if (memberService.logout(memberInfo.provider(), accessToken)) {
+            SecurityUtil.clearContextAndDeleteCookie();
             return ResponseEntity.ok()
                     .body("로그아웃 성공");
         } else {
             return ResponseEntity.badRequest().body("로그아웃 실패");
         }
-    }
-
-    private HttpHeaders controlHeader(String accessToken, int age) {
-        ResponseCookie cookie = ResponseCookie.from("Authorization", "Bearer " + accessToken)
-                .path("/")
-                .httpOnly(true)  // 클라이언트에서 접근할 수 없도록 설정
-                .secure(false)    // HTTPS에서만 쿠키를 전송하도록 설정
-                .sameSite("Strict")  // SameSite 설정
-                .maxAge(age)  // 쿠키 만료 시간 설정
-                .build();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
-        return headers;
     }
 }

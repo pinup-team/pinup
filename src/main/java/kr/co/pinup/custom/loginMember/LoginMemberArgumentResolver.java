@@ -28,7 +28,7 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
 
         if(authentication instanceof AnonymousAuthenticationToken) {
             System.out.println("Anonymous AuthenticationToken");
-            return null;
+            throw new UnauthorizedException("로그인 정보가 없습니다.");
         }
 
         if (authentication != null && authentication.isAuthenticated()) {
@@ -39,6 +39,7 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
         if (authentication == null || !(authentication.getPrincipal() instanceof MemberInfo)) {
             throw new UnauthorizedException("로그인 정보가 없습니다.");
         }
+        System.out.println("!!!resolveArgument!!!");
         return (MemberInfo) authentication.getPrincipal();
     }
 }

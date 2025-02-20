@@ -53,26 +53,7 @@ public class MemberService {
                 .role(member.getRole())
                 .build();
 
-        // SecurityContext에 저장
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(memberInfo, null, memberInfo.getAuthorities());
-
-        // AccessToken 우선은 SecurityContext에 저장 setDetails
-        authentication.setDetails(oAuthToken.getAccessToken()); // `accessToken`을 details에 설정
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        // TODO 지우기
-        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-
-        // 인증이 잘 되었는지 확인
-        if (currentAuth != null && currentAuth.isAuthenticated()) {
-            System.out.println("Authentication 성공: " + currentAuth.getName());
-            // 권한 확인
-            System.out.println("권한 정보: " + currentAuth.getAuthorities());
-        } else {
-            System.out.println("Authentication 실패");
-        }
-
+        SecurityUtil.setAuthentication(oAuthToken, memberInfo);
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 
         return oAuthResponseOAuthTokenPair;
@@ -105,14 +86,7 @@ public class MemberService {
         return nickname;
     }
 
-    public MemberResponse findMember(MemberInfo memberInfo, HttpServletRequest request) {
-        // 2. Cookie에서 Refresh Token 확인
-        String refreshToken = SecurityUtil.getRefreshTokenFromCookie(request);
-        if (refreshToken != null) {
-            System.out.println("MemberService : Refresh Token이 쿠키에 존재합니다: " + refreshToken);
-        } else {
-            System.out.println("MemberService : Refresh Token이 쿠키에 없습니다.");
-        }
+    public MemberResponse findMember(MemberInfo memberInfo) {
         return memberRepository.findByNickname(memberInfo.nickname())
                 .map(MemberResponse::new)
                 .orElseThrow(MemberNotFoundException::new);
@@ -120,7 +94,7 @@ public class MemberService {
 
     public MemberResponse update(MemberInfo memberInfo, MemberRequest memberRequest) {
         Member member = memberRepository.findByNickname(memberInfo.nickname())
-                .orElseThrow(() -> new MemberNotFoundException());
+                .orElseThrow(MemberNotFoundException::new);
 
         if (!memberRequest.email().equals(member.getEmail())) {
             throw new MemberBadRequestException("이메일이 일치하지 않습니다.");
@@ -154,7 +128,7 @@ public class MemberService {
 
     public boolean delete(MemberInfo memberInfo, MemberRequest memberRequest) {
         Member member = memberRepository.findByNickname(memberInfo.nickname())
-                .orElseThrow(() -> new MemberNotFoundException());
+                .orElseThrow(MemberNotFoundException::new);
 
         if (!memberRequest.email().equals(member.getEmail())) {
             throw new UnauthorizedException("권한이 없습니다.");
@@ -183,8 +157,6 @@ public class MemberService {
         if (!response) {
             throw new OAuth2AuthenticationException("OAuth 로그아웃 중 오류가 발생했습니다.");
         }
-
-        SecurityContextHolder.clearContext();
 
         return true;
     }

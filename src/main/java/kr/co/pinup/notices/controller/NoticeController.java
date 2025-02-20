@@ -56,7 +56,7 @@ public class NoticeController {
         ensureAuthenticated(memberInfo);
         ensureAdminRole(memberInfo);
 
-//        model.addAttribute("profile", memberService.findMember(memberInfo));
+        model.addAttribute("profile", memberService.findMember(memberInfo));
         model.addAttribute("notice", noticeService.find(noticeId));
 
         return VIEW_PATH + "/update";
@@ -64,7 +64,7 @@ public class NoticeController {
 
     private MemberResponse getMember(MemberInfo memberInfo) {
         if (memberInfo != null) {
-//            return memberService.findMember(memberInfo);
+            return memberService.findMember(memberInfo);
         }
 
         return null;

@@ -6,18 +6,34 @@ function logOut() {
             'Content-Type': 'application/json',
         },
     })
-        .then(response => response.text())
-        .then(text => {
-            if (text === "로그아웃 성공") {
-                alert(text);
-                window.location.replace("/");
-            } else {
-                alert(text);
+        // .then(response => response.text())
+        // .then(text => {
+        //     if (text === "로그아웃 성공") {
+        //         alert(text);
+        //         window.location.replace("/");
+        //     } else {
+        //         alert(text);
+        //     }
+        // })
+        // .catch(error => {
+        //     console.error('로그아웃 중 오류 발생:', error);
+        //     alert('로그아웃 중 오류가 발생했습니다.');
+        // });
+        .then(response => {
+            if (!response.ok) {
+                // 응답 상태 코드가 200번대가 아닌 경우
+                return response.text().then(text => { throw new Error(text); });
             }
+            return response.text(); // 로그아웃 성공 메시지
+        })
+        .then(text => {
+            alert(text); // 성공 메시지 표시
+            window.location.replace("/"); // 메인 페이지로 리다이렉션
         })
         .catch(error => {
             console.error('로그아웃 중 오류 발생:', error);
-            alert('로그아웃 중 오류가 발생했습니다.');
+            alert(error.message); // 서버에서 보낸 오류 메시지 표시
+            window.location.replace("/"); // 메인 페이지로 리다이렉션
         });
 }
 
@@ -81,4 +97,23 @@ function deleteAccount() {
 
 function redirectToHome() {
     window.location.href = "/";
+}
+
+function unAuthorized() {
+    document.addEventListener('DOMContentLoaded', function() {
+        const errorMessage = document.getElementById('error-message')?.innerText;
+        if (errorMessage) {
+            const userConfirmed = confirm(errorMessage); // 확인 대화상자 표시
+            if (userConfirmed) {
+                window.location.href = '/login'; // 로그인 페이지로 리다이렉션
+            }
+        }
+    });
+    // const errorMessage = document.getElementById('message')?.innerText;
+    // if (errorMessage) {
+    //     const userConfirmed = confirm(errorMessage); // 확인 대화상자 표시
+    //     if (userConfirmed) {
+    //         window.location.href = '/members/login'; // 로그인 페이지로 리다이렉션
+    //     }
+    // }
 }

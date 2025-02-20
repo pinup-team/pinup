@@ -55,7 +55,7 @@ public class FaqController {
         ensureAuthenticated(memberInfo);
         ensureAdminRole(memberInfo);
 
-//        model.addAttribute("profile", memberService.findMember(memberInfo));
+        model.addAttribute("profile", memberService.findMember(memberInfo));
         model.addAttribute("category", getFaqCategoryToMap());
         model.addAttribute("faq", faqService.find(faqId));
 
@@ -69,7 +69,7 @@ public class FaqController {
 
     private MemberResponse getMember(MemberInfo memberInfo) {
         if (memberInfo != null) {
-//            return memberService.findMember(memberInfo);
+            return memberService.findMember(memberInfo);
         }
 
         return null;

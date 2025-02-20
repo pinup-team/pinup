@@ -27,8 +27,8 @@ public class MemberController {
     }
 
     @GetMapping("/profile")
-    public String memberProfile(@LoginMember MemberInfo memberInfo, Model model, HttpServletRequest request) {
-        MemberResponse memberResponse = memberService.findMember(memberInfo, request);
+    public String memberProfile(@LoginMember MemberInfo memberInfo, Model model) {
+        MemberResponse memberResponse = memberService.findMember(memberInfo);
         model.addAttribute("profile", memberResponse);
         return "views/members/profile";
     }
