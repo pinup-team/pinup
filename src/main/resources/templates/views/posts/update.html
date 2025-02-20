@@ -4,10 +4,7 @@
       layout:decorate="~{layouts/layout}">
 
 <div layout:fragment="content">
-  <div id="__next">
-    <div class="wrap type_home">
-      <div class="content">
-        <div class="container">
+  <div class="container">
           <div class="d-flex justify-content-center">
             <form id="updatePostForm" enctype="multipart/form-data">
               <input type="hidden" name="postId" th:value="${post?.id}" />
@@ -64,8 +61,5 @@
             </form>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
 </div>
 </html>
