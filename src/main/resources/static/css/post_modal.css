@@ -1,0 +1,487 @@
+.instagram-post-popup {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5); /* 반투명 배경 */
+    z-index: 1000;
+}
+
+.post-content {
+    display: flex;
+    width: 80%;
+    max-width: 1200px;
+    min-width: 1400px;
+    max-height: 950px;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.post-image {
+    flex: 2;  /* 🔹 남은 공간을 자동으로 차지 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%; /* 🔹 부모 크기 기준으로 조절 */
+}
+
+.post-image ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.post-image img {
+    width: 100%;
+    height: auto;
+    max-height: 900px;
+    object-fit: cover;
+}
+
+.post-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    color: black;
+    min-height: 900px;
+    height: auto;
+    position: relative;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.profile-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.username {
+    font-weight: bold;
+}
+
+.post-body {
+    margin: 10px 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.post-actions {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.post-actions button {
+    background: none;
+    border: none;
+    color: black;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.comment-section {
+    flex-grow: 1;
+    overflow-y: auto;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+.comment-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.comment-list li {
+    display: flex;
+    gap: 10px;
+    padding: 5px 0;
+}
+
+.comment-username {
+    font-weight: bold;
+}
+
+.comment-input {
+    display: flex;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+.comment-input input {
+    flex: 1;
+    padding: 8px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    color: black;
+    border-radius: 5px;
+}
+
+.comment-input button {
+    background: #f5f5f5;
+    color: black;
+    border: none;
+    padding: 8px 12px;
+    margin-left: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px;
+    right: 60px;
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 30px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.close-btn:hover {
+    color: black;
+}
+/* 모달 배경 */
+#detailModal {
+    display: none; /* 초기에는 숨겨짐 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* 반투명한 배경 */
+    z-index: 1000; /* 모달이 다른 콘텐츠 위에 오게 */
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease; /* 부드럽게 페이드 인/아웃 */
+}
+
+/* 모달 콘텐츠 */
+#detailContainer {
+    background: #fff;
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+* {
+    padding: 0;
+    margin: 0;
+}
+
+ul, li {
+    list-style: none;
+}
+
+button.transparent-button {
+    background-color: transparent;
+    border: 0;
+    outline: 0;
+    cursor: pointer;
+}
+
+.container {
+    width: 100%;
+    background-color: #f0f0f0;
+    padding: 20px 0;
+}
+
+article.card {
+    width: 600px;
+    margin: 20px auto;
+    margin-bottom: 60px;
+    background: #ffffff;
+    border: 1px solid #c0c0c0;
+    border-radius: 3px;
+}
+
+/*** HEADER ***/
+article.card header {
+    height: 40px;
+    padding: 10px;
+}
+
+article.card header > div {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.circle-image {
+    height: 100%;
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.circle-image > img {
+    height: 100%;
+    border-radius: 50%;
+}
+
+.card-username {
+    padding: 10px 0;
+    font-weight: 900;
+    line-height: 20px;
+    margin-left: 5px;
+    font-size: 13px;
+}
+
+.option-more {
+    float: right;
+    padding: 7px;
+}
+
+/*** CONENT ***/
+.card-container {
+    padding: 5px 10px;
+}
+
+.card-buttons {
+    padding: 0 5px;
+    margin-top: 5px;
+}
+
+.card-buttons > div {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.card-buttons > div.last-card-button {
+    float: right;
+    margin-right: 0;
+}
+
+.card-likes {
+    padding: 5px;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.card-content {
+    padding: 2px 5px;
+    font-size: 13px;
+    overflow-y: auto;
+    min-height: 380px;
+    max-height: 380px;
+}
+
+.card-content li > div {
+    padding: 1px 0;
+}
+
+.card-content li > div > span {
+    font-weight: 900;
+}
+
+.card-content li.commet > div > button {
+    float: right;
+}
+
+.card-content li.commet > div > button > img {
+    width: 12px;
+    margin-right: 5px;
+}
+
+.card-time {
+    padding: 3px;
+    font-size: 11px;
+    color: #aaaaaa;
+}
+
+/* 🔥 댓글 입력 박스 */
+.pinup-comment-box {
+    bottom: 0;
+    width: 95%;
+    position: absolute;
+    height: 55px;
+    border-top: 1px solid #e0e0e0;
+    display: flex;  /* 버튼과 input을 한 줄 정렬 */
+    align-items: center;
+    padding: 0 10px; /* 내부 여백 추가 */
+}
+
+/* 🔥 댓글 입력 폼 */
+.pinup-comment-box > form {
+    display: flex;  /* 가로 정렬 */
+    align-items: center;
+    width: 100%;
+    height: 100%;  /* 부모 높이 맞추기 */
+}
+
+/* 🔥 입력 필드 */
+.pinup-comment-input {
+    flex-grow: 1;  /* 남은 공간 채우기 */
+    border: none;
+    outline: none;
+    padding: 0 10px;
+    height: auto;  /* 버튼과 동일 높이 유지 */
+    font-size: 14px;
+}
+
+/* 🔥 댓글 작성 버튼 div */
+.pinup-comment-box > div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 🔥 댓글 작성 버튼 */
+.pinup-comment-submit-btn {
+    color: #0095f6;
+    opacity: 1;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 5px 10px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    outline: none;
+    white-space: nowrap; /* 글자가 줄바꿈되지 않도록 */
+}
+
+
+/* 🔥 carousel 전체 감싸는 컨테이너 */
+.carousel-wrapper {
+    height: 100%;
+    max-height: 100%;
+    width: 100%; /* 🔹 post-image 크기에 맞춤 */
+    max-width: 100%; /* 🔹 부모 크기를 넘지 않도록 설정 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* 🔥 carousel 메인 요소 */
+.carousel {
+    height: 100%;
+    max-height: 100%;
+    width: 100%; /* 🔹 post-image 크기에 맞춤 */
+    max-width: 100%; /* 🔹 너무 커지지 않도록 제한 */
+    position: relative;
+    overflow: hidden;
+}
+
+/* 🔥 내부 슬라이드 컨테이너 */
+.carousel-inner {
+    display: flex; /* 가로 배치 */
+    transition: transform 0.5s ease-in-out;
+    width: 100%; /* 🔹 부모 크기에 맞춰 자동 조정 */
+    height: 100%;
+    max-height: 100%;
+}
+
+/* 🔥 이미지 목록 */
+.carousel-list {
+    width: 100% !important;
+    display: flex;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    transition: transform 0.5s ease-in-out;
+}
+
+/* 🔥 개별 이미지 항목 */
+.carousel-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1 0 auto; /* 🔹 크기를 자동으로 맞춤 */
+    width: 100%; /* 🔹 post-image 크기에 맞춤 */
+}
+
+/* 🔥 이미지 크기 자동 조절 */
+.carousel-item img {
+    width: 100%; /* 🔹 부모 요소(post-image)에 맞춰 자동 조절 */
+    height: auto; /* 🔹 비율 유지 */
+    max-height: 900px; /* 🔹 최대 크기 제한 */
+    object-fit: cover; /* 🔹 이미지가 넘치지 않도록 조정 */
+}
+
+.slide {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 10px;
+}
+
+.slide img {
+    opacity: 0.75;
+}
+
+.slide-right {
+    right: 0;
+}
+
+/* 🔥 캐러셀 인디케이터 컨테이너 */
+.pinup-carousel-indicators {
+    position: absolute;
+    height: 20px;
+    text-align: center;
+    width: 100%;
+    bottom: 10px; /* 🔹 사진과 너무 붙지 않도록 올리기 */
+    display: flex; /* 가로 정렬 */
+    justify-content: center; /* 가운데 정렬 */
+    gap: 8px; /* 🔹 점 간격 더 넓히기 */
+}
+
+/* 🔥 인디케이터 점 (크기 키움) */
+.pinup-indicator {
+    width: 14px; /* 🔹 기존보다 키움 */
+    height: 14px;
+    background-color: #a8a8a8;
+    display: inline-block;
+    border-radius: 50%; /* 원형 유지 */
+    transition: background-color 0.3s ease, transform 0.3s ease; /* 부드러운 효과 */
+}
+
+/* 🔥 활성화된 인디케이터 */
+.pinup-indicator.active {
+    background-color: #0095f6; /* 🔹 활성화 시 파란색 */
+    transform: scale(1.1); /* 🔹 살짝 커지는 효과 (너무 작으면 border 추가 가능) */
+    border: 2px solid white; /* 🔹 가독성을 위해 테두리 추가 */
+}
+
+/* 🔥 게시물 제목 스타일 (인스타그램 스타일) */
+.post-body-title {
+    font-size: 16px; /* 🔹 적당한 크기 */
+    font-weight: bold; /* 🔹 제목 강조 */
+    color: #262626; /* 🔹 인스타 스타일 기본 색상 */
+    display: block; /* 🔹 줄 바꿈 적용 */
+    margin-bottom: 8px; /* 🔹 본문과 간격 */
+}
+
+/* 🔥 구분선 */
+ hr {
+    border: none;
+    height: 1px;
+    background: #dbdbdb; /* 🔹 인스타그램 스타일의 연한 회색 */
+    margin: 4px 0 10px 0; /* 🔹 간격 조정 */
+}
+
+/* 🔥 게시물 본문 스타일 */
+.post-body-content {
+    font-size: 14px; /* 🔹 본문 폰트 크기 */
+    color: #333; /* 🔹 본문 색상 (너무 어둡지 않게) */
+    line-height: 1.6; /* 🔹 가독성 향상 */
+    white-space: pre-line; /* 🔹 줄바꿈 유지 */
+    min-height: 250px; /* 🔹 최소 높이 설정 */
+    word-break: break-word; /* 🔹 긴 단어 줄바꿈 처리 */
+    overflow-wrap: break-word; /* 🔹 내용이 넘칠 경우 자동 줄바꿈 */
+}

@@ -4,45 +4,72 @@
       layout:decorate="~{layouts/layout}">
 
 <div layout:fragment="content">
+  <div id="__next">
+    <div class="wrap type_home">
+      <div class="content">
+        <div class="container">
+          <div class="d-flex justify-content-center">
+            <form id="updatePostForm" enctype="multipart/form-data">
+              <input type="hidden" name="postId" th:value="${post?.id}" />
+              <input type="hidden" name="storeId" value="1" />
+              <input type="hidden" name="userId" value="1" />
 
-<h1>Update Post</h1>
+              <!-- 기존 사진 목록 (삭제 가능) -->
+              <div class="row">
+                <h3>현재 사진</h3>
+                <input type="hidden" id="imagesToDelete" name="imagesToDelete" th:value="${imagesToDelete != null ? imagesToDelete : ''}" />
 
-<form id="updatePostForm" enctype="multipart/form-data">
-  <input type="hidden" name="postId" th:value="${post?.id}" />
-  <input type="hidden" name="storeId" value="1" />
-  <input type="hidden" name="userId" value="1" />
+                <div class="preview-box">
+                  <th:block th:each="image : ${images}">
+                    <div class="image-item">
+                      <!-- 기존 사진 -->
+                      <img th:src="${image.s3Url}" alt="Post Image" class="preview-img" />
+                      <label class="checkbox-label">
+                        <input type="checkbox" name="imagesToDelete" th:value="${image.s3Url}"
+                               th:data-image-url="${image.s3Url}" onclick="toggleImageToDelete(this)"/>
+                        삭제
+                      </label>
+                    </div>
+                  </th:block>
+                </div>
+              </div>
 
-  <div>
-    <h3>Current Images</h3>
-    <input type="hidden" id="imagesToDelete" name="imagesToDelete" th:value="${imagesToDelete != null ? imagesToDelete : ''}" />
-    <ul>
-      <th:block th:each="image : ${images}">
-        <li>
-          <img th:src="${image.s3Url}" alt="Post Image" width="300px"/>
-          <input type="checkbox" name="imagesToDelete" th:value="${image.s3Url}"
-                 th:data-image-url="${image.s3Url}" onclick="toggleImageToDelete(this)"/>
-        </li>
-      </th:block>
-    </ul>
+              <!-- 새로운 사진 업로드 -->
+              <h3>업로드 사진</h3>
+              <div class="row preview-box" id="previewContainer"></div>
+
+              <!-- 이미지 업로드 -->
+              <div class="row">
+                <label class="col-2 col-form-label">이미지</label>
+                <div class="col-10 d-flex align-items-center">
+                  <input type="file" id="images" name="images" multiple accept="image/*" style="display: none;" onchange="fileCheck(event)">
+                  <label class="btn-upload col-6" onclick="fileUpload()">파일 첨부</label>
+                  <span id="fileName">선택된 파일 없음</span>
+                </div>
+              </div>
+
+              <!-- 제목 -->
+              <div class="row">
+                <label for="title" class="col-2 col-form-label">게시판 제목</label>
+                <div class="col-10">
+                  <input class="form-control" type="text" th:field="*{post.title}" id="title" name="title" required maxlength="100"/>
+                </div>
+              </div>
+              <!-- 내용 수정 -->
+              <div class="row">
+                <label for="content" class="col-2 col-form-label">내용 수정</label>
+                <div class="col-10">
+                  <textarea class="form-control" th:field="*{post.content}" id="content" name="content" required="true"></textarea>
+                </div>
+              </div>
+              <div class="btn_right">
+                <button class="btn btn-dark" type="submit" >수정 요청</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <label for="title">Title</label>
-  <input type="text" th:field="*{post.title}" id="title" name="title" required="true"/>
-
-  <br>
-
-  <label for="content">Content</label>
-  <textarea th:field="*{post.content}" id="content" name="content" required="true"></textarea>
-
-  <br>
-
-  <label for="images">Upload New Images</label>
-  <input type="file" name="images" id="images" multiple="multiple" />
-
-  <br>
-
-  <button type="submit">Update</button>
-</form>
-
 </div>
 </html>
