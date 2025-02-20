@@ -1,61 +1,101 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+<html lang="ko"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}">
 
 <div layout:fragment="content">
-<a th:href="@{/post/list/{storeid}(storeid=${post.storeId})}">Back to Posts List</a>
+    <div class="instagram-post-popup" id="post-popup">
+        <div class="post-content">
+            <span class="close-btn" onclick="closeDetailPopup()">&times;</span>
+            <!-- 왼쪽: 이미지 영역 -->
+            <div class="post-image">
+                <div class="carousel-wrapper">
+                    <div class="carousel" data="0">
+                        <div class="carousel-inner">
+                            <ul class="carousel-list">
+                                <th:block th:each="image : ${post.postImages}">
+                                    <li class="carousel-item"><img th:src="${image.s3Url}" alt="Post Image"/></li>
+                                </th:block>
+                            </ul>
+                            <div class="slide slide-left" style="display: none;">
+                                <button class="transparent-button">⬅️</button>
+                            </div>
+                            <div class="slide slide-right">
+                                <button class="transparent-button">➡️</button>
+                            </div>
+                        </div>
+                        <footer class="pinup-carousel-indicators">
+                            <th:block th:each="image, iterStat : ${post.postImages}">
+                                <div th:classappend="${iterStat.index == 0} ? 'active' : ''"
+                                     class="pinup-indicator"></div>
+                            </th:block>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+            <!-- 오른쪽: 게시물 내용 -->
+            <div class="post-details">
+                <!-- 상단: 프로필 정보 -->
+                <div class="post-header">
+                    <span class="comment-username" >닉네임 이름</span>
+                    <span class="post-date" th:text="*{#temporals.format(post.createdAt, 'yyyy-MM-dd')}"></span>
+                </div>
 
-<h1>Post Detail</h1>
-<div th:text="*{#temporals.format(post.createdAt, 'yyyy-MM-dd')}"></div>
-<hr>
+                <!-- 게시물 내용 -->
+                <div class="post-body">
+                    <span class="post-body-title" th:text="${post.title}"></span>
+                    <hr>
+                    <p class="post-body-content" th:text="${post.content}"></p>
+                </div>
 
-<div>
-    <h2 th:text="${post != null ? post.title : 'No Title'}"></h2>
-    <p th:text="${post != null ? post.content : 'No Content'}"></p>
-</div>
-
-<hr>
-
-<h3>Images</h3>
-<div>
-    <ul>
-        <th:block th:each="image : ${post.postImages}">
-            <li>
-                <img th:src="${image.s3Url}" alt="Post Image" width="300px"/>
-            </li>
-        </th:block>
-    </ul>
-</div>
-
-<hr>
-
-<div>
-    <button th:onclick="|location.href='@{/post/update/{id}(id=${post.id})}'|">수정</button>
-    <button th:onclick="removePost([[${post.id}]], [[${post.storeId}]])">삭제</button>
-</div>
-
-<hr>
-
-<h3>Comments</h3>
-<div id="comment-section">
-    <ul id="comment-list">
-        <th:block th:each="comment : ${post.comments}">
-            <li data-id="${comment.id}">
-                <p th:text="${comment.content}"></p>
-                <button type="button" class="delete-comment-btn" th:data-comment-id="${comment.id}">삭제</button>
-                <div th:text="*{#temporals.format(comment.createdAt, 'yyyy-MM-dd')}"></div>
-            </li>
-        </th:block>
-    </ul>
-</div>
-
-    <div id="add-comment">
-        <form id="comment-form">
-            <input type="text" name="content" placeholder="댓글을 입력하세요" required />
-            <button type="submit" th:data-post-id="${post.id}">댓글 추가</button>
-        </form>
+                <!-- 댓글 섹션 -->
+                <div class="card-container">
+                    <div class="card-buttons">
+                        <div>
+                            <button class="transparent-button"><img src=""/>❤️</button>
+                        </div>
+                        <div>
+                            <button class="transparent-button pinup-comment-btn"><img src=""/>💬</button>
+                        </div>
+                        <div class="last-card-button">
+                            <button class="transparent-button"><img src=""/>🔗</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="card-likes">
+                        좋아요 999,999
+                    </div>
+                    <hr>
+                    <div class="card-content">
+                        <ul>
+                            <th:block th:each="comment : ${post.comments}">
+                                <li class="comment">
+                                    <!-- <span class="comment-username" th:text="${comment.user.username}"></span>-->
+                                    <div>
+                                        <span>사용자 이릅</span>
+                                        <span th:text="${comment.content}"></span>
+                                        <button type="button" class="transparent-button" th:data-comment-id="${comment.id}">삭제</button>
+                                    </div>
+                                    <div class="card-time" th:text="*{#temporals.format(comment.createdAt, 'yyyy-MM-dd')}"></div>
+                                </li>
+                            </th:block>
+                        </ul>
+                    </div>
+                </div>
+                <!-- 댓글 입력 -->
+                <footer class="pinup-comment-box">
+                    <form id="comment-form" class="pinup-comment-form">
+                        <input type="text" name="content" placeholder="댓글 달기 ..." required class="pinup-comment-input"/>
+                        <div class="pinup-comment-submit">
+                            <button class="pinup-btn transparent-button pinup-comment-submit-btn" type="submit"
+                                    th:data-post-id="${post.id}">게시
+                            </button>
+                        </div>
+                    </form>
+                </footer>
+            </div>
+        </div>
     </div>
-
 </div>
+
 </html>

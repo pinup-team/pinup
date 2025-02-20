@@ -4,26 +4,40 @@
       layout:decorate="~{layouts/layout}">
 
 <div layout:fragment="content">
+  <div class="container">
+          <div class="d-flex justify-content-center">
+          <form  id="postForm" enctype="multipart/form-data">
 
-<h1>Create Post</h1>
+            <h3>업로드 사진</h3>
+            <div class="row preview-box" id="previewContainer"></div>
 
-<form id="postForm" enctype="multipart/form-data">
+            <div class="row">
+              <label class="col-2 col-form-label">이미지</label>
+              <div class="col-10 d-flex align-items-center">
+                <input type="file" id="images" name="images" multiple accept="image/*" style="display: none;" onchange="fileCheck(event)">
+                <label class="btn-upload col-6" onclick="fileUpload()">파일 첨부</label>
+                <span id="fileName">선택된 파일 없음</span>
+              </div>
+            </div>
 
-  <label for="title">Title</label>
-  <input type="text" id="title" name="title" required/>
-  <br><br>
+            <div class="row">
+              <label for="title" class="col-2 col-form-label">게시판 명</label>
+              <div class="col-10">
+                <input type="text" class="form-control" id="title" name="title" required maxlength="100">
+              </div>
+            </div>
 
-  <label for="content">Content</label>
-  <textarea id="content" name="content" required></textarea>
-  <br><br>
-
-  <label for="images">Images</label>
-  <input type="file" id="images" name="images" multiple/>
-  <br><br>
-
-  <button type="button" onclick="submitPost()">Submit</button>
-
-</form>
-
+            <div class="row">
+              <label for="content" class="col-2 col-form-label">추가 설명</label>
+              <div class="col-10">
+                <textarea id="content" name="content" class="form-control"></textarea>
+              </div>
+            </div>
+            <div class="btn_right">
+              <button class="btn btn-dark" type="button" onclick="submitPost()">등록 요청</button>
+            </div>
+          </form>
+        </div>
+        </div>
 </div>
 </html>
