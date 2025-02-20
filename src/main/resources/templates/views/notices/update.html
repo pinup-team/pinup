@@ -3,25 +3,40 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/support}">
 
-<div layout:fragment="support-content">
-    <div th:object="${notice}">
-        <h1 th:text="'공지사항 수정'">공지사항 수정</h1>
-        <div>
-            <label for="title" th:for="title">제목</label>
-            <input type="text" name="title" id="title"
-                th:type="text" th:name="title" th:id="title" th:value="*{title}" />
-            <div th:class="title-error" th:id="title-error"></div>
+<section layout:fragment="support-content">
+    <article th:class="content_wrap">
+        <div th:class="main_content_title">
+            <h1>공지사항 정보 수정</h1>
         </div>
-        <div>
-            <label for="content" th:for="content">내용</label>
-            <textarea name="content" id="content"
-                th:name="content" th:id="content" th:text="*{content}"></textarea>
-            <div th:class="content-error" th:id="content-error"></div>
+
+        <div th:class="content" th:object="${notice}">
+            <div th:class="row">
+                <label th:for="title">제목</label>
+                <div th:class="col">
+                    <input type="text" id="title" th:name="title" th:id="title" th:maxlength="100" th:value="*{title}" th:required />
+                    <div th:class="error_wrap">
+                        <span th:class="title-error" th:id="title-error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div th:class="row">
+                <label th:for="content">내용</label>
+                <div th:class="col">
+                    <textarea id="content" th:name="content" th:id="content" th:text="*{content}" th:required></textarea>
+                    <div th:class="error_wrap">
+                        <span th:class="content-error" th:id="content-error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div th:class="row">
+                <div th:class="col">
+                    <button th:onclick="updateNotice([[${notice.id}]])">수정</button>
+                    <button th:onclick="|location.href='@{/notices}'|">목록</button>
+                </div>
+            </div>
         </div>
-    </div>
-    <div>
-        <button th:onclick="updateNotice([[${notice.id}]])">수정</button>
-        <button th:onclick="|location.href='@{/notices}'|">뒤로가기</button>
-    </div>
-</div>
+    </article>
+</section>
 </html>

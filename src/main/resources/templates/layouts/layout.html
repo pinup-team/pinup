@@ -3,20 +3,27 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <title>Pin-up</title>
+    <script type="text/javascript" th:src="@{/js/post.js}"></script>
 </head>
 <body>
-<div th:replace="~{fragments/header::headerFragment}"></div>
 
-<div layout:fragment="content">
+    <div class="wrap type_home">
+        <div class="content">
+            <div th:replace="~{fragments/header::headerFragment}"></div>
 
-</div>
+            <div layout:fragment="content"></div>
+        </div>
+    </div>
 
-<div th:replace="~{fragments/footer::footerFragment}"></div>
-<script src="/js/member.js"></script>
-<script th:src="@{/js/post.js}"></script>
-<script th:src="@{/js/comment.js}"></script>
+    <div th:replace="~{fragments/footer::footerFragment}"></div>
+
+    <script th:src="@{/js/member.js}"></script>
+    <script th:src="@{/js/post.js}"></script>
+    <script th:src="@{/js/comment.js}"></script>
 </body>
 </html>
