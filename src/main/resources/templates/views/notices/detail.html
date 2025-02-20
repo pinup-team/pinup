@@ -1,32 +1,30 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/support}">
 
-<div layout:fragment="support-content">
-  <div>
-    <h1 th:text="'공지사항'">공지사항</h1>
-    <div th:if="${profile != null && profile.getRole() == T(kr.co.pinup.members.model.enums.MemberRole).ROLE_ADMIN}">
-      <button th:onclick="|location.href='@{/notices/{id}/update(id=${notice.id})}'|">수정</button>
-      <button th:onclick="removeNotice([[${notice.id}]])">삭제</button>
-      <button th:onclick="|location.href='@{/notices}'|">뒤로가기</button>
-    </div>
-    <div>
-      <div th:object="${notice}">
-        <p>
-          <b>제목:</b>
-          <span th:text="*{title}">제목</span>
-        </p>
-        <p>
-          <b>내용:</b>
-          <span th:text="*{content}">내용</span>
-        </p>
-        <p>
-          <b>작성날짜:</b>
-          <span th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}">작성날짜</span>
-        </p>
+<section layout:fragment="support-content">
+  <button th:class="previous_button" th:onclick="|location.href='@{/notices}'|">
+    <i class="fa-solid fa-angle-left">뒤로</i>
+  </button>
+
+  <article th:class="content_wrap">
+    <div th:class="'content read'" th:object="${notice}">
+      <div th:class="content_title">
+        <h1 th:text="*{title}">제목</h1>
+        <p th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}">작성날짜</p>
+      </div>
+
+      <div th:class="content_context">
+        <p th:text="*{content}">내용</p>
+      </div>
+
+      <div th:class="button_content" sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
+        <button th:onclick="|location.href='@{/notices/{id}/update(id=${notice.id})}'|">수정</button>
+        <button th:onclick="removeNotice([[${notice.id}]])">삭제</button>
       </div>
     </div>
-  </div>
-</div>
+  </article>
+</section>
 </html>

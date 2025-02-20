@@ -3,16 +3,17 @@ package kr.co.pinup.exception;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @ControllerAdvice
@@ -20,9 +21,9 @@ public class GlobalExceptionHandler {
 
     @ResponseBody
     @ResponseStatus(BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> invalidRequestHandler(MethodArgumentNotValidException ex) {
-        int status = ex.getStatusCode().value();
+    @ExceptionHandler(BindException.class)
+    public ResponseEntity<ErrorResponse> invalidRequestHandler(BindException ex) {
+        int status = BAD_REQUEST.value();
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(status)
                 .message("잘못된 요청입니다.")
@@ -34,6 +35,17 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(status)
                 .body(errorResponse);
+    }
+
+    @ResponseStatus(FORBIDDEN)
+    @ExceptionHandler(AccessDeniedException.class)
+    public String accessDeniedHandler(AccessDeniedException ex, Model model) {
+        model.addAttribute("error", ErrorResponse.builder()
+                .status(FORBIDDEN.value())
+                .message("접근 권한이 없습니다.")
+                .build());
+
+        return "error";
     }
 
     @ExceptionHandler(GlobalCustomException.class)

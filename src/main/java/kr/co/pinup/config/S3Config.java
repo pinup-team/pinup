@@ -44,7 +44,6 @@ public class S3Config {
                     .build();
         }
 
-        // 일반적인 AWS 리전 설정
         return S3Client.builder()
                 .region(Region.of(region))
                 .credentialsProvider(StaticCredentialsProvider.create(awsCredentials))
