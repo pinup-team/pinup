@@ -53,6 +53,9 @@ public class PostImageService  {
     @Transactional
     public void deleteAllByPost(Long postId) {
         List<PostImage> postImages = postImageRepository.findByPostId(postId);
+        if (postImages.isEmpty()) {
+            return;
+        }
         try {
         postImages.forEach(postImage -> {
             String fileUrl = postImage.getS3Url();

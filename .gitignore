@@ -41,3 +41,6 @@ out/
 
 # MAC OS
 .DS_Store
+
+# http-client
+*.env.json

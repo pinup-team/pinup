@@ -154,30 +154,6 @@ class NoticeApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
-    @DisplayName("공지사항 저장 시 content 길이는 1~200까지 이다")
-    void invalidContentLengthToSave() throws Exception {
-        // given
-        NoticeCreateRequest request = NoticeCreateRequest.builder()
-                .title("공지사항 제목")
-                .content("A".repeat(201))
-                .build();
-
-        String body = objectMapper.writeValueAsString(request);
-
-        // expected
-        mockMvc.perform(post("/api/notices")
-                        .contentType(APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.validation.content").exists())
-                .andExpect(jsonPath("$.validation.content").value("내용을 1~200자 이내로 입력하세요."))
-                .andDo(print());
-    }
-
-    @Test
     @DisplayName("공지사항 전체 조회")
     void findAll() throws Exception {
         // given

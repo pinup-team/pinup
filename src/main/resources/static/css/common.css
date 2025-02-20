@@ -52,6 +52,13 @@ button {
     transition: all 0.15s ease-in-out;
 }
 
+@font-face {
+    font-family: "NanumSquare";
+    src: local(NanumSquareLight);
+    src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.eot"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.otf") format("opentype");
+    font-weight: 300;
+}
+
 /* ✅ 레이아웃 */
 .wrap {
     width: 100%;
@@ -524,11 +531,4 @@ textarea.form-control {
     padding: 20px;
 
     max-width: 80%;
-}
-
-@font-face {
-    font-family: "NanumSquare";
-    src: local(NanumSquareLight);
-    src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.eot"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.otf") format("opentype");
-    font-weight: 300;
 }
