@@ -9,16 +9,16 @@
     <script defer src="/js/store.js"></script>
 </head>
 <body>
-<main layout:fragment="content">
-    <h1 th:text="${store.name}"></h1>
-    <p th:text="${store.description}"></p>
-    <p>카테고리: <span th:text="${store.category.name}"></span></p>
-    <p>위치: <span th:text="${store.location.state} + ${store.location.district} + ${store.location.address} + ${store.location.addressDetail}"></span></p>
-    <p>시작 날짜: <span th:text="${store.startDate}"></span></p>
-    <p>종료 날짜: <span th:text="${store.endDate}"></span></p>
-    <p><img th:src="${store.imageUrl}" alt="스토어 이미지"></p>
+<main layout:fragment="content" th:object="${store}">
+    <h1 th:text="*{name}"></h1>
+    <p th:text="*{description}"></p>
+    <p>카테고리: <span th:text="*{category.name}"></span></p>
+    <p th:with="loc=*{location}">위치: <span th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address} +' ' +  ${loc.addressDetail}"></span></p>
+    <p>시작 날짜: <span th:text="*{startDate}"></span></p>
+    <p>종료 날짜: <span th:text="*{endDate}"></span></p>
+    <p><img th:src="*{imageUrl}" alt="스토어 이미지"></p>
     <a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
-    <button class="delete-btn" th:data-store-id="${store.id}">삭제</button>
+    <button class="delete-btn" th:data-store-id="*{id}">삭제</button>
     <a href="/stores">목록으로 돌아가기</a>
 </main>
 </body>
