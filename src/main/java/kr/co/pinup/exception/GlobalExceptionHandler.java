@@ -3,6 +3,7 @@ package kr.co.pinup.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.pinup.custom.utils.SecurityUtil;
+import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
 import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -15,7 +16,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -28,9 +28,11 @@ import static org.springframework.http.HttpStatus.*;
 public class GlobalExceptionHandler {
 
     private final OAuthService oAuthService;
+    private final SecurityUtil securityUtil;
 
-    public GlobalExceptionHandler(OAuthService oAuthService) {
+    public GlobalExceptionHandler(OAuthService oAuthService, SecurityUtil securityUtil) {
         this.oAuthService = oAuthService;
+        this.securityUtil = securityUtil;
     }
 
     @ResponseBody
@@ -66,12 +68,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(OAuthAccessTokenNotFoundException.class)
     public ResponseEntity<?> handleAccessTokenNotFound(OAuthAccessTokenNotFoundException ex, HttpServletRequest request) {
         try {
-            MemberInfo memberInfo = SecurityUtil.getMemberInfo();
+            MemberInfo memberInfo = securityUtil.getMemberInfo();
 
-            String refreshToken = SecurityUtil.getOptionalRefreshToken(request);
+            String refreshToken = securityUtil.getOptionalRefreshToken(request);
             if (refreshToken == null) {
                 log.error("handleAccessTokenNotFound!! refreshToken is null");
-                throw new OAuth2AuthenticationException("로그인 정보가 없습니다.");
+                throw new UnauthorizedException("로그인 정보가 없습니다.");
             }
 
             // AccessToken 갱신
@@ -79,12 +81,19 @@ public class GlobalExceptionHandler {
             log.debug("Access Token 갱신 완료 : " + token.getAccessToken());
 
             // 이제 SecurityContext에 저장하기로 했으니 넣어주기
-            SecurityUtil.refreshAccessTokenInSecurityContext(token.getAccessToken());
+            securityUtil.refreshAccessTokenInSecurityContext(token.getAccessToken());
 
             // 새로운 AccessToken을 응답으로 반환
             return ResponseEntity.status(HttpStatus.OK).body(token.getAccessToken());
+        } catch (UnauthorizedException e) { // 이 메서드 안에서 진행하다가 발생한 exception이기 때문에 여기에ㅔ 먼저 catch될 것
+            log.error("handleAccessTokenNotFound : 로그인이 만료되었습니다.");
+            securityUtil.clearContextAndDeleteCookie();
+            return ResponseEntity.status(BAD_REQUEST).body("로그인이 만료되었습니다.");
+        } catch (OAuth2AuthenticationException e) {
+            log.error("handleAccessTokenNotFound : MemberInfo doesn't exist!");
+            return ResponseEntity.status(BAD_REQUEST).body("MemberInfo doesn't exist!");
         } catch (Exception e) {
-            log.error("Access Token 갱신 실패: " + e.getMessage());
+            log.error("Acccess Token 갱신 실패: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 만료되었습니다.");
         }
     }

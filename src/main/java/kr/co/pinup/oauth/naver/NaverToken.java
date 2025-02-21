@@ -3,13 +3,11 @@ package kr.co.pinup.oauth.naver;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import kr.co.pinup.oauth.OAuthToken;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Builder
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -25,6 +23,15 @@ public class NaverToken implements OAuthToken {
 
     @JsonProperty("expires_in")
     private String expiresIn;
+
+    @JsonProperty("result")
+    private String result;
+
+    @JsonProperty("error")
+    private String error;
+
+    @JsonProperty("error_description")
+    private String errorDescription;
 
     @Override
     public String getAccessToken() {

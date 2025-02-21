@@ -1,5 +1,6 @@
 package kr.co.pinup.oauth;
 
+import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
 import kr.co.pinup.members.exception.OAuthProviderNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import org.apache.commons.lang3.tuple.Pair;
@@ -31,8 +32,16 @@ public class OAuthService {
         return client.requestOauth(token);
     }
 
+    public OAuthResponse isAccessTokenExpired(OAuthProvider oAuthProvider, String accessToken) {
+        OAuthApiClient client = Optional.ofNullable(clients.get(oAuthProvider))
+                .orElseThrow(() -> new OAuthProviderNotFoundException(oAuthProvider.toString() + "는 지원하지 않는 OAuth 제공자입니다."));
+        return Optional.ofNullable(client.isAccessTokenExpired(accessToken))
+                .orElseThrow(() -> new OAuthAccessTokenNotFoundException("엑세스 토큰이 만료되었습니다."));
+    }
+
     // TODO REFRESHTOKEN 사용한 ACCESSTOKEN 재발급
     public OAuthToken refresh(OAuthProvider oAuthProvider, String refreshToken) {
+        System.out.println("OAuthService refresh with OauthProvider " + oAuthProvider + " refreshToken " + refreshToken);
         OAuthApiClient client = Optional.ofNullable(clients.get(oAuthProvider))
                 .orElseThrow(() -> new OAuthProviderNotFoundException(oAuthProvider + "는 지원하지 않는 OAuth 제공자입니다."));
 

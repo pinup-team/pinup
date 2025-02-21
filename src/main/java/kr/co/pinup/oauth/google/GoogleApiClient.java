@@ -3,10 +3,13 @@ package kr.co.pinup.oauth.google;
 import jakarta.annotation.PostConstruct;
 import kr.co.pinup.config.OauthConfig;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
+import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.oauth.*;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -17,6 +20,7 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class GoogleApiClient implements OAuthApiClient {
+    private static final Logger log = LoggerFactory.getLogger(GoogleApiClient.class);
     private final OauthConfig oauthConfig;
     private OauthConfig.Registration googleRegistration;
     private OauthConfig.Provider googleProvider;
@@ -83,6 +87,30 @@ public class GoogleApiClient implements OAuthApiClient {
     }
 
     @Override
+    public OAuthResponse isAccessTokenExpired(String accessToken) {
+        try {
+            GoogleResponse userDto = googleWebClient.get()
+                    .uri(googleProvider.getUserInfoUri())
+                    .header("Authorization", "Bearer " + accessToken)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError(),
+                            clientResponse -> {
+                                throw new OAuthAccessTokenNotFoundException("구글의 Access Token이 유효하지 않거나 만료되었습니다: " + clientResponse.statusCode());
+                            })
+                    .onStatus(status -> status.is5xxServerError(),
+                            clientResponse -> Mono.error(new OAuth2AuthenticationException("구글에서 사용자 검증을 진행하는 중 오류가 발생했습니다: " + clientResponse.statusCode())))
+                    .bodyToMono(GoogleResponse.class)
+                    .block();
+
+            return userDto;
+        } catch (OAuthAccessTokenNotFoundException e) {
+            return null;
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
     public GoogleToken refreshAccessToken(String refreshToken) {
         try {
             GoogleToken tokenResponse = googleWebClient.post()
@@ -101,6 +129,7 @@ public class GoogleApiClient implements OAuthApiClient {
             }
             return tokenResponse;
         } catch (Exception e) {
+            log.error("Google Access Token Refresh Fail : {}", e.getMessage());
             throw new OAuthTokenRequestException("Google 액세스 토큰 재요청 중 오류 발생: " + e.getMessage());
         }
     }
@@ -132,19 +161,8 @@ public class GoogleApiClient implements OAuthApiClient {
             }
             return false; // 응답이 null이거나 실패한 경우 false 반환
         } catch (Exception e) {
+            log.error("Google Access Token Revoke Fail : {}", e.getMessage());
             throw new OAuthTokenRequestException("Google 액세스 토큰 취소 중 오류 발생: " + e.getMessage());
         }
-//        return Boolean.TRUE.equals(googleWebClient.post()
-//                .uri(uriBuilder -> uriBuilder
-//                        .scheme("https")
-//                        .host("oauth2.googleapis.com")
-//                        .path("/revoke")
-//                        .queryParam("token", accessToken)
-//                        .build()
-//                )
-//                .retrieve()
-//                .toBodilessEntity()
-//                .map(responseEntity -> responseEntity.getStatusCode().is2xxSuccessful())
-//                .block());
     }
 }

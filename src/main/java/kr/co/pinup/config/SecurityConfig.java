@@ -1,5 +1,9 @@
 package kr.co.pinup.config;
 
+import kr.co.pinup.custom.filter.AccessTokenValidationFilter;
+import kr.co.pinup.custom.filter.SessionExpirationFilter;
+import kr.co.pinup.custom.utils.SecurityUtil;
+import kr.co.pinup.members.service.MemberService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,6 +14,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -31,6 +36,14 @@ public class SecurityConfig {
         return web -> web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
+    @Bean
+    public SessionExpirationFilter sessionExpirationFilter() {
+        return new SessionExpirationFilter();
+    }
+    @Bean
+    public AccessTokenValidationFilter accessTokenValidationFilter(MemberService memberService, SecurityUtil securityUtil) {
+        return new AccessTokenValidationFilter(memberService, securityUtil);
+    }
 
     /**
      * @param http
@@ -38,15 +51,17 @@ public class SecurityConfig {
      * @throws Exception
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, SessionExpirationFilter sessionExpirationFilter, AccessTokenValidationFilter accessTokenValidationFilter) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .addFilterBefore(sessionExpirationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
 //                        .requestMatchers("/**").permitAll()
 //                                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                                .requestMatchers( "/static/**", "/templates/**").permitAll()
-                                .requestMatchers("/", "/members/login", "/members/profile", "/api/members/oauth/**", "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}").permitAll()
+                                .requestMatchers( "/static/**", "/templates/**", "/error",  "/favicon.ico").permitAll()
+                                .requestMatchers("/", "/members/login", "/api/members/oauth/**",
+                                        "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
@@ -67,7 +82,8 @@ public class SecurityConfig {
                 .securityContext(securityContext -> securityContext
                         .requireExplicitSave(false)
                         .securityContextRepository(new HttpSessionSecurityContextRepository())
-                );
+                )
+                .addFilterAfter(accessTokenValidationFilter, SessionExpirationFilter.class);
 
         return http.build();
     }

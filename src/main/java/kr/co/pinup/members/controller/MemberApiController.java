@@ -6,9 +6,6 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.custom.utils.SecurityUtil;
-import kr.co.pinup.exception.common.UnauthorizedException;
-import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
-import kr.co.pinup.members.exception.OAuthTokenNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.dto.MemberResponse;
@@ -22,16 +19,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.security.Security;
 import java.util.Optional;
 
 @Slf4j
@@ -41,6 +34,7 @@ import java.util.Optional;
 public class MemberApiController {
 
     private final MemberService memberService;
+    private final SecurityUtil securityUtil;
 
     @GetMapping("/oauth/naver")
     public ResponseEntity<?> loginNaver(@Valid @ModelAttribute NaverLoginParams params, HttpServletRequest request, HttpServletResponse response) {
@@ -65,11 +59,11 @@ public class MemberApiController {
         headers.setLocation(URI.create("/"));
 
         // 리프레시 토큰을 HttpOnly 쿠키에 저장
-        SecurityUtil.setRefreshTokenToCookie(response, oAuthToken.getRefreshToken());
+        securityUtil.setRefreshTokenToCookie(response, oAuthToken.getRefreshToken());
 
-        MemberInfo memberInfo = SecurityUtil.getMemberInfo();
+        MemberInfo memberInfo = securityUtil.getMemberInfo();
 
-        log.info("Login successful: {}", memberInfo);
+        log.debug("Login successful: {}", memberInfo);
         return ResponseEntity.status(302)
                 .headers(headers)
                 .build();
@@ -89,9 +83,11 @@ public class MemberApiController {
 
     @PatchMapping
     public ResponseEntity<?> update(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
+        String accessToken = securityUtil.getAccessTokenFromSecurityContext();
+        log.debug("check accessToken : {}", accessToken);
         MemberResponse updatedMember = memberService.update(memberInfo, memberRequest);
 
-        log.info("Nickname updated to: {}", updatedMember.getNickname());
+        log.debug("Nickname updated to: {}", updatedMember.getNickname());
         return ResponseEntity.ok("닉네임이 변경되었습니다.");
     }
 
@@ -111,12 +107,10 @@ public class MemberApiController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@LoginMember MemberInfo memberInfo) {
-        String accessToken = SecurityUtil.getAccessTokenFromSecurityContext();
-        if(accessToken == null) {
-            throw new OAuthAccessTokenNotFoundException();
-        }
+        String accessToken = securityUtil.getAccessTokenFromSecurityContext();
+        System.out.println("MemberApiController logout  Access Token : " + accessToken);
         if (memberService.logout(memberInfo.provider(), accessToken)) {
-            SecurityUtil.clearContextAndDeleteCookie();
+            securityUtil.clearContextAndDeleteCookie();
             return ResponseEntity.ok()
                     .body("로그아웃 성공");
         } else {

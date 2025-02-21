@@ -3,6 +3,7 @@ package kr.co.pinup.oauth.naver;
 import jakarta.annotation.PostConstruct;
 import kr.co.pinup.config.OauthConfig;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
+import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.oauth.*;
 import lombok.RequiredArgsConstructor;
@@ -82,9 +83,34 @@ public class NaverApiClient implements OAuthApiClient {
     }
 
     @Override
-    public NaverToken refreshAccessToken(String refreshToken) {
+    public OAuthResponse isAccessTokenExpired(String accessToken) {
         try {
-            NaverToken tokenResponse = naverWebClient.get()
+            NaverResponse userDto = naverWebClient.get()
+                    .uri(naverProvider.getUserInfoUri())
+                    .header("Authorization", "Bearer " + accessToken)
+                    .retrieve()
+                    .onStatus(status -> status.is4xxClientError(),
+                            clientResponse -> {
+                                throw new OAuthAccessTokenNotFoundException("네이버의 Access Token이 유효하지 않거나 만료되었습니다: " + clientResponse.statusCode());
+                            })
+                    .onStatus(status -> status.is5xxServerError(),
+                            clientResponse -> Mono.error(new OAuth2AuthenticationException("네이버에서 사용자 검증을 진행하는 중 오류가 발생했습니다: " + clientResponse.statusCode())))
+                    .bodyToMono(NaverResponse.class)
+                    .block();
+
+            return userDto;
+        } catch (OAuthAccessTokenNotFoundException e) {
+            return null;
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+
+    @Override
+    public NaverToken refreshAccessToken(String refreshToken) {
+        System.out.println("NaverApiClient refreshToken : "+refreshToken);
+        try {
+            NaverToken tokenResponse = naverWebClient.post()
                     .uri(uriBuilder -> URI.create(UriComponentsBuilder.fromHttpUrl(naverProvider.getTokenUri())
                             .queryParam("grant_type", "refresh_token")
                             .queryParam("client_id", naverRegistration.getClientId())
@@ -97,8 +123,9 @@ public class NaverApiClient implements OAuthApiClient {
                     .bodyToMono(NaverToken.class)
                     .block();
 
-            if (tokenResponse == null || tokenResponse.getAccessToken() == null) {
-                throw new OAuthTokenRequestException("네이버에서 액세스 토큰을 다시 가져오지 못했습니다");
+            System.out.println("NaverToken : " + tokenResponse);
+            if (tokenResponse == null || (tokenResponse.getError() != null && tokenResponse.getErrorDescription() != null)) {
+                throw new OAuthTokenRequestException("네이버에서 액세스 토큰을 다시 가져오지 못했습니다  : "+tokenResponse.getErrorDescription());
             }
             return tokenResponse;
         } catch (Exception e) {
@@ -114,7 +141,7 @@ public class NaverApiClient implements OAuthApiClient {
                             .queryParam("grant_type", "delete")
                             .queryParam("client_id", naverRegistration.getClientId())
                             .queryParam("client_secret", naverRegistration.getClientSecret())
-                            .queryParam("accessToken", accessToken)
+                            .queryParam("access_token", accessToken)
                             .queryParam("service_provider", OAuthProvider.NAVER)
                             .toUriString()))
                     .retrieve()
@@ -123,7 +150,8 @@ public class NaverApiClient implements OAuthApiClient {
                     .bodyToMono(NaverToken.class)
                     .block();
 
-            if (tokenResponse == null || tokenResponse.getAccessToken() != null) {
+            System.out.println("NaverToken : " + tokenResponse);
+            if (tokenResponse == null || !tokenResponse.getAccessToken().equals(accessToken) || !tokenResponse.getResult().equals("success")) {
                 throw new OAuthTokenRequestException("네이버에서 액세스 토큰을 취소하지 못했습니다");
             }
             return true;

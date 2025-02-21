@@ -16,13 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Slf4j
@@ -32,17 +32,18 @@ import java.util.Random;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final OAuthService oAuthService;
+    private final SecurityUtil securityUtil;
 
     public Pair<OAuthResponse, OAuthToken> login(OAuthLoginParams params, HttpSession session) {
         Pair<OAuthResponse, OAuthToken> oAuthResponseOAuthTokenPair = oAuthService.request(params);
         OAuthToken oAuthToken = oAuthResponseOAuthTokenPair.getRight();
-        System.out.println("MemberService : OAuthToken = " + oAuthToken.getAccessToken() + "/" + oAuthToken.getRefreshToken());
         if (oAuthToken == null) {
+            log.error("MemberService : OAuthToken is null");
             throw new UnauthorizedException("MemberService : OAuth token is null");
         }
         OAuthResponse oAuthResponse = oAuthResponseOAuthTokenPair.getLeft();
-        System.out.println("MemberService : OAuthResponse = " + oAuthResponse.getEmail() + "/" + oAuthResponse.getId() + "/" + oAuthResponse.getName());
         if (oAuthResponse == null) {
+            log.error("MemberService : OAuthResponse is null");
             throw new UnauthorizedException("MemberService : OAuth response is null");
         }
 
@@ -53,7 +54,7 @@ public class MemberService {
                 .role(member.getRole())
                 .build();
 
-        SecurityUtil.setAuthentication(oAuthToken, memberInfo);
+        securityUtil.setAuthentication(oAuthToken, memberInfo);
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 
         return oAuthResponseOAuthTokenPair;
@@ -84,6 +85,55 @@ public class MemberService {
             nickname = randomAdjective + " " + randomNoun;
         } while (memberRepository.existsByNickname(nickname));
         return nickname;
+    }
+
+    public boolean isAccessTokenExpired(MemberInfo memberInfo, String accessToken) {
+        try {
+            OAuthResponse oAuthResponse = oAuthService.isAccessTokenExpired(memberInfo.provider(), accessToken);
+            if (oAuthResponse != null) {
+                Optional<Member> member = memberRepository.findByEmail(oAuthResponse.getEmail());
+                if (member.isPresent()) {
+                    Member presentMember = member.get();
+                    MemberInfo checkMemberInfo = MemberInfo.builder().nickname(presentMember.getNickname()).provider(presentMember.getProviderType()).role(presentMember.getRole()).build();
+
+                    if (!checkMemberInfo.equals(memberInfo)) {
+                        System.out.println("MemberService isAccessTokenExpired 만료 O");
+                        return true;
+                    }
+                }
+            }
+            System.out.println("MemberService isAccessTokenExpired 만료 X");
+            return false;
+        } catch (OAuthAccessTokenNotFoundException e) {
+            log.error("MemberService isAccessTokenExpired 만료 OAuthAccessTokenNotFoundException : " + e.getMessage());
+            return true;
+        } catch (Exception e) {
+            log.error("Access token validation failed", e);
+            System.out.println("MemberService isAccessTokenExpired 만료 : " + e.getMessage());
+            return true; // 예외 발생시 만료된 것으로 처리
+        }
+    }
+
+    public String refreshAccessToken(HttpServletRequest request) {
+        log.info("MemberService refreshAccessToken");
+        MemberInfo memberInfo = securityUtil.getMemberInfo();
+
+        String refreshToken = securityUtil.getOptionalRefreshToken(request);
+        if (refreshToken == null) {
+            log.error("handleAccessTokenNotFound!! refreshToken is null");
+            securityUtil.clearContextAndDeleteCookie();
+            throw new UnauthorizedException("로그인 정보가 없습니다.");
+        }
+
+        // AccessToken 갱신
+        OAuthToken token = oAuthService.refresh(memberInfo.getProvider(), refreshToken);
+        log.debug("Access Token 갱신 완료 : " + token.getAccessToken());
+
+        // 이제 SecurityContext에 저장하기로 했으니 넣어주기
+        securityUtil.refreshAccessTokenInSecurityContext(token.getAccessToken());
+
+        // 새로운 AccessToken을 응답으로 반환
+        return token.getAccessToken();
     }
 
     public MemberResponse findMember(MemberInfo memberInfo) {
@@ -150,7 +200,7 @@ public class MemberService {
         }
 
         if (accessToken == null || accessToken.isEmpty()) {
-            throw new OAuthTokenNotFoundException("OAuth 토큰을 찾을 수 없습니다.");
+            throw new OAuthTokenNotFoundException("MemberService logout || OAuth Access 토큰을 찾을 수 없습니다.");
         }
 
         boolean response = oAuthService.revoke(oAuthProvider, accessToken);

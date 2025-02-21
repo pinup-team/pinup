@@ -1,6 +1,5 @@
 package kr.co.pinup.members.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberResponse;
