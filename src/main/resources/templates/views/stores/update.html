@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
 <head>
     <meta charset="UTF-8">
     <title>팝업스토어 수정</title>
     <script defer src="/js/store.js"></script>
 </head>
 <body>
+<main layout:fragment="content">
 <h1>팝업스토어 수정</h1>
 <form id="updateForm" th:data-store-id="${store.id}">
     <label>이름: <input type="text" name="name" th:value="${store.name}" required></label><br>
@@ -26,5 +29,6 @@
     <button type="submit">수정</button>
 </form>
 <a href="/stores">목록으로 돌아가기</a>
+</main>
 </body>
 </html>

@@ -1,20 +1,25 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
 <head>
     <meta charset="UTF-8">
     <title>팝업스토어 상세 정보</title>
     <script defer src="/js/store.js"></script>
 </head>
 <body>
-<h1 th:text="${store.name}"></h1>
-<p th:text="${store.description}"></p>
-<p>카테고리: <span th:text="${store.category.name}"></span></p>
-<p>위치: <span th:text="${store.location.id}"></span></p>
-<p>시작 날짜: <span th:text="${store.startDate}"></span></p>
-<p>종료 날짜: <span th:text="${store.endDate}"></span></p>
-<p><img th:src="${store.imageUrl}" alt="스토어 이미지"></p>
-<a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
-<button class="delete-btn" th:data-store-id="${store.id}">삭제</button>
-<a href="/stores">목록으로 돌아가기</a>
+<main layout:fragment="content">
+    <h1 th:text="${store.name}"></h1>
+    <p th:text="${store.description}"></p>
+    <p>카테고리: <span th:text="${store.category.name}"></span></p>
+    <p>위치: <span th:text="${store.location.state} + ${store.location.district} + ${store.location.address} + ${store.location.addressDetail}"></span></p>
+    <p>시작 날짜: <span th:text="${store.startDate}"></span></p>
+    <p>종료 날짜: <span th:text="${store.endDate}"></span></p>
+    <p><img th:src="${store.imageUrl}" alt="스토어 이미지"></p>
+    <a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
+    <button class="delete-btn" th:data-store-id="${store.id}">삭제</button>
+    <a href="/stores">목록으로 돌아가기</a>
+</main>
 </body>
 </html>

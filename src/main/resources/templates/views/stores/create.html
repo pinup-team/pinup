@@ -1,27 +1,32 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
 <head>
-    <meta charset="UTF-8">
     <title>팝업스토어 생성</title>
     <script defer src="/js/store.js"></script>
 </head>
+
 <body>
-<h1>팝업스토어 생성</h1>
-<form id="storeForm">
-    <label>이름: <input type="text" name="name" required></label><br>
-    <label>설명: <input type="text" name="description" required></label><br>
-    <label>시작 날짜: <input type="date" name="startDate" required></label><br>
-    <label>종료 날짜: <input type="date" name="endDate" required></label><br>
-    <label>카테고리:
-        <select name="categoryId" required>
-            <option value=""> 카테고리 선택 </option>
-            <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
-        </select>
-    </label>
-    <input type="hidden" name="locationId" value="1"/>
-    <label>이미지 URL: <input type="text" name="imageUrl"></label><br>
-    <button type="submit">생성</button>
-</form>
-<a href="/stores">목록으로 돌아가기</a>
+<main layout:fragment="content">
+    <h1>팝업스토어 생성</h1>
+    <form id="storeForm">
+        <label>이름: <input type="text" name="name" required></label><br>
+        <label>설명: <input type="text" name="description" required></label><br>
+        <label>시작 날짜: <input type="date" name="startDate" required></label><br>
+        <label>종료 날짜: <input type="date" name="endDate" required></label><br>
+        <label>카테고리:
+            <select name="categoryId" required>
+                <option value=""> 카테고리 선택 </option>
+                <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+            </select>
+        </label><br>
+        <input type="hidden" name="locationId" value="1"/>
+        <label>이미지 URL: <input type="text" name="imageUrl"></label><br>
+        <button type="submit">생성</button>
+    </form>
+    <a href="/stores">목록으로 돌아가기</a>
+</main>
 </body>
 </html>
