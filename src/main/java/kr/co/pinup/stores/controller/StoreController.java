@@ -1,6 +1,7 @@
 package kr.co.pinup.stores.controller;
 
 import jakarta.validation.Valid;
+import kr.co.pinup.store_categories.service.CategoryService;
 import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
@@ -19,10 +20,11 @@ import org.springframework.web.bind.annotation.*;
 public class StoreController {
 
     private final StoreService storeService;
+    private final CategoryService categoryService;
 
     @GetMapping
     public String listStores(Model model) {
-        model.addAttribute("stores", storeService.getAllStores());
+        model.addAttribute("stores", storeService.getStoreSummaries());
         return "views/stores/list";
     }
 
@@ -32,9 +34,9 @@ public class StoreController {
         return "views/stores/detail";
     }
 
-
     @GetMapping("/create")
     public String createStoreForm(Model model) {
+        model.addAttribute("categories", categoryService.getAllCategories());
         return "views/stores/create";
     }
 
@@ -44,12 +46,13 @@ public class StoreController {
             return "views/stores/create";
         }
         storeService.createStore(storeRequest);
-        return "redirect:views//stores/list";
+        return "redirect:views/stores/list";
     }
 
     @GetMapping("/{id}/update")
     public String editStoreForm(@PathVariable Long id, Model model) {
         model.addAttribute("store", storeService.getStoreById(id));
+        model.addAttribute("categories", categoryService.getAllCategories());
         return "views/stores/update";
     }
 

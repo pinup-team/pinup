@@ -12,8 +12,13 @@
     <label>설명: <input type="text" name="description" required></label><br>
     <label>시작 날짜: <input type="date" name="startDate" required></label><br>
     <label>종료 날짜: <input type="date" name="endDate" required></label><br>
-    <input type="hidden" name="categoryId" value="1">
-    <input type="hidden" name="locationId" value="1">
+    <label>카테고리:
+        <select name="categoryId" required>
+            <option value=""> 카테고리 선택 </option>
+            <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
+        </select>
+    </label>
+    <input type="hidden" name="locationId" value="1"/>
     <label>이미지 URL: <input type="text" name="imageUrl"></label><br>
     <button type="submit">생성</button>
 </form>

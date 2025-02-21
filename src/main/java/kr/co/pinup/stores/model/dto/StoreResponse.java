@@ -1,5 +1,7 @@
 package kr.co.pinup.stores.model.dto;
 
+import kr.co.pinup.locations.model.dto.LocationResponse;
+import kr.co.pinup.store_categories.model.dto.StoreCategoryResponse;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.enums.Status;
 
@@ -10,10 +12,8 @@ public record StoreResponse(
         Long id,
         String name,
         String description,
-        Long categoryId,
-        String categoryName,
-        Long locationId,
-        String locationName,
+        StoreCategoryResponse category,
+        LocationResponse location,
         LocalDate startDate,
         LocalDate endDate,
         Status status,
@@ -26,10 +26,8 @@ public record StoreResponse(
                 store.getId(),
                 store.getName(),
                 store.getDescription(),
-                store.getCategory().getId(),
-                store.getCategory().getName(),
-                store.getLocation().getId(),
-                store.getLocation().getName(),
+                StoreCategoryResponse.from(store.getCategory()),
+                LocationResponse.from(store.getLocation()),
                 store.getStartDate(),
                 store.getEndDate(),
                 store.getStatus(),
@@ -38,4 +36,5 @@ public record StoreResponse(
                 store.getUpdatedAt()
         );
     }
+
 }

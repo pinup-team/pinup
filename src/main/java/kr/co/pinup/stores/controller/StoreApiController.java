@@ -49,7 +49,6 @@ public class StoreApiController {
     @PostMapping
     public ResponseEntity<StoreResponse> createStore(@Valid @RequestBody StoreRequest request) {
         log.info("팝업스토어 생성 요청 - 이름: {}", request.name());
-        log.info("팝업스토어 생성 요청 - {}", request.toString());
         return ResponseEntity.ok(storeService.createStore(request));
     }
 

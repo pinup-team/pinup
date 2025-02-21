@@ -11,12 +11,15 @@
     <label>이름: <input type="text" name="name" th:value="${store.name}" required></label><br>
     <label>설명: <input type="text" name="description" th:value="${store.description}" required></label><br>
     <label>카테고리:
-        <select name="categoryId">
-            <option value="1" th:selected="${store.category.id == 1}">카테고리 1</option>
-            <option value="2" th:selected="${store.category.id == 2}">카테고리 2</option>
-            <option value="3" th:selected="${store.category.id == 3}">카테고리 3</option>
+        <select name="categoryId" required>
+            <option th:value="${store.category.id}" th:text="${store.category.name}" selected></option>
+            <option th:each="category : ${categories}"
+                    th:if="${category.id != store.category.id}"
+                    th:value="${category.id}"
+                    th:text="${category.name}">
+            </option>
         </select>
-    </label><br>
+    </label>
     <label>위치 ID: <input type="number" name="locationId" th:value="${store.location.id}" required></label><br>
     <label>시작 날짜: <input type="date" name="startDate" th:value="${store.startDate}" required></label><br>
     <label>종료 날짜: <input type="date" name="endDate" th:value="${store.endDate}" required></label><br>

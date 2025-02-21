@@ -15,6 +15,7 @@ import kr.co.pinup.stores.model.dto.StoreSummaryResponse;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
 import kr.co.pinup.stores.model.enums.Status;
 import kr.co.pinup.stores.repository.StoreRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,19 +24,12 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class StoreService {
 
     private final StoreRepository storeRepository;
-    private final StoreCategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final StoreCategoryRepository storeCategoryRepository;
-
-    public StoreService(StoreRepository storeRepository, StoreCategoryRepository categoryRepository, LocationRepository locationRepository, StoreCategoryRepository storeCategoryRepository) {
-        this.storeRepository = storeRepository;
-        this.categoryRepository = categoryRepository;
-        this.locationRepository = locationRepository;
-        this.storeCategoryRepository = storeCategoryRepository;
-    }
 
     @Transactional
     public StoreResponse updateStore(Long id, StoreUpdateRequest request) {
@@ -91,7 +85,7 @@ public class StoreService {
     public StoreResponse createStore(StoreRequest request) {
         log.info("팝업스토어 생성 요청 - 이름: {}", request.name());
 
-        StoreCategory category = categoryRepository.findById(request.categoryId())
+        StoreCategory category = storeCategoryRepository.findById(request.categoryId())
                 .orElseThrow(StoreNotFoundException::new);
 
         log.info("StoreCategory - {}", category.getId());
