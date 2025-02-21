@@ -2,7 +2,6 @@ package kr.co.pinup.posts.controller;
 
 import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.postImages.service.PostImageService;
-import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +41,6 @@ public class PostController {
 
     @GetMapping("/create")
     public String createPostForm(Model model) {
-        //model.addAttribute("createPostRequest", new CreatePostRequest());
         return VIEW_PATH + "/create";
     }
 
