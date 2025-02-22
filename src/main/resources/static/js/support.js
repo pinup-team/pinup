@@ -1,25 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const tabButtons = document.querySelectorAll('[role="tab"]');
+    const tabs = document.querySelectorAll('[role="tab"]');
+
+    const currentPath = window.location.pathname;
+    const domain = currentPath.match(/^\/([^\/]+)/)[1];
 
     const setActiveTab = (activeTab) => {
-        tabButtons.forEach((btn) => btn.setAttribute("aria-selected", "false"));
+        tabs.forEach((btn) => btn.setAttribute("aria-selected", "false"));
         activeTab.setAttribute('aria-selected', 'true');
     };
 
-    const savedTab = localStorage.getItem('activeTab');
-    const initialTab = savedTab ? document.querySelector(`[role="tab"].${savedTab}`) : tabButtons[0];
+    const selectedTabClass = domain || 'notices';
+    const initialTab = document.querySelector(`[role="tab"].${selectedTabClass}`) || tabs[0];
 
     setActiveTab(initialTab);
 
-    if (!savedTab) {
-        localStorage.setItem('activeTab', initialTab.className);
-    }
-
-    tabButtons.forEach((button) => {
-        button.addEventListener('click', (evt) => {
-            const target = evt.currentTarget;
+    tabs.forEach((tab) => {
+        tab.addEventListener('click', (event) => {
+            const target = event.currentTarget;
             setActiveTab(target);
-            localStorage.setItem('activeTab', target.className);
         });
     });
 });

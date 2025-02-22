@@ -1,3 +1,31 @@
+document.addEventListener('DOMContentLoaded', () => {
+    const contentListWrap = document.querySelector('.content_list_wrap');
+
+    const toggleAnswer = (clickedTitle) => {
+        contentListWrap.querySelectorAll('.content_list').forEach((faq) => {
+            const title = faq.querySelector('.title_area');
+            const answer = faq.querySelector('.answer_area');
+            const icon = faq.querySelector('.content_area i');
+
+            const isExpanded = title.getAttribute('aria-expanded') === 'true';
+            const isClicked = title === clickedTitle;
+            const newState = isClicked ? !isExpanded : false;
+
+            title.setAttribute('aria-expanded', newState);
+            answer.classList.toggle('expanded', newState);
+            icon.classList.toggle('fa-angle-up', newState);
+            icon.classList.toggle('fa-angle-down', !newState);
+        });
+    };
+
+    contentListWrap?.addEventListener('click', (event) => {
+        const title = event.target.closest('.title_area');
+        if (title) {
+            toggleAnswer(title);
+        }
+    });
+});
+
 const removeFaq = async (id) => {
     const result = confirm('정말 삭제 하시겠습니까?');
     if (!result) {
