@@ -5,11 +5,10 @@ import kr.co.pinup.BaseEntity;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.store_categories.StoreCategory;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -41,7 +40,7 @@ public class Store extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status;
+    private StoreStatus storeStatus;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String imageUrl;
@@ -54,7 +53,7 @@ public class Store extends BaseEntity {
         if (request.getLocationId() != null) this.location = location;
         if (request.getStartDate() != null) this.startDate = request.getStartDate();
         if (request.getEndDate() != null) this.endDate = request.getEndDate();
-        if (request.getStatus() != null) this.status = request.getStatus();
+        if (request.getStoreStatus() != null) this.storeStatus = request.getStoreStatus();
         if (request.getImageUrl() != null) this.imageUrl = request.getImageUrl();
     }
 

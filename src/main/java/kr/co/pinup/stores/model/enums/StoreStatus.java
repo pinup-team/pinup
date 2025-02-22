@@ -3,14 +3,14 @@ package kr.co.pinup.stores.model.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum Status {
+public enum StoreStatus {
     PENDING("진행 예정"),
     RESOLVED("진행 중"),
     DISMISSED("종료됨");
 
     private final String description;
 
-    Status(String description) {
+    StoreStatus(String description) {
         this.description = description;
     }
 
@@ -20,10 +20,10 @@ public enum Status {
     }
 
     @JsonCreator
-    public static Status from(String value) {
-        for (Status status : Status.values()) {
-            if (status.name().equalsIgnoreCase(value)) {
-                return status;
+    public static StoreStatus from(String value) {
+        for (StoreStatus storeStatus : StoreStatus.values()) {
+            if (storeStatus.name().equalsIgnoreCase(value)) {
+                return storeStatus;
             }
         }
         throw new IllegalArgumentException("Unknown value '" + value);

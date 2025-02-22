@@ -3,7 +3,7 @@ package kr.co.pinup.stores.model.dto;
 import kr.co.pinup.locations.model.dto.LocationResponse;
 import kr.co.pinup.store_categories.model.dto.StoreCategoryResponse;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +16,7 @@ public record StoreResponse(
         LocationResponse location,
         LocalDate startDate,
         LocalDate endDate,
-        Status status,
+        StoreStatus storeStatus,
         String imageUrl,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
@@ -30,7 +30,7 @@ public record StoreResponse(
                 LocationResponse.from(store.getLocation()),
                 store.getStartDate(),
                 store.getEndDate(),
-                store.getStatus(),
+                store.getStoreStatus(),
                 store.getImageUrl(),
                 store.getCreatedAt(),
                 store.getUpdatedAt()

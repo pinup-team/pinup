@@ -1,11 +1,10 @@
 package kr.co.pinup.stores.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -17,5 +16,5 @@ public class StoreUpdateRequest {
     private Long locationId;
     private LocalDate startDate;
     private LocalDate endDate;
-    private Status status;
+    private StoreStatus storeStatus;
 }

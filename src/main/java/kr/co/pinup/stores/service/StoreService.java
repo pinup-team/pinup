@@ -1,6 +1,5 @@
 package kr.co.pinup.stores.service;
 
-import jakarta.validation.Valid;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.exception.LocationNotFoundException;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
@@ -13,7 +12,7 @@ import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
 import kr.co.pinup.stores.model.dto.StoreSummaryResponse;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -102,7 +101,7 @@ public class StoreService {
                 .location(location)
                 .startDate(request.startDate())
                 .endDate(request.endDate())
-                .status(Status.RESOLVED)
+                .storeStatus(StoreStatus.RESOLVED)
                 .imageUrl(request.imageUrl())
                 .build();
 
