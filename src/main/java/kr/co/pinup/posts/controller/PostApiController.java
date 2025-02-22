@@ -50,7 +50,6 @@ public class PostApiController {
     public ResponseEntity<PostResponse> createPost(@LoginMember MemberInfo memberInfo,
                                                    @ModelAttribute @Valid CreatePostRequest createPostRequest,
                                                    @RequestParam(value = "images", required = true) MultipartFile[] images) {
-
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo,createPostRequest, images));
     }
 

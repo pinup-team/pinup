@@ -263,7 +263,7 @@
                                         </div>
                                     </div>
                                     <div class="post_action_wrapper">
-                                        <span class="pinup_nickname">닉네임</span>
+                                        <span class="pinup_nickname" th:text="${post.member.nickname}"></span>
                                         <button class="post_edit_button" th:onclick="|location.href='@{/post/update/{id}(id=${post.id})}'|">수정</button>
                                         <button class="post_delete_button" th:onclick="removePost([[${post.id}]], [[${post.storeId}]])">삭제</button>
                                     </div>
