@@ -39,7 +39,7 @@ public class Store extends BaseEntity {
     private LocalDate endDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "store_status", nullable = false)
     private StoreStatus storeStatus;
 
     @Column(nullable = false, columnDefinition = "TEXT")
