@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>팝업스토어 수정</title>
+    <script defer src="/js/store.js"></script>
+</head>
+<body>
+<main layout:fragment="content" th:object="${store}">
+<h1>팝업스토어 수정</h1>
+<form id="updateForm" th:data-store-id="*{id}">
+    <label>이름: <input type="text" name="name" th:value="*{name}" required></label><br>
+    <label>설명: <input type="text" name="description" th:value="*{description}" required></label><br>
+    <label>카테고리:
+        <select name="categoryId" required>
+            <option th:value="${store.category.id}" th:text="${store.category.name}" selected></option>
+            <option th:each="category : ${categories}"
+                    th:if="${category.id != store.category.id}"
+                    th:value="${category.id}"
+                    th:text="${category.name}">
+            </option>
+        </select>
+    </label>
+    <label>시작 날짜: <input type="date" name="startDate" th:value="*{startDate}" required></label><br>
+    <label>종료 날짜: <input type="date" name="endDate" th:value="*{endDate}" required></label><br>
+    <button type="submit">수정</button>
+</form>
+<a href="/stores">목록으로 돌아가기</a>
+</main>
+</body>
+</html>
