@@ -54,15 +54,17 @@ function submitPost() {
     const form = document.getElementById("postForm");
     const formData = new FormData(form);
 
+    console.log(`🔹 storeId: ${formData.get("storeId")}`);
+
     fetch("/api/post/create", {
         method: "POST",
         body: formData
     })
         .then(response => response.json())
         .then(data => {
-            if (data.id) {
+            if (data.storeId) {
                 alert("Post created successfully!");
-                window.location.href = `/post/${data.id}`;
+                window.location.href = `/post/list/${data.storeId}`;
             } else {
                 alert("Failed to create the post.");
             }

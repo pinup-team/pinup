@@ -6,9 +6,8 @@ import lombok.*;
 
 @Builder
 public record CreatePostRequest(
-        Long postId,
+
         Long storeId,
-        Long userId,
 
         @NotBlank(message = "제목을 입력해주세요.")
         @Size(min = 1, max = 100, message = "제목은 1자 이상, 100자 이하로 입력해주세요.")

@@ -1,5 +1,12 @@
 package kr.co.pinup.posts.service;
 
+import jakarta.transaction.Transactional;
+import kr.co.pinup.locations.Location;
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.members.repository.MemberRepository;
+import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
@@ -10,15 +17,24 @@ import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.repository.PostRepository;
+import kr.co.pinup.store_categories.StoreCategory;
+import kr.co.pinup.stores.Store;
+import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.repository.StoreRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +42,9 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ActiveProfiles("test")
 @ExtendWith(MockitoExtension.class)
+@Transactional
 public class PostServicelTest {
 
     @InjectMocks
@@ -38,43 +56,106 @@ public class PostServicelTest {
     @Mock
     private PostImageService postImageService;
 
+    @Mock
+    MemberRepository memberRepository;
+
+    @Mock
+    StoreRepository storeRepository;
+
+    Member member;
+
+    Store store;
+
+
+    @BeforeEach
+    void setUp() {
+        member = Member.builder()
+                .email("test@naver.com")
+                .name("test")
+                .nickname("행복한돼지")
+                .providerType(OAuthProvider.NAVER)
+                .providerId("hdiJZoHQ-XDUkGvVCDLr1_NnTNZGcJjyxSAEUFjEi6A")
+                .role(MemberRole.ROLE_USER)
+                .build();
+
+        store = Store.builder()
+                .name("Test Store")
+                .description("Description of the store")
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusMonths(1))
+                .status(Status.RESOLVED)
+                .imageUrl("image_url")
+                .category(new StoreCategory("Category Name"))
+                .location(new Location("Test Location","12345","Test State","Test District",37.7749,-122.4194,"1234 Test St.", "Suite 101"))
+                .build();
+
+        memberRepository.save(member);
+        storeRepository.save(store);
+    }
+
+
     @DisplayName("게시물 생성 (이미지 포함)")
     @Test
     void testCreatePost() {
+
+        member = Member.builder()
+                .email("test@naver.com")
+                .name("test")
+                .nickname("행복한돼지")
+                .providerType(OAuthProvider.NAVER)
+                .providerId("hdiJZoHQ-XDUkGvVCDLr1_NnTNZGcJjyxSAEUFjEi6A")
+                .role(MemberRole.ROLE_USER)
+                .build();
+
+        store = Store.builder()
+                .name("Test Store")
+                .description("Description of the store")
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusMonths(1))
+                .status(Status.RESOLVED)
+                .imageUrl("image_url")
+                .category(new StoreCategory("Category Name"))
+                .location(new Location("Test Location", "12345", "Test State", "Test District", 37.7749, -122.4194, "1234 Test St.", "Suite 101"))
+                .build();
+
+        MemberInfo memberInfo = MemberInfo.builder()
+                .nickname("행복한돼지")
+                .provider(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_USER)
+                .build();
+
         CreatePostRequest createPostRequest = CreatePostRequest.builder()
                 .title("New Post")
                 .content("This is a new post.")
+                .storeId(1L) // 예시 storeId
                 .build();
 
         MultipartFile[] images = new MultipartFile[] {
                 new MockMultipartFile("image1", "image1.jpg", "image/jpeg", "image_data".getBytes())
         };
+
         Post post = Post.builder()
-                .storeId(1L)
-                .userId(1L)
+                .store(store)
+                .member(member)
                 .title(createPostRequest.title())
                 .content(createPostRequest.content())
-                .build();
-
-        Post savedPost = Post.builder()
-                .storeId(1L)
-                .userId(1L)
-                .title("New Post")
-                .content("This is a new post.")
-                .thumbnail("image_url")
                 .build();
 
         PostImageRequest postImageRequest = PostImageRequest.builder()
                 .images(List.of(images))
                 .build();
 
+        // Mocking the repositories
+        when(memberRepository.findByNickname("행복한돼지")).thenReturn(Optional.of(member));
+        when(storeRepository.findById(1L)).thenReturn(Optional.of(store));
         when(postRepository.save(any(Post.class))).thenReturn(post);
-
         when(postImageService.savePostImages(any(PostImageRequest.class), any(Post.class)))
                 .thenReturn(Collections.singletonList(new PostImage(post, "image_url")));
 
-        PostResponse result = postService.createPost(createPostRequest, images);
+        // when
+        PostResponse result = postService.createPost(memberInfo, createPostRequest, images);
 
+        // then
         assertNotNull(result);
         assertEquals("New Post", result.title());
         assertEquals("image_url", result.thumbnail());
@@ -83,6 +164,7 @@ public class PostServicelTest {
         verify(postImageService).savePostImages(any(PostImageRequest.class), any(Post.class));
     }
 
+
     @DisplayName("Store ID에 대한 게시물 목록 조회")
     @Test
     void testFindByStoreId() {
@@ -90,8 +172,8 @@ public class PostServicelTest {
         Long storeId = 1L;
 
         Post post = Post.builder()
-                .storeId(storeId)
-                .userId(1L)
+                .store(store)
+                .member(member)
                 .title("Post Title")
                 .content("Post Content")
                 .build();

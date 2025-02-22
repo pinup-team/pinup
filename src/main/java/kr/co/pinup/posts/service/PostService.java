@@ -1,6 +1,10 @@
 package kr.co.pinup.posts.service;
 
 import jakarta.transaction.Transactional;
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.exception.MemberNotFoundException;
+import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
@@ -13,6 +17,9 @@ import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.repository.PostRepository;
+import kr.co.pinup.stores.Store;
+import kr.co.pinup.stores.exception.StoreNotFoundException;
+import kr.co.pinup.stores.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,13 +38,21 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final PostImageService postImageService;
+    private final MemberRepository memberRepository;
+    private final StoreRepository  storeRepository;
 
     @Transactional
-    public PostResponse createPost(CreatePostRequest createPostRequest, MultipartFile[] images) {
+    public PostResponse createPost(MemberInfo memberInfo, CreatePostRequest createPostRequest, MultipartFile[] images) {
+
+        Member member = memberRepository.findByNickname(memberInfo.nickname())
+                .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
+
+        Store store = storeRepository.findById(createPostRequest.storeId())
+                .orElseThrow(() -> new StoreNotFoundException(createPostRequest.storeId() + "을 찾을 수 없습니다."));
 
         Post post = Post.builder()
-                .storeId(1L)
-                .userId(1L)
+                .store(store)
+                .member(member)
                 .title(createPostRequest.title())
                 .content(createPostRequest.content())
                 .build();

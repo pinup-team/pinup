@@ -1,16 +1,17 @@
 package kr.co.pinup.posts.model.dto;
 
+import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.posts.Post;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Builder
-public record PostResponse(Long id, Long storeId, Long userId, String title, String content,
+public record PostResponse(Long id, Long storeId, MemberResponse member, String title, String content,
                            String thumbnail, LocalDateTime createdAt, LocalDateTime updatedAt) {
 
     public static PostResponse from(Post post) {
-        return new PostResponse(post.getId(), post.getStoreId(), post.getUserId(),
+        return new PostResponse(post.getId(), post.getStore().getId(), new MemberResponse(post.getMember()),
                 post.getTitle(), post.getContent(), post.getThumbnail(),
                 post.getCreatedAt(), post.getUpdatedAt());
     }

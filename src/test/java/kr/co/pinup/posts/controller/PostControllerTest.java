@@ -3,12 +3,21 @@ package kr.co.pinup.posts.controller;
 import kr.co.pinup.comments.Comment;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
+import kr.co.pinup.locations.Location;
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.model.dto.MemberResponse;
+import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.service.PostService;
+import kr.co.pinup.store_categories.StoreCategory;
+import kr.co.pinup.stores.Store;
+import kr.co.pinup.stores.model.dto.StoreResponse;
+import kr.co.pinup.stores.model.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +32,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
@@ -68,8 +78,33 @@ class PostControllerTest {
         }
     }
 
+    Member member;
+
+    Store store;
+
     @BeforeEach
     void setUp() {
+
+        member = Member.builder()
+                .email("test@naver.com")
+                .name("test")
+                .nickname("행복한돼지")
+                .providerType(OAuthProvider.NAVER)
+                .providerId("hdiJZoHQ-XDUkGvVCDLr1_NnTNZGcJjyxSAEUFjEi6A")
+                .role(MemberRole.ROLE_USER)
+                .build();
+
+        store = Store.builder()
+                .name("Test Store")
+                .description("Description of the store")
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusMonths(1))
+                .status(Status.RESOLVED)
+                .imageUrl("image_url")
+                .category(new StoreCategory("Category Name"))
+                .location(new Location("Test Location","12345","Test State","Test District",37.7749,-122.4194,"1234 Test St.", "Suite 101"))
+                .build();
+
         mockMvc = MockMvcBuilders.standaloneSetup(postController).build();
     }
 
@@ -78,11 +113,13 @@ class PostControllerTest {
     void testGetAllPosts() throws Exception {
         Long storeId = 1L;
 
+        MemberResponse memberResponse = new MemberResponse(member);
+
         List<PostResponse> posts = List.of(
                 PostResponse.builder()
                         .id(1L)
                         .storeId(storeId)
-                        .userId(1L)
+                        .member(memberResponse)
                         .title("Test Post Title")
                         .content("Test post content.")
                         .thumbnail("thumbnail_url")
@@ -103,8 +140,8 @@ class PostControllerTest {
     void testGetPostById() throws Exception {
         Long postId = 1L;
         Post post = Post.builder()
-                .storeId(1L)
-                .userId(1L)
+                .store(store)
+                .member(member)
                 .title("Test Post Title")
                 .content("Test post content.")
                 .thumbnail("thumbnail_url")
@@ -143,9 +180,10 @@ class PostControllerTest {
     @DisplayName("게시글 생성 폼 페이지 로드")
     @Test
     void testCreatePostForm() throws Exception {
-        mockMvc.perform(get("/post/create"))
+        mockMvc.perform(get("/post/create").param("storeId", "1"))
                 .andExpect(status().isOk())
-                .andExpect(view().name("views/posts/create"));
+                .andExpect(view().name("views/posts/create"))
+                .andExpect(model().attributeExists("storeId"));
     }
 
     @DisplayName("게시글 수정 폼 페이지 로드")
@@ -154,8 +192,8 @@ class PostControllerTest {
         Long postId = 1L;
 
         Post post = Post.builder()
-                .storeId(1L)
-                .userId(1L)
+                .store(store)
+                .member(member)
                 .title("Updated Post Title")
                 .content("Updated post content.")
                 .thumbnail("thumbnail_url")
