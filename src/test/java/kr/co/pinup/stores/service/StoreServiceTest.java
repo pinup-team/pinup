@@ -4,7 +4,7 @@ import kr.co.pinup.locations.Location;
 import kr.co.pinup.store_categories.StoreCategory;
 import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.StoreStatus;
+import kr.co.pinup.stores.model.enums.Status;
 import kr.co.pinup.stores.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -42,7 +42,7 @@ public class StoreServiceTest {
 
         storeCategory = new StoreCategory("팝업스토어");
         location = new Location("테스트 로케이션", "타임스퀘어", "07305", "서울특별시", 37.517081, 126.903357, "서울특별시 영등포구 영중로 15", "3층 팝업존 칼하트 옆");
-        store = new Store("[SOUP X TOTI] 숲 팬시스토어", "SOUP X TOTI 숲과 토티가 함께하는 팬시 팝업스토어", storeCategory, location, LocalDate.of(2025, 2, 3), LocalDate.of(2025, 2, 20), StoreStatus.RESOLVED, "");
+        store = new Store("[SOUP X TOTI] 숲 팬시스토어", "SOUP X TOTI 숲과 토티가 함께하는 팬시 팝업스토어", storeCategory, location, LocalDate.of(2025, 2, 3), LocalDate.of(2025, 2, 20), Status.RESOLVED, "");
 
     }
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/support}">
+      layout:decorate="~{layouts/layout}">
 
 <head>
     <meta charset="UTF-8">
@@ -16,7 +16,6 @@
     <p th:with="loc=*{location}">위치: <span th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address} +' ' +  ${loc.addressDetail}"></span></p>
     <p>시작 날짜: <span th:text="*{startDate}"></span></p>
     <p>종료 날짜: <span th:text="*{endDate}"></span></p>
-    <p><img th:src="*{imageUrl}" alt="스토어 이미지"></p>
     <a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
     <button class="delete-btn" th:data-store-id="*{id}">삭제</button>
     <a href="/stores">목록으로 돌아가기</a>

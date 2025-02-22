@@ -12,7 +12,7 @@ import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
 import kr.co.pinup.stores.model.dto.StoreSummaryResponse;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
-import kr.co.pinup.stores.model.enums.StoreStatus;
+import kr.co.pinup.stores.model.enums.Status;
 import kr.co.pinup.stores.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -98,7 +98,7 @@ public class StoreService {
                 .location(location)
                 .startDate(request.startDate())
                 .endDate(request.endDate())
-                .storeStatus(StoreStatus.RESOLVED)
+                .status(Status.RESOLVED)
                 .imageUrl(request.imageUrl())
                 .build();
 
