@@ -23,6 +23,7 @@ import java.util.List;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class StoreService {
 
@@ -53,7 +54,6 @@ public class StoreService {
         return StoreResponse.from(store);
     }
 
-    @Transactional(readOnly = true)
     public List<StoreSummaryResponse> getStoreSummaries() {
         log.info("홈페이지 목록 조회 요청됨");
         return storeRepository.findAll().stream()
@@ -61,7 +61,6 @@ public class StoreService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public List<StoreResponse> getAllStores() {
         log.info("모든 팝업스토어 조회 요청");
         return storeRepository.findAll().stream()
@@ -69,8 +68,6 @@ public class StoreService {
                 .toList();
     }
 
-
-    @Transactional(readOnly = true)
     public StoreResponse getStoreById(Long id) {
         log.info("특정 팝업스토어 조회 요청 - ID: {}", id);
 
