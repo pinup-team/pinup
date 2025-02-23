@@ -116,12 +116,12 @@
 .wrap main.home_content_wrap .content_wrap .col {
     width: 90%;
 }
-.wrap main.home_content_wrap .content_wrap .row:nth-child(3) .col {
+.wrap main.home_content_wrap .content_wrap .row.button_area .col {
     width: 100%;
     text-align: right;
 }
 .wrap main.home_content_wrap .content_wrap .col .error_wrap {
-    padding-top: 10px;
+    padding: 10px 13px 0;
 }
 .wrap main.home_content_wrap .content_wrap .col span {
     color: #cd3852;
@@ -136,6 +136,7 @@
     width: 100%;
     height: 35px;
     padding: .375rem .75rem;
+    margin-left: .75rem;
     border: 1px solid #dee2e6;
     border-radius: 0.375rem;
 }
@@ -195,4 +196,60 @@
 .wrap main.home_content_wrap .content_wrap .button_content button:nth-child(2) {
     color: #000;
     background-color: #e0e0e0;
+}
+
+/* ✅ faq list section article area */
+.wrap .home_content_wrap section article > strong {
+    padding-left: 40px;
+}
+.wrap .home_content_wrap section article .content_area p {
+    padding-left: 40px;
+    margin-bottom: 14px;
+}
+.wrap .home_content_wrap section article .content_area {
+    position: relative;
+    width: 85%;
+}
+.wrap .home_content_wrap section article .content_area i {
+    padding-left: 50px;
+}
+
+/* ✅ faq list section article title area */
+.wrap .home_content_wrap section article .content_area .title_area {
+    cursor: pointer;
+}
+.wrap .home_content_wrap section article .content_area .answer_area {
+    margin: 20px 0;
+    height: 0;
+    overflow: hidden;
+    transition: height 0.3s ease;
+}
+.wrap .home_content_wrap section article .content_area .answer_area.expanded {
+    height: auto;
+}
+
+/* ✅ faq list section article button area */
+.wrap .home_content_wrap section article .content_area .desc_content_area {
+    position: absolute;
+    top: 50%;
+    left: 90%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    width: 150px;
+}
+.wrap .home_content_wrap section article .content_area .desc_content_area button:nth-child(2) {
+    color: #000;
+    background-color: #e0e0e0;
+}
+
+/* ✅ faq create section article form area */
+.wrap .home_content_wrap section article .content .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    background-size: 16px 12px;
+    width: 40%;
+    margin-left: 0.75rem;
+    padding: .375rem 2.25rem .375rem .75rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }

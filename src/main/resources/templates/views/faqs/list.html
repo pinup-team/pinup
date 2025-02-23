@@ -1,20 +1,50 @@
-<!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/support}">
-
-  <div class="container" layout:fragment="support-content">
-    <div th:if="${profile != null && profile.getRole() == T(kr.co.pinup.members.model.enums.MemberRole).ROLE_ADMIN}">
-      <button th:onclick="|location.href='@{/faqs/new}'|">FAQ 작성</button>
-    </div>
-    <div th:each="faq : ${faqs}" th:object="${faq}">
-      <div th:text="*{category}"></div>
-      <div th:text="*{question}"></div>
-      <div th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></div>
-      <div th:if="${profile != null && profile.getRole() == T(kr.co.pinup.members.model.enums.MemberRole).ROLE_ADMIN}">
-        <button th:onclick="|location.href='@{/faqs/{id}/update(id=*{id})}'|" th:text="수정">수정</button>
-        <button th:onclick="removeFaq([[*{id}]])" th:text="삭제">삭제</button>
-      </div>
-    </div>
+<section layout:fragment="support-content">
+  <div th:class="header_button" sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
+    <button th:onclick="|location.href='@{/faqs/new}'|">등록</button>
   </div>
+
+  <div th:class="content_list_wrap">
+    <th:block th:if="${#lists.isEmpty(faqs)}">
+      <article class="content_list">
+        <strong>FAQ 목록이 없습니다.</strong>
+      </article>
+    </th:block>
+
+    <th:block th:if="${!#lists.isEmpty(faqs)}">
+      <th:block th:each="faq : ${faqs}" th:object="${faq}">
+        <article th:class="content_list">
+          <div th:text="*{id}" hidden>id</div>
+
+          <div th:class="content_title">
+            <div th:class="content_area">
+              <th:block th:each="entry : ${category.entrySet()}">
+                <th:block th:if="${entry.key == faq.category}">
+                  <p th:text="${entry.value}">category</p>
+                </th:block>
+              </th:block>
+
+              <div th:class="title_area" aria-expanded="false">
+                <strong th:text="*{question}">question</strong>
+                <i class="fa-solid fa-angle-down"></i>
+              </div>
+              <div th:class="answer_area">
+                <strong th:text="*{answer}">answer</strong>
+              </div>
+
+              <div th:class="desc_content_area" sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
+                <button th:onclick="|location.href='@{/faqs/{id}/update(id=*{id})}'|" th:text="수정">수정</button>
+                <button th:onclick="removeFaq([[*{id}]])" th:text="삭제">삭제</button>
+              </div>
+            </div>
+              <span th:class="content_date" th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></span>
+          </div>
+        </article>
+      </th:block>
+    </th:block>
+  </div>
+</section>
 </html>

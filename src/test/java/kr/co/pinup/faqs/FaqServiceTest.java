@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static kr.co.pinup.faqs.model.enums.FaqCategory.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -70,14 +71,14 @@ class FaqServiceTest {
     }
 
     static Stream<Arguments> faqProvider() {
-        return Stream.of(arguments("use", "이거 어떻게 해요?", "이렇게 하시면 됩니다"));
+        return Stream.of(arguments(USE, "이거 어떻게 해요?", "이렇게 하시면 됩니다"));
     }
 
     @Transactional
     @ParameterizedTest
     @MethodSource("faqProvider")
     @DisplayName("FAQ 작성")
-    void save(String category, String question, String answer) {
+    void save(FaqCategory category, String question, String answer) {
         // given
         MemberInfo memberInfo = MemberInfo.builder()
                 .nickname("두려운고양이")
@@ -109,7 +110,7 @@ class FaqServiceTest {
         // given
         List<Faq> request = IntStream.range(1, 3)
                 .mapToObj(i -> Faq.builder()
-                        .category(FaqCategory.USE)
+                        .category(USE)
                         .question("이거 어떻게 해야 하나요 " + i + "?")
                         .answer("이렇게 하시면 됩니다. " + i)
                         .member(member)
@@ -122,7 +123,7 @@ class FaqServiceTest {
 
         // then
         assertThat(faqs.size()).isEqualTo(2);
-        assertThat(faqs.get(0).category()).isEqualTo(FaqCategory.USE.getName());
+        assertThat(faqs.get(0).category()).isEqualTo(USE);
         assertThat(faqs.get(0).question()).isEqualTo("이거 어떻게 해야 하나요 2?");
         assertThat(faqs.get(0).answer()).isEqualTo("이렇게 하시면 됩니다. 2");
     }
@@ -133,7 +134,7 @@ class FaqServiceTest {
     void find() {
         // given
         Faq faq = Faq.builder()
-                .category(FaqCategory.USE)
+                .category(USE)
                 .question("이거 어떻게 해야 하나요?")
                 .answer("이렇게 하시면 됩니다.")
                 .member(member)
@@ -145,7 +146,7 @@ class FaqServiceTest {
 
         // then
         assertThat(response.id()).isEqualTo(faq.getId());
-        assertThat(response.category()).isEqualTo(faq.getCategory().getName());
+        assertThat(response.category()).isEqualTo(faq.getCategory());
         assertThat(response.question()).isEqualTo(faq.getQuestion());
         assertThat(response.answer()).isEqualTo(faq.getAnswer());
     }
@@ -168,7 +169,7 @@ class FaqServiceTest {
     void update() {
         // given
         Faq faq = Faq.builder()
-                .category(FaqCategory.USE)
+                .category(USE)
                 .question("이거 어떻게 해야 하나요?")
                 .answer("이렇게 하시면 됩니다.")
                 .member(member)
@@ -176,7 +177,7 @@ class FaqServiceTest {
         faqRepository.save(faq);
 
         FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .question("이거 어떻게 해야 하나요?")
                 .answer("이렇게 저렇게 하시면 됩니다.")
                 .build();
@@ -188,7 +189,7 @@ class FaqServiceTest {
         FaqResponse response = faqService.find(faq.getId());
 
         assertThat(response.id()).isEqualTo(faq.getId());
-        assertThat(response.category()).isEqualTo(FaqCategory.valueOf(request.category()).getName());
+        assertThat(response.category()).isEqualTo(USE);
         assertThat(response.question()).isEqualTo(request.question());
         assertThat(response.answer()).isEqualTo(request.answer());
     }
@@ -199,7 +200,7 @@ class FaqServiceTest {
         // given
         Long faqId = Long.MAX_VALUE;
         FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .question("이거 어떻게 해야 하나요?")
                 .answer("이렇게 저렇게 하시면 됩니다.")
                 .build();
@@ -216,7 +217,7 @@ class FaqServiceTest {
     void remove() {
         // given
         Faq faq = Faq.builder()
-                .category(FaqCategory.USE)
+                .category(USE)
                 .question("이거 어떻게 해야 하나요?")
                 .answer("이렇게 하시면 됩니다.")
                 .member(member)
