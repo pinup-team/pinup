@@ -70,14 +70,17 @@
                         <ul>
                             <th:block th:each="comment : ${post.comments}">
                                 <li class="comment">
-                                    <div>
+                                    <div class="comment-content">
                                         <span class="comment-username" th:text="${comment.member.nickname}"></span>
                                         <span th:text="${comment.content}"></span>
-                                        <button type="button" class="transparent-button" th:data-comment-id="${comment.id}">삭제</button>
                                     </div>
-                                    <div class="card-time" th:text="*{#temporals.format(comment.createdAt, 'yyyy-MM-dd')}"></div>
+                                    <div class="comment-footer">
+                                        <div class="card-time" th:text="*{#temporals.format(comment.createdAt, 'yyyy-MM-dd')}"></div>
+                                        <button type="button" class="comment-delete transparent-button" th:data-comment-id="${comment.id}">삭제</button>
+                                    </div>
                                 </li>
                             </th:block>
+
                         </ul>
                     </div>
                 </div>
