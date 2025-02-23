@@ -1,7 +1,9 @@
 package kr.co.pinup.faqs.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import kr.co.pinup.faqs.model.enums.FaqCategory;
 import lombok.Builder;
 
 @Builder
@@ -11,9 +13,9 @@ public record FaqUpdateRequest(
         String question,
 
         @NotBlank(message = "답변 내용을 입력하세요.")
-        @Size(min = 1, max = 200, message = "답변 내용을 1~200자 이내로 입력하세요.")
+        @Size(min = 1, max = 500, message = "답변 내용을 1~500자 이내로 입력하세요.")
         String answer,
 
-        @NotBlank(message = "카테고리는 필수입니다.")
-        String category) {
+        @NotNull(message = "카테고리는 필수입니다.")
+        FaqCategory category) {
 }

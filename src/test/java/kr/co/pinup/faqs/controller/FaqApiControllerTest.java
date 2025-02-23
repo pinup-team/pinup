@@ -7,6 +7,7 @@ import kr.co.pinup.faqs.exception.FaqNotFound;
 import kr.co.pinup.faqs.model.dto.FaqCreateRequest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
+import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+import static kr.co.pinup.faqs.model.enums.FaqCategory.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -53,12 +56,12 @@ class FaqApiControllerTest {
     private FaqService faqService;
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 저장")
     void save() throws Exception {
         // given
         FaqCreateRequest request = FaqCreateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .question("이거 어떻게 해야 하나요?")
                 .answer("이렇게 저렇게 하시면 됩니다.")
                 .build();
@@ -74,7 +77,7 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 저장시 category는 필수 값이다")
     void invalidCategoryToSave() throws Exception {
         // given
@@ -98,12 +101,12 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 저장시 question은 필수 값이다")
     void invalidQuestionToSave() throws Exception {
         // given
         FaqCreateRequest request = FaqCreateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .answer("이렇게 저렇게 하시면 됩니다.")
                 .build();
 
@@ -122,12 +125,12 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 저장시 question 길이는 1~100까지 이다")
     void invalidQuestionLengthToSave() throws Exception {
         // given
         FaqCreateRequest request = FaqCreateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .question("A".repeat(101))
                 .answer("이렇게 저렇게 하시면 됩니다.")
                 .build();
@@ -148,12 +151,12 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 저장시 answer 값은 필수다")
     void invalidAnswerToSave() throws Exception {
         // given
         FaqCreateRequest request = FaqCreateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .question("이거 어떻게 해야 하나요?")
                 .build();
 
@@ -172,14 +175,14 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 저장시 answer 길이는 1~200까지 이다")
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
+    @DisplayName("FAQ 저장시 answer 길이는 1~500까지 이다")
     void invalidAnswerLengthToSave() throws Exception {
         // given
         FaqCreateRequest request = FaqCreateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .question("이거 어떻게 해야 하나요?")
-                .answer("A".repeat(201))
+                .answer("A".repeat(501))
                 .build();
 
         String body = objectMapper.writeValueAsString(request);
@@ -193,17 +196,18 @@ class FaqApiControllerTest {
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
                 .andExpect(jsonPath("$.validation.answer").exists())
                 .andExpect(jsonPath("$.validation.answer")
-                        .value("답변 내용을 1~200자 이내로 입력하세요."))
+                        .value("답변 내용을 1~500자 이내로 입력하세요."))
                 .andDo(print());
     }
 
     @Test
+    @WithAnonymousUser
     @DisplayName("FAQ 전체 조회")
     void findAll() throws Exception {
         // given
         List<FaqResponse> response = IntStream.range(0, 5)
                 .mapToObj(i -> FaqResponse.builder()
-                        .category("이용")
+                        .category(USE)
                         .question("자주 묻는 질문 " + (5 - i))
                         .answer("자주 묻는 질문 답변 " + (5 - i))
                         .build())
@@ -219,19 +223,20 @@ class FaqApiControllerTest {
                 .andExpect(jsonPath("$[0].category").exists())
                 .andExpect(jsonPath("$[0].question").exists())
                 .andExpect(jsonPath("$[0].answer").exists())
-                .andExpect(jsonPath("$[0].category").value("이용"))
+                .andExpect(jsonPath("$[0].category").value(USE.toString()))
                 .andExpect(jsonPath("$[0].question").value("자주 묻는 질문 5"))
                 .andExpect(jsonPath("$[0].answer").value("자주 묻는 질문 답변 5"))
                 .andDo(print());
     }
 
     @Test
+    @WithAnonymousUser
     @DisplayName("FAQ 단일 조회")
     void find() throws Exception {
         // given
         long faqId = 1L;
         FaqResponse response = FaqResponse.builder()
-                .category("이용")
+                .category(USE)
                 .question("질문")
                 .answer("답변")
                 .build();
@@ -251,6 +256,7 @@ class FaqApiControllerTest {
     }
 
     @Test
+    @WithAnonymousUser
     @DisplayName("존재하지 않는 ID로 조회시 에러")
     void findWithNonExistId() throws Exception {
         // given
@@ -273,13 +279,13 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 수정")
     void update() throws Exception {
         // given
         long faqId = 1L;
         FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .question("질문")
                 .answer("답변")
                 .build();
@@ -295,13 +301,13 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 수정시 question은 필수 값이다")
     void invalidQuestionToUpdate() throws Exception {
         // given
         long faqId = 1L;
         FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .answer("이렇게 저렇게 하시면 됩니다.")
                 .build();
 
@@ -320,13 +326,13 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 수정시 question 길이는 1~100까지 이다")
     void invalidQuestionLengthToUpdate() throws Exception {
         // given
         long faqId = 1L;
         FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .question("A".repeat(101))
                 .answer("이렇게 저렇게 하시면 됩니다.")
                 .build();
@@ -347,13 +353,13 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 수정시 answer 값은 필수다")
     void invalidAnswerToUpdate() throws Exception {
         // given
         long faqId = 1L;
         FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .question("이거 어떻게 해야 하나요?")
                 .build();
 
@@ -372,15 +378,15 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 수정시 answer 길이는 1~200까지 이다")
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
+    @DisplayName("FAQ 수정시 answer 길이는 1~500까지 이다")
     void invalidAnswerLengthToUpdate() throws Exception {
         // given
         long faqId = 1L;
         FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .question("이거 어떻게 해야 하나요?")
-                .answer("A".repeat(201))
+                .answer("A".repeat(501))
                 .build();
 
         String body = objectMapper.writeValueAsString(request);
@@ -394,18 +400,18 @@ class FaqApiControllerTest {
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
                 .andExpect(jsonPath("$.validation.answer").exists())
                 .andExpect(jsonPath("$.validation.answer")
-                        .value("답변 내용을 1~200자 이내로 입력하세요."))
+                        .value("답변 내용을 1~500자 이내로 입력하세요."))
                 .andDo(print());
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("존재하지 않는 ID로 수정시 에러")
     void updateWithNonExistId() throws Exception {
         // given
         long faqId = Long.MAX_VALUE;
         FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category("USE")
+                .category(USE)
                 .question("질문")
                 .answer("답변")
                 .build();
@@ -433,7 +439,7 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("FAQ 삭제")
     void remove() throws Exception {
         // given
@@ -449,7 +455,7 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("존재하지 않는 ID로 삭제시 에러")
     void removeWithNonExistId() throws Exception {
         // given

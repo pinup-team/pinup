@@ -1,33 +1,55 @@
-<!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/support}">
+<section layout:fragment="support-content">
+    <article th:class="content_wrap">
+        <div th:class="main_content_title">
+            <h1>FAQ 정보 등록</h1>
+        </div>
 
-<div layout:fragment="support-content">
-    <h1>FAQ 작성</h1>
-    <div>
-        <label th:for="category">카테고리</label>
-        <select th:name="category" th:id="category">
-            <option th:value="${null}" th:text="선택">선택</option>
-            <option th:each="entry : ${category.entrySet()}"
-                    th:value="${entry.key}"
-                    th:text="${entry.value}">이용</option>
-        </select>
-        <div th:id="category-error"></div>
-    </div>
-    <div>
-        <label th:for="question">질문 내용</label>
-        <input th:type="text" th:name="question" th:id="question" />
-        <div th:id="question-error"></div>
-    </div>
-    <div>
-        <label th:for="answer">답변 내용</label>
-        <input th:type="text" th:name="answer" th:id="answer">
-        <div th:id="answer-error"></div>
-    </div>
-    <div>
-        <button th:onclick="createFaq()" th:text="작성">작성</button>
-        <button th:onclick="|location.href='@{/faqs}'|" th:text="뒤로가기">뒤로가기</button>
-    </div>
-</div>
+        <div th:class="content">
+            <div th:class="row">
+                <label th:for="category">카테고리</label>
+                <div th:class="col">
+                    <select th:class="form-select" th:name="category" id="category" th:id="category" required>
+                        <option th:value="${null}" th:text="선택">선택</option>
+                        <option th:each="entry : ${category.entrySet()}"
+                                th:value="${entry.key}"
+                                th:text="${entry.value}">이용</option>
+                    </select>
+
+                    <div th:class="error_wrap">
+                        <span th:class="category_error" th:id="category-error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div th:class="row">
+                <label th:for="question">질문 내용</label>
+                <div th:class="col">
+                    <input th:type="text" th:name="question" id="question" th:id="question" th:maxlength="100" required />
+                    <div th:class="error_wrap">
+                        <span th:class="question_error" th:id="question-error"></span>                    </div>
+                </div>
+            </div>
+
+            <div th:class="row">
+                <label th:for="answer">답변 내용</label>
+                <div th:class="col">
+                    <input th:type="text" th:name="answer" id="answer" th:id="answer" required>
+                    <div th:class="error_wrap">
+                        <span th:class="answer_error" th:id="answer-error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div th:class="'row button_area'">
+                <div th:class="col">
+                    <button th:onclick="createFaq()" th:text="등록">등록</button>
+                    <button th:onclick="|location.href='@{/faqs}'|" th:text="목록">목록</button>
+                </div>
+            </div>
+        </div>
+    </article>
+</section>
 </html>
