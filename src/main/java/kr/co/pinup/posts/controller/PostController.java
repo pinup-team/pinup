@@ -24,9 +24,10 @@ public class PostController {
     private final CommentService commentService;
     private final PostImageService postImageService;
 
-    @GetMapping("/list/{storeid}")
-    public String getAllPosts(@PathVariable Long storeid, Model model) {
-        model.addAttribute("posts", postService.findByStoreId(storeid));
+    @GetMapping("/list/{storeId}")
+    public String getAllPosts(@PathVariable Long storeId, Model model) {
+        model.addAttribute("posts", postService.findByStoreId(storeId));
+        model.addAttribute("storeId", storeId);
         return VIEW_PATH + "/list";
     }
 
