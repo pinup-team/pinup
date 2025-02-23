@@ -329,7 +329,7 @@ function initializeCommentHandlers() {
 
                     newCommentElement.innerHTML = `
                         <div>
-                            <span>사용자 이릅</span>
+                          <span class="comment-username">${newComment.member.nickname}</span>
                             <span>${newComment.content}</span>
                             <button type="button" class="transparent-button" data-comment-id="${newComment.id}">삭제</button>
                         </div>

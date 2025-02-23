@@ -3,6 +3,7 @@ package kr.co.pinup.comments;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
+import kr.co.pinup.members.Member;
 import kr.co.pinup.posts.Post;
 import lombok.*;
 
@@ -19,8 +20,9 @@ public class Comment extends BaseEntity {
     @JsonBackReference
     private Post post;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Column(name = "content", nullable = false)
     private String content;

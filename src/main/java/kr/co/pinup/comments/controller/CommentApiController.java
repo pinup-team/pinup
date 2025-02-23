@@ -5,6 +5,8 @@ import jakarta.validation.Valid;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.model.dto.CreateCommentRequest;
 import kr.co.pinup.comments.service.CommentService;
+import kr.co.pinup.custom.loginMember.LoginMember;
+import kr.co.pinup.members.model.dto.MemberInfo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -26,8 +28,8 @@ public class CommentApiController {
     }
 
     @PostMapping("/{postId}")
-    public ResponseEntity<CommentResponse> createComment(@PathVariable Long postId, @Valid @RequestBody CreateCommentRequest createCommentRequest) {
-        return new ResponseEntity<>(commentService.createComment(postId, createCommentRequest), HttpStatus.CREATED);
+    public ResponseEntity<CommentResponse> createComment(@LoginMember MemberInfo memberInfo, @PathVariable Long postId, @Valid @RequestBody CreateCommentRequest createCommentRequest) {
+        return new ResponseEntity<>(commentService.createComment(memberInfo, postId, createCommentRequest), HttpStatus.CREATED);
     }
 
 }

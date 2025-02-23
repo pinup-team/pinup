@@ -70,9 +70,8 @@
                         <ul>
                             <th:block th:each="comment : ${post.comments}">
                                 <li class="comment">
-                                    <!-- <span class="comment-username" th:text="${comment.user.username}"></span>-->
                                     <div>
-                                        <span>사용자 이릅</span>
+                                        <span class="comment-username" th:text="${comment.member.nickname}"></span>
                                         <span th:text="${comment.content}"></span>
                                         <button type="button" class="transparent-button" th:data-comment-id="${comment.id}">삭제</button>
                                     </div>
