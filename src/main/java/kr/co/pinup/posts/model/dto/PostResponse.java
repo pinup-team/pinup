@@ -2,7 +2,7 @@ package kr.co.pinup.posts.model.dto;
 
 import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.posts.Post;
-import lombok.*;
+import lombok.Builder;
 
 import java.time.LocalDateTime;
 

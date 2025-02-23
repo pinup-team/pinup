@@ -1,12 +1,15 @@
 package kr.co.pinup.posts.model.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.*;
+import lombok.Builder;
 
 @Builder
 public record CreatePostRequest(
-
+        @NotNull(message = "스토어 ID는 필수 값입니다.")
+        @Positive(message = "스토어 ID는 양수여야 합니다.")
         Long storeId,
 
         @NotBlank(message = "제목을 입력해주세요.")
