@@ -1,18 +1,43 @@
 package kr.co.pinup.members.oauth;
 
+import jakarta.servlet.http.HttpSession;
+import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.MemberTestAnnotation;
+import kr.co.pinup.members.exception.OAuth2AuthenticationException;
+import kr.co.pinup.members.exception.OAuthProviderNotFoundException;
+import kr.co.pinup.members.exception.OAuthTokenNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
+import kr.co.pinup.oauth.OAuthResponse;
 import kr.co.pinup.oauth.OAuthService;
+import kr.co.pinup.oauth.OAuthToken;
 import kr.co.pinup.oauth.naver.NaverLoginParams;
 import kr.co.pinup.oauth.naver.NaverResponse;
+import kr.co.pinup.oauth.naver.NaverToken;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @MemberTestAnnotation
 public class NaverOAuthTest {
@@ -28,8 +53,13 @@ public class NaverOAuthTest {
     private Member member;
     private MemberInfo memberInfo;
     private NaverResponse naverResponse;
+    private NaverToken naverToken;
+    private Pair<OAuthResponse, OAuthToken> naverPair;
 
     private NaverLoginParams params;
+
+    private String accessToken = "valid-access-token";
+    private String invalidAccessToken = "invalid-access-token";
 
     @BeforeEach
     void setUp() {
@@ -38,7 +68,7 @@ public class NaverOAuthTest {
                 .email("test@naver.com")
                 .nickname("네이버TestMember")
                 .providerType(OAuthProvider.NAVER)
-                .providerId("123456789")
+                .providerId("testId123456789")
                 .role(MemberRole.ROLE_USER)
                 .build();
         memberInfo = MemberInfo.builder()
@@ -50,9 +80,11 @@ public class NaverOAuthTest {
         params = NaverLoginParams.builder().code("test-code").state("test-state").build();
 
         naverResponse = NaverResponse.builder().response(NaverResponse.Response.builder().id("testId").name("testUser").email("test@naver.com").build()).build();
+        naverToken = NaverToken.builder().accessToken(accessToken).refreshToken("test-refresh-token").tokenType("test-token-type").expiresIn(1000).result("success").error("test-error").errorDescription("test-error-description").build();
+        naverPair = Pair.of(naverResponse, naverToken);
     }
 
-    /*@Nested
+    @Nested
     @DisplayName("NAVER 로그인/회원가입 관련 테스트")
     class LoginMemberTests {
         private MockHttpSession session = new MockHttpSession();
@@ -60,16 +92,18 @@ public class NaverOAuthTest {
         @Test
         @DisplayName("OAuth 로그인 성공")
         void login_Success() {
-            when(oAuthService.request(any(), any())).thenReturn(naverResponse);
+            when(oAuthService.request(any())).thenReturn(naverPair);
             when(memberRepository.findByEmail(any())).thenReturn(Optional.ofNullable(member));
 
-            MemberInfo result = memberService.login(params, session);
+            Pair<OAuthResponse, OAuthToken> result = memberService.login(params, session);
+            OAuthResponse oAuthResponse = result.getLeft();
 
             assertNotNull(result);
-            assertEquals(member.getNickname(), result.nickname());
-            assertEquals(member.getProviderType(), result.provider());
-            assertEquals(member.getRole(), result.role());
-            verify(oAuthService).request(any(), any());
+            assertEquals(member.getName(), oAuthResponse.getName());
+            assertEquals(member.getEmail(), oAuthResponse.getEmail());
+            assertEquals(member.getProviderId(), oAuthResponse.getId());
+            assertEquals(member.getProviderType(), oAuthResponse.getOAuthProvider());
+            verify(oAuthService).request(any());
             verify(memberRepository).findByEmail(anyString());
 
             SecurityContext securityContext = (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
@@ -80,19 +114,21 @@ public class NaverOAuthTest {
         @Test
         @DisplayName("로그인 실패_회원 정보 없음_회원가입 발생")
         void testLogin_WhenMemberNotFound_ShouldCreateNewMember() {
-            when(oAuthService.request(any(), any())).thenReturn(naverResponse); // OAuth 응답 설정
+            when(oAuthService.request(any())).thenReturn(naverPair); // OAuth 응답 설정
             when(memberRepository.findByEmail(anyString())).thenReturn(Optional.empty()); // 회원 정보가 없을 때
             when(memberRepository.save(any(Member.class))).thenReturn(member); // 새로운 회원 저장
 
-            MemberInfo result = memberService.login(NaverLoginParams.builder()
+            Pair<OAuthResponse, OAuthToken> result = memberService.login(NaverLoginParams.builder()
                     .code("test-code")
                     .state("test-state")
                     .build(), session);
+            OAuthResponse oAuthResponse = result.getLeft();
 
             assertNotNull(result);
-            assertEquals(member.getNickname(), result.nickname());
-            assertEquals(member.getProviderType(), result.provider());
-            assertEquals(member.getRole(), result.role());
+            assertEquals(member.getName(), oAuthResponse.getName());
+            assertEquals(member.getEmail(), oAuthResponse.getEmail());
+            assertEquals(member.getProviderId(), oAuthResponse.getId());
+            assertEquals(member.getProviderType(), oAuthResponse.getOAuthProvider());
             verify(memberRepository).findByEmail(anyString()); // 이메일로 회원 조회
             verify(memberRepository).save(any(Member.class)); // 새 회원 저장이 호출되었는지 확인
         }
@@ -100,7 +136,7 @@ public class NaverOAuthTest {
         @Test
         @DisplayName("로그인 실패_OAuth 요청 실패")
         void testLogin_WhenOAuthRequestFails_ShouldThrowUnauthorizedException() {
-            when(oAuthService.request(any(), any())).thenThrow(new UnauthorizedException("Invalid OAuth request"));
+            when(oAuthService.request(any())).thenThrow(new UnauthorizedException("Invalid OAuth request"));
 
             assertThrows(UnauthorizedException.class, () -> {
                 memberService.login(NaverLoginParams.builder()
@@ -124,10 +160,10 @@ public class NaverOAuthTest {
             session.setAttribute("accessToken", "valid-access-token");
             when(oAuthService.revoke(any(), any())).thenReturn(true);
 
-            boolean result = memberService.logout(oAuthProvider, request);
+            boolean result = memberService.logout(oAuthProvider, accessToken);
 
             assertTrue(result);
-            verify(oAuthService).revoke(oAuthProvider, "valid-access-token");
+            verify(oAuthService).revoke(oAuthProvider, accessToken);
             assertNull(request.getSession(false));  // 세션에서 accessToken 제거 확인
             assertNull(SecurityContextHolder.getContext().getAuthentication());  // 인증 정보 삭제 확인
         }
@@ -138,7 +174,7 @@ public class NaverOAuthTest {
             OAuthProvider invalidOAuthProvider = null;
 
             assertThrows(OAuthProviderNotFoundException.class, () -> {
-                memberService.logout(invalidOAuthProvider, request);
+                memberService.logout(invalidOAuthProvider, accessToken);
             });
         }
 
@@ -148,7 +184,7 @@ public class NaverOAuthTest {
             MockHttpServletRequest invalidRequest = new MockHttpServletRequest();  // 세션 없는 새 요청 객체 생성
 
             assertThrows(UnauthorizedException.class, () -> {
-                memberService.logout(oAuthProvider, invalidRequest);
+                memberService.logout(oAuthProvider, null);
             });
         }
 
@@ -159,7 +195,7 @@ public class NaverOAuthTest {
             session.setAttribute("accessToken", null);
 
             assertThrows(OAuthTokenNotFoundException.class, () -> {
-                memberService.logout(oAuthProvider, request);
+                memberService.logout(oAuthProvider, null);
             });
         }
 
@@ -171,8 +207,8 @@ public class NaverOAuthTest {
             when(oAuthService.revoke(any(), any())).thenReturn(false);
 
             assertThrows(OAuth2AuthenticationException.class, () -> {
-                memberService.logout(oAuthProvider, request);
+                memberService.logout(oAuthProvider, accessToken);
             });
         }
-    }*/
+    }
 }

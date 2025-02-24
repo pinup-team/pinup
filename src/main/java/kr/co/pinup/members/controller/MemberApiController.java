@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.custom.utils.SecurityUtil;
+import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.dto.MemberResponse;
@@ -55,15 +56,19 @@ public class MemberApiController {
 
         OAuthToken oAuthToken = oAuthResponseOAuthTokenPair.getRight();
 
+        if(oAuthToken == null) {
+            throw new OAuthTokenRequestException("OAuth token is empty");
+        }
+
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("/"));
 
-        // 리프레시 토큰을 HttpOnly 쿠키에 저장
+        if (oAuthToken.getRefreshToken() == null) {
+            throw new OAuthTokenRequestException("Refresh token is empty");
+        }
         securityUtil.setRefreshTokenToCookie(response, oAuthToken.getRefreshToken());
 
-        MemberInfo memberInfo = securityUtil.getMemberInfo();
-
-        log.debug("Login successful: {}", memberInfo);
+        log.debug("Login successful: {}", securityUtil.getMemberInfo());
         return ResponseEntity.status(302)
                 .headers(headers)
                 .build();
@@ -83,8 +88,6 @@ public class MemberApiController {
 
     @PatchMapping
     public ResponseEntity<?> update(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
-        String accessToken = securityUtil.getAccessTokenFromSecurityContext();
-        log.debug("check accessToken : {}", accessToken);
         MemberResponse updatedMember = memberService.update(memberInfo, memberRequest);
 
         log.debug("Nickname updated to: {}", updatedMember.getNickname());
@@ -107,10 +110,7 @@ public class MemberApiController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@LoginMember MemberInfo memberInfo) {
-        String accessToken = securityUtil.getAccessTokenFromSecurityContext();
-        System.out.println("MemberApiController logout  Access Token : " + accessToken);
-        if (memberService.logout(memberInfo.provider(), accessToken)) {
-            securityUtil.clearContextAndDeleteCookie();
+        if (memberService.logout(memberInfo.provider(), securityUtil.getAccessTokenFromSecurityContext())) {
             return ResponseEntity.ok()
                     .body("로그아웃 성공");
         } else {

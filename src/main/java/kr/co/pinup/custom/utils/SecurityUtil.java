@@ -21,7 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-// TODO 체크하기
 @Slf4j
 @Component
 public class SecurityUtil {
@@ -33,30 +32,25 @@ public class SecurityUtil {
         SecurityUtil.oAuthService = oAuthService;
     }
 
-    public  void setAuthentication(OAuthToken oAuthToken, MemberInfo memberInfo) {
-        log.info("SecurityUtil : setAuthentication");
+    public void setAuthentication(OAuthToken oAuthToken, MemberInfo memberInfo) {
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(memberInfo, null, memberInfo.getAuthorities());
 
-        authentication.setDetails(oAuthToken.getAccessToken()); // `accessToken`을 details에 설정
+        authentication.setDetails(oAuthToken.getAccessToken());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    public  Authentication getAuthentication() {
-        log.info("SecurityUtil : getAuthentication");
+    public Authentication getAuthentication() {
         Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
         if (currentAuth != null && currentAuth.isAuthenticated()) {
-            log.debug("SecurityUtil Authentication 성공 : {}", currentAuth.getName());
             return currentAuth;
         } else {
-            log.error("SecurityUtil Authentication 실패");
             throw new UnauthorizedException();
         }
     }
 
-    public  MemberInfo getMemberInfo() {
-        log.info("SecurityUtil : getMemberInfo");
+    public MemberInfo getMemberInfo() {
         Authentication currentAuth = getAuthentication();
 
         MemberInfo memberInfo = (MemberInfo) currentAuth.getPrincipal();
@@ -67,23 +61,7 @@ public class SecurityUtil {
         return memberInfo;
     }
 
-    // 헤더에 AccessToken을 추가하는 메서드
-    public  void addAccessTokenToHeader(HttpHeaders headers, String accessToken) {
-        headers.add("Authorization", "Bearer " + accessToken);
-    }
-
-    public  String getAccessTokenFromHeader(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String accessToken = authHeader.substring(7);
-            System.out.println("AccessToken from header: " + accessToken);
-            return accessToken;
-        }
-        throw new OAuthTokenNotFoundException("Access token is missing in header.");
-    }
-
-    public  void refreshAccessTokenInSecurityContext(String accessToken) {
-        log.info("SecurityUtil : refreshAccessTokenInSecurityContext");
+    public void refreshAccessTokenInSecurityContext(String accessToken) {
         Authentication currentAuth = getAuthentication();
 
         UsernamePasswordAuthenticationToken newAuth = new UsernamePasswordAuthenticationToken(
@@ -96,26 +74,16 @@ public class SecurityUtil {
         SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 
-    public  String getCurrentUsername() {
+    public String getAccessTokenFromSecurityContext() {
         Authentication currentAuth = getAuthentication();
         if (currentAuth.isAuthenticated()) {
-            return currentAuth.getName();  // 현재 인증된 사용자의 이름 반환
-        } else throw new UnauthorizedException("SecurityUtil getCurrentUsername : 인증 정보가 없습니다.");
-    }
-
-    public  String getAccessTokenFromSecurityContext() {
-        log.info("SecurityUtil : getAccessTokenFromSecurityContext");
-        Authentication currentAuth = getAuthentication();
-        if (currentAuth.isAuthenticated()) { // SecurityContext가 비어있지 않고, 인증된 사용자일 경우
             log.debug("SecurityUtil getAccessTokenFromSecurityContext authenticated : {}", currentAuth.getDetails());
-            return (String) currentAuth.getDetails(); // accessToken이 details에 저장되었을 경우 반환
-        } // TODO 이거 생각한 대로 진행이 안됨..refresh가 사라져도 securitycontext에는 남아잇어야하느데 securitycontext에 있는 accesstoken도 같이 사라져버림? 이상하다
-//        throw new OAuthAccessTokenNotFoundException();
+            return (String) currentAuth.getDetails();
+        }
         return null;
     }
 
-    public  String getOptionalRefreshToken(HttpServletRequest request) {
-        log.info("SecurityUtil : getOptionalRefreshToken");
+    public String getOptionalRefreshToken(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -127,22 +95,17 @@ public class SecurityUtil {
         return null;
     }
 
-    public  void setRefreshTokenToCookie(HttpServletResponse response, String refreshToken) {
-        log.info("SecurityUtil : setRefreshTokenToCookie");
+    public void setRefreshTokenToCookie(HttpServletResponse response, String refreshToken) {
         Cookie cookie = new Cookie("refresh_token", refreshToken);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
         cookie.setMaxAge(60 * 60 * 12);
-//        cookie.setMaxAge(60 * 30);
         response.addCookie(cookie);
         log.debug("SecurityUtil : Refresh Token 쿠키에 저장됨: {}", cookie.getValue());
     }
 
-    public  void clearContextAndDeleteCookie() {
-        log.info("SecurityUtil : clearContextAndDeleteCookie");
-
-        // oAuthService.revoke 사용해서 accesstoken이 만약 남아있다면 무효화 시켜줘야 함
+    public void clearContextAndDeleteCookie() {
         MemberInfo memberInfo = getMemberInfo();
         String accessToken = getAccessTokenFromSecurityContext();
         if (accessToken != null) {
@@ -171,8 +134,7 @@ public class SecurityUtil {
         log.debug("SecurityUtil : clearContextAndDeleteCookie 성공");
     }
 
-    public  void clearRefreshTokenCookie(HttpServletResponse response) {
-        log.info("SecurityUtil : clearRefreshTokenCookie");
+    public void clearRefreshTokenCookie(HttpServletResponse response) {
         Cookie cookie = new Cookie("refresh_token", null);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
@@ -182,8 +144,7 @@ public class SecurityUtil {
         log.debug("Refresh Token 쿠키 삭제 완료");
     }
 
-    public  void clearSessionCookie(HttpServletResponse response) {
-        log.info("SecurityUtil : clearSessionCookie");
+    public void clearSessionCookie(HttpServletResponse response) {
         Cookie cookie = new Cookie("JSESSIONID", null);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
@@ -191,5 +152,27 @@ public class SecurityUtil {
         cookie.setSecure(false);  // HTTPS 환경이라면 true 설정
         response.addCookie(cookie);
         log.debug("JSESSIONID 쿠키 삭제 완료");
+    }
+
+    // 헤더에 AccessToken을 추가하는 메서드
+    public void addAccessTokenToHeader(HttpHeaders headers, String accessToken) {
+        headers.add("Authorization", "Bearer " + accessToken);
+    }
+
+    public String getAccessTokenFromHeader(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String accessToken = authHeader.substring(7);
+            System.out.println("AccessToken from header: " + accessToken);
+            return accessToken;
+        }
+        throw new OAuthTokenNotFoundException("Access token is missing in header.");
+    }
+
+    public String getCurrentUsername() {
+        Authentication currentAuth = getAuthentication();
+        if (currentAuth.isAuthenticated()) {
+            return currentAuth.getName();  // 현재 인증된 사용자의 이름 반환
+        } else throw new UnauthorizedException("SecurityUtil getCurrentUsername : 인증 정보가 없습니다.");
     }
 }

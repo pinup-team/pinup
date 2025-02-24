@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
+import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.service.MemberService;
 import lombok.extern.slf4j.Slf4j;
@@ -39,25 +40,25 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String requestURI = request.getRequestURI();
 
-        // 필터 제외 URL이면 바로 다음 필터로 진행
         if (isExcluded(requestURI)) {
             filterChain.doFilter(request, response);
             return;
         }
-        log.info("AccessTokenValidationFilter");
-        log.debug("URI is not excluded : {}", requestURI);
 
         try {
             String accessToken = securityUtil.getAccessTokenFromSecurityContext();
             MemberInfo memberInfo = securityUtil.getMemberInfo();
-//        String accessToken = request.getHeader("Authorization");
 
-            // 액세스 토큰 만료 여부 확인
-            System.out.println("access token expired checking start");
-            if (memberService.isAccessTokenExpired(memberInfo, accessToken)) {
-                System.out.println("access token is expired");
+            if (memberService.isAccessTokenExpired(memberInfo, accessToken) || accessToken == null) {
+                log.warn("AccessTokenValidationFilter : Access Token is expired or null");
                 accessToken = memberService.refreshAccessToken(request);
-                securityUtil.refreshAccessTokenInSecurityContext(accessToken);
+                if(accessToken == null){
+                    log.error("AccessTokenValidationFilter : Access Token Refresh Fail");
+                    throw new OAuthTokenRequestException("Access Token Refresh Fail");
+                } else {
+                    log.debug("AccessTokenValidationFilter : Access Token Refresh Success");
+                    securityUtil.refreshAccessTokenInSecurityContext(accessToken);
+                }
             }
 
             filterChain.doFilter(request, response);
@@ -74,7 +75,7 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
 
     private boolean isExcluded(String requestURI) {
         if (requestURI.equals("/")) {
-            return true; // "/" 요청은 필터를 통과하도록 설정
+            return true;
         }
         return EXCLUDED_URLS.stream().anyMatch(requestURI::startsWith);
     }

@@ -110,7 +110,7 @@ public class MemberService {
         } catch (Exception e) {
             log.error("Access token validation failed", e);
             System.out.println("MemberService isAccessTokenExpired 만료 : " + e.getMessage());
-            return true; // 예외 발생시 만료된 것으로 처리
+            return true;
         }
     }
 
@@ -120,19 +120,16 @@ public class MemberService {
 
         String refreshToken = securityUtil.getOptionalRefreshToken(request);
         if (refreshToken == null) {
-            log.error("handleAccessTokenNotFound!! refreshToken is null");
+            log.error("refreshToken is null");
             securityUtil.clearContextAndDeleteCookie();
             throw new UnauthorizedException("로그인 정보가 없습니다.");
         }
 
-        // AccessToken 갱신
         OAuthToken token = oAuthService.refresh(memberInfo.getProvider(), refreshToken);
         log.debug("Access Token 갱신 완료 : " + token.getAccessToken());
 
-        // 이제 SecurityContext에 저장하기로 했으니 넣어주기
         securityUtil.refreshAccessTokenInSecurityContext(token.getAccessToken());
 
-        // 새로운 AccessToken을 응답으로 반환
         return token.getAccessToken();
     }
 
@@ -143,6 +140,7 @@ public class MemberService {
     }
 
     public MemberResponse update(MemberInfo memberInfo, MemberRequest memberRequest) {
+        log.info("MemberService update");
         Member member = memberRepository.findByNickname(memberInfo.nickname())
                 .orElseThrow(MemberNotFoundException::new);
 
@@ -203,8 +201,9 @@ public class MemberService {
             throw new OAuthTokenNotFoundException("MemberService logout || OAuth Access 토큰을 찾을 수 없습니다.");
         }
 
-        boolean response = oAuthService.revoke(oAuthProvider, accessToken);
-        if (!response) {
+        try {
+            securityUtil.clearContextAndDeleteCookie();
+        } catch (OAuthTokenRequestException e) {
             throw new OAuth2AuthenticationException("OAuth 로그아웃 중 오류가 발생했습니다.");
         }
 

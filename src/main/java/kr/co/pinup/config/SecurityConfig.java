@@ -36,6 +36,7 @@ public class SecurityConfig {
         return web -> web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
+
     @Bean
     public SessionExpirationFilter sessionExpirationFilter() {
         return new SessionExpirationFilter();
@@ -57,9 +58,7 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .addFilterBefore(sessionExpirationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
-//                        .requestMatchers("/**").permitAll()
-//                                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                                .requestMatchers( "/static/**", "/templates/**", "/error",  "/favicon.ico").permitAll()
+                                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                                 .requestMatchers("/", "/members/login", "/api/members/oauth/**",
                                         "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}").permitAll()
                                 .anyRequest().authenticated()
@@ -70,15 +69,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> {
                     session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED);
                     session.invalidSessionUrl("/");
-                    // maximumSessions()는 별도의 하위 DSL을 통해 설정합니다.
                     session.maximumSessions(1)
                             .expiredUrl("/");
                 })
-//                .sessionManagement(session -> session
-//                        .invalidSessionUrl("/")
-//                        .maximumSessions(1)
-//                        .expiredUrl("/")
-//                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .securityContext(securityContext -> securityContext
                         .requireExplicitSave(false)
                         .securityContextRepository(new HttpSessionSecurityContextRepository())

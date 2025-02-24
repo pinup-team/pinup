@@ -27,25 +27,12 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
     @Override
     public MemberInfo resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
                                       NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
-        System.out.println("resolveArgument");
         Authentication authentication = securityUtil.getAuthentication();
         HttpServletResponse response = (HttpServletResponse) webRequest.getNativeResponse();
 
         // CHECK 이미 인증되어 있지 않은데 처리해야할까?
         if(authentication instanceof AnonymousAuthenticationToken) {
             System.out.println("Anonymous AuthenticationToken");
-            throw new UnauthorizedException("로그인 정보가 없습니다.");
-        }
-
-        // SessionExpirationFilter에서 처리하기 때문에 필요 x -> 그렇다면 굳이 @LoginMember 사용해야할까?
-        if (authentication == null || !authentication.isAuthenticated() ||
-                !(authentication.getPrincipal() instanceof MemberInfo)) {
-            System.out.println("Session expired or user not authenticated. Clearing SecurityContext.");
-
-            SecurityContextHolder.clearContext();
-            securityUtil.clearSessionCookie(response);
-            securityUtil.clearRefreshTokenCookie(response);
-
             throw new UnauthorizedException("로그인 정보가 없습니다.");
         }
 

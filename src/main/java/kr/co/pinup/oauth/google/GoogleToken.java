@@ -22,7 +22,7 @@ public class GoogleToken implements OAuthToken {
     private String tokenType;
 
     @JsonProperty("expires_in")
-    private String expiresIn;
+    private int expiresIn;
 
     @JsonProperty("scope")
     private String scope;

@@ -64,40 +64,6 @@ public class GlobalExceptionHandler {
         return "error";
     }
 
-    // TODO OAuthAccessTokenNotFoundException 처리, ResponseEntity 아니고 다시 기존으로 돌아가야함
-    @ExceptionHandler(OAuthAccessTokenNotFoundException.class)
-    public ResponseEntity<?> handleAccessTokenNotFound(OAuthAccessTokenNotFoundException ex, HttpServletRequest request) {
-        try {
-            MemberInfo memberInfo = securityUtil.getMemberInfo();
-
-            String refreshToken = securityUtil.getOptionalRefreshToken(request);
-            if (refreshToken == null) {
-                log.error("handleAccessTokenNotFound!! refreshToken is null");
-                throw new UnauthorizedException("로그인 정보가 없습니다.");
-            }
-
-            // AccessToken 갱신
-            OAuthToken token = oAuthService.refresh(memberInfo.getProvider(), refreshToken);
-            log.debug("Access Token 갱신 완료 : " + token.getAccessToken());
-
-            // 이제 SecurityContext에 저장하기로 했으니 넣어주기
-            securityUtil.refreshAccessTokenInSecurityContext(token.getAccessToken());
-
-            // 새로운 AccessToken을 응답으로 반환
-            return ResponseEntity.status(HttpStatus.OK).body(token.getAccessToken());
-        } catch (UnauthorizedException e) { // 이 메서드 안에서 진행하다가 발생한 exception이기 때문에 여기에ㅔ 먼저 catch될 것
-            log.error("handleAccessTokenNotFound : 로그인이 만료되었습니다.");
-            securityUtil.clearContextAndDeleteCookie();
-            return ResponseEntity.status(BAD_REQUEST).body("로그인이 만료되었습니다.");
-        } catch (OAuth2AuthenticationException e) {
-            log.error("handleAccessTokenNotFound : MemberInfo doesn't exist!");
-            return ResponseEntity.status(BAD_REQUEST).body("MemberInfo doesn't exist!");
-        } catch (Exception e) {
-            log.error("Acccess Token 갱신 실패: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 만료되었습니다.");
-        }
-    }
-
     @ExceptionHandler(GlobalCustomException.class)
     public String customException(GlobalCustomException ex, HttpServletResponse response, Model model) {
         int status = ex.getHttpStatusCode();

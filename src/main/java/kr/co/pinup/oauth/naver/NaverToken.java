@@ -7,7 +7,6 @@ import lombok.*;
 
 @Getter
 @Builder
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -22,7 +21,7 @@ public class NaverToken implements OAuthToken {
     private String tokenType;
 
     @JsonProperty("expires_in")
-    private String expiresIn;
+    private int expiresIn;
 
     @JsonProperty("result")
     private String result;
