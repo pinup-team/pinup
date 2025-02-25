@@ -6,19 +6,6 @@ function logOut() {
             'Content-Type': 'application/json',
         },
     })
-        // .then(response => response.text())
-        // .then(text => {
-        //     if (text === "로그아웃 성공") {
-        //         alert(text);
-        //         window.location.replace("/");
-        //     } else {
-        //         alert(text);
-        //     }
-        // })
-        // .catch(error => {
-        //     console.error('로그아웃 중 오류 발생:', error);
-        //     alert('로그아웃 중 오류가 발생했습니다.');
-        // });
         .then(response => {
             if (!response.ok) {
                 // 응답 상태 코드가 200번대가 아닌 경우
@@ -34,6 +21,29 @@ function logOut() {
             console.error('로그아웃 중 오류 발생:', error);
             alert(error.message); // 서버에서 보낸 오류 메시지 표시
             window.location.replace("/"); // 메인 페이지로 리다이렉션
+        });
+}
+
+// 닉네임 추천받기
+function generateNickname() {
+    fetch('/api/members/nickname', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('닉네임 추천 실패');
+            }
+            return response.text();
+        })
+        .then(nickname => {
+            document.getElementById('nickname').value = nickname;
+        })
+        .catch(error => {
+            console.error(error);
+            alert('닉네임 추천에 실패했습니다. 다시 시도해주세요.');
         });
 }
 
@@ -97,23 +107,4 @@ function deleteAccount() {
 
 function redirectToHome() {
     window.location.href = "/";
-}
-
-function unAuthorized() {
-    document.addEventListener('DOMContentLoaded', function() {
-        const errorMessage = document.getElementById('error-message')?.innerText;
-        if (errorMessage) {
-            const userConfirmed = confirm(errorMessage); // 확인 대화상자 표시
-            if (userConfirmed) {
-                window.location.href = '/login'; // 로그인 페이지로 리다이렉션
-            }
-        }
-    });
-    // const errorMessage = document.getElementById('message')?.innerText;
-    // if (errorMessage) {
-    //     const userConfirmed = confirm(errorMessage); // 확인 대화상자 표시
-    //     if (userConfirmed) {
-    //         window.location.href = '/members/login'; // 로그인 페이지로 리다이렉션
-    //     }
-    // }
 }

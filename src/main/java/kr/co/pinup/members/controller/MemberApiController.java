@@ -20,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,16 +74,13 @@ public class MemberApiController {
                 .build();
     }
 
-    // todo nickname 추천해주는거?
     @GetMapping("/nickname")
-    public String makeNickname(@LoginMember MemberInfo memberInfo, Model model) {
+    public ResponseEntity<String> makeNickname(@LoginMember MemberInfo memberInfo) {
         return Optional.ofNullable(memberInfo).map(user -> {
-            model.addAttribute("nickname", memberService.makeNickname());
-            return "views/members/profile";
-        }).orElseGet(() -> {
-            model.addAttribute("message", "로그인 정보가 없습니다.");
-            return "error";
-        });
+            String nickname = memberService.makeNickname();
+            return ResponseEntity.ok(nickname);
+        }).orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("로그인 정보가 없습니다."));
     }
 
     @PatchMapping

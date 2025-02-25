@@ -83,6 +83,7 @@ public class MemberService {
             String randomNoun = getRandomItem(NOUNS);
             nickname = randomAdjective + " " + randomNoun;
         } while (memberRepository.existsByNickname(nickname));
+        System.out.println("makeNickname : " + nickname);
         return nickname;
     }
 

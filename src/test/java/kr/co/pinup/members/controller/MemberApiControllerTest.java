@@ -47,6 +47,20 @@ public class MemberApiControllerTest {
 
     @Test
     @WithMockMember
+    @DisplayName("회원 닉네임 추천")
+    void testMakeNickname() throws Exception {
+        String generateNickname = "generate-nickname";
+        when(memberService.makeNickname()).thenReturn(generateNickname);
+
+        mockMvc.perform(get("/api/members/nickname")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(generateNickname));
+    }
+
+    @Test
+    @WithMockMember
     @DisplayName("회원 정보 업데이트")
     void testUpdateMember() throws Exception {
         MemberRequest memberRequest = MemberRequest.builder().name("test").email("test@naver.com").nickname("updatedTestNickname").providerType(OAuthProvider.NAVER).role(MemberRole.ROLE_USER).build();
