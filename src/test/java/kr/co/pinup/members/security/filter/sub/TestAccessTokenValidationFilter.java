@@ -19,7 +19,6 @@ public class TestAccessTokenValidationFilter extends AccessTokenValidationFilter
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        // super 호출하여 부모 클래스의 로직을 그대로 사용할 수 있습니다.
         super.doFilterInternal(request, response, filterChain);
     }
 }

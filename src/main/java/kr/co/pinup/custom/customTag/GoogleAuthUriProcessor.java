@@ -49,7 +49,7 @@ public class GoogleAuthUriProcessor extends AbstractElementTagProcessor {
             String scope = "https://www.googleapis.com/auth/userinfo.email+profile+https://www.googleapis.com/auth/user.gender.read+https://www.googleapis.com/auth/user.birthday.read";
 
             String authUrl = String.format(
-                    "%s?client_id=%s&redirect_uri=%s&scope=%s&&response_type=code&prompt=consent&access_type=offline",
+                    "%s?client_id=%s&redirect_uri=%s&scope=%s&response_type=code&prompt=consent&access_type=offline",
                     googleProvider.getAuthorizationUri(),
                     googleRegistration.getClientId(),
                     redirectUri,

@@ -14,7 +14,6 @@
         일반 회원만 볼 수 있는 콘텐츠
     </div>
     <th:block sec:authorize="isAuthenticated()">
-        <!--        <p>Name: <span sec:authentication="name">Name</span> </p>-->
         <p>Nickname: <span sec:authentication="principal.nickname">Nickname</span></p>
         <p>Role: <span sec:authentication="principal.role">Role</span></p>
         <p>Provider: <span sec:authentication="principal.provider">Provider</span></p>

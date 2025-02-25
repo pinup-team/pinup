@@ -21,8 +21,8 @@ public class MockSecurityContextTest {
     public void testMethod() {
         MemberInfo memberInfo = new MemberInfo("네이버TestMember", OAuthProvider.NAVER, MemberRole.ROLE_USER);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        assertNotNull(authentication);  // ✅ authentication이 null이 아니어야 함
-        assertNotNull(authentication.getPrincipal());  // ✅ principal도 null이 아니어야 함
+        assertNotNull(authentication);
+        assertNotNull(authentication.getPrincipal());
         assertEquals(memberInfo, authentication.getPrincipal());
         assertEquals("valid-access-token", authentication.getDetails().toString());
     }
