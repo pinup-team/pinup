@@ -6,14 +6,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
-import kr.co.pinup.members.exception.OAuthTokenNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.oauth.OAuthService;
 import kr.co.pinup.oauth.OAuthToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,22 +41,26 @@ public class SecurityUtil {
 
     public Authentication getAuthentication() {
         Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-        if (currentAuth != null && currentAuth.isAuthenticated()) {
-            return currentAuth;
-        } else {
+        if (currentAuth == null || !currentAuth.isAuthenticated()) {
             throw new UnauthorizedException();
         }
+        return currentAuth;
     }
 
     public MemberInfo getMemberInfo() {
-        Authentication currentAuth = getAuthentication();
+        try {
+            Authentication currentAuth = getAuthentication();
 
-        MemberInfo memberInfo = (MemberInfo) currentAuth.getPrincipal();
-        if (memberInfo == null) {
+            MemberInfo memberInfo = (MemberInfo) currentAuth.getPrincipal();
+            if (memberInfo == null) {
+                log.error("MemberInfo doesn't exist!");
+                throw new OAuth2AuthenticationException();
+            }
+            return memberInfo;
+        } catch (UnauthorizedException e) {
             log.error("MemberInfo doesn't exist!");
-            throw new OAuth2AuthenticationException();
+            throw new OAuth2AuthenticationException("MemberInfo가 없습니다.");
         }
-        return memberInfo;
     }
 
     public void refreshAccessTokenInSecurityContext(String accessToken) {
@@ -106,32 +108,37 @@ public class SecurityUtil {
     }
 
     public void clearContextAndDeleteCookie() {
-        MemberInfo memberInfo = getMemberInfo();
-        String accessToken = getAccessTokenFromSecurityContext();
-        if (accessToken != null) {
-            if(!oAuthService.revoke(memberInfo.provider(), accessToken)) {
-                log.error("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.");
-                throw new OAuthTokenRequestException("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.");
+        try {
+            MemberInfo memberInfo = getMemberInfo();
+            String accessToken = getAccessTokenFromSecurityContext();
+            if (accessToken != null) {
+                if (!oAuthService.revoke(memberInfo.provider(), accessToken)) {
+                    log.error("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.");
+                    throw new OAuthTokenRequestException("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.");
+                }
             }
+            SecurityContextHolder.clearContext();
+
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attributes != null) {
+                HttpServletRequest request = attributes.getRequest();
+                HttpServletResponse response = attributes.getResponse();
+
+                if (response != null) {
+                    clearRefreshTokenCookie(response);
+                    clearSessionCookie(response);
+                }
+
+                HttpSession session = request.getSession(false);
+                if (session != null) {
+                    session.invalidate();
+                }
+            }
+            log.debug("SecurityUtil : clearContextAndDeleteCookie 성공");
+        } catch (UnauthorizedException e) {
+            log.error("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.");
+            throw new OAuthTokenRequestException("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.");
         }
-        SecurityContextHolder.clearContext();
-
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        if (attributes != null) {
-            HttpServletRequest request = attributes.getRequest();
-            HttpServletResponse response = attributes.getResponse();
-
-            if (response != null) {
-                clearRefreshTokenCookie(response);
-                clearSessionCookie(response);
-            }
-
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                session.invalidate();
-            }
-        }
-        log.debug("SecurityUtil : clearContextAndDeleteCookie 성공");
     }
 
     public void clearRefreshTokenCookie(HttpServletResponse response) {
@@ -154,7 +161,7 @@ public class SecurityUtil {
         log.debug("JSESSIONID 쿠키 삭제 완료");
     }
 
-    // 헤더에 AccessToken을 추가하는 메서드
+    /*// 헤더에 AccessToken을 추가하는 메서드
     public void addAccessTokenToHeader(HttpHeaders headers, String accessToken) {
         headers.add("Authorization", "Bearer " + accessToken);
     }
@@ -174,5 +181,5 @@ public class SecurityUtil {
         if (currentAuth.isAuthenticated()) {
             return currentAuth.getName();  // 현재 인증된 사용자의 이름 반환
         } else throw new UnauthorizedException("SecurityUtil getCurrentUsername : 인증 정보가 없습니다.");
-    }
+    }*/
 }

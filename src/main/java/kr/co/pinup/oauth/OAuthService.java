@@ -41,7 +41,6 @@ public class OAuthService {
                 .orElseThrow(() -> new OAuthAccessTokenNotFoundException("엑세스 토큰이 만료되었습니다."));
     }
 
-    // TODO REFRESHTOKEN 사용한 ACCESSTOKEN 재발급, Google 성공
     public OAuthToken refresh(OAuthProvider oAuthProvider, String refreshToken) {
         log.info("OAuthService refresh with OauthProvider {}", oAuthProvider);
         OAuthApiClient client = Optional.ofNullable(clients.get(oAuthProvider))

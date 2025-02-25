@@ -157,11 +157,7 @@ public class NaverApiClient implements OAuthApiClient {
                     .bodyToMono(NaverToken.class)
                     .block();
 
-            if (tokenResponse == null ||
-                    (!tokenResponse.getResult().equals("success"))) {
-                throw new OAuthTokenRequestException("네이버에서 액세스 토큰을 취소하지 못했습니다");
-            }
-            return true;
+            return tokenResponse != null && "success".equals(tokenResponse.getResult());
         } catch (Exception e) {
             throw new OAuthTokenRequestException("Naver 액세스 토큰 취소 중 오류 발생: " + e.getMessage());
         }

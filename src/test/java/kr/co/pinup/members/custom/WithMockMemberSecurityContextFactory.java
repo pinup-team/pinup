@@ -14,7 +14,8 @@ public class WithMockMemberSecurityContextFactory implements WithSecurityContext
         MemberInfo memberInfo = new MemberInfo(annotation.nickname(), annotation.provider(), annotation.role());
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(memberInfo, null, memberInfo.getAuthorities());
-        // TODO ACCESSTOKEN 테스트 할때 여기도 넣어줘야함
+        authentication.setDetails("valid-access-token");
+
         context.setAuthentication(authentication);
         return context;
     }

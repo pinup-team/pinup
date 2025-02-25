@@ -1,16 +1,9 @@
 package kr.co.pinup.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.pinup.custom.utils.SecurityUtil;
-import kr.co.pinup.exception.common.UnauthorizedException;
-import kr.co.pinup.members.exception.OAuth2AuthenticationException;
-import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
-import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.oauth.OAuthService;
-import kr.co.pinup.oauth.OAuthToken;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.ui.Model;
