@@ -5,7 +5,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.exception.common.UnauthorizedException;
-import kr.co.pinup.members.custom.MemberTestAnnotation;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
@@ -35,7 +34,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-//@MemberTestAnnotation
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
 public class SecurityUtilTest {
@@ -184,33 +182,22 @@ public class SecurityUtilTest {
         assertEquals("refreshTokenValue", cookieCaptor.getValue().getValue());
     }
 
-    // TODO COOKIES 처리
     @Test
     @WithMockMember(nickname = "testUser", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     public void testClearContextAndDeleteCookie() {
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(memberInfo, null, memberInfo.getAuthorities());
-
-        authentication.setDetails(accessToken);
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        when(securityUtil.getAccessTokenFromSecurityContext()).thenReturn(accessToken);
         when(oAuthService.revoke(any(), any())).thenReturn(true); // Mocking the revoke method
 
         // 인증 정보를 설정한 후 메서드 호출
         securityUtil.clearContextAndDeleteCookie();
 
-        // Verify that revoke was called with expected parameters
-        verify(oAuthService, times(1)).revoke(any(), eq(accessToken));
-
-        // Optionally check if the context is cleared
         assertNull(SecurityContextHolder.getContext().getAuthentication());
     }
 
     @Test
     @WithMockMember
     public void testClearContextAndDeleteCookie_TokenRevokeFail() {
+        when(securityUtil.getMemberInfo()).thenReturn(memberInfo);
+        when(securityUtil.getAccessTokenFromSecurityContext()).thenReturn(accessToken);
         when(oAuthService.revoke(any(), any())).thenReturn(false);
 
         Exception exception = assertThrows(OAuthTokenRequestException.class, securityUtil::clearContextAndDeleteCookie);

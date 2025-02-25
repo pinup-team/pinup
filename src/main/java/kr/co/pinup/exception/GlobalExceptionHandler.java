@@ -20,14 +20,6 @@ import static org.springframework.http.HttpStatus.*;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    private final OAuthService oAuthService;
-    private final SecurityUtil securityUtil;
-
-    public GlobalExceptionHandler(OAuthService oAuthService, SecurityUtil securityUtil) {
-        this.oAuthService = oAuthService;
-        this.securityUtil = securityUtil;
-    }
-
     @ResponseBody
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(BindException.class)

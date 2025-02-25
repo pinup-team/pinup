@@ -1,11 +1,9 @@
 package kr.co.pinup.members.oauth;
 
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
-import kr.co.pinup.members.custom.MemberTestAnnotation;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.exception.*;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -27,12 +25,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;

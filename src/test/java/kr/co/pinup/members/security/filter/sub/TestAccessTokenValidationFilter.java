@@ -5,11 +5,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.pinup.custom.filter.AccessTokenValidationFilter;
-
-import java.io.IOException;
-
 import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.members.service.MemberService;
+
+import java.io.IOException;
 
 public class TestAccessTokenValidationFilter extends AccessTokenValidationFilter {
 

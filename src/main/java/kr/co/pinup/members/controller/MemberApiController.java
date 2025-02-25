@@ -56,7 +56,7 @@ public class MemberApiController {
 
         OAuthToken oAuthToken = oAuthResponseOAuthTokenPair.getRight();
 
-        if(oAuthToken == null) {
+        if (oAuthToken == null) {
             throw new OAuthTokenRequestException("OAuth token is empty");
         }
 
@@ -88,22 +88,22 @@ public class MemberApiController {
 
     @PatchMapping
     public ResponseEntity<?> update(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
-        MemberResponse updatedMember = memberService.update(memberInfo, memberRequest);
+        MemberResponse updatedMemberResponse = memberService.update(memberInfo, memberRequest);
+        if (updatedMemberResponse != null && updatedMemberResponse.getNickname().equals(memberRequest.nickname())) {
+            log.debug("닉네임 변경 성공 : {}", updatedMemberResponse.getNickname());
+            return ResponseEntity.ok("닉네임이 변경되었습니다.");
+        } else {
+            log.error("닉네임 변경 실패");
+            return ResponseEntity.badRequest().body("닉네임 변경 실패");
+        }
 
-        log.debug("Nickname updated to: {}", updatedMember.getNickname());
-        return ResponseEntity.ok("닉네임이 변경되었습니다.");
     }
 
     @DeleteMapping
-    public ResponseEntity<?> delete(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest,
-                                    HttpSession session) {
-        boolean isDeleted = memberService.delete(memberInfo, memberRequest);
-        if (isDeleted) {
-            session.invalidate();
-            log.info("Member deleted successfully");
+    public ResponseEntity<?> delete(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
+        if (memberService.delete(memberInfo, memberRequest)) {
             return ResponseEntity.ok().body("탈퇴 성공");
         } else {
-            log.warn("Member deletion failed");
             return ResponseEntity.badRequest().body("사용자 탈퇴 실패");
         }
     }

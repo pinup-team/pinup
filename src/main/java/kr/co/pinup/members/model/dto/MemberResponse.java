@@ -47,4 +47,15 @@ public class MemberResponse {
         providerType = member.getProviderType();
         role = member.getRole();
     }
+
+    public static MemberResponse fromMember(Member member) {
+        return MemberResponse.builder()
+                .id(member.getId())
+                .name(member.getName())
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .providerType(member.getProviderType())
+                .role(member.getRole())
+                .build();
+    }
 }

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.exception.common.UnauthorizedException;
+import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -29,6 +30,12 @@ public class SecurityUtil {
     public void setOAuthService(OAuthService oAuthService) {
         SecurityUtil.oAuthService = oAuthService;
     }
+    /*private final OAuthService oAuthService;
+
+    @Autowired
+    public SecurityUtil(OAuthService oAuthService) {
+        this.oAuthService = oAuthService;
+    }*/
 
     public void setAuthentication(OAuthToken oAuthToken, MemberInfo memberInfo) {
         UsernamePasswordAuthenticationToken authentication =
@@ -45,6 +52,28 @@ public class SecurityUtil {
             throw new UnauthorizedException();
         }
         return currentAuth;
+    }
+
+    public void setMemberInfo(MemberInfo newMemberInfo) {
+        try {
+            Authentication currentAuth = getAuthentication();
+
+            MemberInfo memberInfo = (MemberInfo) currentAuth.getPrincipal();
+            if (memberInfo == null) {
+                log.error("MemberInfo doesn't exist!");
+                throw new OAuth2AuthenticationException();
+            } else {
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(newMemberInfo, null, newMemberInfo.getAuthorities());
+
+                authentication.setDetails(currentAuth.getDetails());
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        } catch (UnauthorizedException e) {
+            log.error("MemberInfo doesn't exist!");
+            throw new OAuth2AuthenticationException("새로운 MemberInfo가 없습니다.");
+        }
     }
 
     public MemberInfo getMemberInfo() {

@@ -4,6 +4,8 @@ import kr.co.pinup.custom.filter.AccessTokenValidationFilter;
 import kr.co.pinup.custom.filter.SessionExpirationFilter;
 import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.members.service.MemberService;
+import kr.co.pinup.oauth.OAuthApiClient;
+import kr.co.pinup.oauth.OAuthService;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +23,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -35,6 +38,15 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return web -> web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+    }
+    @Bean
+    public SecurityUtil securityUtil() {
+        return new SecurityUtil();
+    }
+
+    @Bean
+    public OAuthService oAuthService(List<OAuthApiClient> clients) {
+        return new OAuthService(clients);
     }
 
     @Bean
@@ -76,6 +88,7 @@ public class SecurityConfig {
                         .requireExplicitSave(false)
                         .securityContextRepository(new HttpSessionSecurityContextRepository())
                 )
+                .addFilterBefore(sessionExpirationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(accessTokenValidationFilter, SessionExpirationFilter.class);
 
         return http.build();

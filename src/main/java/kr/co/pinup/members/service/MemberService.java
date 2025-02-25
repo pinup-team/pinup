@@ -14,7 +14,6 @@ import kr.co.pinup.oauth.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -117,11 +116,9 @@ public class MemberService {
                     .role(memberInfo.role())
                     .build();
 
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(updatedMemberInfo, null, updatedMemberInfo.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            securityUtil.setMemberInfo(updatedMemberInfo);
 
-            return new MemberResponse(savedMember);
+            return MemberResponse.fromMember(savedMember);
         } catch (DataIntegrityViolationException e) {
             throw new MemberServiceException("회원 정보 저장 중 제약 조건 위반이 발생했습니다.");
         } catch (Exception e) {
@@ -139,6 +136,7 @@ public class MemberService {
 
         try {
             memberRepository.delete(member);
+            securityUtil.clearContextAndDeleteCookie();
         } catch (Exception e) {
             throw new MemberServiceException("회원 삭제 중 오류가 발생했습니다.");
         }
