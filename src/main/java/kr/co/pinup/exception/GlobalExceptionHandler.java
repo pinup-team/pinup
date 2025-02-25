@@ -1,8 +1,6 @@
 package kr.co.pinup.exception;
 
 import jakarta.servlet.http.HttpServletResponse;
-import kr.co.pinup.custom.utils.SecurityUtil;
-import kr.co.pinup.oauth.OAuthService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;

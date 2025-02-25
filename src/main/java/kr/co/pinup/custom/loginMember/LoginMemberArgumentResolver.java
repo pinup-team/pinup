@@ -1,7 +1,5 @@
 package kr.co.pinup.custom.loginMember;
 
-import jakarta.servlet.http.HttpServletResponse;
-import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import lombok.RequiredArgsConstructor;
