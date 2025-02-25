@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.mockito.Mockito.*;
-// TODO
+
 class SessionExpirationFilterTest {
 
     private TestSessionExpirationFilter filter;
@@ -25,33 +25,26 @@ class SessionExpirationFilterTest {
         response = Mockito.mock(HttpServletResponse.class);
         chain = Mockito.mock(FilterChain.class);
 
-        // request.getRequestURI()가 특정 값을 반환하도록 설정
         when(request.getRequestURI()).thenReturn("/api/members/oauth/login");
     }
 
     @Test
     void testDoFilterInternal_WhenSessionIsNull_ShouldReturnUnauthorized() throws Exception {
-        // Given
         when(request.getRequestURI()).thenReturn("/api/stores");
         when(request.getSession(false)).thenReturn(null);
 
-        // When
         filter.doFilterInternal(request, response, chain);
 
-        // Then
         verify(response).sendError(HttpServletResponse.SC_UNAUTHORIZED, "SessionExpirationFilter : Session expired");
-        verify(chain, never()).doFilter(request, response); // 체인을 호출하지 않아야 함
+        verify(chain, never()).doFilter(request, response);
     }
 
     @Test
     void testDoFilterInternal_WhenSessionIsValid_ShouldProceedToFilterChain() throws Exception {
-        // Given
         when(request.getSession(false)).thenReturn(Mockito.mock(HttpSession.class));
 
-        // When
         filter.doFilterInternal(request, response, chain);
 
-        // Then
-        verify(chain).doFilter(request, response); // 체인이 호출되어야 함
+        verify(chain).doFilter(request, response);
     }
 }

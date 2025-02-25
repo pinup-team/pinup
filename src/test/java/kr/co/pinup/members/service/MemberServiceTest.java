@@ -1,5 +1,6 @@
 package kr.co.pinup.members.service;
 
+import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.MemberTestAnnotation;
@@ -29,6 +30,9 @@ public class MemberServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
+
+    @Mock
+    private SecurityUtil securityUtil;
 
     @InjectMocks
     private MemberService memberService;

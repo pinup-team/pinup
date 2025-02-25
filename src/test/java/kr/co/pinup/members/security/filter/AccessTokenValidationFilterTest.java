@@ -34,47 +34,38 @@ class AccessTokenValidationFilterTest {
 
     @Test
     void testDoFilterInternal_WhenExcludedUrl_ShouldProceedToFilterChain() throws Exception {
-        // Given
         when(request.getRequestURI()).thenReturn("/static/test");
 
-        // When
         filter.doFilterInternal(request, response, chain);
 
-        // Then
-        verify(chain).doFilter(request, response); // 체인이 호출되어야 함
+        verify(chain).doFilter(request, response);
     }
 
     @Test
     void testDoFilterInternal_WhenAccessTokenIsExpired_ShouldRefreshToken() throws Exception {
-        // Given
         when(request.getRequestURI()).thenReturn("/api/protected");
         when(securityUtil.getAccessTokenFromSecurityContext()).thenReturn("expired_token");
         when(securityUtil.getMemberInfo()).thenReturn(Mockito.mock(MemberInfo.class));
         when(memberService.isAccessTokenExpired(any(), any())).thenReturn(true);
         when(memberService.refreshAccessToken(request)).thenReturn("new_access_token");
 
-        // When
         filter.doFilterInternal(request, response, chain);
 
-        // Then
-        verify(memberService).refreshAccessToken(request); // 액세스 토큰 새로 고침 메서드 호출 확인
-        verify(securityUtil).refreshAccessTokenInSecurityContext("new_access_token"); // 새 토큰이 보안 컨텍스트에 설정되어야 함
-        verify(chain).doFilter(request, response); // 체인이 호출되어야 함
+        verify(memberService).refreshAccessToken(request);
+        verify(securityUtil).refreshAccessTokenInSecurityContext("new_access_token");
+        verify(chain).doFilter(request, response);
     }
 
     @Test
     void testDoFilterInternal_WhenAccessTokenRefreshFails_ShouldThrowException() throws Exception {
-        // Given
         when(request.getRequestURI()).thenReturn("/api/protected");
         when(securityUtil.getAccessTokenFromSecurityContext()).thenReturn("expired_token");
         when(securityUtil.getMemberInfo()).thenReturn(Mockito.mock(MemberInfo.class));
         when(memberService.isAccessTokenExpired(any(), any())).thenReturn(true);
         when(memberService.refreshAccessToken(request)).thenReturn(null);
 
-        // When
         filter.doFilterInternal(request, response, chain);
 
-        // Then
-        verify(response).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An unexpected error occurred."); // 에러가 발생해야 함
+        verify(response).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
     }
 }

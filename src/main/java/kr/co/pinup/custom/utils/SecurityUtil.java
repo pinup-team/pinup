@@ -142,7 +142,6 @@ public class SecurityUtil {
             String accessToken = getAccessTokenFromSecurityContext();
             if (accessToken != null) {
                 if (!oAuthService.revoke(memberInfo.provider(), accessToken)) {
-                    log.error("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.");
                     throw new OAuthTokenRequestException("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.");
                 }
             }
