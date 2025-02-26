@@ -2,7 +2,6 @@ package kr.co.pinup.notices.controller;
 
 import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.members.model.dto.MemberInfo;
-import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.notices.service.NoticeService;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +25,9 @@ public class NoticeController {
     private final MemberService memberService;
 
     @GetMapping
-    public String list(@LoginMember MemberInfo memberInfo, Model model) {
-        model.addAttribute("profile", getMember(memberInfo));
+    public String list(Model model) {
         model.addAttribute("notices", noticeService.findAll());
-
+        
         return VIEW_PATH + "/list";
     }
 
@@ -40,8 +38,7 @@ public class NoticeController {
     }
 
     @GetMapping("/{noticeId}")
-    public String detail(@LoginMember MemberInfo memberInfo, @PathVariable Long noticeId, Model model) {
-        model.addAttribute("profile", getMember(memberInfo));
+    public String detail(@PathVariable Long noticeId, Model model) {
         model.addAttribute("notice", noticeService.find(noticeId));
 
         return VIEW_PATH + "/detail";
@@ -50,18 +47,10 @@ public class NoticeController {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @GetMapping("/{noticeId}/update")
     public String update(@LoginMember MemberInfo memberInfo, @PathVariable Long noticeId, Model model) {
-        model.addAttribute("profile", getMember(memberInfo));
+        model.addAttribute("profile", memberService.findMember(memberInfo));
         model.addAttribute("notice", noticeService.find(noticeId));
 
         return VIEW_PATH + "/update";
-    }
-
-    private MemberResponse getMember(MemberInfo memberInfo) {
-        if (memberInfo == null) {
-            return null;
-        }
-
-        return memberService.findMember(memberInfo);
     }
 
 }
