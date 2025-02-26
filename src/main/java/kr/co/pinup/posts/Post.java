@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
 import kr.co.pinup.comments.Comment;
+import kr.co.pinup.members.Member;
 import kr.co.pinup.postImages.PostImage;
+import kr.co.pinup.stores.Store;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -18,11 +20,13 @@ import java.util.List;
 @Table(name = "posts")
 public class Post extends BaseEntity {
 
-    @Column(name = "store_id", nullable = false)
-    private Long storeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @Column(name = "title", nullable = false, length = 100)
     private String title;
