@@ -5,6 +5,12 @@ import kr.co.pinup.comments.exception.comment.CommentNotFoundException;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.model.dto.CreateCommentRequest;
 import kr.co.pinup.comments.repository.CommentRepository;
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.custom.WithMockMember;
+import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.members.repository.MemberRepository;
+import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.repository.PostRepository;
@@ -34,22 +40,27 @@ public class CommentServiceTest {
     @Mock
     private PostRepository postRepository;
 
+    @Mock
+    private MemberRepository memberRepository;
+
     @DisplayName("게시글 ID로 댓글 조회")
     @Test
     void testFindByPostId() {
         Long postId = 1L;
+        Member mockMember = new Member( "행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER);
+
         List<CommentResponse> commentResponses = List.of(
                 CommentResponse.builder()
                         .id(1L)
                         .postId(postId)
-                        .userId(1L)
+                        .member(mockMember)
                         .content("Test Comment 1")
                         .createdAt(LocalDateTime.now())
                         .build(),
                 CommentResponse.builder()
                         .id(2L)
                         .postId(postId)
-                        .userId(1L)
+                        .member(mockMember)
                         .content("Test Comment 2")
                         .createdAt(LocalDateTime.now())
                         .build()
@@ -81,13 +92,13 @@ public class CommentServiceTest {
         verify(commentRepository).existsById(commentId);
         verify(commentRepository, never()).deleteById(commentId);
     }
-
+    @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     @DisplayName("댓글 생성")
     @Test
     void testCreateComment() {
-
         Long postId = 1L;
         String commentContent = "Test Comment";
+        Member mockMember = new Member("행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER);
         CreateCommentRequest createCommentRequest = CreateCommentRequest.builder()
                 .content(commentContent)
                 .build();
@@ -95,36 +106,35 @@ public class CommentServiceTest {
                 .title("Test Post")
                 .content("Test Content")
                 .build();
-        Comment comment = Comment.builder()
-                .post(post)
-                .userId(1L)
-                .content(commentContent)
-                .build();
 
         Comment savedComment = Comment.builder()
                 .post(post)
-                .userId(1L)
+                .member(mockMember)
                 .content(commentContent)
                 .build();
 
+
         CommentResponse expectedResponse = CommentResponse.builder()
-                .id(1L)
+                .id(savedComment.getId())
                 .postId(savedComment.getPost().getId())
-                .userId(savedComment.getUserId())
+                .member(savedComment.getMember())
                 .content(savedComment.getContent())
                 .createdAt(savedComment.getCreatedAt())
                 .build();
 
-
+        when(memberRepository.findByNickname(mockMember.getNickname())).thenReturn(Optional.of(mockMember));
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
         when(commentRepository.save(any(Comment.class))).thenReturn(savedComment);
 
-        CommentResponse result = commentService.createComment(postId, createCommentRequest);
+        CommentResponse result = commentService.createComment(
+                new MemberInfo(mockMember.getNickname(), mockMember.getProviderType(), mockMember.getRole()),
+                postId,
+                createCommentRequest
+        );
 
         assertNotNull(result);
-        assertEquals(1L, expectedResponse.id());
         assertEquals(expectedResponse.postId(), result.postId());
-        assertEquals(expectedResponse.userId(), result.userId());
+        assertEquals(expectedResponse.member(), result.member());
         assertEquals(expectedResponse.content(), result.content());
         assertEquals(expectedResponse.createdAt(), result.createdAt());
 
@@ -132,6 +142,8 @@ public class CommentServiceTest {
         verify(commentRepository).save(any(Comment.class));
     }
 
+
+    @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     @DisplayName("댓글 생성 실패 - 존재하지 않는 게시글")
     @Test
     void testCreateComment_PostNotFound() {
@@ -139,11 +151,19 @@ public class CommentServiceTest {
         CreateCommentRequest createCommentRequest = CreateCommentRequest.builder()
                 .content("Test Comment")
                 .build();
+        Member mockMember = new Member( "행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER);
 
+        when(memberRepository.findByNickname(mockMember.getNickname())).thenReturn(Optional.of(mockMember));
         when(postRepository.findById(postId)).thenReturn(Optional.empty());
 
-        assertThrows(PostNotFoundException.class, () -> commentService.createComment(postId, createCommentRequest));
+        assertThrows(PostNotFoundException.class, () ->
+                commentService.createComment(
+                        new MemberInfo(mockMember.getNickname(), mockMember.getProviderType(), mockMember.getRole()),
+                        postId,
+                        createCommentRequest
+                ));
 
+        verify(memberRepository).findByNickname(mockMember.getNickname());
         verify(postRepository).findById(postId);
         verify(commentRepository, never()).save(any(Comment.class));
     }

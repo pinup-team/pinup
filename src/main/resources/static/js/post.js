@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const updatePostForm = document.getElementById('updatePostForm');
     if (updatePostForm) {
         updatePostForm.addEventListener('submit', function (event) {
-            console.log("업데이트 처리해줘 ");
             event.preventDefault();
 
             const imagesToDelete = document.getElementById('imagesToDelete').value.split(',').filter(Boolean);
@@ -19,15 +18,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(response => response.json())
                 .then(data => {
                     if (data.id) {
-                        alert("Post updated successfully!");
+                        alert("게시물이 성공적으로 업데이트되었습니다!");
                         window.location.href = `/post/${data.id}`;
                     } else {
-                        alert("Failed to update the post.");
+                        alert("게시물 업데이트에 실패했습니다.");
                     }
                 })
                 .catch(error => {
-                    console.error("Error deleting the post:", error);
-                    alert("An error occurred while deleting the post.");
+                    console.error("게시물 삭제 중 오류 발생:", error);
+                    alert("게시물 삭제 중에 오류가 발생했습니다.");
                 });
         });
     }
@@ -60,16 +59,16 @@ function submitPost() {
     })
         .then(response => response.json())
         .then(data => {
-            if (data.id) {
-                alert("Post created successfully!");
-                window.location.href = `/post/${data.id}`;
+            if (data.storeId) {
+                alert("게시물이 성공적으로 생성되었습니다!");
+                window.location.href = `/post/list/${data.storeId}`;
             } else {
-                alert("Failed to create the post.");
+                alert("게시물 생성에 실패했습니다.");
             }
         })
         .catch(error => {
-            console.error("Error creating post:", error);
-            alert("An error occurred while creating the post.");
+            console.error("게시물 생성 중 오류 발생:", error);
+            alert("게시물을 생성하는 중에 오류가 발생했습니다.");
         });
 }
 
@@ -80,15 +79,15 @@ function removePost(postId, storeId) {
         })
             .then(response => {
                 if (response.ok) {
-                    alert("Post deleted successfully!");
-                    window.location.href = `/post/list/${storeId}`; // storeId를 여기서 사용
+                    alert("게시물이 성공적으로 삭제되었습니다!");
+                    window.location.href = `/post/list/${storeId}`;
                 } else {
-                    alert("Failed to delete the post.");
+                    alert("게시물 삭제에 실패했습니다.");
                 }
             })
             .catch(error => {
-                console.error("Error deleting the post:", error);
-                alert("An error occurred while deleting the post.");
+                console.error("게시물 삭제 중 오류 발생:", error);
+                alert("게시물 삭제 중에 오류가 발생했습니다.");
             });
     }
 }
@@ -98,7 +97,7 @@ function fileCheck(event) {
     const fileName = document.getElementById("fileName");
     const previewContainer = document.getElementById("previewContainer");
 
-    previewContainer.innerHTML = ""; // 기존 미리보기 초기화
+    previewContainer.innerHTML = "";
 
     const files = fileInput.files;
 
@@ -149,7 +148,6 @@ function openDetailPopup(postId) {
         })
         .catch(error => {
             detailContainer.innerHTML = "데이터를 불러올 수 없습니다.";
-            console.error("Error loading detail:", error);
         });
 
     modal.style.display = "flex";
@@ -276,7 +274,6 @@ function initializeCommentHandlers() {
     const commentForm = document.getElementById("comment-form");
     const commentList = document.querySelector(".card-content ul");
 
-    // 🔥 댓글 삭제 이벤트 (이벤트 위임)
     if (commentList) {
         commentList.addEventListener("click", async (e) => {
             if (e.target.matches(".transparent-button[data-comment-id]")) {
@@ -300,7 +297,6 @@ function initializeCommentHandlers() {
         });
     }
 
-    // 🔥 댓글 작성 이벤트 바인딩
     if (commentForm) {
         commentForm.addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -329,7 +325,7 @@ function initializeCommentHandlers() {
 
                     newCommentElement.innerHTML = `
                         <div>
-                            <span>사용자 이릅</span>
+                          <span class="comment-username">${newComment.member.nickname}</span>
                             <span>${newComment.content}</span>
                             <button type="button" class="transparent-button" data-comment-id="${newComment.id}">삭제</button>
                         </div>
