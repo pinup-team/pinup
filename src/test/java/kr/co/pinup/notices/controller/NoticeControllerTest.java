@@ -3,7 +3,6 @@ package kr.co.pinup.notices.controller;
 import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
-import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
 import kr.co.pinup.notices.service.NoticeService;
 import org.junit.jupiter.api.DisplayName;
@@ -34,9 +33,6 @@ class NoticeControllerTest {
 
     @Autowired
     MockMvc mockMvc;
-
-    @MockitoBean
-    MemberService memberService;
 
     @MockitoBean
     NoticeService noticeService;
