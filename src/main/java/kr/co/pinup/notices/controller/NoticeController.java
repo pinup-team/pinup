@@ -47,7 +47,6 @@ public class NoticeController {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @GetMapping("/{noticeId}/update")
     public String update(@LoginMember MemberInfo memberInfo, @PathVariable Long noticeId, Model model) {
-        model.addAttribute("profile", memberService.findMember(memberInfo));
         model.addAttribute("notice", noticeService.find(noticeId));
 
         return VIEW_PATH + "/update";
