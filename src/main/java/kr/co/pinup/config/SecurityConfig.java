@@ -39,15 +39,6 @@ public class SecurityConfig {
         return web -> web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
-    @Bean
-    public SecurityUtil securityUtil() {
-        return new SecurityUtil();
-    }
-
-    @Bean
-    public OAuthService oAuthService(List<OAuthApiClient> clients) {
-        return new OAuthService(clients);
-    }
 
     @Bean
     public SessionExpirationFilter sessionExpirationFilter() {

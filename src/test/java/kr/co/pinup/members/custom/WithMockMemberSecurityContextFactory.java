@@ -1,10 +1,15 @@
 package kr.co.pinup.members.custom;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 public class WithMockMemberSecurityContextFactory implements WithSecurityContextFactory<WithMockMember> {
     @Override
@@ -17,6 +22,10 @@ public class WithMockMemberSecurityContextFactory implements WithSecurityContext
         authentication.setDetails("valid-access-token");
 
         context.setAuthentication(authentication);
+//        TODO SecurityUtil getAuthentication() session으로 수정하고 추가하기
+//        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+//        HttpSession session = request.getSession(true);
+//        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
         return context;
     }
 }

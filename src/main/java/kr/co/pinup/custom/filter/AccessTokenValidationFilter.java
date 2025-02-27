@@ -10,6 +10,7 @@ import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.service.MemberService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,22 +19,18 @@ import java.io.IOException;
 import java.util.List;
 
 @Slf4j
+@RequiredArgsConstructor
 public class AccessTokenValidationFilter extends OncePerRequestFilter {
 
-    private final SecurityUtil securityUtil;
     private final MemberService memberService;
+    private final SecurityUtil securityUtil;
 
     // 필터 적용 제외할 URL 목록
     private static final List<String> EXCLUDED_URLS = List.of(
             "/static/", "/templates/", "/css/", "/js/", "/images/", "/fonts/", "/error", "/favicon.ico",
             "/members/login", "/api/members/oauth/",
-            "/notices", "/notices/", "/api/notices", "/api/notices/"
+            "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}"
     );
-
-    public AccessTokenValidationFilter(MemberService memberService, SecurityUtil securityUtil) {
-        this.securityUtil = securityUtil;
-        this.memberService = memberService;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)

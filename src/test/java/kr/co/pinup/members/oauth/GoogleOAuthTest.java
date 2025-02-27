@@ -41,7 +41,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 public class GoogleOAuthTest {
     @Mock
     private MemberRepository memberRepository;

@@ -3,6 +3,8 @@ package kr.co.pinup.posts.controller;
 import jakarta.validation.Valid;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
+import kr.co.pinup.custom.loginMember.LoginMember;
+import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
@@ -45,11 +47,10 @@ public class PostApiController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<PostResponse> createPost(
-            @ModelAttribute @Valid CreatePostRequest createPostRequest,
-            @RequestParam(value = "images", required = true) MultipartFile[] images) {
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(createPostRequest, images));
+    public ResponseEntity<PostResponse> createPost(@LoginMember MemberInfo memberInfo,
+                                                   @ModelAttribute @Valid CreatePostRequest createPostRequest,
+                                                   @RequestParam(value = "images", required = true) MultipartFile[] images) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo,createPostRequest, images));
     }
 
     @DeleteMapping("/{id}")

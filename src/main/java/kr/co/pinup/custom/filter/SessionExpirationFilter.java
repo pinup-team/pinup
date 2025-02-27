@@ -9,13 +9,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+
 @Slf4j
 public class SessionExpirationFilter extends OncePerRequestFilter {
 
     private static final List<String> EXCLUDED_URLS = List.of(
             "/static/", "/templates/", "/css/", "/js/", "/images/", "/fonts/", "/error", "/favicon.ico",
             "/members/login", "/api/members/oauth/",
-            "/notices", "/notices/", "/api/notices", "/api/notices/"
+            "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}"
     );
 
     @Override

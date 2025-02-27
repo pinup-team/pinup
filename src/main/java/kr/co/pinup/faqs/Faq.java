@@ -18,10 +18,10 @@ public class Faq extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String question;
 
-    @Column(nullable = false, length = 200)
+    @Column(nullable = false, length = 500)
     private String answer;
 
-    @Convert(converter = FaqCategoryConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private FaqCategory category;
 
@@ -32,6 +32,6 @@ public class Faq extends BaseEntity {
     public void update(FaqUpdateRequest faqUpdate) {
         question = faqUpdate.question();
         answer = faqUpdate.answer();
-        category = FaqCategory.valueOf(faqUpdate.category().toUpperCase());
+        category = faqUpdate.category();
     }
 }

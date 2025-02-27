@@ -55,7 +55,7 @@ button {
 @font-face {
     font-family: "NanumSquare";
     src: local(NanumSquareLight);
-    src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.eot"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.otf") format("opentype");
+    src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.otf") format("opentype");
     font-weight: 300;
 }
 

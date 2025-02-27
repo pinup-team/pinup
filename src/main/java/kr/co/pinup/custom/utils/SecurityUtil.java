@@ -14,7 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -29,20 +31,37 @@ public class SecurityUtil {
     public void setOAuthService(OAuthService oAuthService) {
         SecurityUtil.oAuthService = oAuthService;
     }
-    /*private final OAuthService oAuthService;
 
-    @Autowired
-    public SecurityUtil(OAuthService oAuthService) {
-        this.oAuthService = oAuthService;
-    }*/
+    public HttpSession getSession(boolean result) {
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+
+        if (attributes == null) {
+            log.error("Failed to retrieve request attributes: No request attributes found.");
+            throw new UnauthorizedException("No request attributes found.");
+        }
+
+        HttpServletRequest request = attributes.getRequest();
+        HttpSession session = request.getSession(result);
+
+        if (session == null) {
+            log.error("No session found.");
+            throw new UnauthorizedException("Session not found.");
+        }
+
+        return session;
+    }
 
     public void setAuthentication(OAuthToken oAuthToken, MemberInfo memberInfo) {
+        HttpSession session = getSession(true);
+
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(memberInfo, null, memberInfo.getAuthorities());
 
         authentication.setDetails(oAuthToken.getAccessToken());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
+//        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
     }
 
     public Authentication getAuthentication() {
@@ -52,6 +71,19 @@ public class SecurityUtil {
         }
         return currentAuth;
     }
+//  TODO SecurityUtil getAuthentication() session으로 수정하고 추가하기
+//    public Authentication getAuthentication() {
+//        HttpSession session = getSession(false);
+//
+//        SecurityContext securityContext = (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+//
+//        Authentication currentAuth = (securityContext != null) ? securityContext.getAuthentication() : null;
+//
+//        if (currentAuth == null || !currentAuth.isAuthenticated()) {
+//            throw new UnauthorizedException();
+//        }
+//        return currentAuth;
+//    }
 
     public void setMemberInfo(MemberInfo newMemberInfo) {
         try {
@@ -70,8 +102,8 @@ public class SecurityUtil {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (UnauthorizedException e) {
-            log.error("MemberInfo doesn't exist!");
-            throw new OAuth2AuthenticationException("새로운 MemberInfo가 없습니다.");
+            log.error("로그인 정보가 없습니다.");
+            throw new OAuth2AuthenticationException("로그인 정보가 없습니다.");
         }
     }
 
@@ -86,7 +118,7 @@ public class SecurityUtil {
             }
             return memberInfo;
         } catch (UnauthorizedException e) {
-            log.error("MemberInfo doesn't exist!");
+            log.error("MemberInfo가 없습니다.");
             throw new OAuth2AuthenticationException("MemberInfo가 없습니다.");
         }
     }

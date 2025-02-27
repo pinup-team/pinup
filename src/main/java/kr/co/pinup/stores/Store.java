@@ -40,6 +40,7 @@ public class Store extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Status status = Status.PENDING;
 
     @Column(nullable = false, columnDefinition = "TEXT")

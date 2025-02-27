@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 public class MockSecurityContextTest {
     @Test
     @WithMockMember

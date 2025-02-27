@@ -5,7 +5,6 @@ import kr.co.pinup.faqs.exception.FaqNotFound;
 import kr.co.pinup.faqs.model.dto.FaqCreateRequest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
-import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.faqs.repository.FaqRepository;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.MemberNotFoundException;
@@ -31,16 +30,12 @@ public class FaqService {
         Member member = memberRepository.findByNickname(memberInfo.nickname())
                 .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
 
-        FaqCategory category = FaqCategory.valueOf(request.category().toUpperCase());
-
-        Faq faq = Faq.builder()
+        faqRepository.save(Faq.builder()
                 .question(request.question())
                 .answer(request.answer())
-                .category(category)
+                .category(request.category())
                 .member(member)
-                .build();
-
-        faqRepository.save(faq);
+                .build());
     }
 
     public List<FaqResponse> findAll() {

@@ -27,12 +27,6 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
                                       NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // CHECK 이미 인증되어 있지 않은데 처리해야할까?
-        if(authentication instanceof AnonymousAuthenticationToken) {
-            System.out.println("Anonymous AuthenticationToken");
-            return null;
-        }
-
         if (authentication == null || ! (authentication.getPrincipal() instanceof MemberInfo)) {
             throw new UnauthorizedException("로그인 정보가 없습니다.");
         }
