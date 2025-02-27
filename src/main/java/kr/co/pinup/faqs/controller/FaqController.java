@@ -4,7 +4,6 @@ import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.members.model.dto.MemberInfo;
-import kr.co.pinup.members.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,7 +27,6 @@ public class FaqController {
     private static final String VIEW_PATH = "views/faqs";
 
     private final FaqService faqService;
-    private final MemberService memberService;
 
     @GetMapping
     public String list(Model model) {
@@ -49,7 +47,6 @@ public class FaqController {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @GetMapping("/{faqId}/update")
     public String update(@LoginMember MemberInfo memberInfo, @PathVariable Long faqId, Model model) {
-        model.addAttribute("profile", memberService.findMember(memberInfo));
         model.addAttribute("category", getFaqCategoryToMap());
         model.addAttribute("faq", faqService.find(faqId));
 
