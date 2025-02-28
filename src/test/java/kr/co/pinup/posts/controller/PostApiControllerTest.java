@@ -172,6 +172,7 @@ class PostApiControllerTest {
         MemberResponse memberResponse = new MemberResponse(member);
 
         CreatePostRequest createPostRequest = CreatePostRequest.builder()
+                .storeId(1L)
                 .title("Title 1")
                 .content("Content 1")
                 .build();
@@ -189,11 +190,13 @@ class PostApiControllerTest {
 
         mockMvc.perform(multipart("/api/post/create")
                         .file("images", new byte[]{})
+                        .param("storeId", "1")
                         .param("title", "Title 1")
                         .param("content", "Content 1")
                         .param("thumbnail", "Thumbnail"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.storeId").value(1L))
                 .andExpect(jsonPath("$.title").value("Title 1"))
                 .andExpect(jsonPath("$.content").value("Content 1"))
                 .andExpect(jsonPath("$.thumbnail").value("Thumbnail"));

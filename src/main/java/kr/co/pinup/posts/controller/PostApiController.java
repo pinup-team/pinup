@@ -3,7 +3,6 @@ package kr.co.pinup.posts.controller;
 import jakarta.validation.Valid;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
-import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
@@ -17,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,7 +47,7 @@ public class PostApiController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<PostResponse> createPost(@LoginMember MemberInfo memberInfo,
+    public ResponseEntity<PostResponse> createPost(@AuthenticationPrincipal MemberInfo memberInfo,
                                                    @ModelAttribute @Valid CreatePostRequest createPostRequest,
                                                    @RequestParam(value = "images", required = true) MultipartFile[] images) {
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo,createPostRequest, images));
