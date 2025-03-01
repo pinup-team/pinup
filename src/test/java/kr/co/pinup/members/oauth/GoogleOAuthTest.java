@@ -1,7 +1,6 @@
 package kr.co.pinup.members.oauth;
 
 import jakarta.servlet.http.Cookie;
-import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.WithMockMember;
@@ -17,6 +16,7 @@ import kr.co.pinup.oauth.OAuthToken;
 import kr.co.pinup.oauth.google.GoogleLoginParams;
 import kr.co.pinup.oauth.google.GoogleResponse;
 import kr.co.pinup.oauth.google.GoogleToken;
+import kr.co.pinup.security.SecurityUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

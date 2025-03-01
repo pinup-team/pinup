@@ -30,7 +30,7 @@ class SessionExpirationFilterTest {
 
     @Test
     void testDoFilterInternal_WhenSessionIsNull_ShouldReturnUnauthorized() throws Exception {
-        when(request.getRequestURI()).thenReturn("/api/stores");
+        when(request.getRequestURI()).thenReturn("/api/members");
         when(request.getSession(false)).thenReturn(null);
 
         filter.doFilterInternal(request, response, chain);

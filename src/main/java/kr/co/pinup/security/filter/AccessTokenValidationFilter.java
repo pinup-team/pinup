@@ -14,12 +14,9 @@ import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.util.AntPathMatcher;
-import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,7 +24,6 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
 
     private final MemberService memberService;
     private final SecurityUtil securityUtil;
-    private static final PathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
@@ -57,12 +53,12 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (UnauthorizedException e) {
-            log.error("AccessTokenValidationFilter || UnauthorizedException: {}", e.getMessage());
+            log.error("AccessTokenValidationFilter {} || UnauthorizedException: {}", requestURI, e.getMessage());
         } catch (OAuthAccessTokenNotFoundException e) {
-            log.error("AccessTokenValidationFilter || Access token not found: {}", e.getMessage());
+            log.error("AccessTokenValidationFilter {} || Access token not found: {}", requestURI, e.getMessage());
             response.sendRedirect("/login"); // 로그인 페이지로 리다이렉트
         } catch (Exception e) {
-            log.error("AccessTokenValidationFilter || Unexpected error: {}", e.getMessage());
+            log.error("AccessTokenValidationFilter {} || Unexpected error: {}",  requestURI, e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
         }
     }
@@ -71,8 +67,6 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
         if (requestURI.equals("/")) {
             return true;
         }
-        // Ant-style 경로 매칭을 위해 PathMatcher 사용
-        return Arrays.stream(SecurityConstants.PUBLIC_URLS)
-                .anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
+        return SecurityConstants.EXCLUDED_URLS.stream().anyMatch(requestURI::startsWith);
     }
 }

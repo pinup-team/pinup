@@ -11,7 +11,6 @@ import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Arrays;
 @Slf4j
 public class SessionExpirationFilter extends OncePerRequestFilter {
 
@@ -41,7 +40,8 @@ public class SessionExpirationFilter extends OncePerRequestFilter {
             return true;
         }
         // Ant-style 경로 매칭을 위해 PathMatcher 사용
-        return Arrays.stream(SecurityConstants.PUBLIC_URLS)
-                .anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
+//        return Arrays.stream(SecurityConstants.PUBLIC_URLS)
+//                .anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
+        return SecurityConstants.EXCLUDED_URLS.stream().anyMatch(requestURI::startsWith);
     }
 }

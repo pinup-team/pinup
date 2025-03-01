@@ -4,8 +4,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.members.service.MemberService;
+import kr.co.pinup.security.SecurityUtil;
 import kr.co.pinup.security.filter.AccessTokenValidationFilter;
 
 import java.io.IOException;
