@@ -2,22 +2,31 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <header id="header" th:fragment="headerFragment">
-    <div class="logo"><a href="/" th:text="'PinUp'">PinUp</a></div>
+    <div class="logo"><a th:href="@{/}" th:text="'PinUp'">PinUp</a></div>
     <nav>
         <ul>
             <li><a th:href="@{/}">Home</a></li>
-            <li><a th:href="@{/about}">About</a></li>
-            <li><a th:href="@{/services}">Services</a></li>
-            <li><a th:href="@{/contact}">Contact</a></li>
+            <li><a th:href="@{/stores}">Store</a></li>
+            <li><a th:href="@{/notices}">Notices</a></li>
+            <li><a th:href="@{/faqs}">FaQ</a></li>
         </ul>
     </nav>
     <div class="user-actions">
         <th:block sec:authorize="isAnonymous()">
-            <a th:href="@{/members/login}">Login</a>
+            <button th:onclick="|window.location.href='/members/login'|">Login</button>
         </th:block>
         <th:block sec:authorize="isAuthenticated()">
-            <button th:onclick="|logOut()|">로그아웃</button>
-            <button th:onclick="|window.location.href='/members/profile'|">마이페이지</button>
+            <button class="hamburger" onclick="toggleMenu()">
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+
+            <div id="menu" class="menu">
+                <button th:onclick="|window.location.href='/members/profile'|">마이페이지</button>
+                <button th:onclick="|logOut()|">로그아웃</button>
+                <hr/>
+                <button sec:authentication="principal.nickname" disabled>Nickname</button>
+            </div>
         </th:block>
     </div>
 </header>

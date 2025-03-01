@@ -108,3 +108,12 @@ function deleteAccount() {
 function redirectToHome() {
     window.location.href = "/";
 }
+
+// 햄버거 버튼
+function toggleMenu() {
+    const hamburger = document.querySelector('.hamburger');
+    const menu = document.querySelector('.menu');
+
+    hamburger.classList.toggle('open');
+    menu.classList.toggle('open');
+}

@@ -1,28 +1,79 @@
 @charset "UTF-8";
 
-/* ✅ 기본 리셋 */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-style: normal;
-    letter-spacing: -1px;
+    letter-spacing: 1px;
 }
 
 html, body {
-    height: 100%;
-    -webkit-text-size-adjust: none;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+    background-color: #F6F2E4;
+
+    /* 이거 지워야 오른쪽 스크롤 빈 곳 없어짐 */
+    /*-webkit-text-size-adjust: none;
     -moz-text-size-adjust: none;
     -ms-text-size-adjust: none;
     text-size-adjust: none;
     -ms-scroll-chaining: none;
     overscroll-behavior: none;
     overscroll-behavior-y: none;
-    scrollbar-gutter: stable;
+    scrollbar-gutter: stable;*/
 }
 
+.content {
+    flex: 1;                  /* 공간을 차지하도록 설정 */
+    display: flex;            /* Flexbox 사용 */
+    justify-content: center;  /* 중앙 정렬 */
+    align-items: center;
+
+    position: relative;
+    padding: 0 20px;
+}
+
+.container {
+    width: 80vw;
+    margin: auto;
+    /*padding: 20px;*/
+}
+
+/*-------store--------*/
+
+.store-list-container {
+    overflow-x: auto; /* 수평 스크롤 가능 */
+    white-space: nowrap; /* 항목이 한 줄로 표시되도록 설정 */
+    scrollbar-width: none; /* Firefox에서 스크롤바 숨기기 */
+}
+
+/* Chrome, Safari, and Opera에서 스크롤바 숨기기 */
+.store-list-container::-webkit-scrollbar {
+    display: none; /* 스크롤바 숨기기 */
+}
+
+#store-list {
+    display: inline-block; /* 항목을 가로로 나열하기 위해 인라인 블록으로 설정 */
+    padding: 0; /* 기본 패딩 제거 */
+    margin: 0; /* 기본 마진 제거 */
+}
+
+#store-list li {
+    display: inline-block; /* 각 항목을 인라인 블록으로 설정 */
+    margin-right: 20px; /* 항목 간 간격 설정 */
+}
+
+/*-------coommon--------*/
+
 body, input, select, textarea, button, h1, h2, h3, h4, h5, h6, a {
-    color: #000;
+    color: #CC2F20;
     font-family: "NanumSquare", "나눔스퀘어", "나눔고딕", NanumGothic, -apple-system, BlinkMacSystemFont, helvetica, "Apple SD Gothic Neo", sans-serif;
     font-size: 15px;
     font-weight: 400;
@@ -31,9 +82,10 @@ body, input, select, textarea, button, h1, h2, h3, h4, h5, h6, a {
     appearance: none;
 }
 
-a {
+h1, h2, h3, h4, h5, h6, a, p {
     color: inherit;
     text-decoration: none;
+    margin: 10px 10px;
 }
 
 ul, ol ,li {
@@ -58,18 +110,25 @@ button {
     src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.otf") format("opentype");
     font-weight: 300;
 }
+@font-face {
+    font-family: "NanumSquare";
+    src: local(NanumSquare);
+    src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-bRg.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-bRg.otf") format("truetype");
+    font-weight: normal;
+}
+@font-face {
+    font-family: "NanumSquare";
+    src: local(NanumSquareBold);
+    src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-cBd.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-cBd.otf") format("opentype");
+    font-weight: bold;
+}
 
 /* ✅ 레이아웃 */
 .wrap {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1500px;
     margin: 0 auto;
-    background-color: #fff;
-}
-
-.content {
-    position: relative;
-    padding: 0 20px;
+    background-color: #F6F2E4;
 }
 
 .home_content_wrap {
@@ -260,13 +319,6 @@ button {
 
 .justify-content-center {
     justify-content: center !important;
-}
-
-/* 컨테이너 스타일 (추가됨) */
-.container {
-    max-width: 1800px;
-    margin: 50px auto;
-    padding: 20px;
 }
 
 /* 제목 입력 input 스타일 */

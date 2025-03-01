@@ -4,7 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.co.pinup.custom.filter.SessionExpirationFilter;
+import kr.co.pinup.security.filter.SessionExpirationFilter;
 
 import java.io.IOException;
 

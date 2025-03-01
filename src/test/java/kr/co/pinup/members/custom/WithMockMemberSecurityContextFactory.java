@@ -1,15 +1,10 @@
 package kr.co.pinup.members.custom;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithSecurityContextFactory;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 public class WithMockMemberSecurityContextFactory implements WithSecurityContextFactory<WithMockMember> {
     @Override

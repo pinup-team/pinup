@@ -2,11 +2,11 @@ package kr.co.pinup.oauth.naver;
 
 import jakarta.annotation.PostConstruct;
 import kr.co.pinup.config.OauthConfig;
-import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
 import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.oauth.*;
+import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;

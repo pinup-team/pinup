@@ -1,22 +1,25 @@
-package kr.co.pinup.custom.filter;
+package kr.co.pinup.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.service.MemberService;
+import kr.co.pinup.security.SecurityConstants;
+import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Arrays;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,13 +27,7 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
 
     private final MemberService memberService;
     private final SecurityUtil securityUtil;
-
-    // 필터 적용 제외할 URL 목록
-    private static final List<String> EXCLUDED_URLS = List.of(
-            "/static/", "/templates/", "/css/", "/js/", "/images/", "/fonts/", "/error", "/favicon.ico",
-            "/members/login", "/api/members/oauth/",
-            "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}"
-    );
+    private static final PathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
@@ -74,6 +71,8 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
         if (requestURI.equals("/")) {
             return true;
         }
-        return EXCLUDED_URLS.stream().anyMatch(requestURI::startsWith);
+        // Ant-style 경로 매칭을 위해 PathMatcher 사용
+        return Arrays.stream(SecurityConstants.PUBLIC_URLS)
+                .anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
     }
 }

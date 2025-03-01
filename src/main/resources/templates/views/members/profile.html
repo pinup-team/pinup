@@ -2,42 +2,55 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout}">
+      layout:decorate="~{layouts/main}">
 
-<div class="container" layout:fragment="content">
-    <th:block sec:authorize="isAnonymous()">
-        <p>잘못된 접근입니다.</p>
-    </th:block>
-    <th:block sec:authorize="isAuthenticated()">
-        <table class="table" th:object="${profile}">
-            <tbody>
-            <tr>
-                <td>이름</td>
-                <td><input type="text" th:field="*{name}" th:placeholder="이름" readonly></td>
-            </tr>
-            <tr>
-                <td>이메일</td>
-                <td><input type="text" th:field="*{email}" th:placeholder="이메일" readonly></td>
-            </tr>
-            <tr>
-                <td>닉네임</td>
-                <td><input type="text" th:field="*{nickname}" th:placeholder="닉네임" id="nickname"></td>
-                <td><button type="button" onclick="generateNickname()">닉네임 추천받기</button></td>
-            </tr>
-            <tr>
-                <td>가입경로</td>
-                <td><input type="text" th:field="*{providerType}" th:placeholder="가입경로" readonly></td>
-            </tr>
-            <tr>
-                <td>권한</td>
-                <td><input type="text" th:field="*{role}" th:placeholder="권한" readonly></td>
-            </tr>
-            </tbody>
-        </table>
-        <button type="button" onclick="updateAccount()">수정</button>
-        <button type="button" onclick="deleteAccount()">탈퇴</button>
-    </th:block>
-    <div><button onclick="redirectToHome()">홈으로 돌아가기</button></div>
+<div layout:fragment="content">
+    <div th:class="page_description">
+        <h1>Profile</h1>
+        <h4>내 정보를 업데이트하세요.</h4>
+    </div>
+    <div th:class="member-profile">
+        <th:block sec:authorize="isAnonymous()">
+            <p>잘못된 접근입니다.</p>
+        </th:block>
+        <th:block sec:authorize="isAuthenticated()">
+            <table class="table" th:object="${profile}">
+                <tbody>
+                <tr>
+                    <td>이름</td>
+                    <td><input type="text" th:field="*{name}" th:placeholder="이름" readonly></td>
+                </tr>
+                <tr>
+                    <td>이메일</td>
+                    <td><input type="text" th:field="*{email}" th:placeholder="이메일" readonly></td>
+                </tr>
+                <tr>
+                    <td>닉네임</td>
+                    <td><input type="text" th:field="*{nickname}" th:placeholder="닉네임" id="nickname"><button type="button" onclick="generateNickname()">닉네임 추천</button></td>
+                </tr>
+                <tr>
+                    <td>가입경로</td>
+                    <td><input type="text" th:field="*{providerType}" th:placeholder="가입경로" readonly></td>
+                </tr>
+                <tr>
+                    <td>권한</td>
+                    <td><input type="text" th:field="*{role}" th:placeholder="권한" readonly></td>
+                </tr>
+                </tbody>
+            </table>
+        </th:block>
+    </div>
+    <div class="button-container">
+        <div class="home-button">
+            <button onclick="redirectToHome()">홈으로 돌아가기</button>
+        </div>
+        <th:block sec:authorize="isAuthenticated()">
+            <div class="member-buttons">
+                <button type="button" onclick="updateAccount()">수정</button>
+                <button type="button" onclick="deleteAccount()">탈퇴</button>
+            </div>
+        </th:block>
+    </div>
 </div>
 </html>
 

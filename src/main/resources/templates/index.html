@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout}">
-<div class="container" layout:fragment="content">
-    <th:block sec:authorize="isAnonymous()">
-        <p>메인 페이지입니다.</p>
-    </th:block>
-    <div sec:authorize="hasRole('ROLE_ADMIN')">
-        관리자만 볼 수 있는 콘텐츠
+      layout:decorate="~{layouts/main}">
+<div layout:fragment="content">
+    <div th:class="page_description">
+        <h1>Main</h1>
+        <h4>가장 인기 있는 팝업 스토어</h4>
     </div>
-    <div sec:authorize="hasRole('ROLE_USER')">
-        일반 회원만 볼 수 있는 콘텐츠
+    <div>
+        <div class="store-list-container">
+            <ul id="store-list">
+                <li th:each="store : ${stores}">
+                    <img th:src="${store.imageUrl != null ? store.imageUrl : '@{/images/loading.png}'}" alt="Store Image">
+                    <a th:href="@{/stores/{id}(id=${store.id})}" th:text="${store.name}"></a>
+                    <p th:text="${store.description}"></p>
+                </li>
+            </ul>
+        </div>
     </div>
-    <th:block sec:authorize="isAuthenticated()">
-        <p>Nickname: <span sec:authentication="principal.nickname">Nickname</span></p>
-        <p>Role: <span sec:authentication="principal.role">Role</span></p>
-        <p>Provider: <span sec:authentication="principal.provider">Provider</span></p>
-    </th:block>
 </div>
 </html>

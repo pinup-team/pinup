@@ -4,11 +4,9 @@ import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.oauth.OAuthProvider;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

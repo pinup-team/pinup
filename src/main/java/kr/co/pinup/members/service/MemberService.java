@@ -2,7 +2,6 @@ package kr.co.pinup.members.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.*;
@@ -11,6 +10,7 @@ import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.*;
+import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;

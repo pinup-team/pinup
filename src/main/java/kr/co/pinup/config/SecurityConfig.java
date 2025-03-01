@@ -1,11 +1,10 @@
 package kr.co.pinup.config;
 
-import kr.co.pinup.custom.filter.AccessTokenValidationFilter;
-import kr.co.pinup.custom.filter.SessionExpirationFilter;
-import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.members.service.MemberService;
-import kr.co.pinup.oauth.OAuthApiClient;
-import kr.co.pinup.oauth.OAuthService;
+import kr.co.pinup.security.SecurityConstants;
+import kr.co.pinup.security.SecurityUtil;
+import kr.co.pinup.security.filter.AccessTokenValidationFilter;
+import kr.co.pinup.security.filter.SessionExpirationFilter;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +22,6 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -44,6 +42,7 @@ public class SecurityConfig {
     public SessionExpirationFilter sessionExpirationFilter() {
         return new SessionExpirationFilter();
     }
+
     @Bean
     public AccessTokenValidationFilter accessTokenValidationFilter(MemberService memberService, SecurityUtil securityUtil) {
         return new AccessTokenValidationFilter(memberService, securityUtil);
@@ -61,10 +60,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .addFilterBefore(sessionExpirationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
-                                .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                                .requestMatchers("/", "/members/login", "/api/members/oauth/**",
-                                        "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}").permitAll()
-                                .anyRequest().authenticated()
+                        .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                        .requestMatchers(SecurityConstants.PUBLIC_URLS).permitAll()
+                        .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth -> oauth
                         .loginPage("/members/login").permitAll()

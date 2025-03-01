@@ -1,23 +1,21 @@
-package kr.co.pinup.custom.filter;
+package kr.co.pinup.security.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.pinup.security.SecurityConstants;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
-
+import java.util.Arrays;
 @Slf4j
 public class SessionExpirationFilter extends OncePerRequestFilter {
 
-    private static final List<String> EXCLUDED_URLS = List.of(
-            "/static/", "/templates/", "/css/", "/js/", "/images/", "/fonts/", "/error", "/favicon.ico",
-            "/members/login", "/api/members/oauth/",
-            "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}"
-    );
+    private static final PathMatcher pathMatcher = new AntPathMatcher();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -42,6 +40,8 @@ public class SessionExpirationFilter extends OncePerRequestFilter {
         if (requestURI.equals("/")) {
             return true;
         }
-        return EXCLUDED_URLS.stream().anyMatch(requestURI::startsWith);
+        // Ant-style 경로 매칭을 위해 PathMatcher 사용
+        return Arrays.stream(SecurityConstants.PUBLIC_URLS)
+                .anyMatch(pattern -> pathMatcher.match(pattern, requestURI));
     }
 }
