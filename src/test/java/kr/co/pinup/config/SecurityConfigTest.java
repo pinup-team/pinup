@@ -1,9 +1,9 @@
 package kr.co.pinup.config;
 
-import kr.co.pinup.custom.utils.SecurityUtil;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthApiClient;
 import kr.co.pinup.oauth.OAuthService;
+import kr.co.pinup.security.SecurityUtil;
 import kr.co.pinup.security.filter.AccessTokenValidationFilter;
 import kr.co.pinup.security.filter.SessionExpirationFilter;
 import org.springframework.boot.test.context.TestConfiguration;
