@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
@@ -20,9 +21,11 @@
                 <div class="content_list_area">
                     <div class="content_title">
                         <strong>장소와 취향이 발견되는 공간</strong>
-                        <button type="button" class="img_icon_keep"
-                                th:onclick="|location.href='/post/create?storeId=' + ${storeId}|">작성
-                        </button>
+                        <th:block sec:authorize="isAuthenticated()and hasRole('ROLE_USER')">
+                            <button type="button" class="img_icon_keep"
+                                    th:onclick="|location.href='/post/create?storeId=' + ${storeId}|">작성
+                            </button>
+                        </th:block>
                     </div>
                     <div class="list_pinup_top">
                         <div class="pinup_list_wrap">
@@ -47,10 +50,12 @@
                                         <div class="post_action_wrapper">
                                             <span class="pinup_nickname" th:text="${post.member.nickname}"></span>
                                             <button class="post_edit_button"
-                                                    th:onclick="|location.href='@{/post/update/{id}(id=${post.id})}'|">수정
+                                                    th:onclick="|location.href='@{/post/update/{id}(id=${post.id})}'|"
+                                                    th:if="${post.member.id == member.id}">수정
                                             </button>
                                             <button class="post_delete_button"
-                                                    th:onclick="removePost([[${post.id}]], [[${post.storeId}]])">삭제
+                                                    th:onclick="removePost([[${post.id}]], [[${post.storeId}]])"
+                                                    th:if="${post.member.id == member.id}">삭제
                                             </button>
                                         </div>
                                     </div>
