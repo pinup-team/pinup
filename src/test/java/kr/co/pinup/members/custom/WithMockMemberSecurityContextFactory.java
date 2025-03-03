@@ -14,8 +14,13 @@ public class WithMockMemberSecurityContextFactory implements WithSecurityContext
         MemberInfo memberInfo = new MemberInfo(annotation.nickname(), annotation.provider(), annotation.role());
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(memberInfo, null, memberInfo.getAuthorities());
+        authentication.setDetails("valid-access-token");
 
         context.setAuthentication(authentication);
+//        TODO SecurityUtil getAuthentication() session으로 수정하고 추가하기
+//        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+//        HttpSession session = request.getSession(true);
+//        session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
         return context;
     }
 }

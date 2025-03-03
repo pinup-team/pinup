@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static kr.co.pinup.faqs.model.enums.FaqCategory.*;
+import static kr.co.pinup.faqs.model.enums.FaqCategory.USE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
