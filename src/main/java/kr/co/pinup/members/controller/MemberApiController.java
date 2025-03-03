@@ -1,22 +1,27 @@
 package kr.co.pinup.members.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import kr.co.pinup.custom.loginMember.LoginMember;
+import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthLoginParams;
+import kr.co.pinup.oauth.OAuthResponse;
+import kr.co.pinup.oauth.OAuthToken;
 import kr.co.pinup.oauth.google.GoogleLoginParams;
 import kr.co.pinup.oauth.naver.NaverLoginParams;
+import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,99 +35,83 @@ import java.util.Optional;
 public class MemberApiController {
 
     private final MemberService memberService;
+    private final SecurityUtil securityUtil;
 
     @GetMapping("/oauth/naver")
-    public ResponseEntity<?> loginNaver(@Valid @ModelAttribute NaverLoginParams params, HttpServletRequest request) {
+    public ResponseEntity<?> loginNaver(@Valid @ModelAttribute NaverLoginParams params, HttpServletRequest request, HttpServletResponse response) {
         log.info("Naver login process started");
-        return loginProcess(params, request);
+        return loginProcess(params, request, response);
     }
 
     @GetMapping("/oauth/google")
-    public ResponseEntity<?> loginGoogle(@Valid @ModelAttribute GoogleLoginParams params, HttpServletRequest request) {
+    public ResponseEntity<?> loginGoogle(@Valid @ModelAttribute GoogleLoginParams params, HttpServletRequest request, HttpServletResponse response) {
         log.info("Google login process started");
-        return loginProcess(params, request);
+        return loginProcess(params, request, response);
     }
 
-    private ResponseEntity<?> loginProcess(OAuthLoginParams params, HttpServletRequest request) {
+    private ResponseEntity<?> loginProcess(OAuthLoginParams params, HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(true);
 
-        MemberInfo memberInfo = memberService.login(params, session);
-        session.setAttribute("memberInfo", memberInfo);
+        Pair<OAuthResponse, OAuthToken> oAuthResponseOAuthTokenPair = memberService.login(params, session);
 
-        String accessToken = session.getAttribute("accessToken").toString();
-//         TODO 도희 :accessToken header에 들어가기 성공, 당분간 session에서 처리
-//        session.removeAttribute("accessToken");
-//
-//        System.out.println("Set-Cookie Header: " + headers.get(HttpHeaders.SET_COOKIE));
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setLocation(URI.create("/"));
-        HttpHeaders headers = controlCookie(accessToken, 3600);
+        OAuthToken oAuthToken = oAuthResponseOAuthTokenPair.getRight();
+
+        if (oAuthToken == null) {
+            throw new OAuthTokenRequestException("OAuth token is empty");
+        }
+
+        HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("/"));
 
-        log.info("Login successful: {}", memberInfo);
+        if (oAuthToken.getRefreshToken() == null) {
+            throw new OAuthTokenRequestException("Refresh token is empty");
+        }
+        securityUtil.setRefreshTokenToCookie(response, oAuthToken.getRefreshToken());
+
+        log.debug("Login successful: {}", securityUtil.getMemberInfo());
         return ResponseEntity.status(302)
                 .headers(headers)
                 .build();
     }
 
-    // todo nickname 추천해주는거?
     @GetMapping("/nickname")
-    public String makeNickname(@LoginMember MemberInfo memberInfo, Model model) {
+    public ResponseEntity<String> makeNickname(@LoginMember MemberInfo memberInfo) {
         return Optional.ofNullable(memberInfo).map(user -> {
-            model.addAttribute("nickname", memberService.makeNickname());
-            return "views/members/profile";
-        }).orElseGet(() -> {
-            model.addAttribute("message", "로그인 정보가 없습니다.");
-            return "error";
-        });
+            String nickname = memberService.makeNickname();
+            return ResponseEntity.ok(nickname);
+        }).orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("로그인 정보가 없습니다."));
     }
 
     @PatchMapping
-    public ResponseEntity<?> update(@Validated @RequestBody MemberRequest memberRequest, @LoginMember MemberInfo memberInfo,
-                                                    HttpSession session) {
-        MemberResponse updatedMember = memberService.update(memberInfo, memberRequest);
+    public ResponseEntity<?> update(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
+        MemberResponse updatedMemberResponse = memberService.update(memberInfo, memberRequest);
+        if (updatedMemberResponse != null && updatedMemberResponse.getNickname().equals(memberRequest.nickname())) {
+            log.debug("닉네임 변경 성공 : {}", updatedMemberResponse.getNickname());
+            return ResponseEntity.ok("닉네임이 변경되었습니다.");
+        } else {
+            log.error("닉네임 변경 실패");
+            return ResponseEntity.badRequest().body("닉네임 변경 실패");
+        }
 
-        log.info("Nickname updated to: {}", updatedMember.getNickname());
-        return ResponseEntity.ok("닉네임이 변경되었습니다.");
     }
 
     @DeleteMapping
-    public ResponseEntity<?> delete(@Validated @RequestBody MemberRequest memberRequest, @LoginMember MemberInfo memberInfo,
-                                    HttpSession session) {
-        boolean isDeleted = memberService.delete(memberInfo, memberRequest);
-        if (isDeleted) {
-            session.invalidate();
-            log.info("Member deleted successfully");
+    public ResponseEntity<?> delete(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
+        if (memberService.delete(memberInfo, memberRequest)) {
             return ResponseEntity.ok().body("탈퇴 성공");
         } else {
-            log.warn("Member deletion failed");
             return ResponseEntity.badRequest().body("사용자 탈퇴 실패");
         }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@LoginMember MemberInfo memberInfo, HttpServletRequest request) {
-        if (memberService.logout(memberInfo.provider(), request)) {
-            HttpHeaders headers = controlCookie("", 0);
+    public ResponseEntity<?> logout(@LoginMember MemberInfo memberInfo) {
+        if (memberService.logout(memberInfo.provider(), securityUtil.getAccessTokenFromSecurityContext())) {
             return ResponseEntity.ok()
-//                    .headers(headers)
                     .body("로그아웃 성공");
         } else {
             return ResponseEntity.badRequest().body("로그아웃 실패");
         }
-    }
-
-    private HttpHeaders controlCookie(String accessToken, int age) {
-        ResponseCookie cookie = ResponseCookie.from("Authorization", accessToken)
-                .path("/")
-                .httpOnly(false)
-                .secure(false)
-                .sameSite("Strict")
-                .maxAge(age)
-                .build();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
-        return headers;
     }
 }

@@ -7,18 +7,14 @@ import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.is;
@@ -30,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Import(SecurityConfigTest.class)
-@ExtendWith(SpringExtension.class)
 @WebMvcTest(MemberController.class)
 public class MemberControllerTest {
 
@@ -40,17 +35,9 @@ public class MemberControllerTest {
     @MockitoBean
     private MemberService memberService;
 
-    private MockHttpSession session;
-
     @BeforeEach
     void setUp() {
-        session = new MockHttpSession();
-    }
-
-    @AfterEach
-    void tearDown() {
-        session.clearAttributes();
-        SecurityContextHolder.clearContext();
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
@@ -65,7 +52,6 @@ public class MemberControllerTest {
     @WithMockMember(nickname = "test", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     @DisplayName("마이 페이지 이동")
     void memberProfile() throws Exception {
-        MemberInfo memberInfo = new MemberInfo("네이버TestMember", OAuthProvider.NAVER, MemberRole.ROLE_USER);
         MemberResponse testResponse = new MemberResponse(1L, "test", "test@naver.com", "네이버TestMember", OAuthProvider.NAVER, MemberRole.ROLE_USER);
 
         when(memberService.findMember(any(MemberInfo.class))).thenReturn(testResponse);

@@ -1,6 +1,8 @@
 package kr.co.pinup.store_categories;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 import kr.co.pinup.BaseEntity;
 import lombok.*;
 

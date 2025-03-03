@@ -2,7 +2,6 @@ package kr.co.pinup.faqs.controller;
 
 import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
-import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
