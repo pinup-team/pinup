@@ -4,6 +4,7 @@ import kr.co.pinup.custom.customTag.CustomDialect;
 import nz.net.ultraq.thymeleaf.layoutdialect.LayoutDialect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.spring6.templateresolver.SpringResourceTemplateResolver;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
@@ -40,6 +41,7 @@ public class ThymeleafConfig {
         templateEngine.setTemplateResolver(templateResolver());
         templateEngine.addDialect(customDialect());  // CustomDialect 추가
         templateEngine.addDialect(new LayoutDialect());
+        templateEngine.addDialect(new SpringSecurityDialect()); // Security 추가
         return templateEngine;
     }
 

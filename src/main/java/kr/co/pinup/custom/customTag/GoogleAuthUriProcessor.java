@@ -47,15 +47,13 @@ public class GoogleAuthUriProcessor extends AbstractElementTagProcessor {
         try {
             String redirectUri = URLEncoder.encode(googleRegistration.getRedirectUri(), "UTF-8");
             String scope = "https://www.googleapis.com/auth/userinfo.email+profile+https://www.googleapis.com/auth/user.gender.read+https://www.googleapis.com/auth/user.birthday.read";
-            String state = URLEncoder.encode(generateState(), "UTF-8");
 
             String authUrl = String.format(
-                    "%s?client_id=%s&redirect_uri=%s&response_type=code&scope=%s&state=%s",
+                    "%s?client_id=%s&redirect_uri=%s&scope=%s&response_type=code&prompt=consent&access_type=offline",
                     googleProvider.getAuthorizationUri(),
                     googleRegistration.getClientId(),
                     redirectUri,
-                    scope,
-                    state
+                    scope
             );
 
             structureHandler.setAttribute("href", authUrl);
