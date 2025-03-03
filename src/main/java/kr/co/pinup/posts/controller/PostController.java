@@ -42,11 +42,14 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
-    public String getPostById(@PathVariable Long postId, Model model) {
+    public String getPostById(@AuthenticationPrincipal MemberInfo memberInfo,@PathVariable Long postId, Model model) {
+        Member member = memberRepository.findByNickname(memberInfo.nickname())
+                .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
 
         model.addAttribute("post", postService.getPostById(postId));
         model.addAttribute("comments", commentService.findByPostId(postId));
         model.addAttribute("images", postImageService.findImagesByPostId(postId));
+        model.addAttribute("member", member);
 
         return VIEW_PATH + "/detail";
     }

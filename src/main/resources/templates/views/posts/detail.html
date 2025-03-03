@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/layout}">
 
 <div layout:fragment="content">
@@ -76,7 +77,11 @@
                                     </div>
                                     <div class="comment-footer">
                                         <div class="card-time" th:text="*{#temporals.format(comment.createdAt, 'yyyy-MM-dd')}"></div>
-                                        <button type="button" class="comment-delete transparent-button" th:data-comment-id="${comment.id}">삭제</button>
+                                        <button type="button" class="comment-delete transparent-button"
+                                                th:data-comment-id="${comment.id}"
+                                                th:if="${comment.member.id == member.id}">
+                                            삭제
+                                        </button>
                                     </div>
                                 </li>
                             </th:block>
@@ -90,7 +95,9 @@
                         <input type="text" name="content" placeholder="댓글 달기 ..." required class="pinup-comment-input"/>
                         <div class="pinup-comment-submit">
                             <button class="pinup-btn transparent-button pinup-comment-submit-btn" type="submit"
-                                    th:data-post-id="${post.id}">게시
+                                th:data-post-id="${post.id}"
+                                th:disabled="${not #authorization.authenticated}">
+                                게시
                             </button>
                         </div>
                     </form>
