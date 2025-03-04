@@ -1,8 +1,5 @@
 package kr.co.pinup.notices.controller;
 
-import kr.co.pinup.custom.loginMember.LoginMember;
-import kr.co.pinup.members.model.dto.MemberInfo;
-import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.notices.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +19,6 @@ public class NoticeController {
     private static final String VIEW_PATH = "views/notices";
 
     private final NoticeService noticeService;
-    private final MemberService memberService;
 
     @GetMapping
     public String list(Model model) {
@@ -33,7 +29,7 @@ public class NoticeController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @GetMapping("/new")
-    public String create(@LoginMember MemberInfo memberInfo) {
+    public String create() {
         return VIEW_PATH + "/create";
     }
 
@@ -46,8 +42,7 @@ public class NoticeController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @GetMapping("/{noticeId}/update")
-    public String update(@LoginMember MemberInfo memberInfo, @PathVariable Long noticeId, Model model) {
-        model.addAttribute("profile", memberService.findMember(memberInfo));
+    public String update(@PathVariable Long noticeId, Model model) {
         model.addAttribute("notice", noticeService.find(noticeId));
 
         return VIEW_PATH + "/update";

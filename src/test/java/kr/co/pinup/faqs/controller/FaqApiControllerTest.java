@@ -16,7 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -199,7 +198,6 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithAnonymousUser
     @DisplayName("FAQ 전체 조회")
     void findAll() throws Exception {
         // given
@@ -228,7 +226,6 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithAnonymousUser
     @DisplayName("FAQ 단일 조회")
     void find() throws Exception {
         // given
@@ -254,7 +251,6 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithAnonymousUser
     @DisplayName("존재하지 않는 ID로 조회시 에러")
     void findWithNonExistId() throws Exception {
         // given
