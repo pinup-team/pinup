@@ -9,6 +9,7 @@ import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -54,12 +55,14 @@ public class PostController {
         return VIEW_PATH + "/detail";
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/create")
     public String createPostForm(@RequestParam("storeId") Long storeId, Model model) {
         model.addAttribute("storeId", storeId);
         return VIEW_PATH + "/create";
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @GetMapping("/update/{id}")
     public String updatePostForm(@PathVariable Long id, Model model) {
 

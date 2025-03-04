@@ -95,8 +95,7 @@
                         <input type="text" name="content" placeholder="댓글 달기 ..." required class="pinup-comment-input"/>
                         <div class="pinup-comment-submit">
                             <button class="pinup-btn transparent-button pinup-comment-submit-btn" type="submit"
-                                th:data-post-id="${post.id}"
-                                th:disabled="${not #authorization.authenticated}">
+                                th:data-post-id="${post.id}" th:disabled="${#authentication == null}">
                                 게시
                             </button>
                         </div>

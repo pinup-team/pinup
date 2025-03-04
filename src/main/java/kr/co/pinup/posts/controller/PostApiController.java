@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +47,7 @@ public class PostApiController {
         return PostDetailResponse.from(post, comments, images);
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @PostMapping("/create")
     public ResponseEntity<PostResponse> createPost(@AuthenticationPrincipal MemberInfo memberInfo,
                                                    @ModelAttribute @Valid CreatePostRequest createPostRequest,
@@ -53,12 +55,14 @@ public class PostApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo,createPostRequest, images));
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id) {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
     @PutMapping("/{id}")
     public ResponseEntity<Post> updatePost(@PathVariable Long id,
                                            @ModelAttribute @Valid UpdatePostRequest updatePostRequest,
