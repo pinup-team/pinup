@@ -60,12 +60,11 @@ class NoticeServiceTest {
                 .role(MemberRole.ROLE_ADMIN)
                 .build();
         memberRepository.save(member);
-
-        noticeRepository.deleteAll();
     }
 
     @AfterEach
     void tearDown() {
+        noticeRepository.deleteAll();
         memberRepository.deleteAll();
     }
 
@@ -81,7 +80,6 @@ class NoticeServiceTest {
         // given
         MemberInfo memberInfo = MemberInfo.builder()
                 .nickname("두려운고양이")
-                .provider(OAuthProvider.NAVER)
                 .role(MemberRole.ROLE_ADMIN)
                 .build();
 
@@ -98,7 +96,7 @@ class NoticeServiceTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(readOnly = true)
     @DisplayName("공지사항 전체 조회")
     void findAll() {
         // given
@@ -120,7 +118,7 @@ class NoticeServiceTest {
         assertThat(notices.get(0).content()).isEqualTo("공지사항 내용 2");
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     @ParameterizedTest
     @MethodSource("noticeProvider")
     @DisplayName("공지사항 단일 조회")

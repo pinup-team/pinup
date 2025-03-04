@@ -1,7 +1,6 @@
 package kr.co.pinup.notices.controller;
 
 import jakarta.validation.Valid;
-import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.notices.model.dto.NoticeCreateRequest;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
@@ -11,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,7 +37,7 @@ public class NoticeApiController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<Void> save(@LoginMember MemberInfo memberInfo,
+    public ResponseEntity<Void> save(@AuthenticationPrincipal MemberInfo memberInfo,
                                      @RequestBody @Valid NoticeCreateRequest request) {
         noticeService.save(memberInfo, request);
 
@@ -46,9 +46,7 @@ public class NoticeApiController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @PutMapping("/{noticeId}")
-    public ResponseEntity<Void> update(@LoginMember MemberInfo memberInfo,
-                                       @PathVariable Long noticeId,
-                                       @RequestBody @Valid NoticeUpdateRequest request) {
+    public ResponseEntity<Void> update(@PathVariable Long noticeId, @RequestBody @Valid NoticeUpdateRequest request) {
         noticeService.update(noticeId, request);
 
         return ResponseEntity.noContent().build();
@@ -56,7 +54,7 @@ public class NoticeApiController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{noticeId}")
-    public ResponseEntity<Void> delete(@LoginMember MemberInfo memberInfo, @PathVariable Long noticeId) {
+    public ResponseEntity<Void> delete(@PathVariable Long noticeId) {
         noticeService.remove(noticeId);
 
         return ResponseEntity.noContent().build();
