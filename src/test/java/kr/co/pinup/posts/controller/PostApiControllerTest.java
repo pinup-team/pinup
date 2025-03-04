@@ -2,7 +2,6 @@ package kr.co.pinup.posts.controller;
 
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
-import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.WithMockMember;
@@ -19,7 +18,6 @@ import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.service.PostService;
 import kr.co.pinup.store_categories.StoreCategory;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.dto.StoreResponse;
 import kr.co.pinup.stores.model.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,7 +29,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;

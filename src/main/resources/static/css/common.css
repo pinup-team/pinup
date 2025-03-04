@@ -22,7 +22,7 @@ html, body {
 }
 
 body, input, select, textarea, button, h1, h2, h3, h4, h5, h6, a {
-    color: #000;
+    color: #CC2F20;
     font-family: "NanumSquare", "나눔스퀘어", "나눔고딕", NanumGothic, -apple-system, BlinkMacSystemFont, helvetica, "Apple SD Gothic Neo", sans-serif;
     font-size: 15px;
     font-weight: 400;
@@ -58,18 +58,30 @@ button {
     src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.otf") format("opentype");
     font-weight: 300;
 }
+@font-face {
+    font-family: "NanumSquare";
+    src: local(NanumSquare);
+    src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-bRg.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-bRg.otf") format("truetype");
+    font-weight: normal;
+}
+@font-face {
+    font-family: "NanumSquare";
+    src: local(NanumSquareBold);
+    src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-cBd.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-cBd.otf") format("opentype");
+    font-weight: bold;
+}
 
 /* ✅ 레이아웃 */
 .wrap {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1500px;
     margin: 0 auto;
-    background-color: #fff;
+    background-color: #F6F2E4;
 }
 
 .content {
     position: relative;
-    padding: 0 20px;
+    padding: 0 50px;
 }
 
 .home_content_wrap {

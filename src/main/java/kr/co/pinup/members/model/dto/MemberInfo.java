@@ -22,11 +22,13 @@ public record MemberInfo(
 
     @Override
     public String getPassword() {
-        return null;
+        return provider.toString();
     }
 
     @Override
     public String getUsername() {
         return nickname;
     }
+
+    public OAuthProvider getProvider() { return provider; }
 }

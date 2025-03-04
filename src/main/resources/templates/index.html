@@ -1,17 +1,22 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layouts/layout}">
-<!--TODO 이제 session에 저장하지 않기 때문에, 어떻게 확인할 지 생각해봐야함. update 시 securityContextHolder에도 적용이 되지만 여기서는 변경되지 않음-->
-<div class="container" layout:fragment="content">
-    <th:block th:if="${session.memberInfo == null}">
-        <p>메인 페이지입니다.</p>
-    </th:block>
-
-    <th:block th:if="${session.memberInfo != null}">
-        <p>Name: <span th:text="${session.memberInfo.nickname}">NickName</span></p>
-        <p>Role: <span th:text="${session.memberInfo.role}">Role</span></p>
-        <p>Provider: <span th:text="${session.memberInfo.provider}">Provider</span></p>
-    </th:block>
+      layout:decorate="~{layouts/main}">
+<div layout:fragment="content">
+    <div th:class="page_description">
+        <h1>Main</h1>
+        <h4>가장 인기 있는 팝업 스토어</h4>
+    </div>
+    <div>
+        <div class="store-list-container">
+            <ul id="store-list">
+                <li th:each="store : ${stores}">
+                    <img th:src="${store.imageUrl != null ? store.imageUrl : '@{/images/loading.png}'}" alt="Store Image">
+                    <a th:href="@{/stores/{id}(id=${store.id})}" th:text="${store.name}"></a>
+                    <p th:text="${store.description}"></p>
+                </li>
+            </ul>
+        </div>
+    </div>
 </div>
 </html>

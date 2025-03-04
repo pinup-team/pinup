@@ -7,7 +7,6 @@ import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageDeleteFailedException;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
-import kr.co.pinup.postImages.exception.postimage.PostImageSaveFailedException;
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
@@ -25,9 +24,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
