@@ -77,11 +77,13 @@
                                     </div>
                                     <div class="comment-footer">
                                         <div class="card-time" th:text="*{#temporals.format(comment.createdAt, 'yyyy-MM-dd')}"></div>
-                                        <button type="button" class="comment-delete transparent-button"
-                                                th:data-comment-id="${comment.id}"
-                                                th:if="${comment.member.id == member.id}">
-                                            삭제
-                                        </button>
+                                        <th:block sec:authorize="isAuthenticated()">
+                                            <button type="button" class="comment-delete transparent-button"
+                                                    th:data-comment-id="${comment.id}"
+                                                    th:if="${comment.member != null and comment.member.nickname != null and #authentication.principal.username == comment.member.nickname}">
+                                                삭제
+                                            </button>
+                                        </th:block>
                                     </div>
                                 </li>
                             </th:block>

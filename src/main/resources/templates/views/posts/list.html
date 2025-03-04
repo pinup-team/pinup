@@ -49,14 +49,16 @@
                                         </div>
                                         <div class="post_action_wrapper">
                                             <span class="pinup_nickname" th:text="${post.member.nickname}"></span>
-                                            <button class="post_edit_button"
-                                                    th:onclick="|location.href='@{/post/update/{id}(id=${post.id})}'|"
-                                                    th:if="${post.member.id == member.id}">수정
-                                            </button>
-                                            <button class="post_delete_button"
-                                                    th:onclick="removePost([[${post.id}]], [[${post.storeId}]])"
-                                                    th:if="${post.member.id == member.id}">삭제
-                                            </button>
+                                            <th:block sec:authorize="isAuthenticated()">
+                                                <button class="post_edit_button"
+                                                        th:onclick="|location.href='@{/post/update/{id}(id=${post.id})}'|"
+                                                        th:if="${post.member != null and post.member.nickname != null and #authentication.principal.username == post.member.nickname}">수정
+                                                </button>
+                                                <button class="post_delete_button"
+                                                        th:onclick="removePost([[${post.id}]], [[${post.storeId}]])"
+                                                        th:if="${post.member != null and post.member.nickname != null and #authentication.principal.username == post.member.nickname}">삭제
+                                                </button>
+                                            </th:block>
                                         </div>
                                     </div>
                                 </th:block>
