@@ -33,24 +33,26 @@ public class PostController {
 
     @GetMapping("/list/{storeId}")
     public String getAllPosts(@AuthenticationPrincipal MemberInfo memberInfo, @PathVariable Long storeId, Model model) {
-        Member member = memberRepository.findByNickname(memberInfo.nickname())
-                .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
-
+        if (memberInfo != null) {
+            Member member = memberRepository.findByNickname(memberInfo.nickname())
+                    .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
+            model.addAttribute("member", member);
+        }
         model.addAttribute("posts", postService.findByStoreId(storeId));
         model.addAttribute("storeId", storeId);
-        model.addAttribute("member", member);
         return VIEW_PATH + "/list";
     }
 
     @GetMapping("/{postId}")
     public String getPostById(@AuthenticationPrincipal MemberInfo memberInfo,@PathVariable Long postId, Model model) {
-        Member member = memberRepository.findByNickname(memberInfo.nickname())
-                .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
-
+        if (memberInfo != null) {
+            Member member = memberRepository.findByNickname(memberInfo.nickname())
+                    .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
+            model.addAttribute("member", member);
+        }
         model.addAttribute("post", postService.getPostById(postId));
         model.addAttribute("comments", commentService.findByPostId(postId));
         model.addAttribute("images", postImageService.findImagesByPostId(postId));
-        model.addAttribute("member", member);
 
         return VIEW_PATH + "/detail";
     }
@@ -73,4 +75,3 @@ public class PostController {
     }
 
 }
-
