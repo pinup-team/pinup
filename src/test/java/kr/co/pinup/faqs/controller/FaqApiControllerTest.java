@@ -10,6 +10,8 @@ import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
 import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.members.service.MemberService;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,13 +46,16 @@ class FaqApiControllerTest {
     static final String VIEWS_ERROR = "error";
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
     @MockitoBean
-    private FaqService faqService;
+    FaqService faqService;
+
+    @MockitoBean
+    MemberService memberService;
 
     @Test
     @WithMockMember(role = MemberRole.ROLE_ADMIN)

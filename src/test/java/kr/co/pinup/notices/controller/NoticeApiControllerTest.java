@@ -5,6 +5,7 @@ import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.exception.ErrorResponse;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.notices.exception.NoticeNotFound;
 import kr.co.pinup.notices.model.dto.NoticeCreateRequest;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
@@ -56,6 +57,9 @@ class NoticeApiControllerTest {
 
     @MockitoBean
     NoticeService noticeService;
+
+    @MockitoBean
+    MemberService memberService;
 
     static Stream<Arguments> noticeProvider() {
         return Stream.of(arguments("공지사항 제목", "공지사항 내용"));

@@ -5,6 +5,7 @@ import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.members.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +38,9 @@ class FaqControllerTest {
 
     @MockitoBean
     FaqService faqService;
+
+    @MockitoBean
+    MemberService memberService;
 
     @Test
     @DisplayName("FAQ 리스트 페이지 이동")
