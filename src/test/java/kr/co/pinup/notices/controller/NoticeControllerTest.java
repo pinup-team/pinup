@@ -26,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Import(SecurityConfigTest.class)
-@ExtendWith(SpringExtension.class)
 @WebMvcTest(NoticeController.class)
 class NoticeControllerTest {
 

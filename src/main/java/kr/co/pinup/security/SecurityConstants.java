@@ -8,7 +8,7 @@ public class SecurityConstants {
             "/stores", "/api/stores", "/api/stores/summary",
             "/post",
             "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}",
-            "/faqs", "/api/faqs"
+            "/faqs", "/api/faqs", "/api/faqs/{faqsId}"
     };
 
     // 필터 적용 제외할 URL 목록
@@ -18,6 +18,6 @@ public class SecurityConstants {
             "/stores", "/api/stores", "/api/stores/summary",
             "/post",
             "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}",
-            "/faqs", "/api/faqs"
+            "/faqs", "/api/faqs", "/api/faqs/{faqsId}"
     );
 }
