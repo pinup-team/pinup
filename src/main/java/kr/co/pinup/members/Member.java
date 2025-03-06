@@ -2,12 +2,9 @@ package kr.co.pinup.members;
 
 import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
-import kr.co.pinup.faqs.Faq;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.oauth.OAuthProvider;
 import lombok.*;
-
-import java.util.List;
 
 @Entity
 @Setter

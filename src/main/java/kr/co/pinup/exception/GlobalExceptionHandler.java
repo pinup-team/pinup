@@ -22,17 +22,25 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(BindException.class)
-    public ResponseEntity<String> invalidRequestHandler(BindException ex) {
+    public ResponseEntity<ErrorResponse> invalidRequestHandler(BindException ex) {
         int status = BAD_REQUEST.value();
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(status)
+                .message("잘못된 요청입니다.")
+                .build();
+
+        for (FieldError fieldError : ex.getFieldErrors()) {
+            errorResponse.addValidation(fieldError.getField(), fieldError.getDefaultMessage());
+        }
 
         return ResponseEntity.status(status)
-                .body(ex.getMessage());
+                .body(errorResponse);
     }
 
     @ResponseBody
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(MemberBadRequestException.class)
-    public ResponseEntity<String> invalidRequestHandler(MemberBadRequestException ex) {
+    public ResponseEntity<String> memberBadRequestHandler(MemberBadRequestException ex) {
         int status = BAD_REQUEST.value();
 
         return ResponseEntity.status(status)
