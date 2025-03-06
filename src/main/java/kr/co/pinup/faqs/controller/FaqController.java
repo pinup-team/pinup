@@ -1,11 +1,7 @@
 package kr.co.pinup.faqs.controller;
 
-import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.faqs.service.FaqService;
-import kr.co.pinup.members.model.dto.MemberInfo;
-import kr.co.pinup.members.model.dto.MemberResponse;
-import kr.co.pinup.members.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,11 +25,9 @@ public class FaqController {
     private static final String VIEW_PATH = "views/faqs";
 
     private final FaqService faqService;
-    private final MemberService memberService;
 
     @GetMapping
-    public String list(@LoginMember MemberInfo memberInfo, Model model) {
-        model.addAttribute("profile", getMember(memberInfo));
+    public String list(Model model) {
         model.addAttribute("category", getFaqCategoryToMap());
         model.addAttribute("faqs", faqService.findAll());
 
@@ -42,7 +36,7 @@ public class FaqController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @GetMapping("/new")
-    public String create(@LoginMember MemberInfo memberInfo, Model model) {
+    public String create(Model model) {
         model.addAttribute("category", getFaqCategoryToMap());
 
         return VIEW_PATH + "/create";
@@ -50,8 +44,7 @@ public class FaqController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @GetMapping("/{faqId}/update")
-    public String update(@LoginMember MemberInfo memberInfo, @PathVariable Long faqId, Model model) {
-        model.addAttribute("profile", memberService.findMember(memberInfo));
+    public String update(@PathVariable Long faqId, Model model) {
         model.addAttribute("category", getFaqCategoryToMap());
         model.addAttribute("faq", faqService.find(faqId));
 
@@ -61,14 +54,6 @@ public class FaqController {
     private Map<FaqCategory, String> getFaqCategoryToMap() {
         return Arrays.stream(FaqCategory.values())
                 .collect(Collectors.toMap(Function.identity(), FaqCategory::getName));
-    }
-
-    private MemberResponse getMember(MemberInfo memberInfo) {
-        if (memberInfo != null) {
-            return memberService.findMember(memberInfo);
-        }
-
-        return null;
     }
 
 }

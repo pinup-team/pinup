@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Slf4j
 @Controller
@@ -23,9 +24,10 @@ public class PostController {
     private final CommentService commentService;
     private final PostImageService postImageService;
 
-    @GetMapping("/list/{storeid}")
-    public String getAllPosts(@PathVariable Long storeid, Model model) {
-        model.addAttribute("posts", postService.findByStoreId(storeid));
+    @GetMapping("/list/{storeId}")
+    public String getAllPosts(@PathVariable Long storeId, Model model) {
+        model.addAttribute("posts", postService.findByStoreId(storeId));
+        model.addAttribute("storeId", storeId);
         return VIEW_PATH + "/list";
     }
 
@@ -40,7 +42,8 @@ public class PostController {
     }
 
     @GetMapping("/create")
-    public String createPostForm(Model model) {
+    public String createPostForm(@RequestParam("storeId") Long storeId, Model model) {
+        model.addAttribute("storeId", storeId);
         return VIEW_PATH + "/create";
     }
 

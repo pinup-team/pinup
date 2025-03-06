@@ -10,7 +10,6 @@ import kr.co.pinup.notices.model.dto.NoticeCreateRequest;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
 import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
 import kr.co.pinup.notices.service.NoticeService;
-import kr.co.pinup.oauth.OAuthProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -63,7 +62,7 @@ class NoticeApiControllerTest {
     }
 
     @ParameterizedTest
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @MethodSource("noticeProvider")
     @DisplayName("공지사항 저장")
     void save(String title, String content) throws Exception {
@@ -84,7 +83,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 저장 시 title 값은 필수이다")
     void invalidTitleToSave() throws Exception {
         // given
@@ -107,7 +106,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 저장 시 title 길이는 1~100까지 이다")
     void invalidTitleLengthToSave() throws Exception {
         // given
@@ -131,7 +130,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 저장 시 content 값은 필수이다")
     void invalidContentToSave() throws Exception {
         // given
@@ -224,7 +223,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 수정")
     void update() throws Exception {
         // given
@@ -244,7 +243,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 수정은 title 값이 필수다")
     void invalidTitleToUpdate() throws Exception {
         // given
@@ -269,7 +268,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 수정은 content 값이 필수다")
     void invalidContentToUpdate() throws Exception {
         // given
@@ -294,7 +293,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("존재하지 않는 공지사항 수정")
     void updateError() throws Exception {
         // given
@@ -324,7 +323,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 삭제")
     void deleteTest() throws Exception {
         // given
@@ -340,7 +339,7 @@ class NoticeApiControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("존재하지 않는 공지사항 삭제")
     void deleteError() throws Exception {
         // given

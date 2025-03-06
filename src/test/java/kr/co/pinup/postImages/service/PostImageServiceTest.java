@@ -2,15 +2,18 @@ package kr.co.pinup.postImages.service;
 
 import kr.co.pinup.custom.s3.S3Service;
 import kr.co.pinup.custom.s3.exception.s3.ImageDeleteFailedException;
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageDeleteFailedException;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
-import kr.co.pinup.postImages.exception.postimage.PostImageSaveFailedException;
 import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.repository.PostRepository;
+import kr.co.pinup.stores.Store;
+import kr.co.pinup.stores.model.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,12 +24,10 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,15 +62,33 @@ public class PostImageServiceTest {
 
     @BeforeEach
     public void setUp() throws IOException {
-        // Set up postEntity
+        // Set up Store and Member objects
+        Store store = Store.builder()
+                .name("Test Store")
+                .description("This is a test store.")
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusMonths(6))
+                .status(Status.PENDING)
+                .imageUrl("http://example.com/store.jpg")
+                .build();
+
+        Member member = Member.builder()
+                .email("test@domain.com")
+                .name("Test User")
+                .nickname("TestUser")
+                .role(MemberRole.ROLE_USER)
+                .build();
+
+        // Set up PostEntity using Store and Member objects
         post = Post.builder()
-                .storeId(123L)
-                .userId(456L)
+                .store(store)
+                .member(member)
                 .title("Test Post")
                 .content("This is a test post.")
                 .thumbnail("http://example.com/image1.jpg")
                 .build();
 
+        // Mock MultipartFile for image
         file = Mockito.mock(MultipartFile.class);
         when(file.getOriginalFilename()).thenReturn("testImage.jpg");
         when(file.getInputStream()).thenReturn(new ByteArrayInputStream("test data".getBytes()));
@@ -79,6 +98,7 @@ public class PostImageServiceTest {
                 .images(Collections.singletonList(file))
                 .build();
     }
+
 
     @DisplayName("이미지가 없는 경우 이미지 저장 실패")
     @Test

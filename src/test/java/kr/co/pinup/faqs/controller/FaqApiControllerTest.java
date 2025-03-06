@@ -7,18 +7,15 @@ import kr.co.pinup.faqs.exception.FaqNotFound;
 import kr.co.pinup.faqs.model.dto.FaqCreateRequest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
-import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
-import kr.co.pinup.oauth.OAuthProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
-import static kr.co.pinup.faqs.model.enums.FaqCategory.*;
+import static kr.co.pinup.faqs.model.enums.FaqCategory.USE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -201,7 +198,6 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithAnonymousUser
     @DisplayName("FAQ 전체 조회")
     void findAll() throws Exception {
         // given
@@ -230,7 +226,6 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithAnonymousUser
     @DisplayName("FAQ 단일 조회")
     void find() throws Exception {
         // given
@@ -256,7 +251,6 @@ class FaqApiControllerTest {
     }
 
     @Test
-    @WithAnonymousUser
     @DisplayName("존재하지 않는 ID로 조회시 에러")
     void findWithNonExistId() throws Exception {
         // given

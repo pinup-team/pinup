@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static kr.co.pinup.faqs.model.enums.FaqCategory.*;
+import static kr.co.pinup.faqs.model.enums.FaqCategory.USE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -61,12 +61,11 @@ class FaqServiceTest {
                 .role(MemberRole.ROLE_ADMIN)
                 .build();
         memberRepository.save(member);
-
-        faqRepository.deleteAll();
     }
 
     @AfterEach
     void tearDown() {
+        faqRepository.deleteAll();
         memberRepository.deleteAll();
     }
 
@@ -104,7 +103,7 @@ class FaqServiceTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(readOnly = true)
     @DisplayName("FAQ 전체 조회")
     void findAll() {
         // given
@@ -129,7 +128,7 @@ class FaqServiceTest {
     }
 
     @Test
-    @Transactional
+    @Transactional(readOnly = true)
     @DisplayName("FAQ 단일 조회")
     void find() {
         // given

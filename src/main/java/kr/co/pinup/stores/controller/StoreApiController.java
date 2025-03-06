@@ -1,14 +1,14 @@
 package kr.co.pinup.stores.controller;
 
 
-import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import jakarta.validation.Valid;
 import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
 import kr.co.pinup.stores.model.dto.StoreSummaryResponse;
+import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
 import kr.co.pinup.stores.service.StoreService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;

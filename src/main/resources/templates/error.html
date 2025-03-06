@@ -1,17 +1,20 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Pin-up</title>
-</head>
-<body>
-<h1>에러 페이지</h1>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+<div class="container" layout:fragment="content">
+    <h1>에러 페이지</h1>
 
-<div th:object="${error}">
-    <p><strong>상태 코드:</strong> <span th:text="*{status}"></span></p>
-    <p><strong>메시지:</strong> <span th:text="*{message}"></span></p>
+    <div th:object="${error}">
+        <p><strong>상태 코드:</strong> <span th:text="*{status}"></span></p>
+        <p><strong>메시지:</strong> <span th:text="*{message}"></span></p>
+    </div>
+
+    <p>다시 시도해주세요.</p>
+    <button th:onclick="|window.location.href='/'|">Home</button>
+    <th:block sec:authorize="isAnonymous()">
+        <button th:onclick="|window.location.href='/members/login'|">Login</button>
+    </th:block>
 </div>
-
-<p>다시 시도해주세요.</p>
-</body>
 </html>

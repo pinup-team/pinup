@@ -3,7 +3,6 @@ package kr.co.pinup.stores.controller;
 import jakarta.validation.Valid;
 import kr.co.pinup.store_categories.service.CategoryService;
 import kr.co.pinup.stores.model.dto.StoreRequest;
-import kr.co.pinup.stores.model.dto.StoreResponse;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
 import kr.co.pinup.stores.service.StoreService;
 import lombok.RequiredArgsConstructor;

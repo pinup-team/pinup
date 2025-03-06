@@ -3,17 +3,14 @@ package kr.co.pinup.notices.controller;
 import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
-import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
 import kr.co.pinup.notices.service.NoticeService;
-import kr.co.pinup.oauth.OAuthProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -38,13 +35,9 @@ class NoticeControllerTest {
     MockMvc mockMvc;
 
     @MockitoBean
-    MemberService memberService;
-
-    @MockitoBean
     NoticeService noticeService;
 
     @Test
-    @WithAnonymousUser
     @DisplayName("공지사항 리스트 페이지 이동")
     void listPage() throws Exception {
         // given
@@ -68,7 +61,7 @@ class NoticeControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 생성 페이지 이동")
     void newPage() throws Exception {
         // given
@@ -81,7 +74,6 @@ class NoticeControllerTest {
     }
 
     @Test
-    @WithAnonymousUser
     @DisplayName("공지사항 상세 페이지 이동")
     void detailPage() throws Exception {
         // given
@@ -104,7 +96,7 @@ class NoticeControllerTest {
     }
 
     @Test
-    @WithMockMember(nickname = "두려운 고양이", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
     @DisplayName("공지사항 수정 페이지 이동")
     void updatePage() throws Exception {
         // given

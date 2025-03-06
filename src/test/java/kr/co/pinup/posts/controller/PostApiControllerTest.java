@@ -2,6 +2,13 @@ package kr.co.pinup.posts.controller;
 
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
+import kr.co.pinup.locations.Location;
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.custom.WithMockMember;
+import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.model.dto.MemberResponse;
+import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
@@ -9,6 +16,9 @@ import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.service.PostService;
+import kr.co.pinup.store_categories.StoreCategory;
+import kr.co.pinup.stores.Store;
+import kr.co.pinup.stores.model.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +35,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -32,6 +43,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -71,8 +83,32 @@ class PostApiControllerTest {
         }
     }
 
+    Member member;
+
+    Store store;
+
     @BeforeEach
     void setUp() {
+        member = Member.builder()
+                .email("test@naver.com")
+                .name("test")
+                .nickname("행복한돼지")
+                .providerType(OAuthProvider.NAVER)
+                .providerId("hdiJZoHQ-XDUkGvVCDLr1_NnTNZGcJjyxSAEUFjEi6A")
+                .role(MemberRole.ROLE_USER)
+                .build();
+
+        store = Store.builder()
+                .name("Test Store")
+                .description("Description of the store")
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusMonths(1))
+                .status(Status.RESOLVED)
+                .imageUrl("image_url")
+                .category(new StoreCategory("Category Name"))
+                .location(new Location("Test Location","12345","Test State","Test District",37.7749,-122.4194,"1234 Test St.", "Suite 101"))
+                .build();
+
         mockMvc = MockMvcBuilders.standaloneSetup(postApiController).build();
     }
 
@@ -94,14 +130,15 @@ class PostApiControllerTest {
                 .andDo(print())
                 .andExpect(content().json("[{'id': 1, 'title': 'Title 1', 'content': 'Content 1'}]"));
     }
+
     @DisplayName("게시글 ID로 조회")
     @Test
     void testGetPostById() throws Exception {
         Long postId = 1L;
 
         Post post = Post.builder()
-                .userId(1L)
-                .storeId(1L)
+                .store(store)
+                .member(member)
                 .title("Title 1")
                 .content("Content 1")
                 .thumbnail("Thumbnail")
@@ -123,9 +160,14 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.postImages[0].s3Url").value("image1.jpg"));
     }
 
+
     @DisplayName("게시글 생성")
     @Test
+    @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     void testCreatePost() throws Exception {
+
+        MemberResponse memberResponse = new MemberResponse(member);
+
         CreatePostRequest createPostRequest = CreatePostRequest.builder()
                 .title("Title 1")
                 .content("Content 1")
@@ -133,13 +175,14 @@ class PostApiControllerTest {
         PostResponse createdPostResponseDto = PostResponse.builder()
                 .id(1L)
                 .storeId(1L)
-                .userId(1L)
+                .member(memberResponse)
                 .title("Title 1")
                 .content("Content 1")
                 .thumbnail("Thumbnail")
                 .build();
 
-        when(postService.createPost(any(CreatePostRequest.class), any(MultipartFile[].class))).thenReturn(createdPostResponseDto);
+        when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(MultipartFile[].class)))
+                .thenReturn(createdPostResponseDto);
 
         mockMvc.perform(multipart("/api/post/create")
                         .file("images", new byte[]{})
@@ -152,6 +195,7 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.content").value("Content 1"))
                 .andExpect(jsonPath("$.thumbnail").value("Thumbnail"));
     }
+
 
     @DisplayName("게시글 삭제")
     @Test
@@ -173,8 +217,6 @@ class PostApiControllerTest {
                 .content("Updated Content")
                 .build();
         Post updatedPost = Post.builder()
-                .userId(1L)
-                .storeId(1L)
                 .title("Updated Title")
                 .content("Updated Content")
                 .thumbnail("Updated Thumbnail")
