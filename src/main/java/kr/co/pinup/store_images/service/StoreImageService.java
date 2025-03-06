@@ -1,6 +1,8 @@
 package kr.co.pinup.store_images.service;
 
 import kr.co.pinup.store_images.exception.StoreImageNotFoundException;
+import kr.co.pinup.store_images.exception.StoreImageSaveFailedException;
+import kr.co.pinup.store_images.model.dto.StoreImageRequest;
 import kr.co.pinup.store_images.repository.StoreImageRepository;
 import kr.co.pinup.stores.StoreImage;
 import lombok.extern.slf4j.Slf4j;
@@ -31,19 +33,22 @@ public class StoreImageService {
     }
 
     @Transactional
-    public List<String> uploadStoreImages(Store store, List<MultipartFile> imageFiles) {
-        return  imageFiles.stream().map(imageFile -> {
-            String imageUrl = s3Service.uploadFile(imageFile, PATH_PREFIX);
+    public List<StoreImage> uploadStoreImages(Store store, StoreImageRequest storeImageRequest) {
 
-            StoreImage storeImage = StoreImage.builder()
-                    .store(store)
-                    .imageUrl(imageUrl)
-                    .filename(imageFile.getOriginalFilename())
-                    .build();
+        List<String> imageUrls = uploadFiles(storeImageRequest.getImages(), PATH_PREFIX);
 
-            storeImageRepository.save(storeImage);
-            return imageUrl;
-        }).collect(Collectors.toList());
+        List<StoreImage> storeImages = imageUrls.stream()
+                .map(s3Url -> new StoreImage(store, s3Url))
+                .collect(Collectors.toList());
+
+        try {
+            storeImageRepository.saveAll(storeImages);
+        } catch (Exception e) {
+            throw new StoreImageSaveFailedException("이미지 저장 중 문제가 발생했습니다.", e);
+        }
+
+        return storeImages;
+
     }
 
     @Transactional
@@ -62,5 +67,11 @@ public class StoreImageService {
         Store store = storeRepository.findById(storeId)
                 .orElseThrow(() -> new StoreImageNotFoundException("스토어를 찾을 수 없습니다."));
         return store.getImageUrl();
+    }
+
+    public List<String> uploadFiles(List<MultipartFile> files, String pathPrefix) {
+        return files.stream()
+                .map(file -> s3Service.uploadFile(file, pathPrefix))
+                .collect(Collectors.toList());
     }
 }

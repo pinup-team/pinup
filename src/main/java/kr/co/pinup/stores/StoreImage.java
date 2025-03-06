@@ -20,6 +20,4 @@ public class StoreImage extends BaseEntity {
     @Column(nullable = false)
     private String imageUrl;
 
-    @Column(nullable = false)
-    private String filename;
 }

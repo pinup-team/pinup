@@ -1,3 +1,39 @@
+
+function submitStore() {
+    const form = document.getElementById("storeForm");
+    const formData = new FormData(form);
+    console.log("formData", formData);
+
+
+        // FormData를 테이블 형식으로 변환
+        const formDataEntries = [];
+        for (const pair of formData.entries()) {
+            formDataEntries.push({ "Key": pair[0], "Value": pair[1] });
+        }
+
+        console.table(formDataEntries); // 콘솔에 테이블 형태로 출력
+
+
+    fetch("/api/stores", {
+        method: "POST",
+        body: formData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.id) {
+                alert("게시물이 성공적으로 생성되었습니다!");
+                window.location.href = `/stores/${data.id}`;
+            } else {
+                alert("게시물 생성에 실패했습니다.");
+            }
+        })
+        .catch(error => {
+            console.error("게시물 생성 중 오류 발생:", error);
+            alert("게시물을 생성하는 중에 오류가 발생했습니다.");
+        });
+}
+
+
 document.addEventListener("DOMContentLoaded", function () {
     const createForm = document.getElementById("storeForm");
     const updateForm = document.getElementById("updateForm");
@@ -28,6 +64,8 @@ document.addEventListener("DOMContentLoaded", function () {
     if (createForm) {
         createForm.addEventListener("submit", function (event) {
             event.preventDefault();
+
+            console.log("createForm: ", createForm);
 
             const formData = new FormData(createForm);
 
@@ -129,3 +167,4 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
+

@@ -43,7 +43,7 @@ public class Store extends BaseEntity {
     @Builder.Default
     private Status status = Status.PENDING;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     public void updateStore(StoreUpdateRequest request, StoreCategory category, Location location) {

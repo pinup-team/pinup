@@ -51,8 +51,8 @@ public class StoreApiController {
     }
 
     @PostMapping
-    public ResponseEntity<StoreResponse> createStore(@Valid @RequestPart StoreRequest request,
-                                                     @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
+    public ResponseEntity<StoreResponse> createStore(@Valid @ModelAttribute StoreRequest request,
+                                                     @RequestParam(value = "imageFiles", required = false) MultipartFile[] imageFiles) {
         log.info("팝업스토어 생성 요청 - 이름: {}", request.name());
         return ResponseEntity.ok(storeService.createStore(request, imageFiles));
     }

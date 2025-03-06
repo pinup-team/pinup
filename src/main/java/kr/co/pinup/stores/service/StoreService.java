@@ -11,8 +11,10 @@ import kr.co.pinup.store_categories.exception.StoreCategoryNotFoundException;
 import kr.co.pinup.store_categories.model.dto.StoreCategoryResponse;
 import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
 import kr.co.pinup.store_images.exception.StoreImageDeleteFailedException;
+import kr.co.pinup.store_images.model.dto.StoreImageRequest;
 import kr.co.pinup.store_images.service.StoreImageService;
 import kr.co.pinup.stores.Store;
+import kr.co.pinup.stores.StoreImage;
 import kr.co.pinup.stores.exception.StoreNotFoundException;
 import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -70,10 +73,15 @@ public class StoreService {
                 log.error("스토어 이미지 삭제 실패: {}", e.getMessage());
             }
 
-            storeImageService.uploadStoreImages(store, imageFiles);
+
+            StoreImageRequest storeImageRequest = StoreImageRequest.builder()
+                    .images(imageFiles)
+                    .build();
+
+            storeImageService.uploadStoreImages(store, storeImageRequest);
             log.info("이미지 업데이트 완료 - Store ID: {}", store.getId());
 
-            }
+        }
 
         return StoreResponse.from(store);
     }
@@ -102,7 +110,7 @@ public class StoreService {
     }
 
     @Transactional
-    public StoreResponse createStore(StoreRequest request, List<MultipartFile> imageFiles) {
+    public StoreResponse createStore(StoreRequest request, MultipartFile[] imageFiles) {
         log.info("팝업스토어 생성 요청 - 이름: {}", request.name());
 
         StoreCategory category = storeCategoryRepository.findById(request.categoryId())
@@ -127,12 +135,12 @@ public class StoreService {
         storeRepository.save(store);
 
         String imageUrl = null;
-        if (imageFiles != null && !imageFiles.isEmpty()) {
-            List<String> imageUrls = storeImageService.uploadStoreImages(store, imageFiles);
-            if (!imageUrls.isEmpty()) {
-                imageUrl = imageUrls.get(0);
-            }
-        }
+
+        StoreImageRequest storeImageRequest = StoreImageRequest.builder()
+                .images(Arrays.asList(imageFiles))
+                .build();
+
+        List<StoreImage> storeImages = storeImageService.uploadStoreImages(store, storeImageRequest);
 
         log.info("팝업스토어 생성 완료 - ID: {}", store.getId());
 

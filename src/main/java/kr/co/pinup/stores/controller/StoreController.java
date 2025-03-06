@@ -3,6 +3,7 @@ package kr.co.pinup.stores.controller;
 import jakarta.validation.Valid;
 import kr.co.pinup.store_categories.service.CategoryService;
 import kr.co.pinup.stores.model.dto.StoreRequest;
+import kr.co.pinup.stores.model.dto.StoreResponse;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
 import kr.co.pinup.stores.service.StoreService;
 import lombok.RequiredArgsConstructor;
@@ -43,19 +44,8 @@ public class StoreController {
     }
 
     @PostMapping("/create")
-    public String createStore(@Valid @ModelAttribute StoreRequest storeRequest,
-                              BindingResult result,
-                              @RequestParam("imageFiles") List<MultipartFile> imageFiles) {
+    public String createStore(@Valid @ModelAttribute StoreRequest storeRequest) {
 
-        if (result.hasErrors()) {
-            return "views/stores/create";
-        }
-
-        if (imageFiles == null || imageFiles.isEmpty()) {
-            result.rejectValue("imageFiles", "error.imageFile", "이미지를 한 개 이상 반드시 업로드해야 합니다.");
-            return "views/stores/create";
-        }
-        StoreResponse store = storeService.createStore(storeRequest, imageFiles);
         return "redirect:views/stores/list";
     }
 

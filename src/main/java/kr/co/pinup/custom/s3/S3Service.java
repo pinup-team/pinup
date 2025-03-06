@@ -15,7 +15,9 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -71,4 +73,6 @@ public class S3Service {
         String[] urlParts = fileUrl.split("/");
         return urlParts[urlParts.length - 1];
     }
+
 }
+
