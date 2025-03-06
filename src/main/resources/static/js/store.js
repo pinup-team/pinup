@@ -168,3 +168,149 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    const createForm = document.getElementById("storeForm");
+    const updateForm = document.getElementById("updateForm");
+    const deleteButtons = document.querySelectorAll(".delete-btn");
+
+    if (createForm) {
+        createForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(createForm);
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
+
+            console.log(formData);
+            console.log(jsonData);
+
+            fetch("/api/stores", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(jsonData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert("팝업스토어 등록 성공");
+                    window.location.href = `/stores/${data.id}`;
+                })
+                .catch(error => {
+                    console.error("팝업스토어 등록 실패:", error);
+                    alert("팝업스토어 등록 중 오류 발생");
+                });
+        });
+    }
+
+
+    if (updateForm) {
+        updateForm.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const storeId = updateForm.dataset.storeId;
+            const formData = new FormData(updateForm);
+            const jsonData = {};
+            formData.forEach((value, key) => {
+                jsonData[key] = value;
+            });
+
+            fetch(`/api/stores/${storeId}`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify(jsonData)
+            })
+                .then(response => response.json())
+                .then(() => {
+                    alert("팝업스토어 수정 완료");
+                    window.location.href = `/stores/${storeId}`;
+                })
+                .catch(error => {
+                    console.error("팝업스토어 수정 실패:", error);
+                    alert("팝업스토어 수정 중 오류 발생");
+                });
+        });
+    }
+
+    deleteButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const storeId = this.dataset.storeId;
+            if (!confirm("스토어를 삭제하겠습니까?")) return;
+
+            fetch(`/api/stores/${storeId}`, {
+                method: "DELETE"
+            })
+                .then(() => {
+                    alert("팝업스토어 삭제 완료");
+                    window.location.href = "/stores";
+                })
+                .catch(error => {
+                    console.error("팝업스토어 삭제 실패:", error);
+                    alert("팝업스토어 삭제 중 오류 발생");
+                });
+        });
+    });
+});
+
+// 카카오 지도 API 로드 함수
+function loadMap() {
+    // ✅ `<input type="hidden">` 태그에서 값 가져오기
+    var latitude = document.getElementById("latitude-hidden").value;
+    var longitude = document.getElementById("longitude-hidden").value;
+    var storeName = document.getElementById("store-name").textContent.trim();
+    var storeAddr = document.getElementById("store-address").textContent.trim();
+
+    console.log("Store Name: ", storeName);  // 매장명 확인
+    console.log("Store Address: ", storeAddr);  // 주소 확인
+
+    var mapContainer = document.getElementById('map'), // 지도를 표시할 div
+        mapOption = {
+            center: new kakao.maps.LatLng(latitude, longitude), // 지도의 중심좌표
+            level: 8 // 지도의 확대 레벨
+        };
+
+    var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+    // 주소-좌표 변환 객체를 생성합니다
+    var geocoder = new kakao.maps.services.Geocoder();
+
+    // 주소로 좌표를 검색합니다
+    geocoder.addressSearch(storeAddr, function(result, status) {
+
+
+        if (status === kakao.maps.services.Status.OK) {
+            var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+
+            // 결과값으로 받은 위치를 마커로 표시합니다
+            var marker = new kakao.maps.Marker({
+                map: map,
+                position: coords
+            });
+
+            // 인포윈도우로 장소에 대한 설명을 표시합니다
+            var infowindow = new kakao.maps.InfoWindow({
+                content: '<div style="width:200px;text-align:center;padding:3px 0; position: relative;">' + storeName + '</div>'
+            });
+            infowindow.open(map, marker);
+
+            // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
+            map.setCenter(coords);
+        } else {
+            console.error("Geocode failed with status: ", status);
+        }
+    });
+}
+
+// 페이지가 로드되면 initializeMap 함수 실행
+document.addEventListener('DOMContentLoaded', function() {
+    kakao.maps.load(loadMap);
+});

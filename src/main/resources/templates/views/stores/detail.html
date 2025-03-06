@@ -6,7 +6,9 @@
 <head>
     <meta charset="UTF-8">
     <title>팝업스토어 상세 정보</title>
+
     <script defer src="/js/store.js"></script>
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1038c510f5de135a5c0d54f4f9181ef3&libraries=services"></script>
 </head>
 <body>
 <main layout:fragment="content" th:object="${store}">
@@ -16,6 +18,27 @@
     <p th:with="loc=*{location}">위치: <span th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address} +' ' +  ${loc.addressDetail}"></span></p>
     <p>시작 날짜: <span th:text="*{startDate}"></span></p>
     <p>종료 날짜: <span th:text="*{endDate}"></span></p>
+
+    <div>
+        <h1>매장정보</h1>
+        <div>오프라인 매장도 방문해보세요~</div>
+
+        <div style="width: 500px; display: flex; justify-content: flex-start;flex-wrap: wrap; flex-direction: column; align-items: left;">
+            <div class="form-group">
+                <label>매장명:</label>
+                <span id="store-name" th:utext="'<strong>' + ${location.name} + '</strong>'"></span>
+
+                <label>주소:</label>
+                <span id="store-address" th:utext="'<strong>' + ${location.address} + '</strong>'"></span>
+            </div>
+        </div>
+        <!-- 숨겨진 값 -->
+        <input type="hidden" id="latitude-hidden" th:value="${location.latitude}">
+        <input type="hidden" id="longitude-hidden" th:value="${location.longitude}">
+
+        <div id="map" style="width: 700px; height: 400px; border-radius: 10px; border: 1px solid #e7e7e7;box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.24);"></div>
+    </div>
+
     <a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
     <button class="delete-btn" th:data-store-id="*{id}">삭제</button>
     <a href="/stores">목록으로 돌아가기</a>
