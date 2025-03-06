@@ -12,6 +12,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Slf4j
 @Controller
@@ -41,11 +44,19 @@ public class StoreController {
     }
 
     @PostMapping("/create")
-    public String createStore(@Valid @ModelAttribute StoreRequest storeRequest, BindingResult result) {
+    public String createStore(@Valid @ModelAttribute StoreRequest storeRequest,
+                              BindingResult result,
+                              @RequestParam("imageFiles") List<MultipartFile> imageFiles) {
+
         if (result.hasErrors()) {
             return "views/stores/create";
         }
-        storeService.createStore(storeRequest);
+
+        if (imageFiles == null || imageFiles.isEmpty()) {
+            result.rejectValue("imageFiles", "error.imageFile", "이미지를 한 개 이상 반드시 업로드해야 합니다.");
+            return "views/stores/create";
+        }
+        StoreResponse store = storeService.createStore(storeRequest, imageFiles);
         return "redirect:views/stores/list";
     }
 
@@ -57,11 +68,14 @@ public class StoreController {
     }
 
     @PostMapping("/{id}/update")
-    public String updateStore(@PathVariable Long id, @Valid @ModelAttribute StoreUpdateRequest request, BindingResult result) {
+    public String updateStore(@PathVariable Long id,
+                              @Valid @ModelAttribute StoreUpdateRequest request,
+                              BindingResult result,
+                              @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
         if (result.hasErrors()) {
             return "views/stores/update";
         }
-        storeService.updateStore(id, request);
+        storeService.updateStore(id, request, imageFiles);
         return "redirect:views/stores/list";
     }
 

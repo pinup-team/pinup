@@ -1,11 +1,17 @@
 package kr.co.pinup.stores.service;
 
+import kr.co.pinup.custom.s3.S3Service;
+import kr.co.pinup.custom.s3.exception.s3.ImageDeleteFailedException;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.exception.LocationNotFoundException;
+import kr.co.pinup.locations.model.dto.LocationResponse;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
 import kr.co.pinup.store_categories.StoreCategory;
 import kr.co.pinup.store_categories.exception.StoreCategoryNotFoundException;
+import kr.co.pinup.store_categories.model.dto.StoreCategoryResponse;
 import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
+import kr.co.pinup.store_images.exception.StoreImageDeleteFailedException;
+import kr.co.pinup.store_images.service.StoreImageService;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.exception.StoreNotFoundException;
 import kr.co.pinup.stores.model.dto.StoreRequest;
@@ -18,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -30,9 +37,12 @@ public class StoreService {
     private final StoreRepository storeRepository;
     private final LocationRepository locationRepository;
     private final StoreCategoryRepository storeCategoryRepository;
+    private final StoreImageService storeImageService;
+
+    private final String PATH_PREFIX = "store";
 
     @Transactional
-    public StoreResponse updateStore(Long id, StoreUpdateRequest request) {
+    public StoreResponse updateStore(Long id, StoreUpdateRequest request, List<MultipartFile> imageFiles) {
         log.info("팝업스토어 수정 요청 - ID: {}", id);
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
@@ -50,6 +60,20 @@ public class StoreService {
         }
 
         store.updateStore(request, category, location);
+
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            log.info("기존 이미지 삭제 및 새로운 이미지 업로드 시작 - Store ID: {}", store.getId());
+            try {
+                storeImageService.deleteStoreImage(store.getId());
+                log.info("기존 이미지 삭제 완료");
+            } catch (StoreImageDeleteFailedException e) {
+                log.error("스토어 이미지 삭제 실패: {}", e.getMessage());
+            }
+
+            storeImageService.uploadStoreImages(store, imageFiles);
+            log.info("이미지 업데이트 완료 - Store ID: {}", store.getId());
+
+            }
 
         return StoreResponse.from(store);
     }
@@ -78,7 +102,7 @@ public class StoreService {
     }
 
     @Transactional
-    public StoreResponse createStore(StoreRequest request) {
+    public StoreResponse createStore(StoreRequest request, List<MultipartFile> imageFiles) {
         log.info("팝업스토어 생성 요청 - 이름: {}", request.name());
 
         StoreCategory category = storeCategoryRepository.findById(request.categoryId())
@@ -89,7 +113,7 @@ public class StoreService {
         Location location = locationRepository.findById(request.locationId())
                 .orElseThrow(LocationNotFoundException::new);
 
-        log.info("StoreCategory - {}", location.getId());
+        log.info("Location - {}", location.getId());
 
         Store store = Store.builder()
                 .name(request.name())
@@ -99,13 +123,32 @@ public class StoreService {
                 .startDate(request.startDate())
                 .endDate(request.endDate())
                 .status(Status.RESOLVED)
-                .imageUrl(request.imageUrl())
                 .build();
-
         storeRepository.save(store);
+
+        String imageUrl = null;
+        if (imageFiles != null && !imageFiles.isEmpty()) {
+            List<String> imageUrls = storeImageService.uploadStoreImages(store, imageFiles);
+            if (!imageUrls.isEmpty()) {
+                imageUrl = imageUrls.get(0);
+            }
+        }
+
         log.info("팝업스토어 생성 완료 - ID: {}", store.getId());
 
-        return StoreResponse.from(store);
+        return new StoreResponse(
+                store.getId(),
+                store.getName(),
+                store.getDescription(),
+                StoreCategoryResponse.from(store.getCategory()),
+                LocationResponse.from(store.getLocation()),
+                store.getStartDate(),
+                store.getEndDate(),
+                store.getStatus(),
+                store.getImageUrl(),
+                store.getCreatedAt(),
+                store.getUpdatedAt()
+        );
     }
 
     @Transactional
@@ -114,6 +157,13 @@ public class StoreService {
 
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
+
+        try {
+            storeImageService.deleteStoreImage(id);
+            log.info("스토어 이미지 삭제 완료");
+        } catch (StoreImageDeleteFailedException e) {
+            log.error("스토어 이미지 삭제 실패: {}", e.getMessage());
+        }
 
         storeRepository.delete(store);
         log.info("팝업스토어 삭제 완료 - ID: {}", id);

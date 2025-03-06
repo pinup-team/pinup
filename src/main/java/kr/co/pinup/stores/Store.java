@@ -40,6 +40,7 @@ public class Store extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Builder.Default
     private Status status = Status.PENDING;
 
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -54,9 +55,11 @@ public class Store extends BaseEntity {
         if (request.getStartDate() != null) this.startDate = request.getStartDate();
         if (request.getEndDate() != null) this.endDate = request.getEndDate();
         if (request.getStatus() != null) this.status = request.getStatus();
-        if (request.getImageUrl() != null) this.imageUrl = request.getImageUrl();
     }
 
+    public void updateImageUrl(String newImageUrl) {
+        this.imageUrl = newImageUrl;
+    }
 }
 
 
