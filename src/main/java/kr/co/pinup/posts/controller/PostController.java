@@ -40,20 +40,18 @@ public class PostController {
         return VIEW_PATH + "/detail";
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @GetMapping("/create")
     public String createPostForm(@RequestParam("storeId") Long storeId, Model model) {
         model.addAttribute("storeId", storeId);
         return VIEW_PATH + "/create";
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @GetMapping("/update/{id}")
     public String updatePostForm(@PathVariable Long id, Model model) {
-
         model.addAttribute("post", postService.getPostById(id));
         model.addAttribute("images", postImageService.findImagesByPostId(id));
-
         return VIEW_PATH + "/update";
     }
 

@@ -22,14 +22,14 @@ public class CommentApiController {
 
     private final CommentService commentService;
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable Long commentId) {
         commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @PostMapping("/{postId}")
     public ResponseEntity<CommentResponse> createComment(@LoginMember MemberInfo memberInfo, @PathVariable Long postId, @Valid @RequestBody CreateCommentRequest createCommentRequest) {
         return new ResponseEntity<>(commentService.createComment(memberInfo, postId, createCommentRequest), HttpStatus.CREATED);

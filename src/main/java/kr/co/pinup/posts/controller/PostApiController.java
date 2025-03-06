@@ -47,7 +47,7 @@ public class PostApiController {
         return PostDetailResponse.from(post, comments, images);
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @PostMapping("/create")
     public ResponseEntity<PostResponse> createPost(@AuthenticationPrincipal MemberInfo memberInfo,
                                                    @ModelAttribute @Valid CreatePostRequest createPostRequest,
@@ -55,14 +55,14 @@ public class PostApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo,createPostRequest, images));
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id) {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
 
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_USER')")
+    @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @PutMapping("/{id}")
     public ResponseEntity<Post> updatePost(@PathVariable Long id,
                                            @ModelAttribute @Valid UpdatePostRequest updatePostRequest,
