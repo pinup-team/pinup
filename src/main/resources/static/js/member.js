@@ -77,7 +77,7 @@ function updateAccount() {
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('서버와의 연결에 실패했습니다.');
+            alert(error.body);
         });
 }
 

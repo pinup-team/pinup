@@ -1,6 +1,7 @@
 package kr.co.pinup.exception;
 
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.pinup.members.exception.MemberBadRequestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -21,19 +22,21 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(BindException.class)
-    public ResponseEntity<ErrorResponse> invalidRequestHandler(BindException ex) {
+    public ResponseEntity<String> invalidRequestHandler(BindException ex) {
         int status = BAD_REQUEST.value();
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(status)
-                .message("잘못된 요청입니다.")
-                .build();
-
-        for (FieldError fieldError : ex.getFieldErrors()) {
-            errorResponse.addValidation(fieldError.getField(), fieldError.getDefaultMessage());
-        }
 
         return ResponseEntity.status(status)
-                .body(errorResponse);
+                .body(ex.getMessage());
+    }
+
+    @ResponseBody
+    @ResponseStatus(BAD_REQUEST)
+    @ExceptionHandler(MemberBadRequestException.class)
+    public ResponseEntity<String> invalidRequestHandler(MemberBadRequestException ex) {
+        int status = BAD_REQUEST.value();
+
+        return ResponseEntity.status(status)
+                .body(ex.getMessage());
     }
 
     @ResponseStatus(FORBIDDEN)
