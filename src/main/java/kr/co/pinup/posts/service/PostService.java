@@ -1,8 +1,6 @@
 package kr.co.pinup.posts.service;
 
 import jakarta.transaction.Transactional;
-import kr.co.pinup.faqs.exception.FaqNotFound;
-import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.MemberNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
