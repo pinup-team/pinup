@@ -40,11 +40,15 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(MemberBadRequestException.class)
-    public ResponseEntity<String> memberBadRequestHandler(MemberBadRequestException ex) {
+    public ResponseEntity<ErrorResponse> memberBadRequestHandler(MemberBadRequestException ex) {
         int status = BAD_REQUEST.value();
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(status)
+                .message(ex.getMessage())
+                .build();
 
         return ResponseEntity.status(status)
-                .body(ex.getMessage());
+                .body(errorResponse);
     }
 
     @ResponseStatus(FORBIDDEN)
