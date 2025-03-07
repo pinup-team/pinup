@@ -12,5 +12,4 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findByStoreId(Long storeId);
 
-    Optional<Post> findById(Long id);
 }

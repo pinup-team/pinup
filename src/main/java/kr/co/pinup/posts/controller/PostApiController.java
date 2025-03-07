@@ -33,17 +33,16 @@ public class PostApiController {
     private final CommentService commentService;
     private final PostImageService postImageService;
 
-    @GetMapping("/list/{storeid}")
-    public List<PostResponse> getAllPosts(@PathVariable Long storeid) {
-        return postService.findByStoreId(storeid);
+    @GetMapping("/list/{storeId}")
+    public List<PostResponse> getAllPosts(@PathVariable Long storeId) {
+        return postService.findByStoreId(storeId);
     }
 
     @GetMapping("/{postId}")
     public PostDetailResponse getPostById(@PathVariable Long postId) {
-        Post post = postService.getPostById(postId);
+        PostResponse post = postService.getPostById(postId);
         List<CommentResponse> comments = commentService.findByPostId(postId);
         List<PostImageResponse> images = postImageService.findImagesByPostId(postId);
-
         return PostDetailResponse.from(post, comments, images);
     }
 
@@ -56,19 +55,19 @@ public class PostApiController {
     }
 
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
-        postService.deletePost(id);
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        postService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }
 
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
-    @PutMapping("/{id}")
-    public ResponseEntity<Post> updatePost(@PathVariable Long id,
-                                           @ModelAttribute @Valid UpdatePostRequest updatePostRequest,
-                                           @RequestParam("imagesToDelete") List<String> imagesToDelete,
-                                           @RequestParam("images") MultipartFile[] images) {
-        Post post = postService.updatePost(id, updatePostRequest,images,imagesToDelete);
-        return ResponseEntity.ok(post);
+    @PutMapping("/{postId}")
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long postId,
+                                                   @ModelAttribute @Valid UpdatePostRequest updatePostRequest,
+                                                   @RequestParam("imagesToDelete") List<String> imagesToDelete,
+                                                   @RequestParam("images") MultipartFile[] images) {
+        Post post = postService.updatePost(postId, updatePostRequest, images, imagesToDelete);
+        return ResponseEntity.ok(PostResponse.from(post));
     }
 }

@@ -1,6 +1,8 @@
 package kr.co.pinup.posts.service;
 
 import jakarta.transaction.Transactional;
+import kr.co.pinup.faqs.exception.FaqNotFound;
+import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.MemberNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -78,11 +80,12 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    public Post getPostById(Long id) {
+    public PostResponse getPostById(Long id) {
         return postRepository.findById(id)
-                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + id));
+                .map(PostResponse::from)
+                .orElseThrow(PostNotFoundException::new);
     }
-
+    
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + postId));

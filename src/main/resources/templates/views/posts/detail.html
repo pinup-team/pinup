@@ -14,7 +14,7 @@
                     <div class="carousel" data="0">
                         <div class="carousel-inner">
                             <ul class="carousel-list">
-                                <th:block th:each="image : ${post.postImages}">
+                                <th:block th:each="image : ${images}">
                                     <li class="carousel-item"><img th:src="${image.s3Url}" alt="Post Image"/></li>
                                 </th:block>
                             </ul>
@@ -26,7 +26,7 @@
                             </div>
                         </div>
                         <footer class="pinup-carousel-indicators">
-                            <th:block th:each="image, iterStat : ${post.postImages}">
+                            <th:block th:each="image, iterStat : ${images}">
                                 <div th:classappend="${iterStat.index == 0} ? 'active' : ''"
                                      class="pinup-indicator"></div>
                             </th:block>
@@ -69,7 +69,7 @@
                     <hr>
                     <div class="card-content">
                         <ul>
-                            <th:block th:each="comment : ${post.comments}">
+                            <th:block th:each="comment : ${comments}">
                                 <li class="comment">
                                     <div class="comment-content">
                                         <span class="comment-username" th:text="${comment.member.nickname}"></span>

@@ -190,24 +190,37 @@ public class PostServicelTest {
     @DisplayName("게시물 ID로 게시물 조회")
     @Test
     void testGetPostById() {
-        // Given
+
         Long postId = 1L;
 
-        Post post = Post.builder()
+        Member mockMember = mock(Member.class);
+        when(mockMember.getId()).thenReturn(1L);
 
+        Store mockStore = mock(Store.class);
+        when(mockStore.getId()).thenReturn(1L);
+
+        Post post = Post.builder()
                 .title("Post Title")
                 .content("Post Content")
+                .store(mockStore)
+                .member(mockMember)
                 .build();
 
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
-        Post result = postService.getPostById(postId);
+        // When
+        PostResponse result = postService.getPostById(postId);
 
+        // Then
         assertNotNull(result);
-        assertEquals("Post Title", result.getTitle());
+        assertEquals("Post Title", result.title());
 
         verify(postRepository).findById(postId);
+        verify(mockStore).getId();
+        verify(mockMember).getId();
     }
+
+
     @DisplayName("게시물 삭제(이미지 삭제 포함)")
     @Test
     void testDeletePost() {

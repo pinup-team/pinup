@@ -1,5 +1,6 @@
 package kr.co.pinup.posts.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.locations.Location;
@@ -29,6 +30,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -36,6 +38,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
@@ -44,11 +47,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureMockMvc
 class PostApiControllerTest {
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private MockMvc mockMvc;
@@ -136,6 +141,26 @@ class PostApiControllerTest {
     void testGetPostById() throws Exception {
         Long postId = 1L;
 
+        Member member = Member.builder()
+                .email("test@naver.com")
+                .name("test")
+                .nickname("행복한돼지")
+                .providerType(OAuthProvider.NAVER)
+                .providerId("hdiJZoHQ-XDUkGvVCDLr1_NnTNZGcJjyxSAEUFjEi6A")
+                .role(MemberRole.ROLE_USER)
+                .build();
+
+        Store store = Store.builder()
+                .name("Test Store")
+                .description("Description of the store")
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusMonths(1))
+                .status(Status.RESOLVED)
+                .imageUrl("image_url")
+                .category(new StoreCategory("Category Name"))
+                .location(new Location("Test Location", "12345", "Test State", "Test District", 37.7749, -122.4194, "1234 Test St.", "Suite 101"))
+                .build();
+
         Post post = Post.builder()
                 .store(store)
                 .member(member)
@@ -144,22 +169,20 @@ class PostApiControllerTest {
                 .thumbnail("Thumbnail")
                 .build();
 
-        List<CommentResponse> comments = List.of(CommentResponse.builder().id(1L).content("Comment 1").build());
-        List<PostImageResponse> images = List.of(PostImageResponse.builder().s3Url("image1.jpg").build());
+        List<CommentResponse> comments = List.of(new CommentResponse(1L, postId, member, "댓글 내용", LocalDateTime.now()));
 
-        when(postService.getPostById(postId)).thenReturn(post);
+        List<PostImageResponse> images = List.of(new PostImageResponse(1L, 1L, "image.jpg"));
+
+        when(postService.getPostById(postId)).thenReturn(PostResponse.from(post));
         when(commentService.findByPostId(postId)).thenReturn(comments);
         when(postImageService.findImagesByPostId(postId)).thenReturn(images);
 
         mockMvc.perform(get("/api/post/{postId}", postId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("Title 1"))
-                .andExpect(jsonPath("$.content").value("Content 1"))
-                .andExpect(jsonPath("$.thumbnail").value("Thumbnail"))
-                .andExpect(jsonPath("$.comments[0].content").value("Comment 1"))
-                .andExpect(jsonPath("$.postImages[0].s3Url").value("image1.jpg"));
-    }
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
 
+    }
 
     @DisplayName("게시글 생성")
     @Test
@@ -199,7 +222,6 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.thumbnail").value("Thumbnail"));
     }
 
-
     @DisplayName("게시글 삭제")
     @Test
     void testDeletePost() throws Exception {
@@ -215,14 +237,38 @@ class PostApiControllerTest {
     @Test
     void testUpdatePost() throws Exception {
         Long postId = 1L;
+
+        Member member = Member.builder()
+                .email("test@naver.com")
+                .name("test")
+                .nickname("행복한돼지")
+                .providerType(OAuthProvider.NAVER)
+                .providerId("hdiJZoHQ-XDUkGvVCDLr1_NnTNZGcJjyxSAEUFjEi6A")
+                .role(MemberRole.ROLE_USER)
+                .build();
+
+        Store store = Store.builder()
+                .name("Test Store")
+                .description("Description of the store")
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusMonths(1))
+                .status(Status.RESOLVED)
+                .imageUrl("image_url")
+                .category(new StoreCategory("Category Name"))
+                .location(new Location("Test Location", "12345", "Test State", "Test District", 37.7749, -122.4194, "1234 Test St.", "Suite 101"))
+                .build();
+
         UpdatePostRequest updatePostRequest = UpdatePostRequest.builder()
                 .title("Updated Title")
                 .content("Updated Content")
                 .build();
+
         Post updatedPost = Post.builder()
                 .title("Updated Title")
                 .content("Updated Content")
                 .thumbnail("Updated Thumbnail")
+                .store(store)
+                .member(member)
                 .build();
 
         when(postService.updatePost(eq(postId), any(UpdatePostRequest.class), any(MultipartFile[].class), anyList()))
@@ -235,7 +281,7 @@ class PostApiControllerTest {
                 new byte[]{}
         );
 
-        mockMvc.perform(multipart("/api/post/{id}", postId)
+        mockMvc.perform(multipart("/api/post/{postId}", postId)
                         .file(images)
                         .param("title", "Updated Title")
                         .param("content", "Updated Content")

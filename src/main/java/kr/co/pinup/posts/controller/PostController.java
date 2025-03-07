@@ -48,10 +48,10 @@ public class PostController {
     }
 
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
-    @GetMapping("/update/{id}")
-    public String updatePostForm(@PathVariable Long id, Model model) {
-        model.addAttribute("post", postService.getPostById(id));
-        model.addAttribute("images", postImageService.findImagesByPostId(id));
+    @GetMapping("/update/{postId}")
+    public String updatePostForm(@PathVariable Long postId, Model model) {
+        model.addAttribute("post", postService.getPostById(postId));
+        model.addAttribute("images", postImageService.findImagesByPostId(postId));
         return VIEW_PATH + "/update";
     }
 
