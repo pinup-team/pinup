@@ -16,11 +16,23 @@
                 <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
             </select>
         </label><br>
-        <input id="locationId" type="hidden" name="locationId" value="1"/>
+        <input id="locationId" type="hidden" name="locationId"/>
+        <label>우편번호: <input type="text" id="zoneCode" name="zoneCode" readonly required/></label>
+        <button type="button" onclick="searchAddress()">주소 검색</button><br>
+
+        <label>주소: <input type="text" id="address" name="address" readonly required/></label>
+        <label>상세주소: <input type="text" id="addressDetail" name="addressDetail" required/></label>
+        <label></label>
         <label>스토어 이미지 업로드 : <input type="file" name="imageFiles" id="imageFiles" accept="image/*" multiple required></label><br>
         <div id="previewContainer" style="display: flex; flex-wrap: wrap"></div>
         <button type="button" onclick="submitStore()">생성</button>
     </form>
     <a href="/stores">목록으로 돌아가기</a>
 </div>
+
+<th:block layout:fragment="pageScripts">
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script th:src="@{/js/location.js}"></script>
+    <script th:src="@{/js/store.js}"></script>
+</th:block>
 </html>

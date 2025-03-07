@@ -3,6 +3,7 @@ package kr.co.pinup.stores.controller;
 import jakarta.validation.Valid;
 import kr.co.pinup.locations.service.LocationService;
 import kr.co.pinup.store_categories.service.CategoryService;
+import kr.co.pinup.store_images.service.StoreImageService;
 import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
@@ -26,6 +27,7 @@ public class StoreController {
     private final StoreService storeService;
     private final CategoryService categoryService;
     private final LocationService locationService;
+    private final StoreImageService storeImageService;
 
     @GetMapping
     public String listStores(Model model) {
@@ -35,9 +37,11 @@ public class StoreController {
 
     @GetMapping("/{id}")
     public String storeDetail(@PathVariable Long id, Model model) {
-        model.addAttribute("store", storeService.getStoreById(id));
-        //todo 화면에서 파라미터 값 넘겨주는 방법 연구 (store 내부 locationId 존재)
-        model.addAttribute("location", locationService.getLocationId(5L));
+        StoreResponse storeResponse = storeService.getStoreById(id);
+        model.addAttribute("store", storeResponse);
+        //TODO locationId 백엔드에서 조회해서 가져오기
+        model.addAttribute("location", locationService.getLocationId(storeResponse.location().id()));
+        model.addAttribute("storeImages", storeImageService.getStoreImages(id));
         return "views/stores/detail";
     }
 

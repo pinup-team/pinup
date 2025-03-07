@@ -3,8 +3,10 @@ package kr.co.pinup.store_images.service;
 import kr.co.pinup.store_images.exception.StoreImageNotFoundException;
 import kr.co.pinup.store_images.exception.StoreImageSaveFailedException;
 import kr.co.pinup.store_images.model.dto.StoreImageRequest;
+import kr.co.pinup.store_images.model.dto.StoreImageResponse;
 import kr.co.pinup.store_images.repository.StoreImageRepository;
-import kr.co.pinup.stores.StoreImage;
+import kr.co.pinup.store_images.StoreImage;
+import kr.co.pinup.stores.model.dto.StoreResponse;
 import lombok.extern.slf4j.Slf4j;
 import jakarta.transaction.Transactional;
 import kr.co.pinup.custom.s3.S3Service;
@@ -27,9 +29,11 @@ public class StoreImageService {
     private static final String PATH_PREFIX = "store";
     private final StoreImageRepository storeImageRepository;
 
-    public List<String> getStoreImages(Long storeId) {
+    public List<StoreImageResponse> getStoreImages(Long storeId) {
         List<StoreImage> images = storeImageRepository.findByStoreId(storeId);
-        return images.stream().map(StoreImage::getImageUrl).collect(Collectors.toList());
+        return images.stream()
+                .map(StoreImageResponse::from)
+                .collect(Collectors.toList());
     }
 
     @Transactional

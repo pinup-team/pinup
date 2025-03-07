@@ -49,10 +49,13 @@ async function getCoordinates(address) {
     }
 }
 
-function registerLocation() {
+async function registerLocation() {
     const zoneCode = document.getElementById("zoneCode").value;
+    console.log("zoneCode", zoneCode);
     const address = document.getElementById("address").value;
+    console.log("address", address);
     const addressDetail = document.getElementById("addressDetail").value;
+    console.log("addressDetail", addressDetail);
 
     if (!zoneCode || !address || !window.locationData.latitude || !window.locationData.longitude) {
         alert("주소 검색을 먼저 진행해주세요.");
@@ -70,21 +73,28 @@ function registerLocation() {
         addressDetail: addressDetail
     };
 
-    fetch("/api/locations", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(requestData)
-    })
-        .then(response => response.json())
-        .then(data => {
-            alert("주소가 등록되었습니다.");
-            document.getElementById("storeForm").style.display = "block";
-            document.querySelector("input[name='locationId']").value = data.id;
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("주소 등록 중 오류가 발생했습니다.");
+    try {
+        const response = await fetch("/api/locations", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestData)
         });
+
+        if (!response.ok) {
+            throw new Error("주소 등록 실패");
+        }
+
+        const data = await response.json();
+        console.log("data", data);
+
+
+        return data.id;
+    } catch (error) {
+        console.error("주소 등록 중 오류 발생");
+        return null;
+    }
+
+
 }

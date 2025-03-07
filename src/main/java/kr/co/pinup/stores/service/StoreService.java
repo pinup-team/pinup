@@ -1,7 +1,5 @@
 package kr.co.pinup.stores.service;
 
-import kr.co.pinup.custom.s3.S3Service;
-import kr.co.pinup.custom.s3.exception.s3.ImageDeleteFailedException;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.exception.LocationNotFoundException;
 import kr.co.pinup.locations.model.dto.LocationResponse;
@@ -14,7 +12,7 @@ import kr.co.pinup.store_images.exception.StoreImageDeleteFailedException;
 import kr.co.pinup.store_images.model.dto.StoreImageRequest;
 import kr.co.pinup.store_images.service.StoreImageService;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.StoreImage;
+import kr.co.pinup.store_images.StoreImage;
 import kr.co.pinup.stores.exception.StoreNotFoundException;
 import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
@@ -105,6 +103,7 @@ public class StoreService {
 
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
+
 
         return StoreResponse.from(store);
     }

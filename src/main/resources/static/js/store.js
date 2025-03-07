@@ -1,36 +1,80 @@
+function changeTab(tab, storeId) {
+    let newUrl = '';
 
-function submitStore() {
-    const form = document.getElementById("storeForm");
-    const formData = new FormData(form);
-    console.log("formData", formData);
+    if (tab === 'info') {
+        console.log('정보 탭 클릭');
+        newUrl = `/stores/${storeId}`;  // 원하는 URL 형식으로 설정
+        history.pushState(null, '', newUrl);
+        document.getElementById('slide-bottom').style.display = 'block';
+        document.getElementById('post-list-container').style.display = 'none';
+    } else {
+        console.log('게시판 리스트 로딩 시작'+storeId);
+        newUrl = `/${tab}/${storeId}`;
+        history.pushState(null, '', newUrl);
+        document.getElementById('slide-bottom').style.display = 'none';
+        document.getElementById('post-list-container').style.display = 'block';
 
+        fetch(`/${tab}/${storeId}`)
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('post-list-container').innerHTML = data;
+            })
+            .catch(error => console.error('게시판 리스트 로딩 중 오류:', error));
+    }
+}
 
-        // FormData를 테이블 형식으로 변환
+async function submitStore() {
+    try {
+        const locationId = await registerLocation();  // 주소 등록 후 ID 받기
+        console.log("locationId", locationId);
+
+        if (!locationId) {
+            alert("주소 등록에 실패했습니다. 다시 시도해주세요.");
+            return;
+        }
+
+        let locationInput = document.querySelector("input[name='locationId']");
+        if (!locationInput) {
+            locationInput = document.createElement("input");
+            locationInput.type = "hidden";
+            locationInput.name = "locationId";
+            document.getElementById("storeForm").appendChild(locationInput);
+        }
+        locationInput.value = locationId;
+
+        const form = document.getElementById("storeForm");
+        const formData = new FormData(form);
+        console.log("formData", formData);
+
         const formDataEntries = [];
         for (const pair of formData.entries()) {
             formDataEntries.push({ "Key": pair[0], "Value": pair[1] });
         }
 
-        console.table(formDataEntries); // 콘솔에 테이블 형태로 출력
+        console.table(formDataEntries);
 
-
-    fetch("/api/stores", {
-        method: "POST",
-        body: formData
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.id) {
-                alert("게시물이 성공적으로 생성되었습니다!");
-                window.location.href = `/stores/${data.id}`;
-            } else {
-                alert("게시물 생성에 실패했습니다.");
-            }
+        fetch("/api/stores", {
+            method: "POST",
+            body: formData
         })
-        .catch(error => {
-            console.error("게시물 생성 중 오류 발생:", error);
-            alert("게시물을 생성하는 중에 오류가 발생했습니다.");
-        });
+            .then(response => response.json())
+            .then(data => {
+                if (data.id) {
+                    alert("게시물이 성공적으로 생성되었습니다!");
+                    window.location.href = `/stores/${data.id}`;
+                } else {
+                    alert("게시물 생성에 실패했습니다.");
+                }
+            })
+            .catch(error => {
+                console.error("게시물 생성 중 오류 발생:", error);
+                alert("게시물을 생성하는 중에 오류가 발생했습니다.");
+            });
+
+    } catch (error) {
+        console.error("주소 등록 및 게시물 생성 중 오류 발생:", error);
+        alert("주소 등록 및 게시물 생성 중 오류가 발생했습니다.");
+    }
 }
 
 
