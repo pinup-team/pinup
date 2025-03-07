@@ -66,18 +66,23 @@ function updateAccount() {
         },
         body: JSON.stringify(updatedProfile)
     })
-        .then(response => response.text())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(error => {
+                    throw new Error(error.message);
+                });
+            }
+            return response.text();
+        })
         .then(text => {
+            alert(text);
             if (text === "수정 성공") {
-                alert(text);
                 window.location.reload();
-            } else {
-                alert(text);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('서버와의 연결에 실패했습니다.');
+            alert(error.message);
         });
 }
 

@@ -39,8 +39,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SessionExpirationFilter sessionExpirationFilter() {
-        return new SessionExpirationFilter();
+    public SessionExpirationFilter sessionExpirationFilter(SecurityUtil securityUtil) {
+        return new SessionExpirationFilter(securityUtil);
     }
 
     @Bean
