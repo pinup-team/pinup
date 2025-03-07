@@ -5,14 +5,13 @@ import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.members.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -26,7 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Import(SecurityConfigTest.class)
-@ExtendWith(SpringExtension.class)
 @WebMvcTest(FaqController.class)
 class FaqControllerTest {
 
@@ -37,6 +35,9 @@ class FaqControllerTest {
 
     @MockitoBean
     FaqService faqService;
+
+    @MockitoBean
+    MemberService memberService;
 
     @Test
     @DisplayName("FAQ 리스트 페이지 이동")

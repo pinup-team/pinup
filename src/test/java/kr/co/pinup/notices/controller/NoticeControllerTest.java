@@ -3,6 +3,7 @@ package kr.co.pinup.notices.controller;
 import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
 import kr.co.pinup.notices.service.NoticeService;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @Import(SecurityConfigTest.class)
-@ExtendWith(SpringExtension.class)
 @WebMvcTest(NoticeController.class)
 class NoticeControllerTest {
 
@@ -36,6 +36,9 @@ class NoticeControllerTest {
 
     @MockitoBean
     NoticeService noticeService;
+
+    @MockitoBean
+    MemberService memberService;
 
     @Test
     @DisplayName("공지사항 리스트 페이지 이동")
