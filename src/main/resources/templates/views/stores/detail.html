@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}">
 
@@ -11,6 +12,13 @@
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1038c510f5de135a5c0d54f4f9181ef3&libraries=services"></script>
 </head>
 <div layout:fragment="content" th:object="${store}">
+
+    <div sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
+        <a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
+        <button class="delete-btn" th:data-store-id="*{id}">삭제</button>
+    </div>
+
+    <a href="/stores">목록으로 돌아가기</a>
 
     <div class="home_content_wrap">
         <div class="content_list_bridge">
@@ -99,10 +107,6 @@
 <!-- 게시판 리스트가 여기에 로드됩니다 -->
 <div id="post-list-container" style="display:none;"></div>
 
-<a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
-<button class="delete-btn" th:data-store-id="*{id}">삭제</button>
-<a href="/stores">목록으로 돌아가기</a>
-</div>
 
 <th:block layout:fragment="pageScripts">
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
