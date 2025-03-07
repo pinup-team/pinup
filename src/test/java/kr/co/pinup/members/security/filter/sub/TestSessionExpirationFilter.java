@@ -4,14 +4,15 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.pinup.security.SecurityUtil;
 import kr.co.pinup.security.filter.SessionExpirationFilter;
 
 import java.io.IOException;
 
 public class TestSessionExpirationFilter extends SessionExpirationFilter {
 
-    public TestSessionExpirationFilter() {
-        super();
+    public TestSessionExpirationFilter(SecurityUtil securityUtil) {
+        super(securityUtil);
     }
 
     @Override

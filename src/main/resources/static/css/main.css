@@ -68,9 +68,45 @@ html, body {
     margin-right: 20px;
 }
 
+#store-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    max-width: 250px; /* 카드 최대 너비 */
+    width: 100%;
+    background: #fff;
+}
+
+.store-card img {
+    width: 100%;
+    max-width: 300px; /* 이미지 최대 너비 줄이기 */
+    height: 300px; /* 고정 높이 */
+    object-fit: cover; /* 이미지가 잘리지 않고 비율 유지 */
+    border-radius: 8px;
+}
+
+#store-info {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+#store-card p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 8px;
+}
+
 /*-------coommon--------*/
 
-body, input, select, textarea, button, a, p , h1, h2, h3, h4, h5, h6 {
+body, input, select, textarea, button, a, p, h1, h2, h3, h4, h5, h6 {
     color: #CC2F20;
     font-family: "NanumSquare", "나눔스퀘어", "나눔고딕", NanumGothic, -apple-system, BlinkMacSystemFont, helvetica, "Apple SD Gothic Neo", sans-serif;
     -webkit-appearance: none;
@@ -93,7 +129,7 @@ h1, h2, h3, h4, h5, h6 {
     margin: 10px 10px;
 }
 
-ul, ol ,li {
+ul, ol, li {
     list-style: none;
 }
 
@@ -115,12 +151,14 @@ button {
     src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.otf") format("opentype");
     font-weight: 300;
 }
+
 @font-face {
     font-family: "NanumSquare";
     src: local(NanumSquare);
     src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-bRg.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-bRg.otf") format("truetype");
     font-weight: normal;
 }
+
 @font-face {
     font-family: "NanumSquare";
     src: local(NanumSquareBold);
@@ -280,7 +318,7 @@ button {
     background-color: #eee;
 }
 
-.slide_img img{
+.slide_img img {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -415,9 +453,11 @@ textarea.form-control:focus {
     flex: 0 0 83.33333%;
     max-width: 83.33333%;
 }
-.btn_right{
+
+.btn_right {
     text-align: right;
 }
+
 /* 버튼 스타일 */
 .btn {
     display: inline-block;
@@ -463,7 +503,6 @@ textarea.form-control:focus {
 }
 
 
-
 /* 파일명 스타일 */
 #fileName {
     margin-left: 10px;
@@ -478,6 +517,7 @@ textarea.form-control:focus {
     gap: 15px;
     margin-top: 10px;
 }
+
 /* 개별 이미지 아이템 */
 .image-item {
     position: relative;
@@ -485,6 +525,7 @@ textarea.form-control:focus {
     flex-direction: column;
     align-items: center;
 }
+
 /* 미리보기 이미지 스타일 */
 .preview-img {
     width: 300px;
@@ -494,6 +535,7 @@ textarea.form-control:focus {
     border: 1px solid #ddd;
     transition: transform 0.2s ease-in-out;
 }
+
 /* 마우스 올리면 확대 효과 */
 .preview-img:hover {
     transform: scale(1.05);
@@ -545,6 +587,7 @@ textarea.form-control:focus {
 .checkbox-label input[type="checkbox"]:checked::before {
     display: block;
 }
+
 /* 추가 설명 */
 textarea.form-control {
     height: 150px;
@@ -552,38 +595,39 @@ textarea.form-control {
 }
 
 #postForm {
-    width: 1000px;       /* 기본 너비 */
-    min-width: 1000px;   /* 최소 너비 */
+    width: 1000px; /* 기본 너비 */
+    min-width: 1000px; /* 최소 너비 */
 
-    height: auto;        /* 자동 확장 */
-    min-height: 700px;   /* 최소 높이 700px */
+    height: auto; /* 자동 확장 */
+    min-height: 700px; /* 최소 높이 700px */
 
-    margin: 0 auto;      /* 가운데 정렬 */
+    margin: 0 auto; /* 가운데 정렬 */
     padding: 20px;
 
     max-width: 80%;
 }
 
 #postForm {
-    width: 1000px;       /* 기본 너비 */
-    min-width: 1000px;   /* 최소 너비 */
+    width: 1000px; /* 기본 너비 */
+    min-width: 1000px; /* 최소 너비 */
 
-    height: auto;        /* 자동 확장 */
-    min-height: 700px;   /* 최소 높이 700px */
+    height: auto; /* 자동 확장 */
+    min-height: 700px; /* 최소 높이 700px */
 
-    margin: 0 auto;      /* 가운데 정렬 */
+    margin: 0 auto; /* 가운데 정렬 */
     padding: 20px;
 
     max-width: 80%;
 }
+
 #updatePostForm {
-    width: 1000px;       /* 기본 너비 */
-    min-width: 1000px;   /* 최소 너비 */
+    width: 1000px; /* 기본 너비 */
+    min-width: 1000px; /* 최소 너비 */
 
-    height: auto;        /* 자동 확장 */
-    min-height: 700px;   /* 최소 높이 700px */
+    height: auto; /* 자동 확장 */
+    min-height: 700px; /* 최소 높이 700px */
 
-    margin: 0 auto;      /* 가운데 정렬 */
+    margin: 0 auto; /* 가운데 정렬 */
     padding: 20px;
 
     max-width: 80%;
