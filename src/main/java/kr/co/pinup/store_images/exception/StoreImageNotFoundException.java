@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class StoreImageNotFoundException extends RuntimeException {
+public class StoreImageNotFoundException extends GlobalCustomException {
 
     private static final String DEFAULT_MESSAGE = "이미지 탐색 실패";
 
@@ -13,12 +13,13 @@ public class StoreImageNotFoundException extends RuntimeException {
         super(message);
     }
 
-    public StoreImageNotFoundException() {
-        this(DEFAULT_MESSAGE);
+    @Override
+    protected int getHttpStatusCode() {
+        return HttpStatus.INTERNAL_SERVER_ERROR.value();
     }
 
-    public StoreImageNotFoundException(Throwable cause) {
-        super(cause);
+    public StoreImageNotFoundException() {
+        this(DEFAULT_MESSAGE);
     }
 }
 
