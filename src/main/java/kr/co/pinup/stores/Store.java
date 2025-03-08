@@ -43,7 +43,7 @@ public class Store extends BaseEntity {
     @Builder.Default
     private Status status = Status.PENDING;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     public void updateStore(StoreUpdateRequest request, StoreCategory category, Location location) {
@@ -55,9 +55,11 @@ public class Store extends BaseEntity {
         if (request.getStartDate() != null) this.startDate = request.getStartDate();
         if (request.getEndDate() != null) this.endDate = request.getEndDate();
         if (request.getStatus() != null) this.status = request.getStatus();
-        if (request.getImageUrl() != null) this.imageUrl = request.getImageUrl();
     }
 
+    public void updateImageUrl(String newImageUrl) {
+        this.imageUrl = newImageUrl;
+    }
 }
 
 

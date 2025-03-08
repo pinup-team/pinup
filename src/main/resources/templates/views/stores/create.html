@@ -3,30 +3,40 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}">
 
-<head>
-    <title>팝업스토어 생성</title>
-    <script defer src="/js/store.js"></script>
-</head>
-
-<body>
-<main layout:fragment="content">
+<div layout:fragment="content">
     <h1>팝업스토어 생성</h1>
-    <form id="storeForm">
-        <label>이름: <input type="text" name="name" required></label><br>
-        <label>설명: <input type="text" name="description" required></label><br>
-        <label>시작 날짜: <input type="date" name="startDate" required></label><br>
-        <label>종료 날짜: <input type="date" name="endDate" required></label><br>
+    <form name="storeForm" id="storeForm" enctype="multipart/form-data">
+        <label>이름: <input type="text" id="name" name="name" required></label><br>
+        <label>설명: <input  type="text" id="description" name="description" required></label><br>
+        <label>시작 날짜: <input type="date" id="startDate" name="startDate" required></label><br>
+        <label>종료 날짜: <input type="date" id="endDate" name="endDate" required></label><br>
         <label>카테고리:
-            <select name="categoryId" required>
+            <select id="categoryId" name="categoryId" required>
                 <option value=""> 카테고리 선택 </option>
                 <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"></option>
             </select>
         </label><br>
-        <input type="hidden" name="locationId" value="1"/>
-        <label>이미지 URL: <input type="text" name="imageUrl" required></label><br>
-        <button type="submit">생성</button>
+        <input id="locationId" type="hidden" name="locationId"/>
+        <label>우편번호: <input type="text" id="zoneCode" name="zoneCode" readonly required/></label>
+        <button type="button" onclick="searchAddress()">주소 검색</button><br>
+
+        <label>주소: <input type="text" id="address" name="address" readonly required/></label>
+        <label>상세주소: <input type="text" id="addressDetail" name="addressDetail" required/></label>
+        <label></label>
+        <label>스토어 이미지 업로드 : <input type="file" name="imageFiles" id="imageFiles" accept="image/*" multiple required></label><br>
+        <div id="previewContainer" style="display: flex; flex-wrap: wrap"></div>
+        <button type="button" onclick="submitStore()">생성</button>
     </form>
     <a href="/stores">목록으로 돌아가기</a>
-</main>
-</body>
+</div>
+
+<th:block layout:fragment="pageScripts">
+    <script th:inline="javascript">
+        window.KAKAO_API_KEY = /*[[${kakaoMapKey}]]*/ '';
+        console.log("Kakao API Key:", window.KAKAO_API_KEY);
+    </script>
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script th:src="@{/js/location.js}"></script>
+    <script th:src="@{/js/store.js}"></script>
+</th:block>
 </html>

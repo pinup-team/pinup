@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/layout}">
 <head>
     <meta charset="UTF-8">
@@ -13,10 +14,12 @@
     <ul>
         <li th:each="store : ${stores}">
             <a th:href="@{/stores/{id}(id=${store.id})}" th:text="${store.name}"></a>
-            <button class="delete-btn" th:data-store-id="${store.id}">삭제</button>
+            <button sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')" class="delete-btn" th:data-store-id="${store.id}">삭제</button>
         </li>
     </ul>
-    <a href="/stores/create">새 팝업스토어 추가</a>
+    <div sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
+        <a href="/stores/create">새 팝업스토어 추가</a>
+    </div>
 </main>
 </body>
 </html>
