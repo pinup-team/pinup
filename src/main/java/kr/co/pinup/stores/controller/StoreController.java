@@ -10,6 +10,7 @@ import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
 import kr.co.pinup.stores.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,6 +30,9 @@ public class StoreController {
     private final LocationService locationService;
     private final StoreImageService storeImageService;
 
+    @Value("${api.kakaomap.key}")
+    private String kakaoMapKey;
+
     @GetMapping
     public String listStores(Model model) {
         model.addAttribute("stores", storeService.getStoreSummaries());
@@ -39,7 +43,6 @@ public class StoreController {
     public String storeDetail(@PathVariable Long id, Model model) {
         StoreResponse storeResponse = storeService.getStoreById(id);
         model.addAttribute("store", storeResponse);
-        //TODO locationId 백엔드에서 조회해서 가져오기
         model.addAttribute("location", locationService.getLocationId(storeResponse.location().id()));
         model.addAttribute("storeImages", storeImageService.getStoreImages(id));
         return "views/stores/detail";
@@ -47,7 +50,9 @@ public class StoreController {
 
     @GetMapping("/create")
     public String createStoreForm(Model model) {
+        log.info("kakaoMap API KEY {}", kakaoMapKey);
         model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("kakaoMapKey", kakaoMapKey);
         return "views/stores/create";
     }
 

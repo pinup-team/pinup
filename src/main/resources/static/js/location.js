@@ -1,4 +1,8 @@
 // 주소 검색 함수 (Kakao 주소 API)
+
+const KAKAO_API_KEY = window.KAKAO_API_KEY;
+console.log("KAKAO_API_KEY:", KAKAO_API_KEY);
+
 function searchAddress() {
     new daum.Postcode({
         oncomplete: function (data) {
@@ -23,7 +27,7 @@ async function getCoordinates(address) {
         const response = await fetch(url + `?query=${encodedAddress}`, {
             method: 'GET',
             headers: {
-                Authorization: 'KakaoAK eab583a70155a7704ae8947deae9b297',  // 실제 Kakao API Key를 넣어주세요
+                Authorization: `KakaoAK ${KAKAO_API_KEY}`,
             },
         });
 
