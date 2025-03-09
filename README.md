@@ -1,7 +1,7 @@
 <div align=center>
 	<img width="492" alt="project-title" src="https://github.com/user-attachments/assets/690361a8-3b34-4a79-b682-84122be8a6ed" />
 	<h2> 팝업스토어 일정은 우리가 알려줄게요<br />당신은 재밌게 놀기만 해요!</h2>
-	http://pin-up.co.kr
+	https://pin-up.co.kr
 	<br />
 	<br />
 	<p>📍 $\huge{\large{\color{#6580DD}Pin-up}}$은 팝업스토어를 소개하고 일정을 알려주며 서로 소통을 하는 커뮤니티 서비스입니다</p>
