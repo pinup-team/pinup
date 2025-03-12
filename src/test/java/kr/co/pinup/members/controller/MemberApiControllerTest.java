@@ -63,7 +63,7 @@ public class MemberApiControllerTest {
     @WithMockMember
     @DisplayName("회원 정보 업데이트")
     void testUpdateMember() throws Exception {
-        MemberRequest memberRequest = MemberRequest.builder().name("test").email("test@naver.com").nickname("updatedTestNickname").providerType(OAuthProvider.NAVER).role(MemberRole.ROLE_USER).build();
+        MemberRequest memberRequest = MemberRequest.builder().name("test").email("test@naver.com").nickname("updatedTestNickname").providerType(OAuthProvider.NAVER).build();
         MemberResponse updatedMemberResponse = MemberResponse.builder().id(1L).name("test").email("test@naver.com").nickname("updatedTestNickname").providerType(OAuthProvider.NAVER).role(MemberRole.ROLE_USER).build();
 
         when(memberService.update(any(MemberInfo.class), any(MemberRequest.class))).thenReturn(updatedMemberResponse);
@@ -80,7 +80,7 @@ public class MemberApiControllerTest {
     @WithMockMember
     @DisplayName("회원 탈퇴_성공")
     void testDeleteMember() throws Exception {
-        MemberRequest memberRequest = MemberRequest.builder().name("test").email("test@naver.com").nickname("updatedTestNickname").providerType(OAuthProvider.NAVER).role(MemberRole.ROLE_USER).build();
+        MemberRequest memberRequest = MemberRequest.builder().name("test").email("test@naver.com").nickname("updatedTestNickname").providerType(OAuthProvider.NAVER).build();
 
         when(memberService.delete(any(MemberInfo.class), any(MemberRequest.class))).thenReturn(true);
 
