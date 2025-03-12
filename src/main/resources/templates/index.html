@@ -2,6 +2,14 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/main}">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/member.css}">
+    <title>Pin-up</title>
+</head>
+<body>
 <div layout:fragment="content">
     <div th:class="page_description">
         <h1>Main</h1>
@@ -10,13 +18,9 @@
     <div>
         <div class="store-list-container">
             <ul id="store-list">
-                <li th:each="store : ${stores}">
-                    <img th:src="${store.imageUrl != null ? store.imageUrl : '@{/images/loading.png}'}" alt="Store Image">
-                    <a th:href="@{/stores/{id}(id=${store.id})}" th:text="${store.name}"></a>
-                    <p th:text="${store.description}"></p>
-                </li>
             </ul>
         </div>
     </div>
 </div>
+</body>
 </html>
