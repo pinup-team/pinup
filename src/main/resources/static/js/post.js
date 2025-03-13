@@ -1,8 +1,24 @@
+function validateForm() {
+    const imagesToDelete = document.getElementById('imagesToDelete').value.split(',').filter(Boolean);
+    const uploadedImages = document.getElementById('images').files.length;
+
+
+    if (imagesToDelete.length === document.querySelectorAll('input[name="imagesToDelete"]:checked').length && uploadedImages === 0) {
+        alert("이미지 전체 삭제 후 수정 요청을 하려면 새로운 이미지 최소2개를 추가해야 합니다.");
+        return false;
+    }
+    return true;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const updatePostForm = document.getElementById('updatePostForm');
     if (updatePostForm) {
         updatePostForm.addEventListener('submit', function (event) {
             event.preventDefault();
+
+            if (!validateForm()) {
+                return;
+            }
 
             const imagesToDelete = document.getElementById('imagesToDelete').value.split(',').filter(Boolean);
             const formData = new FormData(event.target);
