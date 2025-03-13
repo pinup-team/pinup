@@ -17,9 +17,9 @@ document.addEventListener('DOMContentLoaded', function () {
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.id) {
+                    if (data.storeId) {
                         alert("게시물이 성공적으로 업데이트되었습니다!");
-                        window.location.href = `/post/${data.id}`;
+                        window.location.href = `/stores/${data.storeId}`;
                     } else {
                         alert("게시물 업데이트에 실패했습니다.");
                     }
@@ -67,7 +67,7 @@ function submitPost() {
         .then(data => {
             if (data.storeId) {
                 alert("게시물이 성공적으로 생성되었습니다!");
-                window.location.href = `/post/list/${data.storeId}`;
+                window.location.href = `/stores/${data.storeId}`;
             } else {
                 alert("게시물 생성에 실패했습니다.");
             }
