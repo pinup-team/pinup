@@ -2,6 +2,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/support}">
+
 <section layout:fragment="support-content">
   <div th:class="header_button" sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
     <button th:onclick="|location.href='@{/faqs/new}'|">등록</button>
@@ -19,28 +20,32 @@
         <article th:class="content_list">
           <div th:text="*{id}" hidden>id</div>
 
-          <div th:class="content_title">
-            <div th:class="content_area">
-              <th:block th:each="entry : ${category.entrySet()}">
-                <th:block th:if="${entry.key == faq.category}">
-                  <p th:text="${entry.value}">category</p>
-                </th:block>
-              </th:block>
+          <th:block th:each="entry : ${category.entrySet()}">
+            <th:block th:if="${entry.key == faq.category}">
+              <p th:text="${entry.value}">category</p>
+            </th:block>
+          </th:block>
 
+          <div th:class="'content_title content_title_wrap'">
+            <div th:class="content_area">
               <div th:class="title_area" aria-expanded="false">
-                <strong th:text="*{question}">question</strong>
+                <h3 th:text="*{question}">question</h3>
                 <i class="fa-solid fa-angle-down"></i>
-              </div>
-              <div th:class="answer_area">
-                <strong th:text="*{answer}">answer</strong>
               </div>
 
               <div th:class="desc_content_area" sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
                 <button th:onclick="|location.href='@{/faqs/{id}/update(id=*{id})}'|" th:text="수정">수정</button>
                 <button th:onclick="removeFaq([[*{id}]])" th:text="삭제">삭제</button>
               </div>
+
+              <div class="date_area">
+                <span th:class="content_date" th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></span>
+              </div>
             </div>
-              <span th:class="content_date" th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></span>
+
+            <div th:class="answer_area">
+              <h3 th:text="*{answer}">answer</h3>
+            </div>
           </div>
         </article>
       </th:block>
