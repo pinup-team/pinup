@@ -50,6 +50,40 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 3000);
 });
 
+function changeTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    document.getElementById(`tab-${tab}`).classList.add('active');
+
+    document.querySelectorAll('.tab-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.querySelector(`.tab-item[data-tab="${tab}"]`).classList.add('active');
+
+    if (tab === "info") {
+        setTimeout(() => {
+            if (typeof kakao !== "undefined") {
+                loadMap();  // 지도 다시 그리기
+            }
+        }, 300);  // 레이아웃 갱신 후 지도 다시 그림
+    }
+}
+
+
+/*function changeTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    document.getElementById(`tab-${tab}`).classList.add('active');
+
+    document.querySelectorAll('.tab-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.querySelector(`.tab-item[data-tab="${tab}"]`).classList.add('active');
+}*/
 
 /*
 function changeTab(tab, storeId) {
@@ -136,6 +170,7 @@ async function submitStore() {
 }
 
 // 탭 변경
+/*
 async function changeTab(tab) {
     try {
         console.log(`${tab} 탭 선택`);
@@ -188,6 +223,7 @@ window.addEventListener("popstate", function (event) {
         changeTab(event.state.tab);
     }
 });
+*/
 
 document.addEventListener("DOMContentLoaded", function () {
     const createForm = document.getElementById("storeForm");
@@ -416,56 +452,51 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // 카카오 지도 API 로드 함수
+// 카카오 지도 API 로드 함수
 function loadMap() {
-    // ✅ `<input type="hidden">` 태그에서 값 가져오기
     var latitude = document.getElementById("latitude-hidden").value;
     var longitude = document.getElementById("longitude-hidden").value;
-    var storeName = document.getElementById("store-name").textContent.trim();
-    var storeAddr = document.getElementById("store-address").textContent.trim();
+    var storeName = document.getElementById("store-name") ? document.getElementById("store-name").textContent.trim() : "매장 위치";
+    var storeAddr = document.getElementById("store-address") ? document.getElementById("store-address").textContent.trim() : "";
 
-    console.log("Store Name: ", storeName);  // 매장명 확인
-    console.log("Store Address: ", storeAddr);  // 주소 확인
+    console.log("Store Name: ", storeName);
+    console.log("Store Address: ", storeAddr);
 
-    var mapContainer = document.getElementById('map'), // 지도를 표시할 div
-        mapOption = {
-            center: new kakao.maps.LatLng(latitude, longitude), // 지도의 중심좌표
-            level: 8 // 지도의 확대 레벨
-        };
+    var mapContainer = document.getElementById("map");
 
-    var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+    if (!latitude || !longitude || !mapContainer) {
+        console.error("지도 정보를 불러올 수 없습니다.");
+        return;
+    }
 
-    // 주소-좌표 변환 객체를 생성합니다
-    var geocoder = new kakao.maps.services.Geocoder();
+    var mapOption = {
+        center: new kakao.maps.LatLng(latitude, longitude),
+        level: 8
+    };
 
-    // 주소로 좌표를 검색합니다
-    geocoder.addressSearch(storeAddr, function(result, status) {
+    var map = new kakao.maps.Map(mapContainer, mapOption);
 
-
-        if (status === kakao.maps.services.Status.OK) {
-            var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-
-
-            // 결과값으로 받은 위치를 마커로 표시합니다
-            var marker = new kakao.maps.Marker({
-                map: map,
-                position: coords
-            });
-
-            // 인포윈도우로 장소에 대한 설명을 표시합니다
-            var infowindow = new kakao.maps.InfoWindow({
-                content: '<div style="width:200px;text-align:center;padding:3px 0; position: relative;">' + storeName + '</div>'
-            });
-            infowindow.open(map, marker);
-
-            // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
-            map.setCenter(coords);
-        } else {
-            console.error("Geocode failed with status: ", status);
-        }
+    var marker = new kakao.maps.Marker({
+        map: map,
+        position: new kakao.maps.LatLng(latitude, longitude)
     });
+
+    var infowindow = new kakao.maps.InfoWindow({
+        content: `<div style="width:200px;text-align:center;padding:3px 0;">${storeName}</div>`
+    });
+
+    infowindow.open(map, marker);
+
+    // 🟢 지도 크기 재조정 (탭 전환 시 지도가 정상적으로 보이도록)
+    setTimeout(() => {
+        map.relayout();
+        map.setCenter(new kakao.maps.LatLng(latitude, longitude));
+    }, 500);
 }
 
 // 페이지가 로드되면 initializeMap 함수 실행
-document.addEventListener('DOMContentLoaded', function() {
-    kakao.maps.load(loadMap);
+document.addEventListener("DOMContentLoaded", function () {
+    if (typeof kakao !== "undefined") {
+        kakao.maps.load(loadMap);
+    }
 });

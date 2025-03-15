@@ -38,6 +38,47 @@
 
 /* 탭 */
 
+.tab-list {
+    display: flex;
+    width: 100%;
+    padding: 10px 0;
+    margin: 0;
+    list-style: none;
+    background: transparent;
+}
+
+.tab-item {
+    flex-grow: 1;
+    text-align: center;
+    padding: 15px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+.tab-item:last-child {
+    border-right: none;
+}
+
+.tab-item.active {
+    color: #b71c1c;
+    font-weight: bold;
+    border-bottom: 2px solid #b71c1c;
+}
+
+.tab-item:hover {
+    opacity: 0.8;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
 
 .tab-container {
     display: flex;
@@ -46,32 +87,6 @@
     margin-top: 20px;
     border-bottom: 2px solid #ddd;
 }
-
-
-.tab-list {
-    display: flex;
-    gap: 40px;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-
-.tab-item {
-    position: relative;
-    padding: 10px 20px;
-    cursor: pointer;
-    font-size: 18px;
-    font-weight: bold;
-    color: #4F261A;
-    transition: color 0.3s ease;
-}
-
-
-.tab-item.active {
-    color: #b71c1c;
-}
-
 
 .tab-item.active::after {
     content: "";
