@@ -14,9 +14,6 @@
 <div class="wrap type_home">
     <div class="content">
         <div class="home_content_wrap">
-            <div class="header_text">
-                <p>게시판</p>
-            </div>
             <div class="content_list">
                 <div class="content_list_area">
                     <div class="content_title">
@@ -54,7 +51,7 @@
                                                         th:onclick="|location.href='@{/post/update/{postId}(postId=${post.id})}'|"
                                                         th:if="${post.member != null and post.member.nickname != null and #authentication.principal.username == post.member.nickname}">수정
                                                 </button>
-                                                <button class="post_delete_button"
+                                                <button class="post_delete_button" style="display: none"
                                                         th:onclick="removePost([[${post.id}]], [[${post.storeId}]])"
                                                         th:if="${post.member != null and post.member.nickname != null and #authentication.principal.username == post.member.nickname}">삭제
                                                 </button>
