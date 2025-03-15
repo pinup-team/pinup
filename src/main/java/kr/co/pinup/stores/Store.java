@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Setter
 @Table(name = "stores")
 public class Store extends BaseEntity {
 
@@ -60,6 +61,9 @@ public class Store extends BaseEntity {
     public void updateImageUrl(String newImageUrl) {
         this.imageUrl = newImageUrl;
     }
+
+
+
 }
 
 

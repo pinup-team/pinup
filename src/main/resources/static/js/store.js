@@ -1,3 +1,57 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const carouselList = document.querySelector(".carousel-list");
+    const items = document.querySelectorAll(".carousel-item");
+    const prevButton = document.querySelector(".slide-left");
+    const nextButton = document.querySelector(".slide-right");
+
+    let currentIndex = 0;
+    const totalItems = items.length;
+
+    const firstClone = items[0].cloneNode(true);
+    const lastClone = items[totalItems - 1].cloneNode(true);
+
+    carouselList.appendChild(firstClone);
+    carouselList.insertBefore(lastClone, items[0]);
+
+    let realTotalItems = totalItems + 2;
+    carouselList.style.transform = `translateX(-100%)`;
+
+    function updateSlider() {
+        carouselList.style.transition = "transform 0.5s ease-in-out";
+        carouselList.style.transform = `translateX(-${(currentIndex + 1) * 100}%)`;
+    }
+
+    nextButton.addEventListener("click", function () {
+        if (currentIndex >= totalItems) {
+            setTimeout(() => {
+                carouselList.style.transition = "none";
+                carouselList.style.transform = `translateX(-100%)`;
+                currentIndex = 0;
+            }, 500);
+        }
+        currentIndex++;
+        updateSlider();
+    });
+
+    prevButton.addEventListener("click", function () {
+        if (currentIndex <= -1) {
+            setTimeout(() => {
+                carouselList.style.transition = "none";
+                carouselList.style.transform = `translateX(-${totalItems * 100}%)`;
+                currentIndex = totalItems - 1;
+            }, 500);
+        }
+        currentIndex--;
+        updateSlider();
+    });
+
+    setInterval(() => {
+        nextButton.click();
+    }, 3000);
+});
+
+
+/*
 function changeTab(tab, storeId) {
     let newUrl = '';
 
@@ -22,6 +76,7 @@ function changeTab(tab, storeId) {
             .catch(error => console.error('게시판 리스트 로딩 중 오류:', error));
     }
 }
+*/
 
 async function submitStore() {
     try {
@@ -53,23 +108,26 @@ async function submitStore() {
 
         console.table(formDataEntries);
 
-        fetch("/api/stores", {
+        const response = await fetch("/api/stores", {
             method: "POST",
-            body: formData
+            body: formData,
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.id) {
-                    alert("게시물이 성공적으로 생성되었습니다!");
-                    window.location.href = `/stores/${data.id}`;
-                } else {
-                    alert("게시물 생성에 실패했습니다.");
-                }
-            })
-            .catch(error => {
-                console.error("게시물 생성 중 오류 발생:", error);
-                alert("게시물을 생성하는 중에 오류가 발생했습니다.");
-            });
+
+        if (!response.ok) {
+            alert("스토어 생성 api 오류");
+            console.error(response.statusText);
+        }
+
+        const data = await response.json();
+        console.log("data", data);
+
+        if (data.id) {
+            alert("스토어가 성공적으로 생성되었습니다.");
+            window.location.href = `/stores/${data.id}`;
+        } else {
+            alert("스토어 생성에 실패했습니다.");
+        }
+
 
     } catch (error) {
         console.error("주소 등록 및 게시물 생성 중 오류 발생:", error);
@@ -77,6 +135,59 @@ async function submitStore() {
     }
 }
 
+// 탭 변경
+async function changeTab(tab) {
+    try {
+        console.log(`${tab} 탭 선택`);
+
+        const storeId = document.getElementById("storeId").value;
+
+        const newUrl = `/stores/${storeId}/${tab}`;
+        history.pushState(null, '', newUrl);
+
+        document.querySelectorAll(".tab-item").forEach(tabElement => {tabElement.classList.remove("active")});
+        document.querySelector(`[data-tab="${tab}"]`).classList.add("active");
+
+        document.querySelectorAll(".tab-content").forEach(content => content.style.display = "none");
+
+        if (tab === "info") {
+            document.getElementById("tab-content-area").style.display = "block";
+            return;
+        }
+
+        if (tab === "media") {
+            const mediaContent = document.getElementById("tab-content-area");
+            mediaContent.innerHTML = "<p style='text-align:center; font-size:16px; color:gray;'>개발중인 기능입니다! 조금만 기다려 주세용 😘</p>";
+            mediaContent.style.display = "block";
+            return;
+        }
+
+        const contentDiv = document.getElementById(`tab-content-area`);
+
+        if (!contentDiv.innerHTML.trim()) {
+            const response = await fetch(`/stores/${storeId}/${tab}`);
+            if (!response.ok) {
+                throw new Error(`HTTP 오류 발생 (${response.status})`);
+            }
+
+            const html = await response.text();
+            contentDiv.innerHTML = html;
+            contentDiv.style.display = "block";
+        } else {
+            contentDiv.style.display = "block";
+        }
+    } catch (error) {
+        console.error(`${tab} 탭 로딩 오류:`, error);
+        alert(`"${tab}" 탭을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.`);
+    }
+
+}
+
+window.addEventListener("popstate", function (event) {
+    if (event.state && event.state.tab) {
+        changeTab(event.state.tab);
+    }
+});
 
 document.addEventListener("DOMContentLoaded", function () {
     const createForm = document.getElementById("storeForm");
@@ -115,7 +226,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const jsonData = JSON.stringify({
                 name: createForm.querySelector("input[name='name']").value,
-                description: createForm.querySelector("input[name='description']").value,
+                description: createForm.querySelector("textarea[name='description']").value,
                 startDateTime: createForm.querySelector("input[name='startDate']").value,
                 endDateTime: createForm.querySelector("input[name='endDate']").value,
                 categoryId: createForm.querySelector("select[name='categoryId']").value,

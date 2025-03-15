@@ -133,13 +133,17 @@ public class StoreService {
                 .build();
         storeRepository.save(store);
 
-        String imageUrl = null;
-
         StoreImageRequest storeImageRequest = StoreImageRequest.builder()
                 .images(Arrays.asList(imageFiles))
                 .build();
 
         List<StoreImage> storeImages = storeImageService.uploadStoreImages(store, storeImageRequest);
+
+        if (!storeImages.isEmpty()) {
+            store.setImageUrl(storeImages.get(0).getImageUrl());
+            storeRepository.save(store);
+        }
+
 
         log.info("팝업스토어 생성 완료 - ID: {}", store.getId());
 
