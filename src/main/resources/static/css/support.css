@@ -215,7 +215,7 @@
 }
 
 /* ✅ faq list section article title area */
-.wrap .home_content_wrap section article .content_area .title-area {
+.wrap .home_content_wrap section article .content_area .title_area {
     cursor: pointer;
 }
 .wrap .home_content_wrap section article .content_area .answer_area {
