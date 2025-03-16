@@ -13,6 +13,7 @@ import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
+import kr.co.pinup.posts.exception.post.ImageCountException;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
@@ -41,6 +42,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -184,18 +186,18 @@ class PostApiControllerTest {
 
     }
 
-    @DisplayName("게시글 생성")
+    @DisplayName("게시글 생성 - 인증된 사용자")
     @Test
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     void testCreatePost() throws Exception {
-
-        MemberResponse memberResponse = new MemberResponse(member);
 
         CreatePostRequest createPostRequest = CreatePostRequest.builder()
                 .storeId(1L)
                 .title("Title 1")
                 .content("Content 1")
                 .build();
+
+        MemberResponse memberResponse = new MemberResponse(member);
         PostResponse createdPostResponseDto = PostResponse.builder()
                 .id(1L)
                 .storeId(1L)
@@ -208,8 +210,12 @@ class PostApiControllerTest {
         when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(MultipartFile[].class)))
                 .thenReturn(createdPostResponseDto);
 
+        MockMultipartFile image1 = new MockMultipartFile("images", "image1.jpg", "image/jpeg", "image content 1".getBytes());
+        MockMultipartFile image2 = new MockMultipartFile("images", "image2.jpg", "image/jpeg", "image content 2".getBytes());
+
         mockMvc.perform(multipart("/api/post/create")
-                        .file("images", new byte[]{})
+                        .file(image1)
+                        .file(image2)
                         .param("storeId", "1")
                         .param("title", "Title 1")
                         .param("content", "Content 1")
@@ -220,6 +226,23 @@ class PostApiControllerTest {
                 .andExpect(jsonPath("$.title").value("Title 1"))
                 .andExpect(jsonPath("$.content").value("Content 1"))
                 .andExpect(jsonPath("$.thumbnail").value("Thumbnail"));
+    }
+
+    @DisplayName("게시글 생성 - 이미지 부족")
+    @Test
+    @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
+    void testCreatePost_InsufficientImages() throws Exception {
+
+        MockMultipartFile image = new MockMultipartFile("images", "image.jpg", "image/jpeg", "image content".getBytes());
+
+        mockMvc.perform(multipart("/api/post/create")
+                        .file(image)
+                        .param("storeId", "1")
+                        .param("title", "Title 1")
+                        .param("content", "Content 1")
+                        .param("thumbnail", "Thumbnail"))
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ImageCountException));
     }
 
     @DisplayName("게시글 삭제")
