@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/support}">
@@ -8,7 +7,7 @@
             <h1>FAQ 정보 수정</h1>
         </div>
 
-        <div th:class="content" th:object="${faq}">
+        <div th:class="content_form_area" th:object="${faq}">
             <div th:class="row">
                 <label th:for="category">카테고리</label>
                 <div th:class="col">
@@ -40,7 +39,7 @@
             <div th:class="row">
                 <label th:for="answer">답변 내용</label>
                 <div th:class="col">
-                    <input th:type="text" th:name="answer" id="answer" th:id="answer" th:value="*{answer}" required>
+                    <textarea id="answer" th:name="answer" th:id="answer" th:text="*{answer}" th:required></textarea>
 
                     <div th:class="error_wrap">
                         <span th:class="answer_error" th:id="answer-error"></span>
