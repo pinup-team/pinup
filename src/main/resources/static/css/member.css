@@ -7,11 +7,6 @@
     background-color: #F6F2E4;
 }
 
-.member-profile button:hover {
-    background-color: #CC2F20;
-    color: white;
-}
-
 /*-------table--------*/
 
 table {
@@ -111,6 +106,12 @@ td > button:hover {
     color: white;
     border: none;
     cursor: pointer;
+}
+
+.member-buttons button:disabled {
+    background-color: #eeeeee;
+    color: #4F261A;
+    cursor: not-allowed;
 }
 
 .member-buttons button:hover {
