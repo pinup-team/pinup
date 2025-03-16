@@ -125,6 +125,7 @@
     display: flex;
     gap: 10px;
     flex-grow: 1;
+    line-height: 1.5;
 }
 
 .comment-footer {
@@ -306,6 +307,7 @@ article.card header > div {
 }
 
 .card-content li > div > span {
+    line-height: 1.5;
     font-weight: 900;
 }
 
@@ -444,9 +446,26 @@ article.card header > div {
 .slide img {
     opacity: 0.75;
 }
+.slide-left {
+    width: 48px;
+    height: 48px;
+    background-image: url(https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/img/sp-pc-v4.png#icon_slide_arrow);
+    background-repeat: no-repeat;
+    background-position: 0px -69px;
+    background-size: 281px auto;
+    -webkit-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
 
 .slide-right {
     right: 0;
+    width: 48px;
+    height: 48px;
+    background-image: url(https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/img/sp-pc-v4.png#icon_slide_arrow);
+    background-repeat: no-repeat;
+    background-position: 0px -69px;
+    background-size: 281px auto;
 }
 
 /* 🔥 캐러셀 인디케이터 컨테이너 */

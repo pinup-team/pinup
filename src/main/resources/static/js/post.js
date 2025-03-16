@@ -1,8 +1,24 @@
+function validateForm() {
+    const imagesToDelete = document.getElementById('imagesToDelete').value.split(',').filter(Boolean);
+    const uploadedImages = document.getElementById('images').files.length;
+
+
+    if (imagesToDelete.length === document.querySelectorAll('input[name="imagesToDelete"]:checked').length && uploadedImages === 0) {
+        alert("이미지 전체 삭제 후 수정 요청을 하려면 새로운 이미지 최소2개를 추가해야 합니다.");
+        return false;
+    }
+    return true;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const updatePostForm = document.getElementById('updatePostForm');
     if (updatePostForm) {
         updatePostForm.addEventListener('submit', function (event) {
             event.preventDefault();
+
+            if (!validateForm()) {
+                return;
+            }
 
             const imagesToDelete = document.getElementById('imagesToDelete').value.split(',').filter(Boolean);
             const formData = new FormData(event.target);
@@ -17,9 +33,9 @@ document.addEventListener('DOMContentLoaded', function () {
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.id) {
+                    if (data.storeId) {
                         alert("게시물이 성공적으로 업데이트되었습니다!");
-                        window.location.href = `/post/${data.id}`;
+                        window.location.href = `/stores/${data.storeId}`;
                     } else {
                         alert("게시물 업데이트에 실패했습니다.");
                     }
@@ -52,6 +68,12 @@ function toggleImageToDelete(checkbox) {
 function submitPost() {
     const form = document.getElementById("postForm");
     const formData = new FormData(form);
+    const images = document.getElementById("images").files;
+
+    if (images.length < 2) {
+        alert("이미지는 최소 2장 이상 등록해야 합니다.");
+        return;
+    }
 
     fetch("/api/post/create", {
         method: "POST",
@@ -61,7 +83,7 @@ function submitPost() {
         .then(data => {
             if (data.storeId) {
                 alert("게시물이 성공적으로 생성되었습니다!");
-                window.location.href = `/post/list/${data.storeId}`;
+                window.location.href = `/stores/${data.storeId}`;
             } else {
                 alert("게시물 생성에 실패했습니다.");
             }
