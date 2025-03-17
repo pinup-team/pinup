@@ -1,3 +1,91 @@
+document.addEventListener("DOMContentLoaded", function () {
+    const carouselList = document.querySelector(".carousel-list");
+    const items = document.querySelectorAll(".carousel-item");
+    const prevButton = document.querySelector(".slide-left");
+    const nextButton = document.querySelector(".slide-right");
+
+    let currentIndex = 0;
+    const totalItems = items.length;
+
+    const firstClone = items[0].cloneNode(true);
+    const lastClone = items[totalItems - 1].cloneNode(true);
+
+    carouselList.appendChild(firstClone);
+    carouselList.insertBefore(lastClone, items[0]);
+
+    let realTotalItems = totalItems + 2;
+    carouselList.style.transform = `translateX(-100%)`;
+
+    function updateSlider() {
+        carouselList.style.transition = "transform 0.5s ease-in-out";
+        carouselList.style.transform = `translateX(-${(currentIndex + 1) * 100}%)`;
+    }
+
+    nextButton.addEventListener("click", function () {
+        if (currentIndex >= totalItems) {
+            setTimeout(() => {
+                carouselList.style.transition = "none";
+                carouselList.style.transform = `translateX(-100%)`;
+                currentIndex = 0;
+            }, 500);
+        }
+        currentIndex++;
+        updateSlider();
+    });
+
+    prevButton.addEventListener("click", function () {
+        if (currentIndex <= -1) {
+            setTimeout(() => {
+                carouselList.style.transition = "none";
+                carouselList.style.transform = `translateX(-${totalItems * 100}%)`;
+                currentIndex = totalItems - 1;
+            }, 500);
+        }
+        currentIndex--;
+        updateSlider();
+    });
+
+    setInterval(() => {
+        nextButton.click();
+    }, 3000);
+});
+
+function changeTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    document.getElementById(`tab-${tab}`).classList.add('active');
+
+    document.querySelectorAll('.tab-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.querySelector(`.tab-item[data-tab="${tab}"]`).classList.add('active');
+
+    if (tab === "info") {
+        setTimeout(() => {
+            if (typeof kakao !== "undefined") {
+                loadMap();  // 지도 다시 그리기
+            }
+        }, 300);  // 레이아웃 갱신 후 지도 다시 그림
+    }
+}
+
+
+/*function changeTab(tab) {
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+
+    document.getElementById(`tab-${tab}`).classList.add('active');
+
+    document.querySelectorAll('.tab-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    document.querySelector(`.tab-item[data-tab="${tab}"]`).classList.add('active');
+}*/
+
+/*
 function changeTab(tab, storeId) {
     let newUrl = '';
 
@@ -22,6 +110,7 @@ function changeTab(tab, storeId) {
             .catch(error => console.error('게시판 리스트 로딩 중 오류:', error));
     }
 }
+*/
 
 async function submitStore() {
     try {
@@ -53,23 +142,26 @@ async function submitStore() {
 
         console.table(formDataEntries);
 
-        fetch("/api/stores", {
+        const response = await fetch("/api/stores", {
             method: "POST",
-            body: formData
+            body: formData,
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.id) {
-                    alert("게시물이 성공적으로 생성되었습니다!");
-                    window.location.href = `/stores/${data.id}`;
-                } else {
-                    alert("게시물 생성에 실패했습니다.");
-                }
-            })
-            .catch(error => {
-                console.error("게시물 생성 중 오류 발생:", error);
-                alert("게시물을 생성하는 중에 오류가 발생했습니다.");
-            });
+
+        if (!response.ok) {
+            alert("스토어 생성 api 오류");
+            console.error(response.statusText);
+        }
+
+        const data = await response.json();
+        console.log("data", data);
+
+        if (data.id) {
+            alert("스토어가 성공적으로 생성되었습니다.");
+            window.location.href = `/stores/${data.id}`;
+        } else {
+            alert("스토어 생성에 실패했습니다.");
+        }
+
 
     } catch (error) {
         console.error("주소 등록 및 게시물 생성 중 오류 발생:", error);
@@ -77,6 +169,61 @@ async function submitStore() {
     }
 }
 
+// 탭 변경
+/*
+async function changeTab(tab) {
+    try {
+        console.log(`${tab} 탭 선택`);
+
+        const storeId = document.getElementById("storeId").value;
+
+        const newUrl = `/stores/${storeId}/${tab}`;
+        history.pushState(null, '', newUrl);
+
+        document.querySelectorAll(".tab-item").forEach(tabElement => {tabElement.classList.remove("active")});
+        document.querySelector(`[data-tab="${tab}"]`).classList.add("active");
+
+        document.querySelectorAll(".tab-content").forEach(content => content.style.display = "none");
+
+        if (tab === "info") {
+            document.getElementById("tab-content-area").style.display = "block";
+            return;
+        }
+
+        if (tab === "media") {
+            const mediaContent = document.getElementById("tab-content-area");
+            mediaContent.innerHTML = "<p style='text-align:center; font-size:16px; color:gray;'>개발중인 기능입니다! 조금만 기다려 주세용 😘</p>";
+            mediaContent.style.display = "block";
+            return;
+        }
+
+        const contentDiv = document.getElementById(`tab-content-area`);
+
+        if (!contentDiv.innerHTML.trim()) {
+            const response = await fetch(`/stores/${storeId}/${tab}`);
+            if (!response.ok) {
+                throw new Error(`HTTP 오류 발생 (${response.status})`);
+            }
+
+            const html = await response.text();
+            contentDiv.innerHTML = html;
+            contentDiv.style.display = "block";
+        } else {
+            contentDiv.style.display = "block";
+        }
+    } catch (error) {
+        console.error(`${tab} 탭 로딩 오류:`, error);
+        alert(`"${tab}" 탭을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.`);
+    }
+
+}
+
+window.addEventListener("popstate", function (event) {
+    if (event.state && event.state.tab) {
+        changeTab(event.state.tab);
+    }
+});
+*/
 
 document.addEventListener("DOMContentLoaded", function () {
     const createForm = document.getElementById("storeForm");
@@ -115,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             const jsonData = JSON.stringify({
                 name: createForm.querySelector("input[name='name']").value,
-                description: createForm.querySelector("input[name='description']").value,
+                description: createForm.querySelector("textarea[name='description']").value,
                 startDateTime: createForm.querySelector("input[name='startDate']").value,
                 endDateTime: createForm.querySelector("input[name='endDate']").value,
                 categoryId: createForm.querySelector("select[name='categoryId']").value,
@@ -305,56 +452,51 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // 카카오 지도 API 로드 함수
+// 카카오 지도 API 로드 함수
 function loadMap() {
-    // ✅ `<input type="hidden">` 태그에서 값 가져오기
     var latitude = document.getElementById("latitude-hidden").value;
     var longitude = document.getElementById("longitude-hidden").value;
-    var storeName = document.getElementById("store-name").textContent.trim();
-    var storeAddr = document.getElementById("store-address").textContent.trim();
+    var storeName = document.getElementById("store-name") ? document.getElementById("store-name").textContent.trim() : "매장 위치";
+    var storeAddr = document.getElementById("store-address") ? document.getElementById("store-address").textContent.trim() : "";
 
-    console.log("Store Name: ", storeName);  // 매장명 확인
-    console.log("Store Address: ", storeAddr);  // 주소 확인
+    console.log("Store Name: ", storeName);
+    console.log("Store Address: ", storeAddr);
 
-    var mapContainer = document.getElementById('map'), // 지도를 표시할 div
-        mapOption = {
-            center: new kakao.maps.LatLng(latitude, longitude), // 지도의 중심좌표
-            level: 8 // 지도의 확대 레벨
-        };
+    var mapContainer = document.getElementById("map");
 
-    var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+    if (!latitude || !longitude || !mapContainer) {
+        console.error("지도 정보를 불러올 수 없습니다.");
+        return;
+    }
 
-    // 주소-좌표 변환 객체를 생성합니다
-    var geocoder = new kakao.maps.services.Geocoder();
+    var mapOption = {
+        center: new kakao.maps.LatLng(latitude, longitude),
+        level: 8
+    };
 
-    // 주소로 좌표를 검색합니다
-    geocoder.addressSearch(storeAddr, function(result, status) {
+    var map = new kakao.maps.Map(mapContainer, mapOption);
 
-
-        if (status === kakao.maps.services.Status.OK) {
-            var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-
-
-            // 결과값으로 받은 위치를 마커로 표시합니다
-            var marker = new kakao.maps.Marker({
-                map: map,
-                position: coords
-            });
-
-            // 인포윈도우로 장소에 대한 설명을 표시합니다
-            var infowindow = new kakao.maps.InfoWindow({
-                content: '<div style="width:200px;text-align:center;padding:3px 0; position: relative;">' + storeName + '</div>'
-            });
-            infowindow.open(map, marker);
-
-            // 지도의 중심을 결과값으로 받은 위치로 이동시킵니다
-            map.setCenter(coords);
-        } else {
-            console.error("Geocode failed with status: ", status);
-        }
+    var marker = new kakao.maps.Marker({
+        map: map,
+        position: new kakao.maps.LatLng(latitude, longitude)
     });
+
+    var infowindow = new kakao.maps.InfoWindow({
+        content: `<div style="width:200px;text-align:center;padding:3px 0;">${storeName}</div>`
+    });
+
+    infowindow.open(map, marker);
+
+    // 🟢 지도 크기 재조정 (탭 전환 시 지도가 정상적으로 보이도록)
+    setTimeout(() => {
+        map.relayout();
+        map.setCenter(new kakao.maps.LatLng(latitude, longitude));
+    }, 500);
 }
 
 // 페이지가 로드되면 initializeMap 함수 실행
-document.addEventListener('DOMContentLoaded', function() {
-    kakao.maps.load(loadMap);
+document.addEventListener("DOMContentLoaded", function () {
+    if (typeof kakao !== "undefined") {
+        kakao.maps.load(loadMap);
+    }
 });

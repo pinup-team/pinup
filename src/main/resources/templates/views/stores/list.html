@@ -3,23 +3,32 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/layout}">
-<head>
-    <meta charset="UTF-8">
-    <title>팝업스토어 목록</title>
-    <script defer src="/js/store.js"></script>
-</head>
-<body>
-<main layout:fragment="content">
-    <h1>팝업스토어 목록</h1>
-    <ul>
-        <li th:each="store : ${stores}">
-            <a th:href="@{/stores/{id}(id=${store.id})}" th:text="${store.name}"></a>
-            <button sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')" class="delete-btn" th:data-store-id="${store.id}">삭제</button>
-        </li>
-    </ul>
-    <div sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
-        <a href="/stores/create">새 팝업스토어 추가</a>
+
+<div layout:fragment="content">
+    <h1 class="page-title">팝업스토어 목록</h1>
+    <div class="store-list">
+        <div class="store-card" th:each="store : ${stores}">
+            <!-- 이미지 -->
+            <img th:src="${store.imageUrl}" alt="스토어 이미지" class="store-image"/>
+
+            <!-- 스토어 정보 -->
+            <div class="list-store-info">
+                <a th:href="@{/stores/{id}(id=${store.id})}" class="list-store-name" th:text="${store.name}"></a>
+<!--                <p class="list-store-location" th:text="${store.location}"></p>-->
+            </div>
+
+            <!-- 버튼 영역 -->
+            <div class="list-store-actions">
+                <span class="list-like-count">❤️ 23</span>
+                <button sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')" class="delete-btn"
+                        th:data-store-id="${store.id}">삭제</button>
+            </div>
+        </div>
     </div>
-</main>
-</body>
+</div>
+
+<th:block layout:fragment="pageScripts">
+    <script th:src="@{/js/location.js}"></script>
+    <script th:src="@{/js/store.js}"></script>
+</th:block>
 </html>
