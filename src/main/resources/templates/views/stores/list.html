@@ -4,6 +4,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/layout}">
 
+<link rel="stylesheet" th:href="@{/css/store_list.css}" />
 <div layout:fragment="content">
     <h1 class="page-title">팝업스토어 목록</h1>
     <div class="store-list">
@@ -23,9 +24,5 @@
 <th:block layout:fragment="pageScripts">
     <script th:src="@{/js/location.js}"></script>
     <script th:src="@{/js/store.js}"></script>
-</th:block>
-
-<th:block layout:fragment="pageCss">
-    <link rel="stylesheet" th:href="@{/css/store_list.css}"/>
 </th:block>
 </html>

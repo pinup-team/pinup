@@ -4,7 +4,7 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}">
 
-
+<link rel="stylesheet" th:href="@{/css/store_detail.css}" />
 <div layout:fragment="content" th:object="${store}">
 
     <div sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
@@ -120,9 +120,5 @@
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1038c510f5de135a5c0d54f4f9181ef3&libraries=services"></script>
     <script th:src="@{/js/location.js}"></script>
     <script th:src="@{/js/store.js}"></script>
-</th:block>
-
-<th:block layout:fragment="pageCss">
-    <link rel="stylesheet" th:href="@{/css/store_detail.css}"/>
 </th:block>
 </html>
