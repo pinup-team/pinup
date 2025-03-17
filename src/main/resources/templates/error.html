@@ -4,20 +4,25 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/main}">
 <div layout:fragment="content">
-    <div th:class="page_description">
-        <h1>에러 페이지</h1>
-    </div>
-    <div>
-    <div th:object="${error}">
-        <p><strong>상태 코드:</strong> <span th:text="*{status}"></span></p>
-        <p><strong>메시지:</strong> <span th:text="*{message}"></span></p>
-    </div>
+    <div th:class="center_content">
+        <div th:class="center_content">
+            <div th:class="page_description">
+                <h1>에러 페이지</h1>
+                <h4>이런! 예상치 못한 일이 발생했어요.</h4>
+            </div>
+            <div>
+                <div th:object="${error}">
+                    <p><strong>상태 코드:</strong> <span th:text="*{status}"></span></p>
+                    <p><strong>메시지:</strong> <span th:text="*{message}"></span></p>
+                </div>
 
-    <p>다시 시도해주세요.</p>
-    <button th:onclick="|window.location.href='/'|">Home</button>
-    <th:block sec:authorize="isAnonymous()">
-        <button th:onclick="|window.location.href='/members/login'|">Login</button>
-    </th:block>
+                <p>다시 시도해주세요.</p>
+                <button th:onclick="|window.location.href='/'|">Home</button>
+                <th:block sec:authorize="isAnonymous()">
+                    <button th:onclick="|window.location.href='/members/login'|">Login</button>
+                </th:block>
+            </div>
+        </div>
     </div>
 </div>
 </html>
