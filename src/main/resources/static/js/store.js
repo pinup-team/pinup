@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 3000);
 });
 
-function changeTab(tab) {
+async function changeTab(tab) {
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
     });
@@ -72,20 +72,28 @@ function changeTab(tab) {
     }
 
     if (tab === "post") {
-        const storeId = document.getElementById("storeId").value;
-        console.log("게시판 리스트 로딩 시작: " + storeId);
+        try {
+            const storeId = document.getElementById("storeId").value;
 
-        const postContainer = document.getElementById("post-list-container");
-        postContainer.style.display = "block";
+            const response = await fetch(`/post/list/${storeId}`);
 
-        fetch(`/post/${storeId}`)
-            .then(response => response.text())
-            .then(data => {
-                postContainer.innerHTML = data;
-            })
-            .catch(error => console.error("게시판 리스트 로딩 중 오류:", error));
+            if (!response.ok) {
+                throw new Error(`게시판 데이터를 불러오지 못했습니다. (HTTP ${response.status})`);
+            }
+
+            const postHtml = await response.text();
+
+            const postContainer = document.getElementById("post-list-container");
+            postContainer.innerHTML = postHtml;
+            postContainer.style.display = "block";
+
+        } catch (error) {
+            console.error("게시판 데이터 로딩 중 오류 발생:", error);
+            alert("게시판 데이터를 불러오는 중 오류가 발생했습니다.");
+        }
     }
 }
+
 
 
 /*function changeTab(tab) {

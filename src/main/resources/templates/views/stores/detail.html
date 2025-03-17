@@ -9,7 +9,8 @@
 
     <div sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
         <a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
-        <button class="delete-btn" th:data-store-id="*{id}">삭제</button>
+<!--        <button class="delete-btn" th:data-store-id="*{id}">삭제</button>-->
+        <a th:href="@{/stores/create}" class="create-btn" th:data-store-id="*{id}">등록</a>
     </div>
 
     <!--    <a href="/stores">목록으로 돌아가기</a>-->
@@ -119,5 +120,9 @@
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1038c510f5de135a5c0d54f4f9181ef3&libraries=services"></script>
     <script th:src="@{/js/location.js}"></script>
     <script th:src="@{/js/store.js}"></script>
+</th:block>
+
+<th:block layout:fragment="pageCss">
+    <link rel="stylesheet" th:href="@{/css/store_detail.css}"/>
 </th:block>
 </html>
