@@ -65,9 +65,25 @@ function changeTab(tab) {
     if (tab === "info") {
         setTimeout(() => {
             if (typeof kakao !== "undefined") {
-                loadMap();  // 지도 다시 그리기
+                loadMap();
             }
-        }, 300);  // 레이아웃 갱신 후 지도 다시 그림
+        }, 300);
+        return;
+    }
+
+    if (tab === "post") {
+        const storeId = document.getElementById("storeId").value;
+        console.log("게시판 리스트 로딩 시작: " + storeId);
+
+        const postContainer = document.getElementById("post-list-container");
+        postContainer.style.display = "block";
+
+        fetch(`/post/${storeId}`)
+            .then(response => response.text())
+            .then(data => {
+                postContainer.innerHTML = data;
+            })
+            .catch(error => console.error("게시판 리스트 로딩 중 오류:", error));
     }
 }
 
