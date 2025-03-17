@@ -16,13 +16,6 @@
                 <a th:href="@{/stores/{id}(id=${store.id})}" class="list-store-name" th:text="${store.name}"></a>
 <!--                <p class="list-store-location" th:text="${store.location}"></p>-->
             </div>
-
-            <!-- 버튼 영역 -->
-            <div class="list-store-actions">
-                <span class="list-like-count">❤️ 23</span>
-                <button sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')" class="delete-btn"
-                        th:data-store-id="${store.id}">삭제</button>
-            </div>
         </div>
     </div>
 </div>
