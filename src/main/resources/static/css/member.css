@@ -1,4 +1,4 @@
-#member_profile {
+.member_profile {
     width: 77vw;
     display: flex;
     justify-content: center;
@@ -8,7 +8,7 @@
 
 /*-------table--------*/
 
-#table-container {
+.table-container {
     display: flex;
     justify-content: center;
     width: 100%;
