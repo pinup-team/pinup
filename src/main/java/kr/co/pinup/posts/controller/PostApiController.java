@@ -7,6 +7,7 @@ import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
+import kr.co.pinup.posts.exception.post.ImageCountException;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostDetailResponse;
 import kr.co.pinup.posts.model.dto.PostResponse;
@@ -51,6 +52,9 @@ public class PostApiController {
     public ResponseEntity<PostResponse> createPost(@AuthenticationPrincipal MemberInfo memberInfo,
                                                    @ModelAttribute @Valid CreatePostRequest createPostRequest,
                                                    @RequestParam(value = "images", required = true) MultipartFile[] images) {
+        if (images == null || images.length < 2) {
+            throw new ImageCountException();
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo,createPostRequest, images));
     }
 

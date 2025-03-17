@@ -1,18 +1,17 @@
 package kr.co.pinup.store_images.service;
 
+import jakarta.transaction.Transactional;
+import kr.co.pinup.custom.s3.S3Service;
+import kr.co.pinup.store_images.StoreImage;
 import kr.co.pinup.store_images.exception.StoreImageNotFoundException;
 import kr.co.pinup.store_images.exception.StoreImageSaveFailedException;
 import kr.co.pinup.store_images.model.dto.StoreImageRequest;
 import kr.co.pinup.store_images.model.dto.StoreImageResponse;
 import kr.co.pinup.store_images.repository.StoreImageRepository;
-import kr.co.pinup.store_images.StoreImage;
-import kr.co.pinup.stores.model.dto.StoreResponse;
-import lombok.extern.slf4j.Slf4j;
-import jakarta.transaction.Transactional;
-import kr.co.pinup.custom.s3.S3Service;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 

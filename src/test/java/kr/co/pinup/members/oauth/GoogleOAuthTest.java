@@ -59,6 +59,7 @@ public class GoogleOAuthTest {
     private Pair<OAuthResponse, OAuthToken> googlePair;
 
     private GoogleLoginParams params;
+    private GoogleLoginParams errorParams;
 
     private String accessToken = "valid-access-token";
     private String refreshToken = "valid-refresh-token";
@@ -80,6 +81,7 @@ public class GoogleOAuthTest {
                 .build();
 
         params = GoogleLoginParams.builder().code("test-code").state("test-state").build();
+        errorParams = GoogleLoginParams.builder().error("access_denied").build();
 
         googleResponse = GoogleResponse.builder().sub("testId123456789").name("test").email("test@google.com").build();
         googleToken = GoogleToken.builder().accessToken("valid-access-token").refreshToken("valid-refresh-token").tokenType("Bearer").expiresIn(3920).scope("test-scope").build();
@@ -143,15 +145,22 @@ public class GoogleOAuthTest {
         }
 
         @Test
+        @DisplayName("로그인 실패_사용자 취소")
+        void testLogin_WhenOAuthRequestFails_ShouldThrowOAuthLoginCanceledException() {
+            when(oAuthService.request(any())).thenThrow(new OAuthLoginCanceledException("로그인을 취소합니다."));
+
+            assertThrows(OAuthLoginCanceledException.class, () -> {
+                memberService.login(errorParams, session);
+            });
+        }
+
+        @Test
         @DisplayName("로그인 실패_OAuth 요청 실패")
         void testLogin_WhenOAuthRequestFails_ShouldThrowUnauthorizedException() {
             when(oAuthService.request(any())).thenThrow(new UnauthorizedException("Invalid OAuth request"));
 
             assertThrows(UnauthorizedException.class, () -> {
-                memberService.login(GoogleLoginParams.builder()
-                        .code("test-code")
-                        .state("test-state")
-                        .build(), session);
+                memberService.login(params, session);
             });
         }
     }

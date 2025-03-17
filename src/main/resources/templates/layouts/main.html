@@ -4,22 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
-    <!--    <link rel="stylesheet" th:href="@{/css/common.css}">-->
+    <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
-    <link rel="stylesheet" th:href="@{/css/post_list.css}">
-    <link rel="stylesheet" th:href="@{/css/post_modal.css}">
-
     <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link rel="stylesheet" th:href="@{/css/member.css}">
     <title>Pin-up</title>
 </head>
 <body>
 <div class="header" th:replace="~{fragments/header::headerFragment}"></div>
 <div class="content">
-    <div class="container">
-        <div layout:fragment="content"></div>
-    </div>
+    <div layout:fragment="content"></div>
 </div>
 <div class="footer" th:replace="~{fragments/footer::footerFragment}"></div>
 <script th:src="@{/js/member.js}"></script>
@@ -46,10 +40,14 @@
                                             onerror="this.onerror=null; this.src='/images/loading.png';">
                                         <div class="list-store-info">
                                             <h3>${store.name}</h3>
-                                            <span>${store.location}</span>
+                                            <span>~ ${store.endDate}</span>
                                         </div>
-                                        <p>${store.description}</p>
+<!--                                        <p>${store.description}</p>-->
                                       </div>`;
+
+                listItem.querySelector('.store-card').addEventListener('click', () => {
+                    window.location.href = `/stores/${store.id}`;
+                });
                 storeListElement.appendChild(listItem);
             });
         } catch (error) {

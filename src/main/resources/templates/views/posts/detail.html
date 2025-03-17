@@ -19,10 +19,10 @@
                                 </th:block>
                             </ul>
                             <div class="slide slide-left" style="display: none;">
-                                <button class="transparent-button">⬅️</button>
+                                <button class="transparent-button"></button>
                             </div>
                             <div class="slide slide-right">
-                                <button class="transparent-button">➡️</button>
+                                <button class="transparent-button"></button>
                             </div>
                         </div>
                         <footer class="pinup-carousel-indicators">
@@ -38,7 +38,7 @@
             <div class="post-details">
                 <!-- 상단: 프로필 정보 -->
                 <div class="post-header">
-                    <span class="comment-username" >닉네임 이름</span>
+                    <span class="comment-username" th:text="${post.member.nickname}"></span>
                     <span class="post-date" th:text="*{#temporals.format(post.createdAt, 'yyyy-MM-dd')}"></span>
                 </div>
 
@@ -71,8 +71,8 @@
                         <ul>
                             <th:block th:each="comment : ${comments}">
                                 <li class="comment">
+                                    <span class="comment-username" th:text="${comment.member.nickname}"></span>
                                     <div class="comment-content">
-                                        <span class="comment-username" th:text="${comment.member.nickname}"></span>
                                         <span th:text="${comment.content}"></span>
                                     </div>
                                     <div class="comment-footer">

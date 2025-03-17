@@ -106,6 +106,8 @@ public class MemberService {
             throw new MemberBadRequestException("\"" + memberRequest.nickname() + "\"은 중복된 닉네임입니다.");
         }
 
+        if(memberRequest.nickname().length() > 50) throw new MemberBadRequestException("닉네임은 최대 50자입니다.");
+
         try {
             member.setNickname(memberRequest.nickname());
             Member savedMember = memberRepository.save(member);

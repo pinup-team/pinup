@@ -1,6 +1,5 @@
 package kr.co.pinup.store_images.model.dto;
 
-import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.store_images.StoreImage;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

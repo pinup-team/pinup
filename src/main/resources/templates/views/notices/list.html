@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -22,8 +21,13 @@
                     <div th:text="*{id}" hidden>id</div>
 
                     <div th:class="content_title">
-                        <strong th:text="*{title}" th:onclick="|location.href='@{/notices/{id}(id=*{id})}'|">title</strong>
-                        <span th:class="content_date" th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></span>
+                        <div class="content_title_area">
+                            <h1 th:text="*{title}" th:onclick="|location.href='@{/notices/{id}(id=*{id})}'|">title</h1>
+                        </div>
+
+                        <div class="content_date_area">
+                            <span th:class="content_date" th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></span>
+                        </div>
                     </div>
                 </article>
             </th:block>
