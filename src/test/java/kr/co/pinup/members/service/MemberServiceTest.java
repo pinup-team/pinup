@@ -63,7 +63,6 @@ public class MemberServiceTest {
                 .email("test@naver.com")
                 .nickname("updatedTestNickname")
                 .providerType(OAuthProvider.NAVER)
-                .role(MemberRole.ROLE_USER)
                 .build();
         mockTestInfo = MemberInfo.builder()
                 .nickname("mockNickname")
@@ -149,14 +148,31 @@ public class MemberServiceTest {
                     "test",
                     "wrongEmail@example.com",
                     "updatedTestNickname",
-                    OAuthProvider.NAVER,
-                    MemberRole.ROLE_USER
+                    OAuthProvider.NAVER
             );
 
             MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
                 memberService.update(memberInfo, testRequest);
             });
             assertEquals("이메일이 일치하지 않습니다.", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("회원 수정_Nickname 너무 김")
+        public void testUpdate_WithNicknameIsTooLong_ShouldThrowMemberBadRequestException() {
+            when(memberRepository.findByNickname(memberInfo.nickname()))
+                    .thenReturn(Optional.of(member));
+            MemberRequest testRequest = new MemberRequest(
+                    "test",
+                    "test@naver.com",
+                    "updatedTestNicknameupdatedTestNicknameupdatedTestNicknameupdatedTestNicknameupdatedTestNickname",
+                    OAuthProvider.NAVER
+            );
+
+            MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
+                memberService.update(memberInfo, testRequest);
+            });
+            assertEquals("닉네임은 최대 50자입니다.", exception.getMessage());
         }
 
         @Test
@@ -228,7 +244,6 @@ public class MemberServiceTest {
                     .email("test@gmail.com")
                     .nickname("mockNickname")
                     .providerType(OAuthProvider.GOOGLE)
-                    .role(MemberRole.ROLE_USER)
                     .build();
 
             when(memberRepository.findByNickname(memberInfo.nickname())).thenReturn(Optional.of(member));

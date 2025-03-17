@@ -7,7 +7,7 @@
             <h1>FAQ 정보 등록</h1>
         </div>
 
-        <div th:class="content">
+        <div th:class="content_form_area">
             <div th:class="row">
                 <label th:for="category">카테고리</label>
                 <div th:class="col">
@@ -36,7 +36,7 @@
             <div th:class="row">
                 <label th:for="answer">답변 내용</label>
                 <div th:class="col">
-                    <input th:type="text" th:name="answer" id="answer" th:id="answer" required>
+                    <textarea id="answer" th:name="answer" th:id="answer" required></textarea>
                     <div th:class="error_wrap">
                         <span th:class="answer_error" th:id="answer-error"></span>
                     </div>

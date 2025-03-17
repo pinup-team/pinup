@@ -13,6 +13,7 @@ import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.oauth.OAuthResponse;
 import kr.co.pinup.oauth.OAuthService;
 import kr.co.pinup.oauth.OAuthToken;
+import kr.co.pinup.oauth.google.GoogleLoginParams;
 import kr.co.pinup.oauth.naver.NaverLoginParams;
 import kr.co.pinup.oauth.naver.NaverResponse;
 import kr.co.pinup.oauth.naver.NaverToken;
@@ -63,6 +64,7 @@ public class NaverOAuthTest {
     private Pair<OAuthResponse, OAuthToken> naverPair;
 
     private NaverLoginParams params;
+    private GoogleLoginParams errorParams;
 
     private String accessToken = "valid-access-token";
     private String invalidAccessToken = "invalid-access-token";
@@ -70,7 +72,6 @@ public class NaverOAuthTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(memberService).build();
-//        memberInfo = new MemberInfo("testUser", OAuthProvider.NAVER, MemberRole.ROLE_USER);
 
         member = Member.builder()
                 .name("testUser")
@@ -87,6 +88,7 @@ public class NaverOAuthTest {
                 .build();
 
         params = NaverLoginParams.builder().code("test-code").state("test-state").build();
+        errorParams = GoogleLoginParams.builder().error("access_denied").build();
 
         naverResponse = NaverResponse.builder().response(NaverResponse.Response.builder().id("testId123456789").name("testUser").email("test@naver.com").build()).build();
         naverToken = NaverToken.builder().accessToken("valid-access-token").refreshToken("valid-refresh-token").tokenType("test-token-type").expiresIn(1000).result("success").error("test-error").errorDescription("test-error-description").build();
@@ -133,10 +135,7 @@ public class NaverOAuthTest {
             when(memberRepository.findByEmail(anyString())).thenReturn(Optional.empty()); // 회원 정보가 없을 때
             when(memberRepository.save(any(Member.class))).thenReturn(member); // 새로운 회원 저장
 
-            Pair<OAuthResponse, OAuthToken> result = memberService.login(NaverLoginParams.builder()
-                    .code("test-code")
-                    .state("test-state")
-                    .build(), session);
+            Pair<OAuthResponse, OAuthToken> result = memberService.login(params, session);
             OAuthResponse oAuthResponse = result.getLeft();
 
             assertNotNull(result);
@@ -149,15 +148,22 @@ public class NaverOAuthTest {
         }
 
         @Test
+        @DisplayName("로그인 실패_사용자 취소")
+        void testLogin_WhenOAuthRequestFails_ShouldThrowOAuthLoginCanceledException() {
+            when(oAuthService.request(any())).thenThrow(new OAuthLoginCanceledException("로그인을 취소합니다."));
+
+            assertThrows(OAuthLoginCanceledException.class, () -> {
+                memberService.login(errorParams, session);
+            });
+        }
+
+        @Test
         @DisplayName("로그인 실패_OAuth 요청 실패")
         void testLogin_WhenOAuthRequestFails_ShouldThrowUnauthorizedException() {
             when(oAuthService.request(any())).thenThrow(new UnauthorizedException("Invalid OAuth request"));
 
             assertThrows(UnauthorizedException.class, () -> {
-                memberService.login(NaverLoginParams.builder()
-                        .code("test-code")
-                        .state("test-state")
-                        .build(), session);
+                memberService.login(params, session);
             });
         }
     }

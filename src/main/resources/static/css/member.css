@@ -1,25 +1,10 @@
-.page_description h1 {
-    font-weight: 900;
-    font-size: 3rem;
-    color: #CC2F20;
-}
-
-.page_description h4 {
-    /*color: #602F20;  !* 원하는 색상 *!*/
-    color: #4F261A;
-}
-
 .member-profile {
+    width: 77vw;
     display: flex;
     justify-content: center; /* 수평 중앙 */
     align-items: center;     /* 수직 중앙 */
     flex-direction: column;  /* 세로로 쌓이게 */
     background-color: #F6F2E4;
-}
-
-.member-profile button:hover {
-    background-color: #CC2F20;
-    color: white;
 }
 
 /*-------table--------*/
@@ -123,6 +108,12 @@ td > button:hover {
     cursor: pointer;
 }
 
+.member-buttons button:disabled {
+    background-color: #eeeeee;
+    color: #4F261A;
+    cursor: not-allowed;
+}
+
 .member-buttons button:hover {
     background-color: #CC2F20;
     color: white;
@@ -142,67 +133,4 @@ td > button:hover {
     color: white;
     border: none;
     cursor: pointer;
-}
-
-/*-------hamburger--------*/
-
-/* 햄버거 버튼 스타일 */
-.hamburger {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-}
-
-.hamburger:hover {
-    background-color: #F6F2E4;
-}
-
-.bar {
-    width: 30px;
-    height: 4px;
-    background-color: #CC2F20;
-    border-radius: 5px;
-    margin: 3px;
-}
-
-/* 메뉴 스타일 */
-.menu {
-    display: none;
-    background-color: #4F261A;
-    position: absolute;
-    right: 6%;
-    border-radius: 5px;
-    box-sizing: border-box; /* padding을 포함한 너비 계산 */
-    z-index: 9999; /* 다른 요소보다 위에 표시되도록 설정 */
-    overflow: hidden;
-}
-
-.menu.open {
-    display: flex; /* 메뉴가 열릴 때 flex 사용 */
-    flex-direction: column;
-}
-
-.menu button {
-    color: white;
-    border: none;
-    padding: 0.375rem 0.5rem;
-    text-align: center; /* 텍스트 중앙 정렬 */
-    display: flex;
-    justify-content: center; /* 버튼 내 텍스트 수평 중앙 정렬 */
-    align-items: center; /* 버튼 내 텍스트 수직 중앙 정렬 */
-    box-sizing: border-box; /* padding 포함하여 크기 계산 */
-}
-
-.menu button:hover {
-    cursor: pointer;
-    color: white;
-    /*background-color: #CC2F20;*/
-}
-
-.menu button:disabled {
-    cursor: default;
 }

@@ -3,7 +3,12 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/main}">
-
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/member.css}">
+    <title>Profile</title>
+</head>
 <div layout:fragment="content">
     <div th:class="page_description">
         <h1>Profile</h1>
@@ -32,10 +37,6 @@
                     <td>가입경로</td>
                     <td><input type="text" th:field="*{providerType}" th:placeholder="가입경로" readonly></td>
                 </tr>
-                <tr>
-                    <td>권한</td>
-                    <td><input type="text" th:field="*{role}" th:placeholder="권한" readonly></td>
-                </tr>
                 </tbody>
             </table>
         </th:block>
@@ -47,7 +48,7 @@
         <th:block sec:authorize="isAuthenticated()">
             <div class="member-buttons">
                 <button type="button" onclick="updateAccount()">수정</button>
-                <button type="button" onclick="deleteAccount()">탈퇴</button>
+                <button type="button" onclick="deleteAccount()" disabled hidden="hidden">탈퇴</button>
             </div>
         </th:block>
     </div>

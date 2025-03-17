@@ -3,30 +3,29 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
     <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
+
     <link rel="stylesheet" th:href="@{/css/post_list.css}">
     <link rel="stylesheet" th:href="@{/css/post_modal.css}">
     <link rel="stylesheet" th:href="@{/css/store_detail.css}" />
     <link rel="stylesheet" th:href="@{/css/store_list.css}" />
+
     <title>Pin-up</title>
 </head>
 <body>
-
-    <div class="wrap type_home">
-        <div class="content">
-            <div th:replace="~{fragments/header::headerFragment}"></div>
-
-            <div layout:fragment="content"></div>
-        </div>
+<div class="wrap type_home">
+    <div th:replace="~{fragments/header::headerFragment}"></div>
+    <div class="content">
+        <div layout:fragment="content"></div>
     </div>
-
     <div th:replace="~{fragments/footer::footerFragment}"></div>
+</div>
 
-    <script th:src="@{/js/member.js}"></script>
-    <script th:src="@{/js/post.js}"></script>
+<script th:src="@{/js/member.js}"></script>
+<script th:src="@{/js/post.js}"></script>
 
 <th:block layout:fragment="pageScripts"></th:block>
 

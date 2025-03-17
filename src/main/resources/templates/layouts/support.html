@@ -8,11 +8,9 @@
   <script type="text/javascript" th:src="@{/js/faq.js}"></script>
 </head>
 
-<body>
-  <main th:class="home_content_wrap" layout:fragment="content">
-    <div th:replace="~{fragments/supportNavigate :: support-navigate}"></div>
+<main th:class="home_content_wrap" layout:fragment="content">
+  <div th:replace="~{fragments/supportNavigate :: support-navigate}"></div>
 
-    <div layout:fragment="support-content"></div>
-  </main>
-</body>
+  <div layout:fragment="support-content"></div>
+</main>
 </html>
