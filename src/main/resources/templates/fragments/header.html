@@ -2,7 +2,12 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <header id="header" th:fragment="headerFragment">
-    <div class="logo"><a th:href="@{/}" th:text="'PinUp'">PinUp</a></div>
+    <div class="logo">
+        <a th:href="@{/}">
+            <img th:src="@{/images/logo.png}" th:alt="loading..." th:width="45px">
+            <span>PinUp</span>
+        </a>
+    </div>
     <nav>
         <ul>
             <li><a th:href="@{/}">Home</a></li>
