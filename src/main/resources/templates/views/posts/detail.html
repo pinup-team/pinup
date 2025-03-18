@@ -4,6 +4,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/layout}">
 
+
 <div layout:fragment="content">
     <div class="instagram-post-popup" id="post-popup">
         <div class="post-content">
@@ -15,15 +16,11 @@
                         <div class="carousel-inner">
                             <ul class="carousel-list">
                                 <th:block th:each="image : ${images}">
-                                    <li class="carousel-item"><img th:src="${image.s3Url}" alt="Post Image"/></li>
+                                    <li class="post-carousel-item"><img th:src="${image.s3Url}" alt="Post Image"/></li>
                                 </th:block>
                             </ul>
-                            <div class="slide slide-left" style="display: none;">
-                                <button class="transparent-button"></button>
-                            </div>
-                            <div class="slide slide-right">
-                                <button class="transparent-button"></button>
-                            </div>
+                            <button class="slide slide-left" style="display: none;"><</button>
+                            <button class="slide slide-right">></button>
                         </div>
                         <footer class="pinup-carousel-indicators">
                             <th:block th:each="image, iterStat : ${images}">

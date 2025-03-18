@@ -176,7 +176,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between; /* 버튼과 닉네임 사이 간격 유지 */
-    padding: 10px 15px;
+    padding: 0px 15px;
     border-top: 1px solid #eee;
     border-radius: 0 0 10px 10px; /* 카드 모양과 어울리게 */
     position: absolute;
