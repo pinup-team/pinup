@@ -14,31 +14,35 @@
         <h1>Profile</h1>
         <h4>내 정보를 업데이트하세요.</h4>
     </div>
-    <div th:class="member-profile">
+    <div th:class="member_profile">
         <th:block sec:authorize="isAnonymous()">
             <p>잘못된 접근입니다.</p>
         </th:block>
         <th:block sec:authorize="isAuthenticated()">
-            <table class="table" th:object="${profile}">
-                <tbody>
-                <tr>
-                    <td>이름</td>
-                    <td><input type="text" th:field="*{name}" th:placeholder="이름" readonly></td>
-                </tr>
-                <tr>
-                    <td>이메일</td>
-                    <td><input type="text" th:field="*{email}" th:placeholder="이메일" readonly></td>
-                </tr>
-                <tr>
-                    <td>닉네임</td>
-                    <td><input type="text" th:field="*{nickname}" th:placeholder="닉네임" id="nickname"><button type="button" onclick="generateNickname()">닉네임 추천</button></td>
-                </tr>
-                <tr>
-                    <td>가입경로</td>
-                    <td><input type="text" th:field="*{providerType}" th:placeholder="가입경로" readonly></td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table class="table" th:object="${profile}">
+                    <tbody>
+                    <tr>
+                        <td>이름</td>
+                        <td><input type="text" th:field="*{name}" th:placeholder="이름" readonly></td>
+                    </tr>
+                    <tr>
+                        <td>이메일</td>
+                        <td><input type="text" th:field="*{email}" th:placeholder="이메일" readonly></td>
+                    </tr>
+                    <tr>
+                        <td>닉네임</td>
+                        <td><input type="text" th:field="*{nickname}" th:placeholder="닉네임" id="nickname">
+                            <button type="button" onclick="generateNickname()">닉네임 추천</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>가입경로</td>
+                        <td><input type="text" th:field="*{providerType}" th:placeholder="가입경로" readonly></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </th:block>
     </div>
     <div class="button-container">
