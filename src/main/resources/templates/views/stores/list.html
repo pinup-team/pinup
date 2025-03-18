@@ -4,7 +4,9 @@
       layout:decorate="~{layouts/layout}">
 
 <div layout:fragment="content">
-    <h1 class="page-title">팝업스토어 목록</h1>
+    <div sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
+        <a th:href="@{/stores/create}" class="create-btn">등록</a>
+    </div>
     <div class="store-list">
         <div class="store-card" th:each="store : ${stores}">
             <!-- 이미지 -->
@@ -13,7 +15,7 @@
             <!-- 스토어 정보 -->
             <div class="list-store-info">
                 <a th:href="@{/stores/{id}(id=${store.id})}" class="list-store-name" th:text="${store.name}"></a>
-<!--                <p class="list-store-location" th:text="${store.location}"></p>-->
+                <!--                <p class="list-store-location" th:text="${store.location}"></p>-->
             </div>
         </div>
     </div>
