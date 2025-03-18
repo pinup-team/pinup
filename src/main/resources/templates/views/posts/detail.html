@@ -4,6 +4,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/layout}">
 
+
 <div layout:fragment="content">
     <div class="instagram-post-popup" id="post-popup">
         <div class="post-content">
@@ -15,15 +16,11 @@
                         <div class="carousel-inner">
                             <ul class="carousel-list">
                                 <th:block th:each="image : ${images}">
-                                    <li class="carousel-item"><img th:src="${image.s3Url}" alt="Post Image"/></li>
+                                    <li class="post-carousel-item"><img th:src="${image.s3Url}" alt="Post Image"/></li>
                                 </th:block>
                             </ul>
-                            <div class="slide slide-left" style="display: none;">
-                                <button class="transparent-button"></button>
-                            </div>
-                            <div class="slide slide-right">
-                                <button class="transparent-button"></button>
-                            </div>
+                            <button class="slide slide-left" style="display: none;"><</button>
+                            <button class="slide slide-right">></button>
                         </div>
                         <footer class="pinup-carousel-indicators">
                             <th:block th:each="image, iterStat : ${images}">
@@ -76,7 +73,8 @@
                                         <span th:text="${comment.content}"></span>
                                     </div>
                                     <div class="comment-footer">
-                                        <div class="card-time" th:text="*{#temporals.format(comment.createdAt, 'yyyy-MM-dd')}"></div>
+                                        <div class="card-time"
+                                             th:text="*{#temporals.format(comment.createdAt, 'yyyy-MM-dd')}"></div>
                                         <th:block sec:authorize="isAuthenticated()">
                                             <button type="button" class="comment-delete transparent-button"
                                                     th:data-comment-id="${comment.id}"
@@ -97,7 +95,7 @@
                         <input type="text" name="content" placeholder="댓글 달기 ..." required class="pinup-comment-input"/>
                         <div class="pinup-comment-submit">
                             <button class="pinup-btn transparent-button pinup-comment-submit-btn" type="submit"
-                                th:data-post-id="${post.id}" th:disabled="${#authentication == null}">
+                                    th:data-post-id="${post.id}" th:disabled="${#authentication == null}">
                                 게시
                             </button>
                         </div>

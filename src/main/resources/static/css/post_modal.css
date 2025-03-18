@@ -420,7 +420,7 @@ article.card header > div {
 }
 
 /* 🔥 개별 이미지 항목 */
-.carousel-item {
+.post-carousel-item {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -449,23 +449,21 @@ article.card header > div {
 .slide-left {
     width: 48px;
     height: 48px;
-    background-image: url(https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/img/sp-pc-v4.png#icon_slide_arrow);
-    background-repeat: no-repeat;
-    background-position: 0px -69px;
-    background-size: 281px auto;
-    -webkit-transform: rotate(180deg);
-    -ms-transform: rotate(180deg);
-    transform: rotate(180deg);
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
 }
 
 .slide-right {
-    right: 0;
     width: 48px;
     height: 48px;
-    background-image: url(https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/img/sp-pc-v4.png#icon_slide_arrow);
-    background-repeat: no-repeat;
-    background-position: 0px -69px;
-    background-size: 281px auto;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 20px;
 }
 
 /* 🔥 캐러셀 인디케이터 컨테이너 */
