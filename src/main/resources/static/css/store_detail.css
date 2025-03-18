@@ -63,9 +63,9 @@
 }
 
 .tab-item.active {
-    color: #b71c1c;
+    color: #CC2F20;
     font-weight: bold;
-    border-bottom: 2px solid #b71c1c;
+    border-bottom: 2px solid #CC2F20;
 }
 
 .tab-item:hover {
@@ -165,7 +165,7 @@
 .info-subtitle {
     font-size: 20px;
     font-weight: bold;
-    color: #b71c1c;
+    color: #CC2F20;
     margin-bottom: 10px;
 }
 
