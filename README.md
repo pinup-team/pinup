@@ -60,7 +60,11 @@
 
 **운영 & 기술 고민(Wiki)**
 
-
+## 👀 구동 화면
+![main page](https://github.com/user-attachments/assets/959dd92a-c911-4eac-8036-4d87e2610891)
+![store page](https://github.com/user-attachments/assets/e742e44e-45aa-46a5-9aee-f5e9462b3377)
+![store page 2](https://github.com/user-attachments/assets/2be8f081-d025-4490-8a8d-5bac0b93a268)
+![post page](https://github.com/user-attachments/assets/e12b7580-b1cc-48bd-aaef-c5cb7310bb22)
 
 ## 🤝 팀 문화
 
