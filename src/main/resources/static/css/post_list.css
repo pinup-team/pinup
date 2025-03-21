@@ -10,7 +10,7 @@
 .pinup_list_wrap {
     width: 100%;
     margin: 0 auto;
-    padding: 2vw;
+    padding: 1vw;
     box-sizing: border-box;
 }
 
@@ -23,14 +23,14 @@
 .pinup_list_wrap .pinup_list_item {
     flex: 0 0 auto;
     box-sizing: border-box; /* padding과 margin이 크기 계산에 영향을 미치지 않도록 */
-    width: 12vw;
+    width: 13vw;
     background: #ffffff;
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
     position: relative;
-    padding-bottom: 3vh;
+    padding-bottom: 5vh;
 }
 
 .pinup_list_wrap .pinup_list_item:hover {
@@ -174,7 +174,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between; /* 버튼과 닉네임 사이 간격 유지 */
-    padding: 0.5vh 1vh;
+    padding: 0vh 1vh;
     border-top: 1px solid #eee;
     border-radius: 0 0 10px 10px; /* 카드 모양과 어울리게 */
     position: absolute;
@@ -221,8 +221,8 @@
     font-size: 13px;
     color: #777;
     border-top: 1px solid #eee;
-    padding-top: 1vh;
-    margin-top: auto
+    padding: 0.9vh 0;
+    margin-bottom: 0.6vh;
 }
 
 .post_date {
