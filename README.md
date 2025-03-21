@@ -1,15 +1,27 @@
 <div align=center>
-	<img width="492" alt="project-title" src="https://github.com/user-attachments/assets/690361a8-3b34-4a79-b682-84122be8a6ed" />
+	<img width="492" alt="project-title" src="https://github.com/user-attachments/assets/ce0af058-3471-47f8-a15c-e802c7f6eb6b" />
 	<h2> 팝업스토어 일정은 우리가 알려줄게요<br />당신은 재밌게 놀기만 해요!</h2>
 	https://pin-up.co.kr
 	<br />
 	<br />
-	<p>📍 $\huge{\large{\color{#6580DD}Pin-up}}$은 팝업스토어를 소개하고 일정을 알려주며 서로 소통을 하는 커뮤니티 서비스입니다</p>
+	<p>📍 $\huge{\large{\color{#6580DD}PinUp}}$은 팝업스토어를 소개하고 일정을 알려주며 서로 소통을 하는 커뮤니티 서비스입니다</p>
 	<br />
 	<br />
-
 
 </div>
+
+## 🎥 프로젝트 소개
+팝업스토어 관련 정보를 공유하고, 사용자들이 자유롭게 소통할 수 있는 공간을 제공하는 사이트입니다.  
+사용자에게 팝업스토어의 다양한 정보를 빠르고 간편하게 볼 수 있도록 제공합니다.  
+
+✨ **실제 배포 & 운영 경험과 학습한 내용을 적용해 보기 위해 만든 서비스입니다.**
+
+#### 주요 기능
+✔ 사용자 참여 기능(팝업스토어 후기 작성)  
+✔ 커뮤니티 공간(팝업스토어 후기를 공유하고 사용자들과 소통)
+
+#### 📆 개발 기간
+2025.01.06 ~
 
 ## 🧑🏻‍💻 팀원 소개
 
@@ -34,15 +46,19 @@
 ![collabo-skill](https://github.com/user-attachments/assets/bfa9b99d-bdbb-448c-90d6-d9edc058e4d4)
 
 ## 💻 인프라 구조
-
+![infra-structure](https://github.com/user-attachments/assets/baef97f1-f427-4a5e-9a32-cb2a90288068)
 
 ## 📜 프로젝트 문서
 
 **API 문서**  
+[🔗API 문서](https://docs.google.com/spreadsheets/d/1b24N2W1LtkkmANf4k0S2cyUUmNKDhFQ5dWEvl_6xXKY/edit?usp=sharing)
+![API Preview](https://github.com/user-attachments/assets/03ba88f6-59a1-4938-8f5d-38c0adee31c4)
 
 **ERD**  
+[🔗ERD Cloud](https://www.erdcloud.com/d/ZBjzfrDw49fGojDaC)
+![ERD Preview](https://github.com/user-attachments/assets/794e4986-2f52-4a66-8751-bff0b504f4c8)
 
-**Wiki(기술 고민 등)**
+**운영 & 기술 고민(Wiki)**
 
 
 
