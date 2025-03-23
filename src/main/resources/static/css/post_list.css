@@ -30,7 +30,7 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
     position: relative;
-    padding-bottom: 5vh;
+    padding-bottom: 3vh;
 }
 
 .pinup_list_wrap .pinup_list_item:hover {
@@ -208,7 +208,7 @@
     display: -webkit-box;
     -webkit-line-clamp: 3; /* 최대 3줄 */
     -webkit-box-orient: vertical;
-    font-size: 14px;
+    font-size: 1vh;
     color: #666;
     line-height: 1.5;
 }
