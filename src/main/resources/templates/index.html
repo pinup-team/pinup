@@ -11,9 +11,16 @@
 </head>
 <body>
 <div layout:fragment="content">
+
     <div th:class="page_description">
         <h1>Popular</h1>
-        <h4>가장 인기 있는 팝업 스토어</h4>
+<!--        <a th:href="@{/about}" th:class="info-link">🤔 핀업은 어떻게 이용하나요?</a>-->
+        <div class="title-container">
+            <div class="title-left">
+                <h4>가장 인기 있는 팝업 스토어</h4>
+            </div>
+            <a th:href="@{/stores}" class="more-link">더보기👉</a>
+        </div>
     </div>
     <div>
         <div class="store-list-container">
@@ -36,17 +43,20 @@
             const stores = await response.json();
             const storeListElement = document.getElementById('store-list');
 
+            const topStores = stores.slice(0, 5);
             // 리스트에 팝업스토어 추가
-            stores.forEach(store => {
+            topStores.forEach(store => {
                 const listItem = document.createElement('li');
                 listItem.innerHTML = `<div class="store-card">
                                         <img src="${store.imageUrl}" alt="Loading Image"
                                             onerror="this.onerror=null; this.src='/images/loading.png';">
                                         <div class="list-store-info">
-                                            <h3>${store.name}</h3>
-                                            <span>~ ${store.endDate}</span>
+                                            <div class="list-store-info-head">
+                                                <h3>${store.name}</h3>
+                                                <span>📍${store.location.district}</span>
+                                            </div>
+                                            <span class="list-store-info-date">~ ${store.endDate}</span>
                                         </div>
-<!--                                        <p>${store.description}</p>-->
                                       </div>`;
 
                 listItem.querySelector('.store-card').addEventListener('click', () => {

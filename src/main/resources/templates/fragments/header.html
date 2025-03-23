@@ -20,16 +20,17 @@
             <button th:onclick="|window.location.href='/members/login'|">Login</button>
         </th:block>
         <th:block sec:authorize="isAuthenticated()">
-            <button class="hamburger" onclick="toggleMenu()">
-                <span class="bar"></span>
-                <span class="bar"></span>
+            <button th:class="hamburger" onclick="toggleMenu()">
+                <span th:class="bar"></span>
+                <span th:class="bar"></span>
+                <span th:class="bar"></span>
             </button>
 
-            <div id="menu" class="menu">
+            <div th:class="menu">
                 <button th:onclick="|window.location.href='/members/profile'|">마이페이지</button>
                 <button th:onclick="|logOut()|">로그아웃</button>
                 <hr/>
-                <button sec:authentication="principal.nickname" disabled>Nickname</button>
+                <p th:class="menu_nickname" sec:authentication="principal.nickname">Nickname</p>
             </div>
         </th:block>
     </div>

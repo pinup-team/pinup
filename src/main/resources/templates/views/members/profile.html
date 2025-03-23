@@ -19,8 +19,8 @@
             <p>잘못된 접근입니다.</p>
         </th:block>
         <th:block sec:authorize="isAuthenticated()">
-            <div class="table-container">
-                <table class="table" th:object="${profile}">
+            <div th:class="table-container">
+                <table th:class="table" th:object="${profile}">
                     <tbody>
                     <tr>
                         <td>이름</td>
@@ -33,7 +33,7 @@
                     <tr>
                         <td>닉네임</td>
                         <td><input type="text" th:field="*{nickname}" th:placeholder="닉네임" id="nickname">
-                            <button type="button" onclick="generateNickname()">닉네임 추천</button>
+                            <button type="button" th:onclick="generateNickname()">닉네임 추천</button>
                         </td>
                     </tr>
                     <tr>
@@ -45,14 +45,14 @@
             </div>
         </th:block>
     </div>
-    <div class="button-container">
-        <div class="home-button">
-            <button onclick="redirectToHome()">홈으로 돌아가기</button>
+    <div th:class="button-container">
+        <div th:class="home-button">
+            <button th:onclick="redirectToHome()">홈으로 돌아가기</button>
         </div>
         <th:block sec:authorize="isAuthenticated()">
-            <div class="member-buttons">
-                <button type="button" onclick="updateAccount()">수정</button>
-                <button type="button" onclick="deleteAccount()" disabled hidden="hidden">탈퇴</button>
+            <div th:class="member-buttons">
+                <button type="button" th:onclick="updateAccount()">수정</button>
+                <button type="button" th:onclick="deleteAccount()" disabled hidden="hidden">탈퇴</button>
             </div>
         </th:block>
     </div>
