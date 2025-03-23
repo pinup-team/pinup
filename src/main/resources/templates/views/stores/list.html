@@ -4,20 +4,26 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/layout}">
 
+<th:block layout:fragment="pageStyles">
+    <link rel="stylesheet" th:href="@{/css/store_list.css}" />
+</th:block>
+
 <div layout:fragment="content">
     <div sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
         <a th:href="@{/stores/create}" class="create-btn">등록</a>
     </div>
-    <div class="store-list">
-        <div class="store-card" th:each="store : ${stores}">
-            <!-- 이미지 -->
-            <img th:src="${store.imageUrl}" alt="스토어 이미지" class="store-image"/>
 
-            <!-- 스토어 정보 -->
-            <div class="list-store-info">
-                <a th:href="@{/stores/{id}(id=${store.id})}" class="list-store-name" th:text="${store.name}"></a>
-                <!--                <p class="list-store-location" th:text="${store.location}"></p>-->
-            </div>
+    <div class="store-list">
+        <div th:each="store : ${stores}" class="store-card">
+            <a th:href="@{/stores/{id}(id=${store.id})}" class="store-card-link">
+                <!-- 이미지 -->
+                <img th:src="${store.imageUrl}" alt="스토어 이미지" class="store-image" />
+
+                <!-- 스토어 정보 -->
+                <div class="list-store-info">
+                    <p class="list-store-name" th:text="${store.name}"></p>
+                </div>
+            </a>
         </div>
     </div>
 </div>

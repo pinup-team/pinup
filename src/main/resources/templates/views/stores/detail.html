@@ -4,6 +4,10 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}">
 
+<th:block layout:fragment="pageStyles">
+    <link rel="stylesheet" th:href="@{/css/store_detail.css}" />
+</th:block>
+
 <div layout:fragment="content" th:object="${store}">
 
     <div sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">

@@ -22,15 +22,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     nextButton.addEventListener("click", function () {
-        if (currentIndex >= totalItems) {
+        if (currentIndex >= totalItems) return;
+
+        currentIndex++;
+        updateSlider();
+
+        if (currentIndex === totalItems) {
             setTimeout(() => {
                 carouselList.style.transition = "none";
                 carouselList.style.transform = `translateX(-100%)`;
                 currentIndex = 0;
             }, 500);
         }
-        currentIndex++;
-        updateSlider();
     });
 
     prevButton.addEventListener("click", function () {
@@ -45,9 +48,6 @@ document.addEventListener("DOMContentLoaded", function () {
         updateSlider();
     });
 
-    setInterval(() => {
-        nextButton.click();
-    }, 3000);
 });
 
 async function changeTab(tab) {
@@ -95,47 +95,6 @@ async function changeTab(tab) {
 }
 
 
-
-/*function changeTab(tab) {
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
-    });
-
-    document.getElementById(`tab-${tab}`).classList.add('active');
-
-    document.querySelectorAll('.tab-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    document.querySelector(`.tab-item[data-tab="${tab}"]`).classList.add('active');
-}*/
-
-/*
-function changeTab(tab, storeId) {
-    let newUrl = '';
-
-    if (tab === 'info') {
-        console.log('정보 탭 클릭');
-        newUrl = `/stores/${storeId}`;  // 원하는 URL 형식으로 설정
-        history.pushState(null, '', newUrl);
-        document.getElementById('slide-bottom').style.display = 'block';
-        document.getElementById('post-list-container').style.display = 'none';
-    } else {
-        console.log('게시판 리스트 로딩 시작'+storeId);
-        newUrl = `/${tab}/${storeId}`;
-        history.pushState(null, '', newUrl);
-        document.getElementById('slide-bottom').style.display = 'none';
-        document.getElementById('post-list-container').style.display = 'block';
-
-        fetch(`/${tab}/${storeId}`)
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('post-list-container').innerHTML = data;
-            })
-            .catch(error => console.error('게시판 리스트 로딩 중 오류:', error));
-    }
-}
-*/
-
 async function submitStore() {
     try {
         const locationId = await registerLocation();  // 주소 등록 후 ID 받기
@@ -158,6 +117,16 @@ async function submitStore() {
         const form = document.getElementById("storeForm");
         const formData = new FormData(form);
         console.log("formData", formData);
+
+        const days = document.getElementsByName("days");
+        const startTimes = document.getElementsByName("startTimes");
+        const endTimes = document.getElementsByName("endTimes");
+
+        for (let i = 0; i < days.length; i++) {
+            formData.append(`operatingHours[${i}].day`, days[i].value);
+            formData.append(`operatingHours[${i}].startTime`, startTimes[i].value);
+            formData.append(`operatingHours[${i}].endTime`, endTimes[i].value);
+        }
 
         const formDataEntries = [];
         for (const pair of formData.entries()) {
@@ -193,62 +162,6 @@ async function submitStore() {
     }
 }
 
-// 탭 변경
-/*
-async function changeTab(tab) {
-    try {
-        console.log(`${tab} 탭 선택`);
-
-        const storeId = document.getElementById("storeId").value;
-
-        const newUrl = `/stores/${storeId}/${tab}`;
-        history.pushState(null, '', newUrl);
-
-        document.querySelectorAll(".tab-item").forEach(tabElement => {tabElement.classList.remove("active")});
-        document.querySelector(`[data-tab="${tab}"]`).classList.add("active");
-
-        document.querySelectorAll(".tab-content").forEach(content => content.style.display = "none");
-
-        if (tab === "info") {
-            document.getElementById("tab-content-area").style.display = "block";
-            return;
-        }
-
-        if (tab === "media") {
-            const mediaContent = document.getElementById("tab-content-area");
-            mediaContent.innerHTML = "<p style='text-align:center; font-size:16px; color:gray;'>개발중인 기능입니다! 조금만 기다려 주세용 😘</p>";
-            mediaContent.style.display = "block";
-            return;
-        }
-
-        const contentDiv = document.getElementById(`tab-content-area`);
-
-        if (!contentDiv.innerHTML.trim()) {
-            const response = await fetch(`/stores/${storeId}/${tab}`);
-            if (!response.ok) {
-                throw new Error(`HTTP 오류 발생 (${response.status})`);
-            }
-
-            const html = await response.text();
-            contentDiv.innerHTML = html;
-            contentDiv.style.display = "block";
-        } else {
-            contentDiv.style.display = "block";
-        }
-    } catch (error) {
-        console.error(`${tab} 탭 로딩 오류:`, error);
-        alert(`"${tab}" 탭을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.`);
-    }
-
-}
-
-window.addEventListener("popstate", function (event) {
-    if (event.state && event.state.tab) {
-        changeTab(event.state.tab);
-    }
-});
-*/
-
 document.addEventListener("DOMContentLoaded", function () {
     const createForm = document.getElementById("storeForm");
     const updateForm = document.getElementById("updateForm");
@@ -259,22 +172,58 @@ document.addEventListener("DOMContentLoaded", function () {
     if (imageInput) {
         imageInput.addEventListener("change", function (event) {
             const files = event.target.files;
-
             previewContainer.innerHTML = '';
 
-            Array.from(files).forEach(file => {
+            Array.from(files).forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = function (e) {
+                    const previewWrapper = document.createElement("div");
+                    previewWrapper.style.margin = "10px";
+                    previewWrapper.style.textAlign = "center";
+
                     const previewImage = document.createElement("img");
                     previewImage.src = e.target.result;
-                    previewImage.style.display = "block";
-                    previewImage.style.margin = "10px";
-                    previewContainer.appendChild(previewImage);
+                    previewImage.style.width = "150px";
+                    previewImage.style.cursor = "pointer";
+                    previewImage.dataset.index = index;
+
+                    const radio = document.createElement("input");
+                    radio.type = "radio";
+                    radio.name = "thumbnail";
+                    radio.value = index;
+                    radio.style.marginTop = "5px";
+
+                    if (index === 0) {
+                        radio.checked = true;
+                        document.getElementById("thumbnailImage").value = 0;
+                        previewImage.classList.add("selected-thumbnail");
+                    }
+
+                    radio.addEventListener("change", () => {
+                        document.getElementById("thumbnailImage").value = index;
+
+                        document.querySelectorAll("#previewContainer img").forEach(img => {
+                            img.classList.remove("selected-thumbnail");
+                        });
+
+                        previewImage.classList.add("selected-thumbnail");
+                    });
+
+                    previewImage.addEventListener("click", () => {
+                        radio.checked = true;
+                        radio.dispatchEvent(new Event("change"));
+                    });
+
+                    previewWrapper.appendChild(previewImage);
+                    previewWrapper.appendChild(document.createElement("br"));
+                    previewWrapper.appendChild(radio);
+                    previewContainer.appendChild(previewWrapper);
                 };
                 reader.readAsDataURL(file);
             });
         });
     }
+
 
     if (createForm) {
         createForm.addEventListener("submit", function (event) {
@@ -524,3 +473,27 @@ document.addEventListener("DOMContentLoaded", function () {
         kakao.maps.load(loadMap);
     }
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    const addButton = document.getElementById("addOperatingHour");
+    if (addButton) {
+        addButton.addEventListener("click", addOperatingHour);
+    }
+});
+
+function addOperatingHour() {
+    const container = document.getElementById("operatingHoursContainer");
+    const div = document.createElement("div");
+    div.className = "operating-hour";
+    div.innerHTML = `
+        <input type="text" name="days" placeholder="요일 (예: 월, 월~목)" required />
+        <input type="time" name="startTimes" required />
+        <input type="time" name="endTimes" required />
+        <button type="button" onclick="removeOperatingHour(this)">-</button>
+    `;
+    container.appendChild(div);
+}
+
+function removeOperatingHour(button) {
+    button.parentElement.remove();
+}

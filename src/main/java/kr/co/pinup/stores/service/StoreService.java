@@ -12,6 +12,7 @@ import kr.co.pinup.store_images.StoreImage;
 import kr.co.pinup.store_images.exception.StoreImageDeleteFailedException;
 import kr.co.pinup.store_images.model.dto.StoreImageRequest;
 import kr.co.pinup.store_images.service.StoreImageService;
+import kr.co.pinup.store_operatingHour.OperatingHour;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.exception.StoreNotFoundException;
 import kr.co.pinup.stores.model.dto.StoreRequest;
@@ -115,12 +116,8 @@ public class StoreService {
         StoreCategory category = storeCategoryRepository.findById(request.categoryId())
                 .orElseThrow(StoreNotFoundException::new);
 
-        log.info("StoreCategory - {}", category.getId());
-
         Location location = locationRepository.findById(request.locationId())
                 .orElseThrow(LocationNotFoundException::new);
-
-        log.info("Location - {}", location.getId());
 
         Store store = Store.builder()
                 .name(request.name())
@@ -130,7 +127,24 @@ public class StoreService {
                 .startDate(request.startDate())
                 .endDate(request.endDate())
                 .status(Status.RESOLVED)
+                .contactNumber(request.contactNumber()) // 새 필드
+                .websiteUrl(request.websiteUrl())       // 새 필드
+                .snsUrl(request.snsUrl())               // 새 필드
                 .build();
+
+        // 운영시간 추가
+        if (request.operatingHours() != null) {
+            request.operatingHours().forEach(hour -> {
+                OperatingHour operatingHour = OperatingHour.builder()
+                        .day(hour.day())
+                        .startTime(hour.startTime())
+                        .endTime(hour.endTime())
+                        .store(store)
+                        .build();
+                store.getOperatingHours().add(operatingHour);
+            });
+        }
+
         storeRepository.save(store);
 
         StoreImageRequest storeImageRequest = StoreImageRequest.builder()
@@ -140,26 +154,16 @@ public class StoreService {
         List<StoreImage> storeImages = storeImageService.uploadStoreImages(store, storeImageRequest);
 
         if (!storeImages.isEmpty()) {
-            store.setImageUrl(storeImages.get(0).getImageUrl());
-            storeRepository.save(store);
+            int thumbnailIndex = request.thumbnailImage() != null ? request.thumbnailImage() : 0;
+            if (thumbnailIndex >= 0 && thumbnailIndex < storeImages.size()) {
+                store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
+                storeRepository.save(store);
+            }
         }
-
 
         log.info("팝업스토어 생성 완료 - ID: {}", store.getId());
 
-        return new StoreResponse(
-                store.getId(),
-                store.getName(),
-                store.getDescription(),
-                StoreCategoryResponse.from(store.getCategory()),
-                LocationResponse.from(store.getLocation()),
-                store.getStartDate(),
-                store.getEndDate(),
-                store.getStatus(),
-                store.getImageUrl(),
-                store.getCreatedAt(),
-                store.getUpdatedAt()
-        );
+        return StoreResponse.from(store);
     }
 
     @Transactional

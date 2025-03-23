@@ -4,11 +4,14 @@ import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.store_categories.StoreCategory;
+import kr.co.pinup.store_operatingHour.OperatingHour;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
 import kr.co.pinup.stores.model.enums.Status;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -46,6 +49,19 @@ public class Store extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String imageUrl;
+
+    @Column(length = 50)
+    private String contactNumber;
+
+    @Column(length = 255)
+    private String websiteUrl;
+
+    @Column(length = 255)
+    private String snsUrl;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<OperatingHour> operatingHours = new ArrayList<>();
 
     public void updateStore(StoreUpdateRequest request, StoreCategory category, Location location) {
         if (request.getName() != null) this.name = request.getName();

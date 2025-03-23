@@ -1,13 +1,13 @@
 .store-list {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 16px;
     padding: 20px;
-    justify-content: flex-start;
+    align-items: start;
 }
 
 .store-card {
-    width: 400px;
+    width: 350px;
     display: flex;
     flex-direction: column;
     align-items: center;
