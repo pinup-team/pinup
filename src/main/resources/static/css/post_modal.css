@@ -334,7 +334,7 @@ article.card header > div {
 /* 🔥 댓글 입력 박스 */
 .pinup-comment-box {
     bottom: 0vh;
-    width: 40vw;
+    width: 28vw;
     position: absolute;
     height: 5vh;
     border-top: 1px solid #e0e0e0;
