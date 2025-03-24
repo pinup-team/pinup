@@ -9,29 +9,28 @@
 
 .pinup_list_wrap {
     width: 100%;
-    max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 1vw;
     box-sizing: border-box;
 }
 
 .pinup_list {
     display: flex;
-    gap: 20px;
+    gap: 1vw;
     flex-wrap: wrap; /* 아이템들이 한 줄에 꽉 차면 다음 줄로 넘어가도록 설정 */
 }
 
 .pinup_list_wrap .pinup_list_item {
     flex: 0 0 auto;
     box-sizing: border-box; /* padding과 margin이 크기 계산에 영향을 미치지 않도록 */
-    width: 260px;
+    width: 13vw;
     background: #ffffff;
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
     position: relative;
-    padding-bottom: 50px;
+    padding-bottom: 3vh;
 }
 
 .pinup_list_wrap .pinup_list_item:hover {
@@ -41,7 +40,7 @@
 .pinup_list_item .pinup_img_wrap {
     display: block;
     width: 100%;
-    height: 180px;
+    height: 15vh;
     overflow: hidden;
 }
 
@@ -57,7 +56,7 @@
 }
 
 .pinup_list_item .pinup_content {
-    padding: 0px 10px;
+    padding: 0px 1vh;
 }
 
 .pinup_list_item .pinup_title {
@@ -93,72 +92,71 @@
     flex-wrap: wrap;
     width: 100%;
 }
-
-.item_group {
-    position: relative;
-    width: 100%;
-    padding: 20px 0 19px;
-    border-top: 1px solid #f0f0f0;
-    box-sizing: border-box;
-}
-
 .wrap_profile {
     margin-bottom: 5px;
 }
 
-.txt_g {
-    font-size: 13px;
-    color: #555;
-}
+/*.item_group {*/
+/*    position: relative;*/
+/*    width: 100%;*/
+/*    padding: 20px 0 19px;*/
+/*    border-top: 1px solid #f0f0f0;*/
+/*    box-sizing: border-box;*/
+/*}*/
 
-.link_cont {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    color: inherit;
-    padding-left: 20px;
-    padding-right: 20px;
-}
+/*.txt_g {*/
+/*    font-size: 13px;*/
+/*    color: #555;*/
+/*}*/
 
-.wrap_tit {
-    flex: 5;
-    padding-right: 10px;
-}
+/*.link_cont {*/
+/*    display: flex;*/
+/*    align-items: center;*/
+/*    text-decoration: none;*/
+/*    color: inherit;*/
+/*    padding-left: 20px;*/
+/*    padding-right: 20px;*/
+/*}*/
 
-.tit_cont {
-    font-size: 16px;
-    font-weight: bold;
-}
+/*.wrap_tit {*/
+/*    flex: 5;*/
+/*    padding-right: 10px;*/
+/*}*/
 
-.wrap_desc {
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
+/*.tit_cont {*/
+/*    font-size: 16px;*/
+/*    font-weight: bold;*/
+/*}*/
 
-.desc_g {
-    font-size: 14px;
-    color: #666;
-}
+/*.wrap_desc {*/
+/*    margin-top: 10px;*/
+/*    margin-bottom: 10px;*/
+/*}*/
 
-.wrap_info {
-    margin-top: 5px;
-    font-size: 12px;
-    color: #999;
-}
+/*.desc_g {*/
+/*    font-size: 14px;*/
+/*    color: #666;*/
+/*}*/
 
-.wrap_thumb {
-    flex: 2;
-    width: 80px;
-    height: 200px;
-    overflow: hidden;
-    border-radius: 8px;
-}
+/*.wrap_info {*/
+/*    margin-top: 5px;*/
+/*    font-size: 12px;*/
+/*    color: #999;*/
+/*}*/
 
-.inner_thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+/*.wrap_thumb {*/
+/*    flex: 2;*/
+/*    width: 80px;*/
+/*    height: 200px;*/
+/*    overflow: hidden;*/
+/*    border-radius: 8px;*/
+/*}*/
+
+/*.inner_thumb img {*/
+/*    width: 100%;*/
+/*    height: 100%;*/
+/*    object-fit: cover;*/
+/*}*/
 
 .pinup_nickname {
     overflow: hidden;
@@ -172,11 +170,11 @@
     max-width: 220px;
 }
 
-.post_action_wrapper {
+.pinup_list_item .post_action_wrapper {
     display: flex;
     align-items: center;
     justify-content: space-between; /* 버튼과 닉네임 사이 간격 유지 */
-    padding: 0px 15px;
+    padding: 0vh 1vh;
     border-top: 1px solid #eee;
     border-radius: 0 0 10px 10px; /* 카드 모양과 어울리게 */
     position: absolute;
@@ -197,7 +195,7 @@
 
 /* 🔹 본문 내용 스타일 */
 .post_description_wrapper {
-    height: 62.99px; /* 고정 높이 */
+    height: 5vh;
     overflow: hidden;
     border-top: 1px solid #eee;
 }
@@ -210,7 +208,7 @@
     display: -webkit-box;
     -webkit-line-clamp: 3; /* 최대 3줄 */
     -webkit-box-orient: vertical;
-    font-size: 14px;
+    font-size: 1vh;
     color: #666;
     line-height: 1.5;
 }
@@ -219,12 +217,12 @@
 .post_sub_info {
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 1vh;
     font-size: 13px;
     color: #777;
     border-top: 1px solid #eee;
-    padding-top: 5px;
-    margin-top: auto
+    padding: 0.9vh 0;
+    margin-bottom: 0.6vh;
 }
 
 .post_date {
@@ -236,7 +234,3 @@
     color: #aaa;
 }
 
-.post_comment_count {
-    font-size: 13px;
-    color: #444;
-}
