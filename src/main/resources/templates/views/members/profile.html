@@ -10,17 +10,17 @@
     <title>Profile</title>
 </head>
 <div layout:fragment="content">
-    <div th:class="page_description">
+    <div class="page_description">
         <h1>Profile</h1>
         <h4>내 정보를 업데이트하세요.</h4>
     </div>
-    <div th:class="member_profile">
+    <div class="member_profile">
         <th:block sec:authorize="isAnonymous()">
             <p>잘못된 접근입니다.</p>
         </th:block>
         <th:block sec:authorize="isAuthenticated()">
-            <div th:class="table-container">
-                <table th:class="table" th:object="${profile}">
+            <div class="table-container">
+                <table class="table" th:object="${profile}">
                     <tbody>
                     <tr>
                         <td>이름</td>
@@ -45,12 +45,12 @@
             </div>
         </th:block>
     </div>
-    <div th:class="button-container">
-        <div th:class="home-button">
+    <div class="button-container">
+        <div class="home-button">
             <button th:onclick="redirectToHome()">홈으로 돌아가기</button>
         </div>
         <th:block sec:authorize="isAuthenticated()">
-            <div th:class="member-buttons">
+            <div class="member-buttons">
                 <button type="button" th:onclick="updateAccount()">수정</button>
                 <button type="button" th:onclick="deleteAccount()" disabled hidden="hidden">탈퇴</button>
             </div>

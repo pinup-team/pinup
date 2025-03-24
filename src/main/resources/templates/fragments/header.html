@@ -20,10 +20,10 @@
             <button th:onclick="|window.location.href='/members/login'|">Login</button>
         </th:block>
         <th:block sec:authorize="isAuthenticated()">
-            <button th:class="hamburger" onclick="toggleMenu()">
-                <span th:class="bar"></span>
-                <span th:class="bar"></span>
-                <span th:class="bar"></span>
+            <button class="hamburger" onclick="toggleMenu()">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
             </button>
 
             <div th:class="menu">
