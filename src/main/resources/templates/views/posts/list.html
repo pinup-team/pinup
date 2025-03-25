@@ -18,9 +18,14 @@
                 <div class="content_list_area">
                     <div class="content_title">
                         <strong>장소와 취향이 발견되는 공간</strong>
-                        <th:block sec:authorize="isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))">
+                        <th:block sec:authorize="isAuthenticated()">
                             <button type="button" class="img_icon_keep"
                                     th:onclick="|location.href='/post/create?storeId=' + ${storeId}|">작성
+                            </button>
+                        </th:block>
+                        <th:block sec:authorize="!isAuthenticated()">
+                            <button type="button" class="img_icon_keep"
+                                    th:onclick="|location.href='/members/login'|">로그인 후 작성
                             </button>
                         </th:block>
                     </div>
