@@ -27,7 +27,7 @@ public class PostController {
 
     @GetMapping("/list/{storeId}")
     public String getAllPosts(@PathVariable Long storeId, Model model) {
-        model.addAttribute("posts", postService.findByStoreId(storeId));
+        model.addAttribute("posts", postService.findByStoreIdWithCommentCount(storeId));
         model.addAttribute("storeId", storeId);
         return VIEW_PATH + "/list";
     }

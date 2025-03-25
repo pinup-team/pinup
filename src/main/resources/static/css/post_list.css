@@ -82,6 +82,7 @@
     font-size: 14px;
     cursor: pointer;
     transition: background 0.3s ease;
+    margin: 1vh 0.5vh;
 }
 
 .pinup_list_item button:hover {
@@ -160,7 +161,7 @@
 
 .pinup_nickname {
     overflow: hidden;
-    font-size: 12px;
+    font-size: 1vh;
     line-height: 1.2;
     color: #444;
     text-overflow: ellipsis;
@@ -168,6 +169,8 @@
     white-space: nowrap;
     text-align: left;
     max-width: 220px;
+    margin: 1vh;
+    -webkit-line-clamp: 1;
 }
 
 .pinup_list_item .post_action_wrapper {

@@ -1,6 +1,7 @@
 package kr.co.pinup.posts.service;
 
 import jakarta.transaction.Transactional;
+import kr.co.pinup.comments.repository.CommentRepository;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.MemberNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -39,6 +40,7 @@ public class PostService {
     private final PostImageService postImageService;
     private final MemberRepository memberRepository;
     private final StoreRepository  storeRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public PostResponse createPost(MemberInfo memberInfo, CreatePostRequest createPostRequest, MultipartFile[] images) {
@@ -75,6 +77,13 @@ public class PostService {
         List<Post> posts = postRepository.findByStoreId(storeId);
         return posts.stream()
                 .map(PostResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    public List<PostResponse> findByStoreIdWithCommentCount(Long storeId) {
+        List<Post> posts = postRepository.findByStoreId(storeId);
+        return posts.stream()
+                .map(post -> PostResponse.fromPostWithComments(post, commentRepository.countByPostId(post.getId())))
                 .collect(Collectors.toList());
     }
 
