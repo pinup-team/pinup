@@ -99,34 +99,35 @@
 
 /*이미지*/
 .carousel-wrapper {
+    width: 100%;
+    max-width: 1000px;
+    height: 600px;
     margin: auto;
-    overflow: hidden;
     position: relative;
-    max-height: 500px;
+    overflow: hidden;
 }
 
 .carousel-list {
     display: flex;
     transition: transform 0.5s ease-in-out;
-    list-style: none;
     padding: 0;
     margin: 0;
+    list-style: none;
 }
 
 .carousel-item {
-    min-width: 100%;
-    flex: 0 0 auto;
-    text-align: center;
-    max-height: 500px;
-    overflow: hidden;
+    flex: 0 0 500px;
+    max-width: 500px;
+    box-sizing: border-box;
+    padding: 0 5px;
 }
 
 .carousel-item img {
     width: 100%;
-    height: auto;
-    max-height: 500px;
+    height: 100%;
     object-fit: cover;
     border-radius: 10px;
+    display: block;
 }
 
 /* 좌우 버튼 스타일 */
@@ -156,7 +157,6 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
     gap: 40px;
     width: 100%;
     margin: 0 auto;
@@ -200,4 +200,25 @@
     border-radius: 10px;
     border: 1px solid #e7e7e7;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.24);
+}
+
+/* 목록으로 돌아가기 버튼 */
+.back-icon-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin: 20px 0;
+    font-size: 22px;
+    font-weight: bold;
+    color: #4F261A;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.back-icon-button:hover {
+    background-color: #e2e2e2;
+    transform: scale(1.05);
 }

@@ -42,7 +42,7 @@
 
         <!-- 편의기능 바 -->
         <div>
-            <a href="/stores"><</a>
+            <a class="back-icon-button" href="/stores"><</a>
         </div>
 
         <!-- 탭 버튼 -->
@@ -83,7 +83,7 @@
                     <div class="duration-container">
                         <p class="info-subtitle"> 운영시간 </p>
                         <div>
-                            <p th:if="*{operatingHours.isEmpty()}">운영시간 준비 중</p>
+                            <p th:if="*{operatingHours.isEmpty()}">운영시간 준비 중입니다.</p>
 
                             <ul th:unless="*{operatingHours.isEmpty()}">
                                 <li th:each="hour : *{operatingHours}">
@@ -99,6 +99,20 @@
                         <p class="info-subtitle"> 상세설명 </p>
                         <p class="description-textbox" th:text="*{description}"></p>
                     </div>
+
+                    <!-- 컨택트 -->
+                    <div class="contact-container"
+                         th:if="*{contactNumber != null or snsUrl != null or websiteUrl != null}">
+                        <p class="info-subtitle"> 찾아보기 </p>
+
+                        <a class="contact-textbox" th:if="*{snsUrl != null}" th:href="*{snsUrl}">SNS</a>
+                        <a class="contact-textbox" th:if="*{websiteUrl != null}" th:href="*{websiteUrl}">웹사이트</a>
+                        <span>📞 </span> <span class="contact-textbox" th:if="*{contactNumber != null}" th:text="*{contactNumber}"></span>
+                    </div>
+
+                    <p class="info-subtitle" th:if="*{contactNumber == null and snsUrl == null and websiteUrl == null}">
+                        연락처 정보가 준비 중입니다.
+                    </p>
 
                     <div class="map-container">
                         <input type="hidden" id="latitude-hidden" th:value="${location.latitude}">
