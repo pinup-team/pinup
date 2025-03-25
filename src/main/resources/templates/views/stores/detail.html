@@ -5,14 +5,14 @@
       layout:decorate="~{layouts/layout}">
 
 <th:block layout:fragment="pageStyles">
-    <link rel="stylesheet" th:href="@{/css/store_detail.css}" />
+    <link rel="stylesheet" th:href="@{/css/store_detail.css}"/>
 </th:block>
 
 <div layout:fragment="content" th:object="${store}">
 
     <div sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
         <a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
-<!--        <button class="delete-btn" th:data-store-id="*{id}">삭제</button>-->
+        <!--        <button class="delete-btn" th:data-store-id="*{id}">삭제</button>-->
         <a th:href="@{/stores/create}" class="create-btn" th:data-store-id="*{id}">등록</a>
     </div>
 
@@ -70,7 +70,8 @@
                 <div class="title-area">
                     <p class="title-text-category" th:text="*{category.name}"> ></p>
                     <p class="title-text-name" th:text="*{name}"></p>
-                    <span class="title-text-duration" th:text="*{startDate()}"></span> ~ <span class="title-text-duration"
+                    <span class="title-text-duration" th:text="*{startDate()}"></span> ~ <span
+                        class="title-text-duration"
                         th:text="*{endDate()}"></span>
                     <p class="title-text-location" th:with="loc=*{location}">
                         📍 <span
@@ -81,7 +82,17 @@
                 <div class="info-container">
                     <div class="duration-container">
                         <p class="info-subtitle"> 운영시간 </p>
-                        <p> 주중 : 08:30 ~ 20:30 </p>
+                        <div>
+                            <p th:if="*{operatingHours.isEmpty()}">운영시간 준비 중</p>
+
+                            <ul th:unless="*{operatingHours.isEmpty()}">
+                                <li th:each="hour : *{operatingHours}">
+                                    <span th:text="${hour.day}"></span> :
+                                    <span th:text="${#temporals.format(hour.startTime, 'HH:mm')}"></span> ~
+                                    <span th:text="${#temporals.format(hour.endTime, 'HH:mm')}"></span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="description-container">
