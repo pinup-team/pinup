@@ -117,6 +117,7 @@ function fileCheck(event) {
     const fileInput = event.target;
     const fileName = document.getElementById("fileName");
     const previewContainer = document.getElementById("previewContainer");
+    const fileCountMessage = document.getElementById("fileCountMessage");
 
     previewContainer.innerHTML = "";
 
@@ -124,10 +125,17 @@ function fileCheck(event) {
 
     if (files.length === 0) {
         fileName.innerText = "선택된 파일 없음";
+        fileCountMessage.style.display = 'inline';
         return;
     }
 
     fileName.innerText = `${files.length}개의 파일 선택됨`;
+
+    if (files.length >= 2) {
+        fileCountMessage.style.display = 'none';  // 2개 이상이면 메시지 숨기기
+    } else {
+        fileCountMessage.style.display = 'inline';  // 2개 미만이면 메시지 보이기
+    }
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
