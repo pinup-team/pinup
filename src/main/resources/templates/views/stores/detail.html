@@ -23,8 +23,8 @@
     <!-- 홈 디브-->
     <div>
         <!-- 이미지 슬라이더 -->
-        <div class="carousel-wrapper">
-            <div class="carousel">
+        <div class="carousel-wrapper" th:classappend="${#lists.size(storeImages) == 1} ? ' single-image'">
+            <div class="carousel" th:if="${#lists.size(storeImages) > 1}">
                 <div class="carousel-inner">
                     <ul class="carousel-list">
                         <th:block th:each="image : ${storeImages}">
@@ -37,6 +37,10 @@
 
                 <button class="slide-button slide-left"><</button>
                 <button class="slide-button slide-right">></button>
+            </div>
+
+            <div class="single-image-container" th:if="${#lists.size(storeImages) == 1}">
+                <img th:src="${storeImages[0].imageUrl}" alt="Store Image" class="single-image"/>
             </div>
         </div>
 

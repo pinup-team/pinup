@@ -131,6 +131,29 @@
     display: block;
 }
 
+.carousel-wrapper.single-image {
+    overflow: visible;
+    height: auto;
+}
+
+.carousel-wrapper.single-image .slide-button {
+    display: none;
+}
+
+.single-image-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 600px;
+    background: black;
+}
+
+.single-image {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
 /* 좌우 버튼 스타일 */
 .slide-button {
     position: absolute;
