@@ -27,14 +27,14 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
 
     public List<NoticeResponse> findAll() {
-        return noticeRepository.findAllByOrderByCreatedAtDescIdDesc()
+        return noticeRepository.findAllByIsDeletedFalseOrderByCreatedAtDescIdDesc()
                 .stream()
                 .map(NoticeResponse::new)
                 .collect(Collectors.toList());
     }
 
     public NoticeResponse find(Long noticeId) {
-        return noticeRepository.findById(noticeId)
+        return noticeRepository.findByIdAndIsDeletedFalse(noticeId)
                 .map(NoticeResponse::new)
                 .orElseThrow(NoticeNotFound::new);
     }
@@ -60,11 +60,12 @@ public class NoticeService {
         notice.update(noticeUpdate);
     }
 
+    @Transactional
     public void remove(Long noticeId) {
         Notice notice = noticeRepository.findById(noticeId)
                 .orElseThrow(NoticeNotFound::new);
 
-        noticeRepository.delete(notice);
+        notice.changeDeleted(true);
     }
 
 }

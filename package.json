@@ -1,0 +1,10 @@
+{
+  "name": "pinup",
+  "version": "0.0.1-BETA",
+  "scripts": {
+    "minify": "terser"
+  },
+  "devDependencies": {
+    "terser": "^5.39.0"
+  }
+}

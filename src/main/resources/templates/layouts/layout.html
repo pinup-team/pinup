@@ -11,7 +11,7 @@
 
     <th:block layout:fragment="pageStyles"></th:block>
 
-    <title>Pin-up</title>
+    <title>PinUp</title>
 </head>
 <body>
 <div class="wrap type_home">
@@ -22,9 +22,9 @@
     <div th:replace="~{fragments/footer::footerFragment}"></div>
 </div>
 
-<script th:src="@{/js/header.js}"></script>
-<script th:src="@{/js/member.js}"></script>
-<script th:src="@{/js/post.js}"></script>
+<th:block th:replace="~{fragments/script-loader :: load('header')}"></th:block>
+<th:block th:replace="~{fragments/script-loader :: load('member')}"></th:block>
+<th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
 
 <th:block layout:fragment="pageScripts"></th:block>
 

@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.1'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.github.node-gradle.node' version '7.1.0'
 }
 
 group = 'kr.co'
@@ -64,7 +65,6 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 }
 
-
 tasks.named('test') {
 	useJUnitPlatform()
 	testLogging {
@@ -72,8 +72,44 @@ tasks.named('test') {
 	}
 }
 
+node {
+	version = '22.14.0'
+	npmVersion = '11.2.0'
+	download = true
+}
+
+// 동적 Minify 태스크 생성
+def minifyTasks = []
+fileTree('src/main/resources/static/js').each { file ->
+	if (file.name.endsWith('.js') && !file.name.endsWith('.min.js')) {
+		def taskName = "minifyJs_${file.name.replace('.js', '')}"
+		tasks.register(taskName, NpmTask) {
+			// 출력 경로를 File 객체로 직접 생성
+			def outputFile = layout.buildDirectory.file("resources/main/static/js/${file.name.replace('.js', '.min.js')}").get().asFile
+			args = [
+					'run', 'minify', '--',
+					file.absolutePath,
+					'--output', outputFile.absolutePath,
+					'--compress', 'passes=3',
+					'--mangle', 'toplevel=true',
+					'--mangle-props', 'reserved=["classList","querySelector","getAttribute","setAttribute","textContent"]'
+			]
+			dependsOn npmInstall
+			doFirst {
+				outputFile.parentFile.mkdirs()
+			}
+		}
+		minifyTasks << tasks[taskName]
+	}
+}
+
+processResources {
+	exclude 'static/js/*.js' // 원본 JS 제외
+}
+
 bootJar {
 	enabled = true
+	dependsOn minifyTasks
 }
 
 jar {

@@ -5,6 +5,7 @@ import kr.co.pinup.BaseEntity;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "notices")
@@ -20,6 +21,9 @@ public class Notice extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @ColumnDefault("false")
+    private boolean isDeleted;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private Member member;
@@ -29,4 +33,7 @@ public class Notice extends BaseEntity {
         content = update.content();
     }
 
+    public void changeDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
 }
