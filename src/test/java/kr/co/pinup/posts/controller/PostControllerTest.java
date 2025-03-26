@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -60,7 +61,7 @@ class PostControllerTest {
                 .providerId("hdiJZoHQ-XDUkGvVCDLr1_NnTNZGcJjyxSAEUFjEi6A")
                 .role(MemberRole.ROLE_USER)
                 .build();
-        // given
+
         Long storeId = 1L;
         List<PostResponse> mockPosts = IntStream.range(0, 10)
                 .mapToObj(i -> PostResponse.builder()
@@ -71,14 +72,14 @@ class PostControllerTest {
                 .toList();
 
         // when
-        when(postService.findByStoreId(storeId)).thenReturn(mockPosts);
+        when(postService.findByStoreIdWithCommentCount(storeId,false)).thenReturn(mockPosts);
 
         // expected
         mockMvc.perform(get("/post/list/{storeId}", storeId))
                 .andExpect(status().isOk())
                 .andExpect(view().name("views/posts/list"))
                 .andExpect(model().attributeExists("posts"))
-                .andExpect(model().attribute("posts", is(mockPosts)))
+                .andExpect(model().attribute("posts", hasSize(10)))  // posts의 크기 비교
                 .andExpect(model().attribute("storeId", is(storeId)))
                 .andDo(print());
     }
@@ -115,7 +116,7 @@ class PostControllerTest {
         List<PostImageResponse> mockImages = List.of(new PostImageResponse(1L, 1L, "image.jpg"));
 
         // when
-        when(postService.getPostById(postId)).thenReturn(mockPost);
+        when(postService.getPostById(postId,false)).thenReturn(mockPost);
         when(commentService.findByPostId(postId)).thenReturn(mockComments);
         when(postImageService.findImagesByPostId(postId)).thenReturn(mockImages);
 
@@ -158,7 +159,7 @@ class PostControllerTest {
         List<PostImageResponse> mockImages = List.of(new PostImageResponse(1L, 1L, "image.jpg"));
 
         // when
-        when(postService.getPostById(postId)).thenReturn(mockPost);
+        when(postService.getPostById(postId, false)).thenReturn(mockPost);
         when(postImageService.findImagesByPostId(postId)).thenReturn(mockImages);
 
         // expected

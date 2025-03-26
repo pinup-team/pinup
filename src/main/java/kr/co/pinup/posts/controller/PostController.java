@@ -27,14 +27,14 @@ public class PostController {
 
     @GetMapping("/list/{storeId}")
     public String getAllPosts(@PathVariable Long storeId, Model model) {
-        model.addAttribute("posts", postService.findByStoreIdWithCommentCount(storeId));
+        model.addAttribute("posts", postService.findByStoreIdWithCommentCount(storeId,false));
         model.addAttribute("storeId", storeId);
         return VIEW_PATH + "/list";
     }
 
     @GetMapping("/{postId}")
     public String getPostById(@PathVariable Long postId, Model model) {
-        model.addAttribute("post", postService.getPostById(postId));
+        model.addAttribute("post", postService.getPostById(postId,false));
         model.addAttribute("comments", commentService.findByPostId(postId));
         model.addAttribute("images", postImageService.findImagesByPostId(postId));
         return VIEW_PATH + "/detail";
@@ -50,7 +50,7 @@ public class PostController {
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @GetMapping("/update/{postId}")
     public String updatePostForm(@PathVariable Long postId, Model model) {
-        model.addAttribute("post", postService.getPostById(postId));
+        model.addAttribute("post", postService.getPostById(postId,false));
         model.addAttribute("images", postImageService.findImagesByPostId(postId));
         return VIEW_PATH + "/update";
     }

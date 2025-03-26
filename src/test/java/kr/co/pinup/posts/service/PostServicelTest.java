@@ -137,6 +137,7 @@ public class PostServicelTest {
                 .member(member)
                 .title(createPostRequest.title())
                 .content(createPostRequest.content())
+                .isDeleted(false)
                 .build();
 
         PostImageRequest postImageRequest = PostImageRequest.builder()
@@ -176,15 +177,15 @@ public class PostServicelTest {
                 .content("Post Content")
                 .build();
 
-        when(postRepository.findByStoreId(storeId)).thenReturn(Collections.singletonList(post));
+        when(postRepository.findByStoreIdAndIsDeleted(storeId,false)).thenReturn(Collections.singletonList(post));
 
-        List<PostResponse> result = postService.findByStoreId(storeId);
+        List<PostResponse> result = postService.findByStoreId(storeId,false);
 
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals("Post Title", result.get(0).title());
 
-        verify(postRepository).findByStoreId(storeId);
+        verify(postRepository).findByStoreIdAndIsDeleted(storeId,false);
     }
 
     @DisplayName("게시물 ID로 게시물 조회")
@@ -204,18 +205,19 @@ public class PostServicelTest {
                 .content("Post Content")
                 .store(mockStore)
                 .member(mockMember)
+                .isDeleted(false)
                 .build();
 
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+        when(postRepository.findByIdAndIsDeleted(postId,false)).thenReturn(Optional.of(post));
 
         // When
-        PostResponse result = postService.getPostById(postId);
+        PostResponse result = postService.getPostById(postId,false);
 
         // Then
         assertNotNull(result);
         assertEquals("Post Title", result.title());
 
-        verify(postRepository).findById(postId);
+        verify(postRepository).findByIdAndIsDeleted(postId,false);
         verify(mockStore).getId();
         verify(mockMember).getId();
     }

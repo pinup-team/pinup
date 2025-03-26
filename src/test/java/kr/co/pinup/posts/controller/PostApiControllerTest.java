@@ -130,7 +130,7 @@ class PostApiControllerTest {
 
         List<PostResponse> postResponses = List.of(postResponse);
 
-        when(postService.findByStoreId(1L)).thenReturn(postResponses);
+        when(postService.findByStoreId(1L,false)).thenReturn(postResponses);
 
         mockMvc.perform(get("/api/post/list/1"))
                 .andExpect(status().isOk())
@@ -175,7 +175,7 @@ class PostApiControllerTest {
 
         List<PostImageResponse> images = List.of(new PostImageResponse(1L, 1L, "image.jpg"));
 
-        when(postService.getPostById(postId)).thenReturn(PostResponse.from(post));
+        when(postService.getPostById(postId, false)).thenReturn(PostResponse.from(post));
         when(commentService.findByPostId(postId)).thenReturn(comments);
         when(postImageService.findImagesByPostId(postId)).thenReturn(images);
 

@@ -73,22 +73,22 @@ public class PostService {
         return PostResponse.from(post);
     }
 
-    public List<PostResponse> findByStoreId(Long storeId) {
-        List<Post> posts = postRepository.findByStoreId(storeId);
+    public List<PostResponse> findByStoreId(Long storeId, boolean isDeleted) {
+        List<Post> posts = postRepository.findByStoreIdAndIsDeleted(storeId, isDeleted);
         return posts.stream()
                 .map(PostResponse::from)
                 .collect(Collectors.toList());
     }
 
-    public List<PostResponse> findByStoreIdWithCommentCount(Long storeId) {
-        List<Post> posts = postRepository.findByStoreId(storeId);
+    public List<PostResponse> findByStoreIdWithCommentCount(Long storeId, boolean isDeleted) {
+        List<Post> posts = postRepository.findByStoreIdAndIsDeleted(storeId, isDeleted);
         return posts.stream()
                 .map(post -> PostResponse.fromPostWithComments(post, commentRepository.countByPostId(post.getId())))
                 .collect(Collectors.toList());
     }
 
-    public PostResponse getPostById(Long id) {
-        return postRepository.findById(id)
+    public PostResponse getPostById(Long id, boolean isDeleted) {
+        return postRepository.findByIdAndIsDeleted(id, isDeleted)
                 .map(PostResponse::from)
                 .orElseThrow(PostNotFoundException::new);
     }
@@ -145,5 +145,12 @@ public class PostService {
         }
 
         return postRepository.save(existingPost);
+    }
+
+    public void disablePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + postId));
+        post.disablePost(true);
+        postRepository.save(post);
     }
 }
