@@ -124,8 +124,10 @@
                         <div id="map" class="map-box"></div>
                         <div>
                             <p class="map-text-location" th:with="loc=*{location}">
-                                📍 <span
-                                    th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address} +' ' +  ${loc.addressDetail}"></span>
+                                📍
+                                <span th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address}"></span>
+                                <span th:if="${loc.addressDetail != null and !#strings.isEmpty(loc.addressDetail)}"
+                                      th:text="' ' + ${loc.addressDetail}"></span>
                             </p>
                         </div>
                     </div>
@@ -149,6 +151,7 @@
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1038c510f5de135a5c0d54f4f9181ef3&libraries=services"></script>
     <script th:src="@{/js/location.js}"></script>
+    <script th:src="@{/js/post.js}"></script>
     <script th:src="@{/js/store.js}"></script>
 </th:block>
 </html>
