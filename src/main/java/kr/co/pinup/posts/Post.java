@@ -37,8 +37,8 @@ public class Post extends BaseEntity {
     @Column(name = "thumbnail_url")
     private String thumbnail;
 
-    @Column(name = "is_deleted", nullable = false)
-    private boolean isDeleted = false;
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean isDeleted;
 
     @Builder.Default
     @JsonManagedReference
