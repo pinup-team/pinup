@@ -5,10 +5,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Posts List</title>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
-    <link rel="stylesheet" th:href="@{/css/common.css}">
-    <link rel="stylesheet" th:href="@{/css/post_list.css}">
-    <link rel="stylesheet" th:href="@{/css/post_modal.css}">
+
+    <th:block th:replace="~{fragments/style-loader :: load('common')}"></th:block>
+    <th:block th:replace="~{fragments/style-loader :: load('post_list')}"></th:block>
+    <th:block th:replace="~{fragments/style-loader :: load('post_modal')}"></th:block>
 </head>
 <body>
 <div class="wrap type_home" style="width: 95%;">
@@ -83,6 +85,6 @@
     </div>
 </div>
 
-<script th:src="@{/js/post.js}"></script>
+    <th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
 </body>
 </html>
