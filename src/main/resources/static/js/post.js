@@ -357,7 +357,9 @@ function initializeCommentHandlers() {
 
                     commentForm.querySelector("input[name='content']").value = "";
                     commentForm.querySelector("input[name='content']").focus();
-
+                } else if (response.status === 401) {
+                    alert("로그인 후 댓글을 작성할 수 있습니다.");
+                    window.location.href = "/members/login";
                 } else {
                     throw new Error("댓글 생성 실패");
                 }

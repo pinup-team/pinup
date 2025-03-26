@@ -36,6 +36,28 @@ html, body {
 
 /*-------store--------*/
 
+.info-link {
+    margin-left: 20px;  /* 아래에 공간을 추가하여 다른 요소와 간격을 둡니다. */
+    text-decoration: none;  /* 기본 링크 스타일을 제거 */
+}
+
+.page_description {
+    display: flex;
+    flex-direction: column;  /* 세로 정렬 */
+}
+
+.title-container {
+    display: flex;
+    justify-content: space-between; /* 양 끝 정렬 */
+    align-items: center; /* 세로 중앙 정렬 */
+}
+
+.title-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 #store-list {
     display: inline-block;
     padding: 0;
@@ -79,7 +101,7 @@ html, body {
     border-radius: 8px;
 }
 
-#store-info {
+#list-store-info {
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -88,8 +110,53 @@ html, body {
     margin-top: 10px;
 }
 
+.list-store-info-head {
+    display: flex;
+    justify-content: space-between; /* 양 끝 정렬 */
+    align-items: center;
+    overflow: hidden; /* 텍스트 넘칠 경우 잘리게 함 */
+    max-width: 300px;
+}
+
+.list-store-info-head h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%; /* h3가 차지할 최대 너비 */
+}
+
+.list-store-info-head span {
+    max-width: 25%; /* location.district span이 차지할 최대 너비 */
+    text-align: right; /* 오른쪽 정렬 */
+}
+
+.list-store-info-date {
+    display: flex;
+    justify-content: flex-end; /* 양 끝 정렬 */
+    align-items: center;
+    overflow: hidden; /* 텍스트 넘칠 경우 잘리게 함 */
+    max-width: 300px;
+}
+
+#store-info h3 {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 10px;
+    text-overflow: ellipsis;
+}
+
 #store-card p {
     font-size: 0.9rem;
     color: #666;
     margin-top: 8px;
+}
+
+#list-store-pin-icon {
+    width: 5px;
+    height: 5px;
+    vertical-align: middle;
+    margin-right: 5px;
 }

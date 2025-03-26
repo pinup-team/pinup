@@ -6,8 +6,8 @@ public class SecurityConstants {
     public static final String[] PUBLIC_URLS = {
             "/", "/error", "/images/**", "/terms-privacy/**",
             "/members/login", "/api/members/oauth/**",
-            "/stores", "/api/stores", "/api/stores/summary",
-            "/post",
+            "/stores", "/stores/{storeId:[0-9]+}", "/api/stores", "/api/stores/summary", "/api/stores/{storeId:[0-9]+}",
+            "/post", "/post/{postId:[0-9]+}", "/post/list/{postId:[0-9]+}", "/api/post/list/{storeId}", "/api/post/{postId}",
             "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}",
             "/faqs", "/api/faqs", "/api/faqs/{faqsId}"
     };
@@ -16,8 +16,8 @@ public class SecurityConstants {
     public static final List<String> EXCLUDED_URLS = List.of(
             "/static/", "/templates/", "/css/", "/js/", "/images/", "/terms-privacy/", "/fonts/", "/error", "/favicon.ico",
             "/members/login", "/api/members/oauth/",
-            "/stores", "/api/stores", "/api/stores/summary",
-            "/post",
+            "/stores", "/stores/{id}", "/api/stores", "/api/stores/summary", "/api/stores/{id}",
+            "/post", "/post/{postId}", "/post/list/{storeId}", "/api/post/list/{storeId}", "/api/post/{postId}",
             "/notices", "/notices/{noticeId}", "/api/notices", "/api/notices/{noticeId}",
             "/faqs", "/api/faqs", "/api/faqs/{faqsId}"
     );

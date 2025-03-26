@@ -3,6 +3,9 @@
 }
 
 /* ✅ support nav area */
+.wrap main.home_content_wrap nav {
+    width: 70vw;
+}
 .wrap main.home_content_wrap ul {
     display: flex;
     width: 161px;
@@ -48,6 +51,7 @@
 }
 .wrap main.home_content_wrap section .header_button {
     text-align: right;
+    width: 70vw;
 }
 .wrap main.home_content_wrap section .header_button button {
     color: #fff;
@@ -59,11 +63,13 @@
 /* ✅ notice list section content_list area */
 .wrap main.home_content_wrap section .content_list {
     padding: 10px 0;
+    width: 70vw;
 }
 .wrap main.home_content_wrap .content_list_wrap .content_title {
     position: relative;
     border-bottom: none;
     font-size: initial;
+    width: 70vw;
 }
 .wrap main.home_content_wrap .content_list_wrap .content_title .content_title_area {
     width: 85%;
@@ -75,7 +81,6 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    width: 50ch;
 }
 .wrap main.home_content_wrap .content_list_wrap .content_title span {
     color: #999;
@@ -88,6 +93,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    width: 70vw;
 }
 .wrap main.home_content_wrap article .main_content_title {
     padding: 1%;
@@ -150,7 +156,7 @@
     margin: 10px 10px 20px;
     background: none;
     font-size: 1rem;
-    color: #000;
+    color: #4F261A;
 }
 .wrap main.home_content_wrap .content_wrap .read {
     width: 100%;
@@ -166,6 +172,7 @@
     margin: 0;
     padding-bottom: 15px;
     border-bottom: 1px solid #d1d9e0;
+    overflow-wrap: break-word;
 }
 .wrap main.home_content_wrap .content_wrap .content_title p {
     font-size: 14px;
@@ -210,13 +217,14 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    width: 760px;
+    flex: 1;
+}
+.wrap .home_content_wrap section article .content_area .title_area h3 {
+    overflow-wrap: anywhere;
 }
 .wrap .home_content_wrap section article .content_area .title_area i {
     margin-left: auto;
-}
-.wrap .home_content_wrap section article .content_area .date_area {
-    margin-left: 20px;
+    margin-right: 10px;
 }
 
 /* ✅ faq list section article button area */
@@ -233,6 +241,7 @@
 .wrap .home_content_wrap section article .content_area .desc_content_area button {
     color: #fff;
     background-color: #4F261A;
+    width: 60px;
 }
 .wrap .home_content_wrap section article .answer_area {
     height: 0;

@@ -35,7 +35,7 @@
             <div class="post-details">
                 <!-- 상단: 프로필 정보 -->
                 <div class="post-header">
-                    <span class="comment-username" th:text="${post.member.nickname}"></span>
+                    <span class="username" th:text="${post.member.nickname}"></span>
                     <span class="post-date" th:text="*{#temporals.format(post.createdAt, 'yyyy-MM-dd')}"></span>
                 </div>
 
