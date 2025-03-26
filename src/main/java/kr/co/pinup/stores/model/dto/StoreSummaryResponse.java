@@ -1,6 +1,7 @@
 package kr.co.pinup.stores.model.dto;
 
 import kr.co.pinup.stores.Store;
+import kr.co.pinup.stores.model.enums.Status;
 
 import java.time.LocalDate;
 
@@ -11,7 +12,8 @@ public record StoreSummaryResponse(
         String categoryName,
         LocalDate startDate,
         LocalDate endDate,
-        String imageUrl
+        String imageUrl,
+        Status status
 ) {
     public static StoreSummaryResponse from(Store store) {
         return new StoreSummaryResponse(
@@ -21,7 +23,8 @@ public record StoreSummaryResponse(
                 store.getCategory().getName(),
                 store.getStartDate(),
                 store.getEndDate(),
-                store.getImageUrl()
+                store.getImageUrl(),
+                store.getStatus()
         );
     }
 

@@ -54,6 +54,10 @@
     display: inline;
 }
 
+.list-store-status {
+    font-size: 12px;
+}
+
 .list-store-actions {
     margin-top: 5px;
     font-size: 14px;
