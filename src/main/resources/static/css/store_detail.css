@@ -116,17 +116,18 @@
 }
 
 .carousel-item {
+    height: 600px;
     flex: 0 0 500px;
     max-width: 500px;
     box-sizing: border-box;
     padding: 0 5px;
+    overflow: hidden;
 }
 
 .carousel-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 10px;
     display: block;
 }
 
