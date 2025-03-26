@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      layout:decorate="~{layouts/layout}">
+      layout:decorate="~{layouts/layout}" xmlns="http://www.w3.org/1999/html">
 
 <th:block layout:fragment="pageStyles">
     <link rel="stylesheet" th:href="@{/css/store_list.css}" />
@@ -15,15 +15,22 @@
 
     <div class="store-list">
         <div th:each="store : ${stores}" class="store-card">
-            <a th:href="@{/stores/{id}(id=${store.id})}" class="store-card-link">
+            <div class="store-card-link"
+                 th:onclick="|location.href='@{/stores/{id}(id=${store.id})}'|">
                 <!-- 이미지 -->
                 <img th:src="${store.imageUrl}" alt="스토어 이미지" class="store-image" />
 
                 <!-- 스토어 정보 -->
                 <div class="list-store-info">
-                    <p class="list-store-name" th:text="${store.name}"></p>
+                    <span class="list-store-name" th:text="${store.name}"></span> </br>
+                    <span class="list-store-category" th:text="${store.categoryName}"></span> </br>
+                    <div class="list-store-duration">
+                        <span th:text="${store.startDate}"></span> ~ <span th:text="${store.endDate}"></span>
+                    </div>
+                    <p class="list-store-location">🚩 <span th:text="${store.district}"></span>
+                    </p>
                 </div>
-            </a>
+            </div>
         </div>
     </div>
 </div>
