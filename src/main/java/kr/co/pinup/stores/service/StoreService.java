@@ -133,7 +133,7 @@ public class StoreService {
                 .websiteUrl(request.websiteUrl())
                 .snsUrl(request.snsUrl())
                 .build();
-        
+
         if (request.operatingHours() != null) {
             request.operatingHours().forEach(hour -> {
                 OperatingHour operatingHour = OperatingHour.builder()
@@ -167,7 +167,7 @@ public class StoreService {
         return StoreResponse.from(store);
     }
 
-    @Transactional
+/*    @Transactional
     public void deleteStore(Long id) {
         log.info("팝업스토어 삭제 요청 - ID: {}", id);
 
@@ -183,6 +183,19 @@ public class StoreService {
 
         storeRepository.delete(store);
         log.info("팝업스토어 삭제 완료 - ID: {}", id);
-    }
+    }*/
 
+    @Transactional
+    public void deleteStore(Long id) {
+        log.info("팝업스토어 삭제 요청 - ID: {}", id);
+
+        Store store = storeRepository.findById(id)
+                .orElseThrow(StoreNotFoundException::new);
+
+        try {
+            store.deleteStore();
+        } catch (RuntimeException e) {
+            log.error("스토어 isDeleted 상태 변환 중 에러 발생", e);
+        }
+    }
 }
