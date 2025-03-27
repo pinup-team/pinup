@@ -21,7 +21,7 @@ public class Notice extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @ColumnDefault("false")
+    @Column(nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     private boolean isDeleted;
 
     @ManyToOne(fetch = FetchType.LAZY)
