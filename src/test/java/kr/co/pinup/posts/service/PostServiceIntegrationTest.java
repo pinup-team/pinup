@@ -96,8 +96,9 @@ public class PostServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("게시물 생성 (이미지 포함)")
-    void testCreatePost() {
+    @DisplayName("게시물 생성 - 이미지 포함")
+    void createPost_whenValidRequestWithImages_thenSuccess() {
+        // Given
         MultipartFile[] files = { new MockMultipartFile("img", "test.jpg", "image/jpeg", "data".getBytes()) };
         MemberInfo info = new MemberInfo(mockMember.getNickname(), mockMember.getProviderType(), mockMember.getRole());
         CreatePostRequest req = new CreatePostRequest(mockPost.getStore().getId(), "New Title", "New Content");
@@ -105,85 +106,109 @@ public class PostServiceIntegrationTest {
         when(s3Service.uploadFile(any(), anyString())).thenReturn("https://s3.com/test.jpg");
         when(s3Service.extractFileName(any())).thenReturn("test.jpg");
 
+        // When
         PostResponse res = postService.createPost(info, req, files);
+
+        // Then
         assertNotNull(res);
         assertEquals("New Title", res.title());
     }
 
     @Test
-    @DisplayName("게시물 조회")
-    void testGetPostById() {
+    @DisplayName("게시물 조회 - 게시물 존재")
+    void getPostById_whenPostExists_thenReturnsPostDetail() {
+        // When
         PostResponse res = postService.getPostById(mockPost.getId(), false);
+
+        // Then
         assertNotNull(res);
         assertEquals("제목", res.title());
     }
 
     @Test
-    @DisplayName("게시물 삭제")
-    void testDeletePost() {
+    @DisplayName("게시물 삭제 - 이미지 포함")
+    void deletePost_whenExistingPost_thenDeletesPostAndImages() {
+        // When
         postService.deletePost(mockPost.getId());
+
+        // Then
         verify(postImageService).deleteAllByPost(mockPost.getId());
     }
 
     @Test
-    @DisplayName("게시물 목록 조회")
-    void testFindByStoreId() {
+    @DisplayName("게시물 목록 조회 - 존재하는 Store ID")
+    void getPostsByStore_whenPostsExist_thenReturnsPostList() {
+        // When
         List<PostResponse> list = postService.findByStoreId(mockPost.getStore().getId(), false);
+
+        // Then
         assertFalse(list.isEmpty());
         assertEquals("제목", list.get(0).title());
     }
 
     @Test
-    @DisplayName("게시물 수정 (이미지 삭제 및 업로드 포함)")
-    void testUpdatePostWithImages() {
+    @DisplayName("게시물 수정 - 이미지 삭제 및 업로드 포함")
+    void updatePost_whenImagesDeletedAndUploaded_thenSuccess() {
+        // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
         when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(List.of(
                 PostImageResponse.builder().id(1L).postId(mockPost.getId()).s3Url("remain_url").build()
         ));
 
+        // When
         Post result = postService.updatePost(mockPost.getId(), req, new MultipartFile[0], List.of("img1"));
+
+        // Then
         assertNotNull(result);
         assertEquals("remain_url", result.getThumbnail());
     }
 
     @Test
-    @DisplayName("게시물 수정 (이미지 삭제만)")
-    void testUpdatePostWithoutImageChanges() {
+    @DisplayName("게시물 수정 - 이미지 삭제만")
+    void updatePost_whenImagesDeletedOnly_thenSuccess() {
+        // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
+        when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(List.of(
+                PostImageResponse.builder()
+                        .id(1L)
+                        .postId(mockPost.getId())
+                        .s3Url("remaining_image_url.jpg")
+                        .build()
+        ));
 
-        when(postImageService.findImagesByPostId(mockPost.getId()))
-                .thenReturn(List.of(
-                        PostImageResponse.builder()
-                                .id(1L)
-                                .postId(mockPost.getId())
-                                .s3Url("remaining_image_url.jpg")
-                                .build()
-                ));
-
+        // When
         Post result = postService.updatePost(mockPost.getId(), req, new MultipartFile[0], List.of("img1"));
+
+        // Then
         assertNotNull(result);
         assertEquals("Updated", result.getTitle());
     }
 
     @Test
-    @DisplayName("게시물 수정 (이미지 업로드만)")
-    void testUpdatePostWithNewImages() {
+    @DisplayName("게시물 수정 - 이미지만 업로드")
+    void updatePost_whenImagesUploadedOnly_thenSuccess() {
+        // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
         MultipartFile img = new MockMultipartFile("img", "file.jpg", "image/jpeg", "data".getBytes());
         PostImage uploaded = PostImage.builder().post(mockPost).s3Url("https://s3.com/new.jpg").build();
         when(postImageService.savePostImages(any(), eq(mockPost))).thenReturn(List.of(uploaded));
 
+        // When
         Post result = postService.updatePost(mockPost.getId(), req, new MultipartFile[]{img}, List.of());
+
+        // Then
         assertNotNull(result);
         assertEquals("https://s3.com/new.jpg", result.getThumbnail());
     }
 
     @Test
-    @DisplayName("게시물 수정 (모든 이미지 삭제 예외)")
-    void testUpdatePostWithAllImagesDeleted() {
+    @DisplayName("게시물 수정 실패 - 모든 이미지 삭제 후 예외 발생")
+    void updatePost_whenAllImagesDeleted_thenThrowsException() {
+        // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
         when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(Collections.emptyList());
 
+        // When & Then
         assertThrows(PostImageNotFoundException.class, () ->
                 postService.updatePost(mockPost.getId(), req, new MultipartFile[0], List.of("img1")));
     }

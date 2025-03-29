@@ -13,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.util.List;
@@ -45,55 +46,72 @@ public class PostControllerUnitTest {
     }
 
     @Test
-    @DisplayName("게시물 리스트 페이지 이동")
-    public void listPage() throws Exception {
+    @DisplayName("게시물 리스트 페이지 이동 - 성공")
+    void listPage_whenCalled_thenReturnsPostListView() throws Exception {
+        // Given
         Long storeId = 1L;
-        when(postService.findByStoreIdWithCommentCount(storeId,false)).thenReturn(List.of());
+        when(postService.findByStoreIdWithCommentCount(storeId, false)).thenReturn(List.of());
 
-        mockMvc.perform(get("/post/list/{storeId}", storeId))
-                .andExpect(status().isOk())
+        // When
+        ResultActions result = mockMvc.perform(get("/post/list/{storeId}", storeId));
+
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(view().name("views/posts/list"))
                 .andExpect(model().attributeExists("posts", "storeId"));
     }
 
     @Test
-    @DisplayName("게시물 상세 페이지 이동")
-    public void postDetailPage() throws Exception {
+    @DisplayName("게시물 상세 페이지 이동 - 성공")
+    void detailPage_whenExistingPost_thenReturnsPostDetailView() throws Exception {
+        // Given
         Long postId = 1L;
 
         PostResponse postResponse = mock(PostResponse.class);
-        when(postService.getPostById(postId,false)).thenReturn(postResponse);
+        when(postService.getPostById(postId, false)).thenReturn(postResponse);
         when(commentService.findByPostId(postId)).thenReturn(List.of());
         when(postImageService.findImagesByPostId(postId)).thenReturn(List.of());
 
-        mockMvc.perform(get("/post/{postId}", postId))
-                .andExpect(status().isOk())
+        // When
+        ResultActions result = mockMvc.perform(get("/post/{postId}", postId));
+
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(view().name("views/posts/detail"))
                 .andExpect(model().attributeExists("post", "comments", "images"));
     }
 
     @Test
-    @DisplayName("게시물 생성 페이지 이동")
-    public void createPostPage() throws Exception {
-        mockMvc.perform(get("/post/create").param("storeId", "1"))
-                .andExpect(status().isOk())
+    @DisplayName("게시물 생성 페이지 이동 - 성공")
+    void createPage_whenCalled_thenReturnsPostCreateView() throws Exception {
+        // Given
+        String storeId = "1";
+
+        // When
+        ResultActions result = mockMvc.perform(get("/post/create").param("storeId", storeId));
+
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(view().name("views/posts/create"))
                 .andExpect(model().attributeExists("storeId"));
     }
 
     @Test
-    @DisplayName("게시물 수정 페이지 이동")
-    public void updatePostPage() throws Exception {
+    @DisplayName("게시물 수정 페이지 이동 - 성공")
+    void updatePage_whenExistingPost_thenReturnsPostUpdateView() throws Exception {
+        // Given
         Long postId = 1L;
 
         PostResponse postResponse = mock(PostResponse.class);
-        when(postService.getPostById(postId,false)).thenReturn(postResponse);
+        when(postService.getPostById(postId, false)).thenReturn(postResponse);
         when(postImageService.findImagesByPostId(postId)).thenReturn(List.of());
 
-        mockMvc.perform(get("/post/update/{postId}", postId))
-                .andExpect(status().isOk())
+        // When
+        ResultActions result = mockMvc.perform(get("/post/update/{postId}", postId));
+
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(view().name("views/posts/update"))
                 .andExpect(model().attributeExists("post", "images"));
     }
-
 }

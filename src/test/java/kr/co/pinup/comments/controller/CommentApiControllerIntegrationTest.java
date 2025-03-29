@@ -34,6 +34,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,9 +55,15 @@ class CommentApiControllerIntegrationTest {
 
     @TestConfiguration
     static class TestMockConfig {
-        @Bean public CommentService commentService() {return mock(CommentService.class);}
+        @Bean
+        public CommentService commentService() {
+            return mock(CommentService.class);
+        }
 
-        @Bean public MemberService memberService() {return mock(MemberService.class);}
+        @Bean
+        public MemberService memberService() {
+            return mock(MemberService.class);
+        }
     }
 
     @Autowired
@@ -142,16 +149,21 @@ class CommentApiControllerIntegrationTest {
     @Test
     @DisplayName("댓글 생성 - 인증된 사용자")
     @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    void testCreateComment() throws Exception {
+    void createComment_whenAuthenticated_givenValidRequest_thenSuccess() throws Exception {
+        // Given
         CreateCommentRequest request = new CreateCommentRequest("댓글입니다.");
-
-        CommentResponse response = new CommentResponse(1L, mockPost.getId(), mockMember, request.content(), LocalDateTime.now());
+        CommentResponse response = new CommentResponse(
+                1L, mockPost.getId(), mockMember, request.content(), LocalDateTime.now()
+        );
         when(commentService.createComment(any(), anyLong(), any())).thenReturn(response);
 
-        mockMvc.perform(post("/api/comment/" + mockPost.getId())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(request)))
-                .andExpect(status().isCreated())
+        // When
+        ResultActions result = mockMvc.perform(post("/api/comment/" + mockPost.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(request)));
+
+        // Then
+        result.andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.postId").value(mockPost.getId()))
                 .andExpect(jsonPath("$.content").value("댓글입니다."));
@@ -160,17 +172,24 @@ class CommentApiControllerIntegrationTest {
     @Test
     @DisplayName("댓글 삭제 - 인증된 사용자")
     @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    void testDeleteComment() throws Exception {
+    void deleteComment_whenAuthenticated_givenExistingComment_thenNoContent() throws Exception {
+        // Given
         doNothing().when(commentService).deleteComment(mockComment.getId());
 
-        mockMvc.perform(delete("/api/comment/" + mockComment.getId()))
-                .andExpect(status().isNoContent());
+        // When
+        ResultActions result = mockMvc.perform(delete("/api/comment/" + mockComment.getId()));
+
+        // Then
+        result.andExpect(status().isNoContent());
     }
 
     @Test
     @DisplayName("댓글 삭제 - 인증되지 않은 사용자")
-    void testDeleteComment_Unauthenticated() throws Exception {
-        mockMvc.perform(delete("/api/comment/" + mockComment.getId()))
-                .andExpect(status().isUnauthorized());
+    void deleteComment_whenUnauthenticated_givenExistingComment_thenUnauthorized() throws Exception {
+        // When
+        ResultActions result = mockMvc.perform(delete("/api/comment/" + mockComment.getId()));
+
+        // Then
+        result.andExpect(status().isUnauthorized());
     }
 }

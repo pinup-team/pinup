@@ -44,6 +44,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -65,10 +66,25 @@ public class PostApiControllerIntegrationTest {
 
     @TestConfiguration
     static class MockServiceTestConfig {
-        @Bean public MemberService memberService() { return mock(MemberService.class); }
-        @Bean public PostService postService() { return mock(PostService.class); }
-        @Bean public CommentService commentService() { return mock(CommentService.class); }
-        @Bean public PostImageService postImageService() { return mock(PostImageService.class); }
+        @Bean
+        public MemberService memberService() {
+            return mock(MemberService.class);
+        }
+
+        @Bean
+        public PostService postService() {
+            return mock(PostService.class);
+        }
+
+        @Bean
+        public CommentService commentService() {
+            return mock(CommentService.class);
+        }
+
+        @Bean
+        public PostImageService postImageService() {
+            return mock(PostImageService.class);
+        }
     }
 
     @Autowired
@@ -76,34 +92,25 @@ public class PostApiControllerIntegrationTest {
 
     @Autowired
     private PostRepository postRepository;
-
     @Autowired
     private CommentRepository commentRepository;
-
     @Autowired
     private PostImageRepository postImageRepository;
-
     @Autowired
     private MemberRepository memberRepository;
-
     @Autowired
     private StoreRepository storeRepository;
-
     @Autowired
     private StoreCategoryRepository storeCategoryRepository;
-
     @Autowired
     private LocationRepository locationRepository;
 
     @Autowired
     private MemberService memberService;
-
     @Autowired
     private PostService postService;
-
     @Autowired
     private CommentService commentService;
-
     @Autowired
     private PostImageService postImageService;
 
@@ -181,73 +188,75 @@ public class PostApiControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("게시글 목록 조회")
+    @DisplayName("게시글 목록 조회 - 성공")
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    void testGetAllPosts() throws Exception {
+    void getPosts_whenPostsExist_thenReturnsPostList() throws Exception {
+        // Given
         PostResponse postResponse = PostResponse.builder()
                 .id(mockPost.getId())
                 .title(mockPost.getTitle())
                 .content(mockPost.getContent())
                 .build();
 
-        List<PostResponse> postResponses = List.of(postResponse);
+        when(postService.findByStoreId(mockStore.getId(), false)).thenReturn(List.of(postResponse));
 
-        when(postService.findByStoreId(mockStore.getId(),false)).thenReturn(postResponses);
+        // When
+        ResultActions result = mockMvc.perform(get("/api/post/list/{storeId}", mockStore.getId()));
 
-        mockMvc.perform(get("/api/post/list/{storeId}", mockStore.getId()))
-                .andExpect(status().isOk())
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(content().json("[{'id': " + mockPost.getId() + ", 'title': '" + mockPost.getTitle() + "', 'content': '" + mockPost.getContent() + "'}]"));
     }
 
-    @DisplayName("게시글 ID로 조회")
     @Test
+    @DisplayName("게시글 ID로 조회 - 성공")
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    void testGetPostById() throws Exception {
+    void getPostById_whenPostExists_thenReturnsPostDetail() throws Exception {
+        // Given
         Long postId = mockPost.getId();
 
-        when(postService.getPostById(postId,false)).thenReturn(PostResponse.from(mockPost));
-        when(commentService.findByPostId(postId)).thenReturn(List.of(new CommentResponse(mockComment.getId(), postId, mockMember, mockComment.getContent(),LocalDateTime.now())));
+        when(postService.getPostById(postId, false)).thenReturn(PostResponse.from(mockPost));
+        when(commentService.findByPostId(postId)).thenReturn(List.of(new CommentResponse(mockComment.getId(), postId, mockMember, mockComment.getContent(), LocalDateTime.now())));
         when(postImageService.findImagesByPostId(postId)).thenReturn(List.of(new PostImageResponse(mockPostImage.getId(), mockPost.getId(), mockPostImage.getS3Url())));
 
-        mockMvc.perform(get("/api/post/{postId}", postId))
-                .andExpect(status().isOk())
+        // When
+        ResultActions result = mockMvc.perform(get("/api/post/{postId}", postId));
+
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
     }
 
-    @DisplayName("게시글 생성 - 인증된 사용자")
     @Test
+    @DisplayName("게시글 생성 - 인증된 사용자 성공")
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    void testCreatePost() throws Exception {
-        CreatePostRequest createPostRequest = CreatePostRequest.builder()
-                .storeId(mockStore.getId())
-                .title("Title 1")
-                .content("Content 1")
-                .build();
-
-        MemberResponse memberResponse = new MemberResponse(mockMember);
-        PostResponse createdPostResponseDto = PostResponse.builder()
+    void createPost_whenAuthenticated_givenValidRequest_thenSuccess() throws Exception {
+        // Given
+        PostResponse createdPostResponse = PostResponse.builder()
                 .id(1L)
                 .storeId(mockStore.getId())
-                .member(memberResponse)
+                .member(new MemberResponse(mockMember))
                 .title("Title 1")
                 .content("Content 1")
                 .thumbnail("Thumbnail")
                 .build();
 
         when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(MultipartFile[].class)))
-                .thenReturn(createdPostResponseDto);
+                .thenReturn(createdPostResponse);
 
         MockMultipartFile image1 = new MockMultipartFile("images", "image1.jpg", "image/jpeg", "image content 1".getBytes());
         MockMultipartFile image2 = new MockMultipartFile("images", "image2.jpg", "image/jpeg", "image content 2".getBytes());
 
-        mockMvc.perform(multipart("/api/post/create")
-                        .file(image1)
-                        .file(image2)
-                        .param("storeId", String.valueOf(mockStore.getId()))
-                        .param("title", "Title 1")
-                        .param("content", "Content 1")
-                        .param("thumbnail", "Thumbnail"))
-                .andExpect(status().isCreated())
+        // When
+        ResultActions result = mockMvc.perform(multipart("/api/post/create")
+                .file(image1).file(image2)
+                .param("storeId", String.valueOf(mockStore.getId()))
+                .param("title", "Title 1")
+                .param("content", "Content 1")
+                .param("thumbnail", "Thumbnail"));
+
+        // Then
+        result.andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.storeId").value(mockStore.getId()))
                 .andExpect(jsonPath("$.title").value("Title 1"))
@@ -255,38 +264,46 @@ public class PostApiControllerIntegrationTest {
                 .andExpect(jsonPath("$.thumbnail").value("Thumbnail"));
     }
 
-    @DisplayName("게시글 생성 - 이미지 부족")
     @Test
+    @DisplayName("게시글 생성 실패 - 이미지 부족")
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    void testCreatePost_InsufficientImages() throws Exception {
+    void createPost_whenInsufficientImages_thenThrowsImageCountException() throws Exception {
+        // Given
         MockMultipartFile image = new MockMultipartFile("images", "image.jpg", "image/jpeg", "image content".getBytes());
 
-        mockMvc.perform(multipart("/api/post/create")
-                        .file(image)
-                        .param("storeId", String.valueOf(mockStore.getId()))
-                        .param("title", "Title 1")
-                        .param("content", "Content 1")
-                        .param("thumbnail", "Thumbnail"))
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertTrue(result.getResolvedException() instanceof ImageCountException));
+        // When
+        ResultActions result = mockMvc.perform(multipart("/api/post/create")
+                .file(image)
+                .param("storeId", String.valueOf(mockStore.getId()))
+                .param("title", "Title 1")
+                .param("content", "Content 1")
+                .param("thumbnail", "Thumbnail"));
+
+        // Then
+        result.andExpect(status().isBadRequest())
+                .andExpect(r -> assertTrue(r.getResolvedException() instanceof ImageCountException));
     }
 
-    @WithMockMember(nickname = "행복한 관리자", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
-    @DisplayName("게시글 삭제")
     @Test
-    void testDeletePost() throws Exception {
+    @DisplayName("게시글 삭제 - 관리자 성공")
+    @WithMockMember(nickname = "행복한 관리자", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
+    void deletePost_whenAdminUser_givenExistingPost_thenNoContent() throws Exception {
+        // Given
         Long postId = mockPost.getId();
-
         doNothing().when(postService).deletePost(postId);
 
-        mockMvc.perform(delete("/api/post/{id}", postId))
-                .andExpect(status().isNoContent());
+        // When
+        ResultActions result = mockMvc.perform(delete("/api/post/{id}", postId));
+
+        // Then
+        result.andExpect(status().isNoContent());
     }
 
-    @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    @DisplayName("게시글 수정")
     @Test
-    void testUpdatePost() throws Exception {
+    @DisplayName("게시글 수정 - 인증된 사용자 성공")
+    @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
+    void updatePost_whenAuthenticated_givenValidRequest_thenSuccess() throws Exception {
+        // Given
         Long postId = mockPost.getId();
 
         UpdatePostRequest updatePostRequest = UpdatePostRequest.builder()
@@ -312,52 +329,65 @@ public class PostApiControllerIntegrationTest {
                 new byte[]{}
         );
 
-        mockMvc.perform(multipart("/api/post/{postId}", postId)
-                        .file(images)
-                        .param("title", "Updated Title")
-                        .param("content", "Updated Content")
-                        .param("imagesToDelete", "imageToDelete")
-                        .with(request -> {
-                            request.setMethod("PUT");
-                            return request;
-                        }))
-                .andExpect(status().isOk())
+        // When
+        ResultActions result = mockMvc.perform(multipart("/api/post/{postId}", postId)
+                .file(images)
+                .param("title", "Updated Title")
+                .param("content", "Updated Content")
+                .param("imagesToDelete", "imageToDelete")
+                .with(request -> {
+                    request.setMethod("PUT");
+                    return request;
+                }));
+
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Updated Title"))
                 .andExpect(jsonPath("$.content").value("Updated Content"))
                 .andExpect(jsonPath("$.thumbnail").value("Updated Thumbnail"));
     }
 
-    @DisplayName("게시글 비활성화 - 인증된 사용자")
     @Test
+    @DisplayName("게시글 비활성화 - 인증된 사용자 성공")
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    void testDisablePost() throws Exception {
+    void disablePost_whenAuthenticatedUser_givenExistingPost_thenNoContent() throws Exception {
+        // Given
         Long postId = mockPost.getId();
-
         doNothing().when(postService).disablePost(postId);
 
-        mockMvc.perform(patch("/api/post/{postId}/disable", postId))
-                .andExpect(status().isNoContent());
+        // When
+        ResultActions result = mockMvc.perform(patch("/api/post/{postId}/disable", postId));
+
+        // Then
+        result.andExpect(status().isNoContent());
     }
 
-    @DisplayName("게시글 비활성화 - 관리자")
     @Test
+    @DisplayName("게시글 비활성화 - 관리자 성공")
     @WithMockMember(nickname = "행복한 관리자", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
-    void testDisablePostByAdmin() throws Exception {
+    void disablePost_whenAdminUser_givenExistingPost_thenNoContent() throws Exception {
+        // Given
         Long postId = mockPost.getId();
-
         doNothing().when(postService).disablePost(postId);
 
-        mockMvc.perform(patch("/api/post/{postId}/disable", postId))
-                .andExpect(status().isNoContent());
+        // When
+        ResultActions result = mockMvc.perform(patch("/api/post/{postId}/disable", postId));
+
+        // Then
+        result.andExpect(status().isNoContent());
     }
 
-    @DisplayName("게시글 비활성화 - 인증되지 않은 사용자")
     @Test
-    void testDisablePost_Unauthenticated() throws Exception {
+    @DisplayName("게시글 비활성화 실패 - 인증되지 않은 사용자")
+    void disablePost_whenUnauthenticated_thenUnauthorized() throws Exception {
+        // Given
         Long postId = mockPost.getId();
 
-        mockMvc.perform(patch("/api/post/{postId}/disable", postId))
-                .andExpect(status().isUnauthorized()); // 401 expected
+        // When
+        ResultActions result = mockMvc.perform(patch("/api/post/{postId}/disable", postId));
+
+        // Then
+        result.andExpect(status().isUnauthorized());
     }
 
 }

@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -46,10 +47,11 @@ class CommentApiControllerUnitTest {
         mockMvc = MockMvcBuilders.standaloneSetup(commentApiController).build();
     }
 
-    @DisplayName("댓글 생성")
     @Test
+    @DisplayName("댓글 생성 - 인증된 사용자")
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    public void testCreateComment() throws Exception {
+    void createComment_whenAuthenticatedUser_givenValidRequest_thenSuccess() throws Exception {
+        // Given
         Long postId = 1L;
 
         Member mockMember = Member.builder()
@@ -74,10 +76,13 @@ class CommentApiControllerUnitTest {
         when(commentService.createComment(any(MemberInfo.class), eq(postId), any(CreateCommentRequest.class)))
                 .thenReturn(commentResponse);
 
-        mockMvc.perform(post("/api/comment/{postId}", postId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createCommentRequest)))
-                .andExpect(status().isCreated())
+        // When
+        ResultActions result = mockMvc.perform(post("/api/comment/{postId}", postId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createCommentRequest)));
+
+        // Then
+        result.andExpect(status().isCreated())
                 .andExpect(jsonPath("$.content").value("This is a test comment"))
                 .andExpect(jsonPath("$.member.nickname").value(mockMember.getNickname()))
                 .andExpect(jsonPath("$.postId").value(postId));
@@ -85,14 +90,19 @@ class CommentApiControllerUnitTest {
         verify(commentService).createComment(any(MemberInfo.class), eq(postId), any(CreateCommentRequest.class));
     }
 
-    @DisplayName("댓글 삭제")
     @Test
-    public void testDeleteComment() throws Exception {
-
+    @DisplayName("댓글 삭제 - 인증된 사용자")
+    void deleteComment_whenExistingComment_thenNoContent() throws Exception {
+        // Given
         Long commentId = 1L;
+        doNothing().when(commentService).deleteComment(commentId);
 
-        mockMvc.perform(delete("/api/comment/{commentId}", commentId))
-                .andExpect(status().isNoContent());
+        // When
+        ResultActions result = mockMvc.perform(delete("/api/comment/{commentId}", commentId));
+
+        // Then
+        result.andExpect(status().isNoContent());
         verify(commentService, times(1)).deleteComment(commentId);
     }
+
 }

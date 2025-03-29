@@ -75,7 +75,10 @@ class PostImageServiceIntegrationTest {
 
     @TestConfiguration
     static class TestMockConfig {
-        @Bean public S3Service s3Service() {return mock(S3Service.class);}
+        @Bean
+        public S3Service s3Service() {
+            return mock(S3Service.class);
+        }
     }
 
     @BeforeEach
@@ -117,54 +120,63 @@ class PostImageServiceIntegrationTest {
 
     @Test
     @DisplayName("게시글 ID로 이미지가 없는 경우 빈 리스트 반환")
-    void testFindImagesByPostId_NoImages() {
+    void getImagesByPostId_whenNoImages_thenReturnsEmptyList() {
+        // When
         List<PostImageResponse> result = postImageService.findImagesByPostId(post.getId());
+
+        // Then
         assertNotNull(result);
         assertTrue(result.isEmpty());
     }
 
     @Test
     @DisplayName("게시글 ID로 이미지 조회 - 이미지 있음")
-    void testFindImagesByPostId_WithImages() {
+    void getImagesByPostId_whenImagesExist_thenReturnsImageList() {
+        // Given
         PostImage image = new PostImage(post, "https://s3.com/test.jpg");
         postImageRepository.save(image);
 
+        // When
         List<PostImageResponse> result = postImageService.findImagesByPostId(post.getId());
 
+        // Then
         assertEquals(1, result.size());
         assertEquals("https://s3.com/test.jpg", result.get(0).getS3Url());
     }
 
     @Test
     @DisplayName("전체 삭제 - 이미지 있음")
-    void testDeleteAllByPost_Success() {
-
+    void deleteAllImages_whenImagesExist_thenSuccess() {
+        // Given
         PostImage image = postImageRepository.save(new PostImage(post, "https://s3.com/test.jpg"));
-
         when(s3Service.extractFileName(image.getS3Url())).thenReturn("test.jpg");
         doNothing().when(s3Service).deleteFromS3("test.jpg");
 
+        // When
         postImageService.deleteAllByPost(post.getId());
 
+        // Then
         verify(s3Service, times(1)).deleteFromS3("test.jpg");
         assertTrue(postImageRepository.findByPostId(post.getId()).isEmpty());
     }
 
     @Test
-    @DisplayName("전체 삭제 - S3 실패")
-    void testDeleteAllByPost_S3Fail() {
+    @DisplayName("전체 삭제 실패 - S3 삭제 오류")
+    void deleteAllImages_whenS3Fails_thenThrowsException() {
+        // Given
         PostImage image = postImageRepository.save(new PostImage(post, "https://s3.com/test.jpg"));
         when(s3Service.extractFileName(image.getS3Url())).thenReturn("test.jpg");
         doThrow(new ImageDeleteFailedException("삭제 실패")).when(s3Service).deleteFromS3("test.jpg");
 
-        assertThrows(PostImageDeleteFailedException.class, () -> {
-            postImageService.deleteAllByPost(post.getId());
-        });
+        // When & Then
+        assertThrows(PostImageDeleteFailedException.class, () ->
+                postImageService.deleteAllByPost(post.getId()));
     }
 
     @Test
     @DisplayName("선택 이미지 삭제 성공")
-    void testDeleteSelectedImages_Success() {
+    void deleteSelectedImages_whenValidRequest_thenSuccess() {
+        // Given
         String imageUrl = "https://s3.com/img.jpg";
         PostImage image = postImageRepository.save(new PostImage(post, imageUrl));
         when(s3Service.extractFileName(imageUrl)).thenReturn("img.jpg");
@@ -173,15 +185,18 @@ class PostImageServiceIntegrationTest {
                 .imagesToDelete(List.of(imageUrl))
                 .build();
 
+        // When
         postImageService.deleteSelectedImages(post.getId(), request);
 
+        // Then
         verify(s3Service).deleteFromS3("img.jpg");
         assertTrue(postImageRepository.findByPostId(post.getId()).isEmpty());
     }
 
     @Test
-    @DisplayName("선택 이미지 삭제 실패 - S3 실패")
-    void testDeleteSelectedImages_S3Fail() {
+    @DisplayName("선택 이미지 삭제 실패 - S3 삭제 오류")
+    void deleteSelectedImages_whenS3Fails_thenThrowsException() {
+        // Given
         String imageUrl = "https://s3.com/img.jpg";
         postImageRepository.save(new PostImage(post, imageUrl));
         when(s3Service.extractFileName(imageUrl)).thenReturn("img.jpg");
@@ -191,17 +206,20 @@ class PostImageServiceIntegrationTest {
                 .imagesToDelete(List.of(imageUrl))
                 .build();
 
+        // When & Then
         assertThrows(ImageDeleteFailedException.class, () ->
                 postImageService.deleteSelectedImages(post.getId(), request));
     }
 
     @Test
     @DisplayName("선택 이미지 삭제 실패 - 삭제 리스트 없음")
-    void testDeleteSelectedImages_Empty() {
+    void deleteSelectedImages_whenEmptyRequest_thenThrowsException() {
+        // Given
         PostImageRequest request = PostImageRequest.builder()
                 .imagesToDelete(Collections.emptyList())
                 .build();
 
+        // When & Then
         assertThrows(PostImageNotFoundException.class, () ->
                 postImageService.deleteSelectedImages(post.getId(), request));
     }

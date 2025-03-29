@@ -27,6 +27,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
 
@@ -43,26 +44,13 @@ public class PostControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private CommentRepository commentRepository;
-
-    @Autowired
-    private PostImageRepository postImageRepository;
-
-    @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
-    private StoreRepository storeRepository;
-
-    @Autowired
-    private StoreCategoryRepository storeCategoryRepository;
-
-    @Autowired
-    private LocationRepository locationRepository;
+    @Autowired private PostRepository postRepository;
+    @Autowired private CommentRepository commentRepository;
+    @Autowired private PostImageRepository postImageRepository;
+    @Autowired private MemberRepository memberRepository;
+    @Autowired private StoreRepository storeRepository;
+    @Autowired private StoreCategoryRepository storeCategoryRepository;
+    @Autowired private LocationRepository locationRepository;
 
     private Member mockMember;
     private Member mockAdminMember;
@@ -135,101 +123,124 @@ public class PostControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("게시물 리스트 페이지 이동 - DB 연동 통합 테스트")
+    @DisplayName("게시물 리스트 페이지 - 인증된 사용자")
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    public void listPage() throws Exception {
+    void listPage_whenAuthenticatedUser_thenReturnsPostListView() throws Exception {
+        // Given
         Long storeId = mockStore.getId();
 
-        mockMvc.perform(get("/post/list/{storeId}", storeId))
-                .andExpect(status().isOk())
+        // When
+        ResultActions result = mockMvc.perform(get("/post/list/{storeId}", storeId));
+
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(view().name("views/posts/list"))
-                .andExpect(model().attributeExists("posts"))
-                .andDo(print());
+                .andExpect(model().attributeExists("posts"));
     }
 
     @Test
-    @DisplayName("게시물 상세 페이지 이동 - DB 연동 통합 테스트")
+    @DisplayName("게시물 상세 페이지 - 인증된 사용자")
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    public void postDetailPage() throws Exception {
+    void detailPage_whenAuthenticatedUser_thenReturnsPostDetailView() throws Exception {
+        // Given
         Long postId = mockPost.getId();
 
-        mockMvc.perform(get("/post/{postId}", postId))
-                .andExpect(status().isOk())
+        // When
+        ResultActions result = mockMvc.perform(get("/post/{postId}", postId));
+
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(view().name("views/posts/detail"))
-                .andExpect(model().attributeExists("post", "comments", "images"))
-                .andDo(print());
+                .andExpect(model().attributeExists("post", "comments", "images"));
     }
 
     @Test
-    @DisplayName("게시물 생성 페이지 권한 없는 사용자 접근 - 302 에러 테스트")
-    public void createPostPageForUnauthorizedUser() throws Exception {
+    @DisplayName("게시물 생성 페이지 접근 - 권한 없는 사용자")
+    void createPage_whenUnauthenticatedUser_thenRedirects() throws Exception {
+        // Given
         Long storeId = mockStore.getId();
 
-        mockMvc.perform(get("/post/create").param("storeId", storeId.toString()))
-                .andExpect(status().is3xxRedirection())
-                .andDo(print());
+        // When
+        ResultActions result = mockMvc.perform(get("/post/create").param("storeId", storeId.toString()));
+
+        // Then
+        result.andExpect(status().is3xxRedirection());
     }
 
     @Test
-    @DisplayName("게시물 생성 페이지 권한 있는 사용자 접근 - 페이지 이동 테스트")
+    @DisplayName("게시물 생성 페이지 접근 - 인증된 사용자")
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    public void createPostPageForAuthorizedUser() throws Exception {
+    void createPage_whenAuthenticatedUser_thenReturnsCreateView() throws Exception {
+        // Given
         Long storeId = mockStore.getId();
 
-        mockMvc.perform(get("/post/create").param("storeId", storeId.toString()))
-                .andExpect(status().isOk())
+        // When
+        ResultActions result = mockMvc.perform(get("/post/create").param("storeId", storeId.toString()));
+
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(view().name("views/posts/create"))
-                .andExpect(model().attribute("storeId", storeId))
-                .andDo(print());
+                .andExpect(model().attribute("storeId", storeId));
     }
 
     @Test
-    @DisplayName("게시물 생성 페이지 ADMIN 권한 있는 사용자 접근")
+    @DisplayName("게시물 생성 페이지 접근 - ADMIN 사용자")
     @WithMockMember(nickname = "행복한 관리자", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
-    public void createPostPageForAdminRole() throws Exception {
+    void createPage_whenAdminUser_thenReturnsCreateView() throws Exception {
+        // Given
         Long storeId = mockStore.getId();
 
-        mockMvc.perform(get("/post/create").param("storeId", storeId.toString()))
-                .andExpect(status().isOk())
+        // When
+        ResultActions result = mockMvc.perform(get("/post/create").param("storeId", storeId.toString()));
+
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(view().name("views/posts/create"))
-                .andExpect(model().attribute("storeId", storeId))
-                .andDo(print());
+                .andExpect(model().attribute("storeId", storeId));
     }
 
     @Test
-    @DisplayName("게시물 수정 페이지 권한 있는 사용자 접근 - 페이지 이동 테스트")
+    @DisplayName("게시물 수정 페이지 접근 - 인증된 사용자")
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    public void updatePostPageForAuthorizedUser() throws Exception {
+    void updatePage_whenAuthenticatedUser_thenReturnsUpdateView() throws Exception {
+        // Given
         Long postId = mockPost.getId();
 
-        mockMvc.perform(get("/post/update/{postId}", postId))
-                .andExpect(status().isOk())
+        // When
+        ResultActions result = mockMvc.perform(get("/post/update/{postId}", postId));
+
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(view().name("views/posts/update"))
-                .andExpect(model().attributeExists("post", "images"))
-                .andDo(print());
+                .andExpect(model().attributeExists("post", "images"));
     }
 
     @Test
-    @DisplayName("게시물 수정 페이지 권한 있는 사용자 접근 - ADMIN 권한")
+    @DisplayName("게시물 수정 페이지 접근 - ADMIN 사용자")
     @WithMockMember(nickname = "행복한 관리자", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
-    public void updatePostPageForAdmin() throws Exception {
+    void updatePage_whenAdminUser_thenReturnsUpdateView() throws Exception {
+        // Given
         Long postId = mockPost.getId();
 
-        mockMvc.perform(get("/post/update/{postId}", postId))
-                .andExpect(status().isOk())
+        // When
+        ResultActions result = mockMvc.perform(get("/post/update/{postId}", postId));
+
+        // Then
+        result.andExpect(status().isOk())
                 .andExpect(view().name("views/posts/update"))
-                .andExpect(model().attributeExists("post", "images"))
-                .andDo(print());
+                .andExpect(model().attributeExists("post", "images"));
     }
 
     @Test
-    @DisplayName("게시물 수정 페이지 권한 없는 사용자 접근 - 302 에러 테스트")
-    public void updatePostPageForUnauthorizedUser() throws Exception {
+    @DisplayName("게시물 수정 페이지 접근 - 권한 없는 사용자")
+    void updatePage_whenUnauthenticatedUser_thenRedirects() throws Exception {
+        // Given
         Long postId = mockPost.getId();
 
-        mockMvc.perform(get("/post/update/{postId}", postId))
-                .andExpect(status().is3xxRedirection())
-                .andDo(print());
-    }
+        // When
+        ResultActions result = mockMvc.perform(get("/post/update/{postId}", postId));
 
+        // Then
+        result.andExpect(status().is3xxRedirection());
+    }
 }

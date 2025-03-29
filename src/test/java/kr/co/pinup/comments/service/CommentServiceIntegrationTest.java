@@ -101,18 +101,19 @@ public class CommentServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("댓글 생성 ")
-    void testCreateComment() {
+    @DisplayName("댓글 생성 - 성공")
+    void createComment_whenValidRequest_givenExistingPost_thenSuccess() {
+        // Given
         CreateCommentRequest request = CreateCommentRequest.builder()
                 .content("댓글 내용")
                 .build();
 
-        CommentResponse response = commentService.createComment(
-                new MemberInfo(savedMember.getNickname(), savedMember.getProviderType(), savedMember.getRole()),
-                savedPost.getId(),
-                request
-        );
+        MemberInfo memberInfo = new MemberInfo(savedMember.getNickname(), savedMember.getProviderType(), savedMember.getRole());
 
+        // When
+        CommentResponse response = commentService.createComment(memberInfo, savedPost.getId(), request);
+
+        // Then
         assertNotNull(response);
         assertEquals(request.content(), response.content());
         assertEquals(savedPost.getId(), response.postId());
@@ -121,22 +122,25 @@ public class CommentServiceIntegrationTest {
 
     @Test
     @DisplayName("댓글 생성 실패 - 존재하지 않는 게시글")
-    void testCreateComment_PostNotFound() {
+    void createComment_whenPostNotExists_givenValidRequest_thenThrowsPostNotFoundException() {
+        // Given
         Long nonExistentPostId = 999L;
         CreateCommentRequest request = CreateCommentRequest.builder()
                 .content("댓글 내용")
                 .build();
 
-        assertThrows(PostNotFoundException.class, () -> commentService.createComment(
-                new MemberInfo(savedMember.getNickname(), savedMember.getProviderType(), savedMember.getRole()),
-                nonExistentPostId,
-                request
-        ));
+        MemberInfo memberInfo = new MemberInfo(savedMember.getNickname(), savedMember.getProviderType(), savedMember.getRole());
+
+        // When & Then
+        assertThrows(PostNotFoundException.class, () ->
+                commentService.createComment(memberInfo, nonExistentPostId, request)
+        );
     }
 
     @Test
-    @DisplayName("게시글 ID로 댓글 조회")
-    void testFindByPostId() {
+    @DisplayName("게시글 ID로 댓글 조회 - 성공")
+    void getCommentsByPostId_whenCommentsExist_thenReturnsCommentList() {
+        // Given
         Comment comment1 = Comment.builder()
                 .post(savedPost)
                 .member(savedMember)
@@ -152,16 +156,19 @@ public class CommentServiceIntegrationTest {
         commentRepository.save(comment1);
         commentRepository.save(comment2);
 
+        // When
         List<CommentResponse> comments = commentService.findByPostId(savedPost.getId());
 
+        // Then
         assertEquals(2, comments.size());
         assertTrue(comments.stream().anyMatch(c -> c.content().equals("Test Comment 1")));
         assertTrue(comments.stream().anyMatch(c -> c.content().equals("Test Comment 2")));
     }
 
     @Test
-    @DisplayName("댓글 삭제")
-    void testDeleteComment() {
+    @DisplayName("댓글 삭제 - 성공")
+    void deleteComment_whenExistingComment_thenSuccess() {
+        // Given
         Comment comment = Comment.builder()
                 .post(savedPost)
                 .member(savedMember)
@@ -169,15 +176,22 @@ public class CommentServiceIntegrationTest {
                 .build();
         commentRepository.save(comment);
 
+        // When
         commentService.deleteComment(comment.getId());
 
+        // Then
         assertFalse(commentRepository.existsById(comment.getId()));
     }
 
     @Test
     @DisplayName("댓글 삭제 실패 - 존재하지 않는 댓글")
-    void testDeleteComment_NotFound() {
+    void deleteComment_whenCommentNotExists_thenThrowsCommentNotFoundException() {
+        // Given
         Long invalidId = 999L;
-        assertThrows(CommentNotFoundException.class, () -> commentService.deleteComment(invalidId));
+
+        // When & Then
+        assertThrows(CommentNotFoundException.class, () ->
+                commentService.deleteComment(invalidId)
+        );
     }
 }

@@ -33,7 +33,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,10 +43,14 @@ public class PostServiceUnitTest {
     @InjectMocks
     private PostService postService;
 
-    @Mock private PostRepository postRepository;
-    @Mock private PostImageService postImageService;
-    @Mock private MemberRepository memberRepository;
-    @Mock private StoreRepository storeRepository;
+    @Mock
+    private PostRepository postRepository;
+    @Mock
+    private PostImageService postImageService;
+    @Mock
+    private MemberRepository memberRepository;
+    @Mock
+    private StoreRepository storeRepository;
 
     private Member member;
     private Store store;
@@ -69,16 +74,17 @@ public class PostServiceUnitTest {
                 .status(Status.RESOLVED)
                 .imageUrl("image.jpg")
                 .category(new StoreCategory("Cat"))
-                .location(new Location("Loc","12345","State","Dist",1.1,2.2,"Addr","Detail"))
+                .location(new Location("Loc", "12345", "State", "Dist", 1.1, 2.2, "Addr", "Detail"))
                 .build();
     }
 
     @Test
-    @DisplayName("게시물 생성 (이미지 포함)")
-    void testCreatePost() {
+    @DisplayName("게시물 생성 - 이미지 포함")
+    void createPost_whenValidRequestWithImages_thenSuccess() {
+        // Given
         MemberInfo memberInfo = new MemberInfo("행복한돼지", OAuthProvider.NAVER, MemberRole.ROLE_USER);
-        CreatePostRequest req = new CreatePostRequest( 1L,"New Post", "Content");
-        MultipartFile[] images = new MultipartFile[] {
+        CreatePostRequest req = new CreatePostRequest(1L, "New Post", "Content");
+        MultipartFile[] images = new MultipartFile[]{
                 new MockMultipartFile("image", "image.jpg", "image/jpeg", "data".getBytes())
         };
 
@@ -89,113 +95,130 @@ public class PostServiceUnitTest {
         when(postRepository.save(any(Post.class))).thenReturn(post);
         when(postImageService.savePostImages(any(), any())).thenReturn(List.of(new PostImage(post, "image_url")));
 
+        // When
         PostResponse result = postService.createPost(memberInfo, req, images);
 
+        // Then
         assertEquals("New Post", result.title());
         assertEquals("image_url", result.thumbnail());
     }
 
     @Test
     @DisplayName("Store ID에 대한 게시물 목록 조회")
-    void testFindByStoreId() {
+    void getPostsByStore_whenPostsExist_thenReturnsPostList() {
+        // Given
         Post post = Post.builder().store(store).member(member).title("Post Title").content("Content").build();
         when(postRepository.findByStoreIdAndIsDeleted(1L, false)).thenReturn(List.of(post));
 
+        // When
         List<PostResponse> result = postService.findByStoreId(1L, false);
 
+        // Then
         assertEquals(1, result.size());
         assertEquals("Post Title", result.get(0).title());
     }
 
     @Test
     @DisplayName("게시물 ID로 게시물 조회")
-    void testGetPostById() {
+    void getPostById_whenPostExists_thenReturnsPostDetail() {
+        // Given
         Post post = Post.builder().store(store).member(member).title("Post Title").content("Content").build();
         when(postRepository.findByIdAndIsDeleted(1L, false)).thenReturn(Optional.of(post));
 
+        // When
         PostResponse result = postService.getPostById(1L, false);
 
+        // Then
         assertEquals("Post Title", result.title());
     }
 
     @Test
-    @DisplayName("게시물 삭제(이미지 삭제 포함)")
-    void testDeletePost() {
+    @DisplayName("게시물 삭제 - 이미지 포함")
+    void deletePost_whenExistingPost_thenSuccess() {
+        // Given
         Post post = Post.builder().title("Post Title").content("Content").build();
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
 
+        // When
         postService.deletePost(1L);
 
+        // Then
         verify(postImageService).deleteAllByPost(1L);
         verify(postRepository).delete(post);
     }
 
     @Test
-    @DisplayName("게시물 수정 (이미지 삭제/업로드 포함)")
-    void testUpdatePostWithImages() {
+    @DisplayName("게시물 수정 - 이미지 삭제 및 업로드 포함")
+    void updatePost_whenImagesDeletedAndUploaded_thenSuccess() {
+        // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
         Post post = Post.builder().title("Old").content("Old").build();
 
         List<String> toDelete = List.of("url1");
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
-        when(postImageService.findImagesByPostId(1L))
-                .thenReturn(List.of(
-                        PostImageResponse.builder()
-                                .id(1L)
-                                .postId(1L)
-                                .s3Url("remain_url")
-                                .build()
-                ));
-
+        when(postImageService.findImagesByPostId(1L)).thenReturn(List.of(
+                PostImageResponse.builder().id(1L).postId(1L).s3Url("remain_url").build()
+        ));
         when(postRepository.save(any())).thenReturn(post);
 
+        // When
         Post result = postService.updatePost(1L, req, new MultipartFile[0], toDelete);
 
+        // Then
         assertEquals("Updated", result.getTitle());
         assertEquals("remain_url", result.getThumbnail());
     }
 
     @Test
-    @DisplayName("게시물 수정 (이미지만 업로드)")
-    void testUpdatePostWithNewImages() {
+    @DisplayName("게시물 수정 - 이미지만 업로드")
+    void updatePost_whenImagesUploadedOnly_thenSuccess() {
+        // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
         Post post = Post.builder().title("Old").content("Old").build();
 
-        MultipartFile[] images = { mock(MultipartFile.class) };
+        MultipartFile[] images = {mock(MultipartFile.class)};
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
         when(postImageService.savePostImages(any(), eq(post))).thenReturn(List.of(new PostImage(post, "new_url")));
         when(postRepository.save(any())).thenReturn(post);
 
+        // When
         Post result = postService.updatePost(1L, req, images, List.of());
 
+        // Then
         assertEquals("Updated", result.getTitle());
         assertEquals("new_url", result.getThumbnail());
     }
 
     @Test
-    @DisplayName("게시물 수정 (제목과 내용만 변경, 이미지 변경 없음)")
-    void testUpdatePostWithoutImageChanges() {
+    @DisplayName("게시물 수정 - 제목과 내용만 변경, 이미지 변경 없음")
+    void updatePost_whenTitleAndContentUpdatedOnly_thenSuccess() {
+        // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
         Post post = Post.builder().title("Old").content("Old").build();
 
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
         when(postRepository.save(any())).thenReturn(post);
 
+        // When
         Post result = postService.updatePost(1L, req, new MultipartFile[0], List.of());
 
+        // Then
         assertEquals("Updated", result.getTitle());
         verify(postImageService, never()).deleteSelectedImages(anyLong(), any());
     }
 
     @Test
-    @DisplayName("게시물 수정 (모든 이미지 삭제 후 예외 발생)")
-    void testUpdatePostWithAllImagesDeleted() {
+    @DisplayName("게시물 수정 실패 - 모든 이미지 삭제 후 예외 발생")
+    void updatePost_whenAllImagesDeleted_thenThrowsException() {
+        // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
         Post post = Post.builder().title("Old").content("Old").build();
 
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
         when(postImageService.findImagesByPostId(1L)).thenReturn(List.of());
 
-        assertThrows(PostImageNotFoundException.class, () -> postService.updatePost(1L, req, new MultipartFile[0], List.of("url1")));
+        // When & Then
+        assertThrows(PostImageNotFoundException.class, () ->
+                postService.updatePost(1L, req, new MultipartFile[0], List.of("url1")));
     }
 }
