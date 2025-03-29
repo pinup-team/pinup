@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
-    <th:block layout:fragment="pageStyles"></th:block>
     <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <th:block layout:fragment="pageStyles"></th:block>
 
 
     <title>Pin-up</title>
@@ -22,10 +22,10 @@
     <div th:replace="~{fragments/footer::footerFragment}"></div>
 </div>
 
-<th:block layout:fragment="pageScripts"></th:block>
 <script th:src="@{/js/header.js}"></script>
 <script th:src="@{/js/member.js}"></script>
 <script th:src="@{/js/post.js}"></script>
+<th:block layout:fragment="pageScripts"></th:block>
 
 
 </body>
