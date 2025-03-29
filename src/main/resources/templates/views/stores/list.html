@@ -13,6 +13,18 @@
         <a th:href="@{/stores/create}" class="create-btn">등록</a>
     </div>
 
+    <form method="get" action="/stores">
+        <label for="statusFilter">진행 상태 : </label>
+        <select name="status" id="statusFilter" onchange="this.form.submit()">
+            <option th:value="ALL" th:selected="${selectedStatus == null}">전체</option>
+            <option th:each="statusOption : ${T(kr.co.pinup.stores.model.enums.Status).values()}"
+                    th:value="${statusOption.name()}"
+                    th:text="${statusOption.description}"
+                    th:selected="${selectedStatus?.name() == statusOption.name()}">
+            </option>
+        </select>
+    </form>
+
     <div class="store-list">
         <div th:each="store : ${stores}" class="store-card">
             <div class="store-card-link"

@@ -59,8 +59,8 @@ public class Store extends BaseEntity {
     @Column(length = 255)
     private String snsUrl;
 
-    @Column(name = "is_deleted")
-    private boolean isDeleted = false;
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN default false")
+    private boolean deleted;
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -78,12 +78,13 @@ public class Store extends BaseEntity {
     }
 
     public void deleteStore() {
-        this.isDeleted = true;
+        this.deleted = true;
     }
 
     public void updateImageUrl(String newImageUrl) {
         this.imageUrl = newImageUrl;
     }
+
 
 
 

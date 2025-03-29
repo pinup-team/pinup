@@ -2,11 +2,9 @@ package kr.co.pinup.stores.service;
 
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.exception.LocationNotFoundException;
-import kr.co.pinup.locations.model.dto.LocationResponse;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
 import kr.co.pinup.store_categories.StoreCategory;
 import kr.co.pinup.store_categories.exception.StoreCategoryNotFoundException;
-import kr.co.pinup.store_categories.model.dto.StoreCategoryResponse;
 import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
 import kr.co.pinup.store_images.StoreImage;
 import kr.co.pinup.store_images.exception.StoreImageDeleteFailedException;
@@ -197,5 +195,11 @@ public class StoreService {
         } catch (RuntimeException e) {
             log.error("스토어 isDeleted 상태 변환 중 에러 발생", e);
         }
+    }
+
+    public List<StoreSummaryResponse> getStoreSummariesByStatus(Status status) {
+        return storeRepository.findByStatusAndDeletedFalse(status).stream()
+                .map(StoreSummaryResponse::from)
+                .toList();
     }
 }
