@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-class CommentApiControllerTest {
+class CommentApiControllerUnitTest {
 
     @InjectMocks
     private CommentApiController commentApiController;
@@ -51,7 +51,15 @@ class CommentApiControllerTest {
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     public void testCreateComment() throws Exception {
         Long postId = 1L;
-        Member mockMember = new Member( "행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER);
+
+        Member mockMember = Member.builder()
+                .name("행복한 돼지")
+                .email("test@example.com")
+                .nickname("happyPig")
+                .providerType(OAuthProvider.NAVER)
+                .providerId("provider-id-123")
+                .role(MemberRole.ROLE_USER)
+                .build();
 
         CreateCommentRequest createCommentRequest = CreateCommentRequest.builder()
                 .content("This is a test comment")
@@ -71,13 +79,11 @@ class CommentApiControllerTest {
                         .content(objectMapper.writeValueAsString(createCommentRequest)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.content").value("This is a test comment"))
-                .andExpect(jsonPath("$.member.nickname").value(mockMember.getNickname())) // Member 객체 확인
+                .andExpect(jsonPath("$.member.nickname").value(mockMember.getNickname()))
                 .andExpect(jsonPath("$.postId").value(postId));
 
         verify(commentService).createComment(any(MemberInfo.class), eq(postId), any(CreateCommentRequest.class));
     }
-
-
 
     @DisplayName("댓글 삭제")
     @Test

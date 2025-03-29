@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CommentServiceTest {
+public class CommentServiceUnitTest {
 
     @InjectMocks
     private CommentService commentService;
@@ -141,7 +141,6 @@ public class CommentServiceTest {
         verify(postRepository).findById(postId);
         verify(commentRepository).save(any(Comment.class));
     }
-
 
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     @DisplayName("댓글 생성 실패 - 존재하지 않는 게시글")
