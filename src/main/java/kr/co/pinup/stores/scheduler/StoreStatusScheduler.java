@@ -18,7 +18,7 @@ public class StoreStatusScheduler {
 
     private final StoreRepository storeRepository;
 
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void updateStoreStatuses() {
         log.info("스토어 상태 업데이트 시작");
 
