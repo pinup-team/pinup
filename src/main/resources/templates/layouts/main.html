@@ -12,9 +12,7 @@
 </head>
 <body>
 <div class="header" th:replace="~{fragments/header::headerFragment}"></div>
-<div class="content">
-    <div layout:fragment="content"></div>
-</div>
+<div class="content" layout:fragment="content"></div>
 <div class="footer" th:replace="~{fragments/footer::footerFragment}"></div>
 <script th:src="@{/js/header.js}"></script>
 <script th:src="@{/js/member.js}"></script>

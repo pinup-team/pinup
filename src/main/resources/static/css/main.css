@@ -1,15 +1,12 @@
 @charset "UTF-8";
 
 html, body {
-    width: 100vw;
-    height: 100vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 
     justify-content: center;
     align-items: center;
-    background-color: #F6F2E4;
 }
 
 #header {
@@ -17,39 +14,107 @@ html, body {
 }
 
 .content {
+    height: 100%;
     width: 70%;
-    margin: auto;
     overflow: hidden;
     padding: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .center_content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    /*height: 100%;*/
+    /*width: 70%;*/
+    /*overflow: hidden;*/
+    /*padding: 0;*/
+
+    /*display: flex;*/
+    /*justify-content: center;*/
+    /*align-items: center;*/
 }
 
 #footer {
     width: 70%;
 }
 
-/*-------store--------*/
+/*-------banner--------*/
+.carousel-wrapper {
+    position: relative;
+    width: 100%;
+    height: 400px; /* 원하는 높이 설정, 필요에 맞게 조정 가능 */
+}
+
+.carousel {
+    position: relative;
+}
+
+.carousel-inner {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%; /* 슬라이드를 화면에 맞게 가로폭을 100%로 설정 */
+}
+
+.carousel-list {
+    display: flex;
+    width: 100%; /* 슬라이드 목록의 너비를 100%로 설정 */
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+.carousel-item {
+    flex: 0 0 100%; /* 각 아이템의 너비를 100%로 설정하여 슬라이드가 하나씩 보이도록 함 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* 비율을 유지하면서 부모 영역을 채움 */
+    object-position: center; /* 이미지를 중앙에 배치 */
+}
+
+.slide-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #4F261A;
+    font-size: 30px;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.slide-left {
+    left: 10px;
+}
+
+.slide-right {
+    right: 10px;
+}
+
+/*-------page title--------*/
 
 .info-link {
-    margin-left: 20px;  /* 아래에 공간을 추가하여 다른 요소와 간격을 둡니다. */
-    text-decoration: none;  /* 기본 링크 스타일을 제거 */
+    margin-left: 20px;
+    text-decoration: none;
 }
 
 .page_description {
+    margin-top: auto;
     display: flex;
-    flex-direction: column;  /* 세로 정렬 */
+    flex-direction: column;
 }
 
 .title-container {
     display: flex;
-    justify-content: space-between; /* 양 끝 정렬 */
-    align-items: center; /* 세로 중앙 정렬 */
+    justify-content: space-between;
+    align-items: center;
 }
 
 .title-left {
@@ -57,6 +122,8 @@ html, body {
     flex-direction: column;
     justify-content: center;
 }
+
+/*-------store--------*/
 
 #store-list {
     display: inline-block;
@@ -87,7 +154,7 @@ html, body {
     padding: 15px;
     border: 1px solid #ddd;
     border-radius: 10px;
-    max-width: 300px;
+    max-width: 265px;
     width: 100%;
     background: #fff;
     cursor: pointer;
@@ -95,7 +162,7 @@ html, body {
 
 .store-card img {
     width: 100%;
-    max-width: 300px;
+    max-width: 265px;
     aspect-ratio: 3 / 4;
     object-fit: cover;
     border-radius: 8px;
@@ -112,10 +179,10 @@ html, body {
 
 .list-store-info-head {
     display: flex;
-    justify-content: space-between; /* 양 끝 정렬 */
+    justify-content: space-between;
     align-items: center;
     overflow: hidden; /* 텍스트 넘칠 경우 잘리게 함 */
-    max-width: 300px;
+    max-width: 265px;
 }
 
 .list-store-info-head h3 {
@@ -126,7 +193,6 @@ html, body {
 }
 
 .list-store-info-head span {
-    max-width: 25%; /* location.district span이 차지할 최대 너비 */
     text-align: right; /* 오른쪽 정렬 */
 }
 
@@ -134,8 +200,8 @@ html, body {
     display: flex;
     justify-content: flex-end; /* 양 끝 정렬 */
     align-items: center;
-    overflow: hidden; /* 텍스트 넘칠 경우 잘리게 함 */
-    max-width: 300px;
+    overflow: hidden;
+    max-width: 265px;
 }
 
 #store-info h3 {

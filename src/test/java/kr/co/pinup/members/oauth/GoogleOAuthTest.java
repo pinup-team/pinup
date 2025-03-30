@@ -18,6 +18,7 @@ import kr.co.pinup.oauth.google.GoogleResponse;
 import kr.co.pinup.oauth.google.GoogleToken;
 import kr.co.pinup.security.SecurityUtil;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -73,6 +74,7 @@ public class GoogleOAuthTest {
                 .providerType(OAuthProvider.GOOGLE)
                 .providerId("testId123456789")
                 .role(MemberRole.ROLE_USER)
+                .isDeleted(false)
                 .build();
         memberInfo = MemberInfo.builder()
                 .nickname("구글TestMember")
@@ -101,47 +103,66 @@ public class GoogleOAuthTest {
         @DisplayName("OAuth 로그인 성공")
         void login_Success() {
             when(oAuthService.request(any())).thenReturn(googlePair);
-            when(memberRepository.findByEmail(any())).thenReturn(Optional.ofNullable(member));
+            when(memberRepository.findByEmailAndIsDeletedFalse(any())).thenReturn(Optional.ofNullable(member));
             doNothing().when(securityUtil).setAuthentication(any(), any());
 
-            Pair<OAuthResponse, OAuthToken> result = memberService.login(params, session);
+            Triple<OAuthResponse, OAuthToken, String> result = memberService.login(params, session);
             OAuthResponse oAuthResponse = result.getLeft();
+            OAuthToken oAuthToken = result.getMiddle();
+            String message = result.getRight();
 
             assertNotNull(result);
             assertEquals(member.getName(), oAuthResponse.getName());
             assertEquals(member.getEmail(), oAuthResponse.getEmail());
             assertEquals(member.getProviderId(), oAuthResponse.getId());
             assertEquals(member.getProviderType(), oAuthResponse.getOAuthProvider());
-            verify(oAuthService).request(any());
-            verify(memberRepository).findByEmail(anyString());
+            assertFalse(member.isDeleted());
 
-            // ✅ SecurityContext 검증
+            assertEquals("다시 돌아오신 걸 환영합니다 \""+member.getName()+"\"님", message);
+
+            verify(oAuthService).request(any());
+            verify(memberRepository).findByEmailAndIsDeletedFalse(anyString());
+
             SecurityContext securityContext = (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
             assertNotNull(securityContext);
             assertNotNull(securityContext.getAuthentication());
             assertEquals(memberInfo, securityContext.getAuthentication().getPrincipal());
+            assertEquals(oAuthToken.getAccessToken(), securityContext.getAuthentication().getDetails());
         }
 
         @Test
         @DisplayName("로그인 실패_회원 정보 없음_회원가입 발생")
         void testLogin_WhenMemberNotFound_ShouldCreateNewMember() {
             when(oAuthService.request(any())).thenReturn(googlePair);
-            when(memberRepository.findByEmail(anyString())).thenReturn(Optional.empty()); // 회원 정보가 없을 때
+            when(memberRepository.findByEmailAndIsDeletedFalse(anyString())).thenReturn(Optional.empty()); // 회원 정보가 없을 때
             when(memberRepository.save(any(Member.class))).thenReturn(member); // 새로운 회원 저장
 
-            Pair<OAuthResponse, OAuthToken> result = memberService.login(GoogleLoginParams.builder()
+            Triple<OAuthResponse, OAuthToken, String> result = memberService.login(GoogleLoginParams.builder()
                     .code("test-code")
                     .state("test-state")
                     .build(), session);
             OAuthResponse oAuthResponse = result.getLeft();
+            OAuthToken oAuthToken = result.getMiddle();
+            String message = result.getRight();
 
             assertNotNull(result);
             assertEquals(member.getName(), oAuthResponse.getName());
             assertEquals(member.getEmail(), oAuthResponse.getEmail());
             assertEquals(member.getProviderId(), oAuthResponse.getId());
             assertEquals(member.getProviderType(), oAuthResponse.getOAuthProvider());
-            verify(memberRepository).findByEmail(anyString()); // 이메일로 회원 조회
-            verify(memberRepository).save(any(Member.class)); // 새 회원 저장이 호출되었는지 확인
+            assertFalse(member.isDeleted());
+            assertEquals("환영합니다 \"test\"님", message);
+
+            verify(memberRepository).findByEmailAndIsDeletedFalse(anyString());
+            verify(memberRepository).save(any(Member.class));
+            verify(securityUtil).setAuthentication(any(OAuthToken.class), any(MemberInfo.class));
+
+            // ✅ SecurityContext 검증
+//            SecurityContext securityContext = (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+//            assertNotNull(securityContext);
+//            assertNotNull(securityContext.getAuthentication());
+//            assertEquals(memberInfo, securityContext.getAuthentication().getPrincipal());
+//            assertEquals(oAuthToken.getAccessToken(), securityContext.getAuthentication().getDetails());
         }
 
         @Test
@@ -261,13 +282,13 @@ public class GoogleOAuthTest {
             when(oAuthService.isAccessTokenExpired(testMemberInfo.provider(), accessToken))
                     .thenReturn(googleResponse);
 
-            when(memberRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+            when(memberRepository.findByEmailAndIsDeletedFalse(anyString())).thenReturn(Optional.of(member));
 
             boolean result = memberService.isAccessTokenExpired(testMemberInfo, accessToken);
 
             assertFalse(result); // 만료되지 않은 경우 false 반환
             verify(oAuthService).isAccessTokenExpired(testMemberInfo.provider(), accessToken);
-            verify(memberRepository).findByEmail(anyString());
+            verify(memberRepository).findByEmailAndIsDeletedFalse(anyString());
         }
 
         @Test

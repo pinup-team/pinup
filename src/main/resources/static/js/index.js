@@ -1,3 +1,43 @@
+// 배너 슬라이드
+document.addEventListener("DOMContentLoaded", function() {
+    let currentIndex = 0;
+    const totalSlides = document.querySelectorAll('.carousel-item').length;
+    const carouselList = document.querySelector('.carousel-list');
+
+    // 슬라이드 이동 함수
+    function moveToNextSlide() {
+        currentIndex++;
+        if (currentIndex >= totalSlides) {
+            currentIndex = 0; // 마지막 슬라이드에서 첫 슬라이드로 돌아감
+        }
+        updateSlidePosition();
+    }
+
+    // 슬라이드 위치 업데이트 함수
+    function updateSlidePosition() {
+        const offset = -currentIndex * 100; // 각 슬라이드의 너비만큼 이동
+        carouselList.style.transition = 'transform 0.5s ease-in-out'; // 부드럽게 이동하도록 transition 추가
+        carouselList.style.transform = `translateX(${offset}%)`;
+    }
+
+    // 일정 시간 간격으로 자동 슬라이드 이동
+    setInterval(moveToNextSlide, 3000); // 3초마다 슬라이드 이동
+
+    // 슬라이드 이동 버튼 클릭 시
+    document.querySelector('.slide-left').addEventListener('click', function() {
+        currentIndex--;
+        if (currentIndex < 0) {
+            currentIndex = totalSlides - 1; // 첫 슬라이드에서 마지막 슬라이드로 돌아감
+        }
+        updateSlidePosition();
+    });
+
+    document.querySelector('.slide-right').addEventListener('click', function() {
+        moveToNextSlide();
+    });
+});
+
+// 스토어 리스트 가져오기
 async function fetchStoreSummaries() {
     try {
         const response = await fetch('/api/stores');

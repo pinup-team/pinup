@@ -1,7 +1,5 @@
 package kr.co.pinup.stores.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import kr.co.pinup.store_operatingHour.model.dto.OperatingHourRequest;

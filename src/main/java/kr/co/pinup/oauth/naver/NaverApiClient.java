@@ -9,9 +9,9 @@ import kr.co.pinup.oauth.*;
 import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
@@ -41,14 +41,15 @@ public class NaverApiClient implements OAuthApiClient {
     @Override
     public NaverToken requestAccessToken(OAuthLoginParams params) {
         try {
+            URI tokenUri = URI.create(naverProvider.getTokenUri())
+                    .resolve("?grant_type=" + naverRegistration.getAuthorizationGrantType()
+                            + "&client_id=" + naverRegistration.getClientId()
+                            + "&client_secret=" + naverRegistration.getClientSecret()
+                            + "&state=" + params.makeParams().getFirst("state")
+                            + "&code=" + params.makeParams().getFirst("code"));
+
             NaverToken tokenResponse = naverWebClient.get()
-                    .uri(uriBuilder -> URI.create(UriComponentsBuilder.fromHttpUrl(naverProvider.getTokenUri())
-                            .queryParam("grant_type", naverRegistration.getAuthorizationGrantType())
-                            .queryParam("client_id", naverRegistration.getClientId())
-                            .queryParam("client_secret", naverRegistration.getClientSecret())
-                            .queryParam("state", params.makeParams().getFirst("state"))
-                            .queryParam("code", params.makeParams().getFirst("code"))
-                            .toUriString()))
+                    .uri(tokenUri)
                     .retrieve()
                     .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
                             clientResponse -> Mono.error(new OAuthTokenRequestException("네이버에서 토큰을 가져오는 중 오류가 발생했습니다: " + clientResponse.statusCode())))
@@ -92,37 +93,34 @@ public class NaverApiClient implements OAuthApiClient {
     @Override
     public OAuthResponse isAccessTokenExpired(String accessToken) {
         try {
-            NaverResponse userDto = naverWebClient.get()
+            return naverWebClient.get()
                     .uri(naverProvider.getUserInfoUri())
                     .header("Authorization", "Bearer " + accessToken)
                     .retrieve()
-                    .onStatus(status -> status.is4xxClientError(),
+                    .onStatus(HttpStatusCode::is4xxClientError,
                             clientResponse -> {
                                 throw new OAuthAccessTokenNotFoundException("네이버의 Access Token이 유효하지 않거나 만료되었습니다: " + clientResponse.statusCode());
                             })
-                    .onStatus(status -> status.is5xxServerError(),
+                    .onStatus(HttpStatusCode::is5xxServerError,
                             clientResponse -> Mono.error(new OAuth2AuthenticationException("네이버에서 사용자 검증을 진행하는 중 오류가 발생했습니다: " + clientResponse.statusCode())))
                     .bodyToMono(NaverResponse.class)
                     .block();
-
-            return userDto;
         } catch (OAuthAccessTokenNotFoundException e) {
             return null;
-        } catch (Exception e) {
-            throw e;
         }
     }
 
     @Override
     public NaverToken refreshAccessToken(String refreshToken) {
         try {
+            URI tokenUri = URI.create(naverProvider.getTokenUri())
+                    .resolve("?grant_type=refresh_token"
+                            + "&client_id=" + naverRegistration.getClientId()
+                            + "&client_secret=" + naverRegistration.getClientSecret()
+                            + "&refresh_token=" + refreshToken);
+
             NaverToken tokenResponse = naverWebClient.post()
-                    .uri(uriBuilder -> URI.create(UriComponentsBuilder.fromHttpUrl(naverProvider.getTokenUri())
-                            .queryParam("grant_type", "refresh_token")
-                            .queryParam("client_id", naverRegistration.getClientId())
-                            .queryParam("client_secret", naverRegistration.getClientSecret())
-                            .queryParam("refresh_token", refreshToken)
-                            .toUriString()))
+                    .uri(tokenUri) // URI 사용
                     .retrieve()
                     .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
                             clientResponse -> Mono.error(new OAuthTokenRequestException("네이버에서 토큰을 가져오는 중 오류가 발생했습니다: " + clientResponse.statusCode())))
@@ -131,6 +129,7 @@ public class NaverApiClient implements OAuthApiClient {
 
             if (tokenResponse == null || (tokenResponse.getError() != null && tokenResponse.getErrorDescription() != null)) {
                 securityUtil.clearContextAndDeleteCookie();
+                assert tokenResponse != null;
                 throw new OAuthTokenRequestException("네이버에서 액세스 토큰을 다시 가져오지 못했습니다  : "+tokenResponse.getErrorDescription());
             }
             return tokenResponse;
@@ -143,14 +142,15 @@ public class NaverApiClient implements OAuthApiClient {
     @Override
     public boolean revokeAccessToken(String accessToken) {
         try {
+            URI revokeUri = URI.create(naverProvider.getTokenUri())
+                    .resolve("?grant_type=delete"
+                            + "&client_id=" + naverRegistration.getClientId()
+                            + "&client_secret=" + naverRegistration.getClientSecret()
+                            + "&access_token=" + accessToken
+                            + "&service_provider=" + OAuthProvider.NAVER);
+
             NaverToken tokenResponse = naverWebClient.post()
-                    .uri(uriBuilder -> URI.create(UriComponentsBuilder.fromHttpUrl(naverProvider.getTokenUri())
-                            .queryParam("grant_type", "delete")
-                            .queryParam("client_id", naverRegistration.getClientId())
-                            .queryParam("client_secret", naverRegistration.getClientSecret())
-                            .queryParam("access_token", accessToken)
-                            .queryParam("service_provider", OAuthProvider.NAVER)
-                            .toUriString()))
+                    .uri(revokeUri)
                     .retrieve()
                     .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
                             clientResponse -> Mono.error(new OAuthTokenRequestException("네이버에서 액세스 토큰을 취소하는 중 오류가 발생했습니다: " + clientResponse.statusCode())))
