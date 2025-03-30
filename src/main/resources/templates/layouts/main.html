@@ -14,9 +14,13 @@
 <div class="header" th:replace="~{fragments/header::headerFragment}"></div>
 <div class="content" layout:fragment="content"></div>
 <div class="footer" th:replace="~{fragments/footer::footerFragment}"></div>
-<th:block th:replace="~{fragments/script-loader :: load('header')}"></th:block>
-<th:block th:replace="~{fragments/script-loader :: load('member')}"></th:block>
-<th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
-<th:block th:replace="~{fragments/script-loader :: load('store')}"></th:block>
+<script th:src="@{/js/header.js}"></script>
+<script th:src="@{/js/member.js}"></script>
+<script th:src="@{/js/post.js}"></script>
+<script th:src="@{/js/store.js}"></script>
+<!--<th:block th:replace="~{fragments/script-loader :: load('header')}"></th:block>-->
+<!--<th:block th:replace="~{fragments/script-loader :: load('member')}"></th:block>-->
+<!--<th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>-->
+<!--<th:block th:replace="~{fragments/script-loader :: load('store')}"></th:block>-->
 </body>
 </html>
