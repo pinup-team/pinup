@@ -82,6 +82,7 @@
     font-size: 14px;
     cursor: pointer;
     transition: background 0.3s ease;
+    margin: 1vh 0.5vh;
 }
 
 .pinup_list_item button:hover {
@@ -96,71 +97,14 @@
     margin-bottom: 5px;
 }
 
-/*.item_group {*/
-/*    position: relative;*/
-/*    width: 100%;*/
-/*    padding: 20px 0 19px;*/
-/*    border-top: 1px solid #f0f0f0;*/
-/*    box-sizing: border-box;*/
-/*}*/
-
-/*.txt_g {*/
-/*    font-size: 13px;*/
-/*    color: #555;*/
-/*}*/
-
-/*.link_cont {*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    text-decoration: none;*/
-/*    color: inherit;*/
-/*    padding-left: 20px;*/
-/*    padding-right: 20px;*/
-/*}*/
-
-/*.wrap_tit {*/
-/*    flex: 5;*/
-/*    padding-right: 10px;*/
-/*}*/
-
-/*.tit_cont {*/
-/*    font-size: 16px;*/
-/*    font-weight: bold;*/
-/*}*/
-
-/*.wrap_desc {*/
-/*    margin-top: 10px;*/
-/*    margin-bottom: 10px;*/
-/*}*/
-
-/*.desc_g {*/
-/*    font-size: 14px;*/
-/*    color: #666;*/
-/*}*/
-
-/*.wrap_info {*/
-/*    margin-top: 5px;*/
-/*    font-size: 12px;*/
-/*    color: #999;*/
-/*}*/
-
-/*.wrap_thumb {*/
-/*    flex: 2;*/
-/*    width: 80px;*/
-/*    height: 200px;*/
-/*    overflow: hidden;*/
-/*    border-radius: 8px;*/
-/*}*/
-
-/*.inner_thumb img {*/
-/*    width: 100%;*/
-/*    height: 100%;*/
-/*    object-fit: cover;*/
-/*}*/
+.post_content_wrap{
+    margin: 0 auto;
+    padding: 20px 0;
+}
 
 .pinup_nickname {
     overflow: hidden;
-    font-size: 12px;
+    font-size: 1vh;
     line-height: 1.2;
     color: #444;
     text-overflow: ellipsis;
@@ -168,6 +112,8 @@
     white-space: nowrap;
     text-align: left;
     max-width: 220px;
+    margin: 1vh;
+    -webkit-line-clamp: 1;
 }
 
 .pinup_list_item .post_action_wrapper {

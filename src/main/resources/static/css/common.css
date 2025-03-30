@@ -527,27 +527,32 @@ textarea.form-control {
 }
 
 #postForm {
-    width: 1000px; /* 기본 너비 */
-    min-width: 1000px; /* 최소 너비 */
+    width: 100vh; /* 기본 너비 */
 
     height: auto; /* 자동 확장 */
-    min-height: 700px; /* 최소 높이 700px */
+    min-height: 70vh; /* 최소 높이 700px */
 
     margin: 0 auto; /* 가운데 정렬 */
-    padding: 20px;
+    padding: 2vh;
 
     max-width: 80%;
 }
 
 #updatePostForm {
-    width: 1000px; /* 기본 너비 */
-    min-width: 1000px; /* 최소 너비 */
+    width: 100vh; /* 기본 너비 */
 
     height: auto; /* 자동 확장 */
-    min-height: 700px; /* 최소 높이 700px */
+    min-height: 70vh; /* 최소 높이 700px */
 
     margin: 0 auto; /* 가운데 정렬 */
-    padding: 20px;
+    padding: 2vh;
 
     max-width: 80%;
+}
+
+.images-file-warning {
+    color: #e11e1e;  /* 강조 색상 */
+    font-weight: bold;  /* 강조를 위해 굵은 글씨 */
+    margin-left: 1vh;
+    font-size: 0.9rem;  /* 글자 크기 조정 */
 }
