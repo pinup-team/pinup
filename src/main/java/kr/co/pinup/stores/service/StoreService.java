@@ -185,7 +185,6 @@ public class StoreService {
 
     @Transactional
     public void deleteStore(Long id) {
-        log.info("팝업스토어 삭제 요청 - ID: {}", id);
 
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
