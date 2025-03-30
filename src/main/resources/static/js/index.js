@@ -78,3 +78,19 @@ async function fetchStoreSummaries() {
 
 // 페이지가 로드되면 팝업스토어 목록을 가져옴
 document.addEventListener('DOMContentLoaded', fetchStoreSummaries);
+
+// 사용자 로그인 후 띄우는 alert
+document.addEventListener("DOMContentLoaded", function() {
+    const cookies = document.cookie.split('; ');
+    const messageCookie = cookies.find(row => row.startsWith('loginMessage='));
+
+    if (messageCookie) {
+        let message = decodeURIComponent(messageCookie.split('=')[1]);
+        message = message.replace(/\+/g, ' '); // '+'를 공백으로 변환
+
+        alert(message);
+
+        // 메시지를 한 번만 표시하도록 삭제
+        document.cookie = "loginMessage=; path=/; max-age=0";
+    }
+});

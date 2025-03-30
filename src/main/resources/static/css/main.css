@@ -25,14 +25,15 @@ html, body {
 }
 
 .center_content {
-    /*height: 100%;*/
-    /*width: 70%;*/
-    /*overflow: hidden;*/
-    /*padding: 0;*/
+    height: 100%;
+    width: 70%;
+    overflow: hidden;
+    padding: 0;
 
-    /*display: flex;*/
-    /*justify-content: center;*/
-    /*align-items: center;*/
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 #footer {
@@ -43,11 +44,12 @@ html, body {
 .carousel-wrapper {
     position: relative;
     width: 100%;
-    height: 400px; /* 원하는 높이 설정, 필요에 맞게 조정 가능 */
+    height: 150px; /* 원하는 높이 설정, 필요에 맞게 조정 가능 */
 }
 
 .carousel {
     position: relative;
+    height: fit-content;
 }
 
 .carousel-inner {
@@ -69,18 +71,20 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 60%;
 }
 
 .carousel-item img {
     width: 100%;
-    height: 100%;
+    height: 80%;
     object-fit: cover; /* 비율을 유지하면서 부모 영역을 채움 */
-    object-position: center; /* 이미지를 중앙에 배치 */
+    object-position: center;
+    background-color: inherit; /* 부모 배경색과 동일하게 설정 */
 }
 
 .slide-button {
     position: absolute;
-    top: 50%;
+    top: 25%;
     transform: translateY(-50%);
     color: #4F261A;
     font-size: 30px;
@@ -105,8 +109,12 @@ html, body {
     text-decoration: none;
 }
 
+.main_page_description {
+    margin: auto;
+    width: 100%;
+}
+
 .page_description {
-    margin-top: auto;
     display: flex;
     flex-direction: column;
 }

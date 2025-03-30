@@ -42,13 +42,11 @@ public class MemberApiController {
 
     @GetMapping("/oauth/naver")
     public ResponseEntity<?> loginNaver(@Valid @ModelAttribute NaverLoginParams params, HttpServletRequest request, HttpServletResponse response) {
-        log.info("Naver login process started");
         return loginProcess(params, request, response);
     }
 
     @GetMapping("/oauth/google")
     public ResponseEntity<?> loginGoogle(@Valid @ModelAttribute GoogleLoginParams params, HttpServletRequest request, HttpServletResponse response) {
-        log.info("Google login process started");
         return loginProcess(params, request, response);
     }
 
@@ -71,7 +69,6 @@ public class MemberApiController {
         }
         securityUtil.setRefreshTokenToCookie(response, oAuthToken.getRefreshToken());
 
-        log.debug("Login successful: {}", securityUtil.getMemberInfo());
         // 한글 URL 인코딩 처리해 쿠키에 메시지를 저장
         String encodedMessage = URLEncoder.encode(triple.getRight(), StandardCharsets.UTF_8);
         ResponseCookie messageCookie = ResponseCookie.from("loginMessage", encodedMessage)
@@ -99,10 +96,8 @@ public class MemberApiController {
     public ResponseEntity<?> update(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
         MemberResponse updatedMemberResponse = memberService.update(memberInfo, memberRequest);
         if (updatedMemberResponse != null && updatedMemberResponse.getNickname().equals(memberRequest.nickname())) {
-            log.debug("닉네임 변경 성공 : {}", updatedMemberResponse.getNickname());
             return ResponseEntity.ok("닉네임이 변경되었습니다.");
         } else {
-            log.error("닉네임 변경 실패");
             return ResponseEntity.badRequest().body("닉네임 변경 실패");
         }
 

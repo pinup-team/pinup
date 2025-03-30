@@ -49,7 +49,6 @@ public class MemberService {
 
         Pair<Member, String> memberStringPair = findOrCreateMember(oAuthResponse);
         Member member = memberStringPair.getLeft();
-        String message = memberStringPair.getRight();
 
         MemberInfo memberInfo = MemberInfo.builder()
                 .nickname(member.getNickname())
@@ -60,7 +59,7 @@ public class MemberService {
         securityUtil.setAuthentication(oAuthToken, memberInfo);
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 
-        return Triple.ofNonNull(oAuthResponse, oAuthResponseOAuthTokenPair.getRight(), message);
+        return Triple.ofNonNull(oAuthResponse, oAuthResponseOAuthTokenPair.getRight(), memberStringPair.getRight());
     }
 
     private Pair<Member, String> findOrCreateMember(OAuthResponse oAuthResponse) {

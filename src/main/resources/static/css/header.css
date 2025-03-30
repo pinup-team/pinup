@@ -2,7 +2,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
     width: 100%;
 }
 
@@ -51,7 +50,7 @@
     display: none;
     background-color: #4F261A;
     position: absolute;
-    right: 15%;
+    right: 1%;
     border-radius: 5px;
     box-sizing: border-box;
     z-index: 9999;
