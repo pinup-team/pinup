@@ -19,7 +19,9 @@
     <meta name="description" content="한정판 굿즈, 인생샷 스팟, 요즘 가장 핫한 팝업스토어 정보를 Pin-up에서 확인하세요. 팝업 일정과 커뮤니티 기능까지 한눈에!">
 
     <!-- Canonical -->
-    <link rel="canonical" th:href="${@seoUtil.getCanonicalUrl(#httpServletRequest)}" />
+    <th:block th:if="${@seoUtil != null and #httpServletRequest != null}">
+        <link rel="canonical" th:href="@{${@seoUtil.getCanonicalUrl(#httpServletRequest)}}" />
+    </th:block>
 
     <!-- Robots -->
     <meta name="robots" content="index, follow">
