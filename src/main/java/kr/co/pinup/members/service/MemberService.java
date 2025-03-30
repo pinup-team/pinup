@@ -65,7 +65,6 @@ public class MemberService {
     private Pair<Member, String> findOrCreateMember(OAuthResponse oAuthResponse) {
         Optional<Member> optionalMember = memberRepository.findByEmailAndIsDeletedFalse(oAuthResponse.getEmail());
         if (optionalMember.isPresent()) {
-            log.debug("MemberService : Find existing member");
             Member member = optionalMember.get();
             return Pair.ofNonNull(member, "다시 돌아오신 걸 환영합니다 \""+member.getName()+"\"님");
         } else {
@@ -186,7 +185,6 @@ public class MemberService {
                     }
                 }
             }
-            log.debug("MemberService isAccessTokenExpired 만료 X");
             return false;
         } catch (OAuthAccessTokenNotFoundException e) {
             log.error("MemberService isAccessTokenExpired 만료 OAuthAccessTokenNotFoundException : " + e.getMessage());
@@ -208,7 +206,6 @@ public class MemberService {
         }
 
         OAuthToken token = oAuthService.refresh(memberInfo.getProvider(), refreshToken);
-        log.debug("Access Token 갱신 완료");
 
         securityUtil.refreshAccessTokenInSecurityContext(token.getAccessToken());
 

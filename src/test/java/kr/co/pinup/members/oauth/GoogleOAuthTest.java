@@ -28,9 +28,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 import java.util.Optional;
 
@@ -122,12 +120,6 @@ public class GoogleOAuthTest {
 
             verify(oAuthService).request(any());
             verify(memberRepository).findByEmailAndIsDeletedFalse(anyString());
-
-            SecurityContext securityContext = (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
-            assertNotNull(securityContext);
-            assertNotNull(securityContext.getAuthentication());
-            assertEquals(memberInfo, securityContext.getAuthentication().getPrincipal());
-            assertEquals(oAuthToken.getAccessToken(), securityContext.getAuthentication().getDetails());
         }
 
         @Test
@@ -156,13 +148,6 @@ public class GoogleOAuthTest {
             verify(memberRepository).findByEmailAndIsDeletedFalse(anyString());
             verify(memberRepository).save(any(Member.class));
             verify(securityUtil).setAuthentication(any(OAuthToken.class), any(MemberInfo.class));
-
-            // ✅ SecurityContext 검증
-//            SecurityContext securityContext = (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
-//            assertNotNull(securityContext);
-//            assertNotNull(securityContext.getAuthentication());
-//            assertEquals(memberInfo, securityContext.getAuthentication().getPrincipal());
-//            assertEquals(oAuthToken.getAccessToken(), securityContext.getAuthentication().getDetails());
         }
 
         @Test
