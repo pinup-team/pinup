@@ -91,3 +91,26 @@
 .delete-btn:hover {
     background: darkred;
 }
+
+/* 스토어 상태 드롭다운 */
+
+#statusFilter {
+    background-color: #f9f5ef;
+    color: #3c2f2f;
+    border: 1px solid #cbbfb0;
+    border-radius: 6px;
+    padding: 6px 30px 6px 12px;
+    font-size: 14px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%233c2f2f' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s ease-in-out;
+}
+
+#statusFilter:focus {
+    outline: none;
+    border-color: #a89c8f;
+}

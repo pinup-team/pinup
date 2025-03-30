@@ -20,7 +20,6 @@ public class StoreStatusScheduler {
 
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void updateStoreStatuses() {
-        log.info("스토어 상태 업데이트 시작");
 
         List<Store> stores = storeRepository.findAll();
         LocalDate today = LocalDate.now();
@@ -43,6 +42,5 @@ public class StoreStatusScheduler {
         }
 
         storeRepository.saveAll(stores);
-        log.info("스토어 상태 업데이트 완료");
     }
 }
