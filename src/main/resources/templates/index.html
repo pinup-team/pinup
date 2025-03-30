@@ -11,24 +11,71 @@
 </head>
 <body>
 <div layout:fragment="content">
-
-    <div class="page_description">
-        <h1>Popular</h1>
-        <!--        <a th:href="@{/about}" th:class="info-link">🤔 핀업은 어떻게 이용하나요?</a>-->
-        <div class="title-container">
-            <div class="title-left">
-                <h4>가장 인기 있는 팝업 스토어</h4>
+    <!-- 배너 슬라이드 -->
+    <div class="carousel-wrapper">
+        <div class="carousel">
+            <div class="carousel-inner">
+                <ul class="carousel-list">
+                    <th:block th:each="i : ${#numbers.sequence(1, 13)}">
+                        <li class="carousel-item">
+                            <img th:src="@{'/images/pinup_banner_'+${i}+'.jpg'}" alt="Store Image"/>
+                        </li>
+                    </th:block>
+                </ul>
             </div>
-            <a th:href="@{/stores}" class="more-link">더보기👉</a>
+
+            <!-- 슬라이드 이동 버튼 -->
+            <button class="slide-button slide-left">‹</button>
+            <button class="slide-button slide-right">›</button>
         </div>
     </div>
+    <!--    <a th:href="@{/about}" th:class="info-link">🤔 핀업은 어떻게 이용하나요?</a>-->
+
     <div>
-        <div class="store-list-container">
-            <ul id="store-list">
-            </ul>
+        <div class="page_description">
+            <h1>Popular</h1>
+            <div class="title-container">
+                <div class="title-left">
+                    <h4>가장 인기 있는 팝업 스토어</h4>
+                </div>
+                <a th:href="@{/stores}" class="more-link">더보기👉</a>
+            </div>
+        </div>
+        <div>
+            <div class="store-list-container">
+                <ul id="store-list">
+                </ul>
+            </div>
         </div>
     </div>
 </div>
 </body>
 </html>
 <script th:src="@{/js/index.js}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 쿠키에서 loginMessage 찾기
+        const cookies = document.cookie.split('; ');
+        const messageCookie = cookies.find(row => row.startsWith('loginMessage='));
+
+        if (messageCookie) {
+            let message = decodeURIComponent(messageCookie.split('=')[1]);
+            message = message.replace(/\+/g, ' '); // ✅ '+'를 공백으로 변환
+
+            alert(message);
+
+            // ✅ 메시지를 한 번만 표시하도록 삭제
+            document.cookie = "loginMessage=; path=/; max-age=0";
+        }
+    });
+</script>
+<!--<script>-->
+<!--    document.addEventListener("DOMContentLoaded", function() {-->
+<!--        const urlParams = new URLSearchParams(window.location.search);-->
+<!--        const message = urlParams.get("message");-->
+
+<!--        if (message) {-->
+<!--            alert(decodeURIComponent(message)); // 알림 표시-->
+<!--        }-->
+<!--    });-->
+<!--</script>-->

@@ -14,6 +14,75 @@ html, body {
     background-color: #F6F2E4;
 }
 
+/* ✅ 레이아웃 */
+.wrap {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* 화면을 꽉 채우도록 */
+    width: 70%;
+    max-width: 1500px;
+    margin: 0 auto;
+    position: relative; /* fixed와 함께 사용할 때 필요한 설정 */
+
+    justify-content: center;
+    align-items: center;
+}
+
+header {
+    flex-shrink: 0; /* header가 줄어들지 않도록 */
+    position: sticky; /* 상단에 고정 */
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 10; /* 다른 요소 위에 표시 */
+}
+
+footer {
+    flex-shrink: 0; /* footer가 줄어들지 않도록 */
+    position: sticky; /* 하단에 고정 */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 10; /* 다른 요소 위에 표시 */
+}
+
+.content {
+    overflow-y: auto; /* 세로 스크롤만 가능하도록 */
+    overflow-x: hidden;
+    flex-grow: 1;
+    width: 100%;
+}
+
+/* 스크롤 디자인을 좀 더 이쁘게 */
+.content::-webkit-scrollbar {
+    width: 8px; /* 스크롤바의 너비 */
+}
+
+.content::-webkit-scrollbar-thumb {
+    background-color: #4F261A; /* 스크롤바의 색상 */
+    border-radius: 10px; /* 스크롤바 둥글게 */
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+    background-color: #CC2F20; /* 호버시 색상 */
+}
+
+.content::-webkit-scrollbar-track {
+    border-radius: 10px; /* 배경도 둥글게 */
+}
+
+.home_content_wrap {
+    min-width: 1000px;
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.content_list_area {
+    transition: 0.3s;
+}
+
 body, input, select, textarea, button, a, p, h1, h2, h3, h4, h5, h6 {
     color: #4F261A;
     font-family: "NanumSquare", "나눔스퀘어", "나눔고딕", NanumGothic, -apple-system, BlinkMacSystemFont, helvetica, "Apple SD Gothic Neo", sans-serif;
@@ -72,24 +141,6 @@ button {
     src: local(NanumSquareBold);
     src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-cBd.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-cBd.otf") format("opentype");
     font-weight: bold;
-}
-
-/* ✅ 레이아웃 */
-.wrap {
-    width: 70%;
-    max-width: 1500px;
-    margin: 0 auto;
-    background-color: #F6F2E4;
-}
-
-.home_content_wrap {
-    min-width: 1000px;
-    margin: 0 auto;
-    padding: 20px 0;
-}
-
-.content_list_area {
-    transition: 0.3s;
 }
 
 /* 페이지 내용 */

@@ -51,7 +51,7 @@ class CommentApiControllerTest {
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     public void testCreateComment() throws Exception {
         Long postId = 1L;
-        Member mockMember = new Member( "행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER);
+        Member mockMember = new Member( "행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER, false);
 
         CreateCommentRequest createCommentRequest = CreateCommentRequest.builder()
                 .content("This is a test comment")

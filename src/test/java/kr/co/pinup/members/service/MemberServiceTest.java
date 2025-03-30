@@ -13,7 +13,10 @@ import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.security.SecurityUtil;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.test.web.servlet.MockMvc;
@@ -71,11 +74,6 @@ public class MemberServiceTest {
                 .build();
     }
 
-    @AfterEach
-    void tearDown() {
-//        jdbcTemplate.update("DELETE FROM members");
-    }
-
     @Nested
     @DisplayName("회원 조회 관련 테스트")
     class FindMemberTests {
@@ -128,7 +126,6 @@ public class MemberServiceTest {
             when(memberRepository.findByNickname(memberRequest.nickname()))
                     .thenReturn(Optional.empty());
 
-            // memberRepository.save() 이후 savedMember 객체가 저장되도록 설정
             when(memberRepository.save(any(Member.class)))
                     .thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -158,7 +155,7 @@ public class MemberServiceTest {
         }
 
         @Test
-        @DisplayName("회원 수정_Nickname 너무 김")
+        @DisplayName("회원 수정_Nickname 길이 초과")
         public void testUpdate_WithNicknameIsTooLong_ShouldThrowMemberBadRequestException() {
             when(memberRepository.findByNickname(memberInfo.nickname()))
                     .thenReturn(Optional.of(member));
@@ -220,10 +217,11 @@ public class MemberServiceTest {
         void testDeleteMember_WithValidEmail_ShouldReturnTrue() {
             when(memberRepository.findByNickname(memberInfo.nickname())).thenReturn(Optional.of(member));
 
-            boolean result = memberService.delete(memberInfo, memberRequest);
+            boolean result = memberService.disable(memberInfo, memberRequest);
             assertTrue(result);
 
-            verify(memberRepository, times(1)).delete(member);
+            verify(memberRepository, times(1)).updateIsDeletedTrue(member);
+            verify(securityUtil).clearContextAndDeleteCookie();
         }
 
         @Test
@@ -232,7 +230,7 @@ public class MemberServiceTest {
             when(memberRepository.findByNickname(mockTestInfo.nickname())).thenReturn(Optional.empty());
 
             assertThrows(MemberNotFoundException.class, () -> {
-                memberService.delete(new MemberInfo(mockTestInfo.nickname(), OAuthProvider.NAVER, MemberRole.ROLE_USER), memberRequest);
+                memberService.disable(new MemberInfo(mockTestInfo.nickname(), OAuthProvider.NAVER, MemberRole.ROLE_USER), memberRequest);
             });
         }
 
@@ -249,7 +247,7 @@ public class MemberServiceTest {
             when(memberRepository.findByNickname(memberInfo.nickname())).thenReturn(Optional.of(member));
 
             assertThrows(UnauthorizedException.class, () -> {
-                memberService.delete(memberInfo, mockRequest);
+                memberService.disable(memberInfo, mockRequest);
             });
         }
 
@@ -257,10 +255,10 @@ public class MemberServiceTest {
         @DisplayName("회원 삭제 - 삭제 중 오류 발생")
         void testDeleteMember_WhenDeleteFails_ShouldThrowMemberServiceException() {
             when(memberRepository.findByNickname(memberInfo.nickname())).thenReturn(Optional.of(member));
-            doThrow(new RuntimeException("Database error")).when(memberRepository).delete(any(Member.class));
+            doThrow(new RuntimeException("Database error")).when(memberRepository).updateIsDeletedTrue(any(Member.class));
 
             assertThrows(MemberServiceException.class, () -> {
-                memberService.delete(memberInfo, memberRequest);
+                memberService.disable(memberInfo, memberRequest);
             });
         }
     }
