@@ -16,6 +16,8 @@ document.addEventListener("click", function (event) {
 
     if (!menu || !hamburger) return; // 요소가 없으면 실행하지 않음
 
+    if (!menu || !hamburger) return; // 요소가 없으면 실행하지 않음
+
     if (menu.classList.contains('open') && !menu.contains(event.target) && !hamburger.contains(event.target)) {
         menu.classList.remove('open');
         hamburger.classList.remove('open');
