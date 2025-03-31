@@ -4,7 +4,6 @@ import kr.co.pinup.locations.Location;
 import kr.co.pinup.store_categories.StoreCategory;
 import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
 import kr.co.pinup.stores.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,8 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
 
 @ExtendWith(MockitoExtension.class)
 public class StoreServiceTest {

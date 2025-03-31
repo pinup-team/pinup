@@ -16,7 +16,7 @@ import lombok.*;
 public class Member extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name;
-    @Column(nullable = false, length = 100, unique = true)
+    @Column(nullable = false, length = 100)
     private String email;
     @Column(nullable = false, length = 50, unique = true)
     private String nickname;
@@ -31,10 +31,17 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean isDeleted;
+
     @PrePersist
     public void setDefaultRole() {
         if (this.role == null) {
             this.role = MemberRole.ROLE_USER;
         }
+    }
+
+    public void disableMember() {
+        this.isDeleted = true;
     }
 }

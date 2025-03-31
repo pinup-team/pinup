@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+ document.addEventListener("DOMContentLoaded", function () {
     const carouselList = document.querySelector(".carousel-list");
     const items = document.querySelectorAll(".carousel-item");
     const prevButton = document.querySelector(".slide-left");

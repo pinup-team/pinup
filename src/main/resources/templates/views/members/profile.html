@@ -9,14 +9,14 @@
     <link rel="stylesheet" th:href="@{/css/member.css}">
     <title>Profile</title>
 </head>
-<div layout:fragment="content">
+<div class="member_profile" layout:fragment="content">
     <div class="page_description">
         <h1>Profile</h1>
         <h4>내 정보를 업데이트하세요.</h4>
     </div>
-    <div class="member_profile">
+    <div class="member_profile_content">
         <th:block sec:authorize="isAnonymous()">
-            <p>잘못된 접근입니다.</p>
+            <h1>잘못된 접근입니다.</h1>
         </th:block>
         <th:block sec:authorize="isAuthenticated()">
             <div class="table-container">
@@ -52,13 +52,12 @@
         <th:block sec:authorize="isAuthenticated()">
             <div class="member-buttons">
                 <button type="button" th:onclick="updateAccount()">수정</button>
-                <button type="button" th:onclick="deleteAccount()" disabled hidden="hidden">탈퇴</button>
+                <button type="button" th:onclick="deleteAccount()">탈퇴</button>
             </div>
         </th:block>
     </div>
 </div>
-</html>
-
 <script th:inline="javascript">
     var profile = /*[[${profile}]]*/'${profile}';
 </script>
+</html>

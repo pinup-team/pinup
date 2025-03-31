@@ -10,14 +10,14 @@
     </div>
     <nav>
         <ul>
-            <li><a th:href="@{/}">Home</a></li>
-            <li><a th:href="@{/stores}">Store</a></li>
-            <li><a th:href="@{/notices}">Support</a></li>
+            <li><a th:href="@{/}">홈</a></li>
+            <li><a th:href="@{/stores}">팝업스토어</a></li>
+            <li><a th:href="@{/notices}">고객센터</a></li>
         </ul>
     </nav>
     <div class="user-actions">
         <th:block sec:authorize="isAnonymous()">
-            <button th:onclick="|window.location.href='/members/login'|">Login</button>
+            <button th:onclick="|window.location.href='/members/login'|">로그인</button>
         </th:block>
         <th:block sec:authorize="isAuthenticated()">
             <button class="hamburger" onclick="toggleMenu()">
@@ -35,5 +35,4 @@
         </th:block>
     </div>
 </header>
-<script th:src="@{/js/member.js}"></script>
 </html>

@@ -4,7 +4,7 @@ import java.util.List;
 
 public class SecurityConstants {
     public static final String[] PUBLIC_URLS = {
-            "/", "/error", "/images/**", "/terms-privacy/**",
+            "/", "/static/**", "/templates/**", "/css/**", "/js/**", "/images/**", "/terms-privacy/**", "/fonts/**", "/error", "/favicon.ico",
             "/members/login", "/api/members/oauth/**",
             "/stores", "/stores/{storeId:[0-9]+}", "/api/stores", "/api/stores/summary", "/api/stores/{storeId:[0-9]+}",
             "/post", "/post/{postId:[0-9]+}", "/post/list/{postId:[0-9]+}", "/api/post/list/{storeId}", "/api/post/{postId}",

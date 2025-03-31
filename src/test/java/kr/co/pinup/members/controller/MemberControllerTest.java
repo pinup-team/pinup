@@ -52,7 +52,7 @@ public class MemberControllerTest {
     @WithMockMember(nickname = "test", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     @DisplayName("마이 페이지 이동")
     void memberProfile() throws Exception {
-        MemberResponse testResponse = new MemberResponse(1L, "test", "test@naver.com", "네이버TestMember", OAuthProvider.NAVER, MemberRole.ROLE_USER);
+        MemberResponse testResponse = new MemberResponse(1L, "test", "test@naver.com", "네이버TestMember", OAuthProvider.NAVER, MemberRole.ROLE_USER, false);
 
         when(memberService.findMember(any(MemberInfo.class))).thenReturn(testResponse);
 

@@ -82,7 +82,7 @@ public class MemberApiControllerTest {
     void testDeleteMember() throws Exception {
         MemberRequest memberRequest = MemberRequest.builder().name("test").email("test@naver.com").nickname("updatedTestNickname").providerType(OAuthProvider.NAVER).build();
 
-        when(memberService.delete(any(MemberInfo.class), any(MemberRequest.class))).thenReturn(true);
+        when(memberService.disable(any(MemberInfo.class), any(MemberRequest.class))).thenReturn(true);
 
         mockMvc.perform(delete("/api/members")
                         .contentType(MediaType.APPLICATION_JSON)

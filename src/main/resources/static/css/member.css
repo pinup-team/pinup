@@ -1,9 +1,16 @@
 .member_profile {
-    width: 77vw;
+    height: 100%;
+    width: 70%;
+    overflow: hidden;
+    padding: 0;
+
     display: flex;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
+    justify-content: center;
+}
+
+.member_profile_content {
+    align-items: center;
 }
 
 /*-------table--------*/
@@ -16,7 +23,7 @@
 
 table {
     table-layout: fixed; /* 테이블 레이아웃을 고정하여 각 셀의 너비를 설정 */
-    width: 80%;
+    width: 70%;
     font-size: 1rem;
     line-height: 1.5;
     color: #4F261A;

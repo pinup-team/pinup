@@ -137,7 +137,6 @@ public class SecurityUtil {
     public String getAccessTokenFromSecurityContext() {
         Authentication currentAuth = getAuthentication();
         if (currentAuth.isAuthenticated()) {
-            log.debug("SecurityUtil getAccessTokenFromSecurityContext authenticated : {}", currentAuth.getDetails());
             return (String) currentAuth.getDetails();
         }
         return null;
@@ -162,7 +161,6 @@ public class SecurityUtil {
         cookie.setSecure(false);
         cookie.setMaxAge(60 * 60 * 12);
         response.addCookie(cookie);
-        log.debug("SecurityUtil : Refresh Token 쿠키에 저장됨: {}", cookie.getValue());
     }
 
     public void clearContextAndDeleteCookie() {
@@ -191,7 +189,6 @@ public class SecurityUtil {
                     session.invalidate();
                 }
             }
-            log.debug("SecurityUtil : clearContextAndDeleteCookie 성공");
         } catch (UnauthorizedException e) {
             log.error("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.");
             throw new OAuthTokenRequestException("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.");
@@ -205,7 +202,6 @@ public class SecurityUtil {
         cookie.setMaxAge(0);
         cookie.setSecure(false);
         response.addCookie(cookie);
-        log.debug("Refresh Token 쿠키 삭제 완료");
     }
 
     public void clearSessionCookie(HttpServletResponse response) {
@@ -215,28 +211,5 @@ public class SecurityUtil {
         cookie.setMaxAge(0);
         cookie.setSecure(false);  // HTTPS 환경이라면 true 설정
         response.addCookie(cookie);
-        log.debug("JSESSIONID 쿠키 삭제 완료");
     }
-
-    /*// 헤더에 AccessToken을 추가하는 메서드
-    public void addAccessTokenToHeader(HttpHeaders headers, String accessToken) {
-        headers.add("Authorization", "Bearer " + accessToken);
-    }
-
-    public String getAccessTokenFromHeader(HttpServletRequest request) {
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String accessToken = authHeader.substring(7);
-            System.out.println("AccessToken from header: " + accessToken);
-            return accessToken;
-        }
-        throw new OAuthTokenNotFoundException("Access token is missing in header.");
-    }
-
-    public String getCurrentUsername() {
-        Authentication currentAuth = getAuthentication();
-        if (currentAuth.isAuthenticated()) {
-            return currentAuth.getName();  // 현재 인증된 사용자의 이름 반환
-        } else throw new UnauthorizedException("SecurityUtil getCurrentUsername : 인증 정보가 없습니다.");
-    }*/
 }

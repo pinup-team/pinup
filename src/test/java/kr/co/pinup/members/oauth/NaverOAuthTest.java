@@ -19,6 +19,7 @@ import kr.co.pinup.oauth.naver.NaverResponse;
 import kr.co.pinup.oauth.naver.NaverToken;
 import kr.co.pinup.security.SecurityUtil;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -108,42 +109,55 @@ public class NaverOAuthTest {
         @DisplayName("OAuth 로그인 성공")
         void login_Success() {
             when(oAuthService.request(any())).thenReturn(naverPair);
-            when(memberRepository.findByEmail(any())).thenReturn(Optional.ofNullable(member));
+            when(memberRepository.findByEmailAndIsDeletedFalse(any())).thenReturn(Optional.ofNullable(member));
             doNothing().when(securityUtil).setAuthentication(any(), any());
 
-            Pair<OAuthResponse, OAuthToken> result = memberService.login(params, session);
+            Triple<OAuthResponse, OAuthToken, String> result = memberService.login(params, session);
             OAuthResponse oAuthResponse = result.getLeft();
+            OAuthToken oAuthToken = result.getMiddle();
+            String message = result.getRight();
 
             assertNotNull(result);
             assertEquals(member.getName(), oAuthResponse.getName());
             assertEquals(member.getEmail(), oAuthResponse.getEmail());
             assertEquals(member.getProviderId(), oAuthResponse.getId());
             assertEquals(member.getProviderType(), oAuthResponse.getOAuthProvider());
+            assertFalse(member.isDeleted());
+
+            assertEquals(message, "다시 돌아오신 걸 환영합니다 \""+member.getName()+"\"님");
+
             verify(oAuthService).request(any());
-            verify(memberRepository).findByEmail(anyString());
+            verify(memberRepository).findByEmailAndIsDeletedFalse(anyString());
 
             SecurityContext securityContext = (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
             assertNotNull(securityContext);
             assertNotNull(securityContext.getAuthentication());
             assertEquals(memberInfo, securityContext.getAuthentication().getPrincipal());
+            assertEquals(oAuthToken.getAccessToken(), securityContext.getAuthentication().getDetails());
         }
 
         @Test
         @DisplayName("로그인 실패_회원 정보 없음_회원가입 발생")
         void testLogin_WhenMemberNotFound_ShouldCreateNewMember() {
             when(oAuthService.request(any())).thenReturn(naverPair); // OAuth 응답 설정
-            when(memberRepository.findByEmail(anyString())).thenReturn(Optional.empty()); // 회원 정보가 없을 때
+            when(memberRepository.findByEmailAndIsDeletedFalse(anyString())).thenReturn(Optional.empty()); // 회원 정보가 없을 때
             when(memberRepository.save(any(Member.class))).thenReturn(member); // 새로운 회원 저장
 
-            Pair<OAuthResponse, OAuthToken> result = memberService.login(params, session);
+            Triple<OAuthResponse, OAuthToken, String> result = memberService.login(params, session);
             OAuthResponse oAuthResponse = result.getLeft();
+            String message = result.getRight();
 
             assertNotNull(result);
             assertEquals(member.getName(), oAuthResponse.getName());
             assertEquals(member.getEmail(), oAuthResponse.getEmail());
             assertEquals(member.getProviderId(), oAuthResponse.getId());
             assertEquals(member.getProviderType(), oAuthResponse.getOAuthProvider());
-            verify(memberRepository).findByEmail(anyString()); // 이메일로 회원 조회
+            assertFalse(member.isDeleted());
+
+            assertEquals(message, "환영합니다 \""+member.getName()+"\"님");
+
+            verify(oAuthService).request(any());
+            verify(memberRepository).findByEmailAndIsDeletedFalse(anyString()); // 이메일로 회원 조회
             verify(memberRepository).save(any(Member.class)); // 새 회원 저장이 호출되었는지 확인
         }
 
@@ -256,13 +270,13 @@ public class NaverOAuthTest {
             when(oAuthService.isAccessTokenExpired(memberInfo.provider(), accessToken))
                     .thenReturn(naverResponse);
 
-            when(memberRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+            when(memberRepository.findByEmailAndIsDeletedFalse(anyString())).thenReturn(Optional.of(member));
 
             boolean result = memberService.isAccessTokenExpired(memberInfo, accessToken);
 
             assertFalse(result); // 만료되지 않은 경우 false 반환
             verify(oAuthService).isAccessTokenExpired(memberInfo.provider(), accessToken);
-            verify(memberRepository).findByEmail(anyString());
+            verify(memberRepository).findByEmailAndIsDeletedFalse(anyString());
         }
 
         @Test

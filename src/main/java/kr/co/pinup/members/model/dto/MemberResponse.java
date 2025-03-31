@@ -21,6 +21,7 @@ public class MemberResponse {
     private String nickname;
     private OAuthProvider providerType;
     private MemberRole role;
+    private boolean isDeleted;
 
     @JsonCreator
     public MemberResponse(
@@ -29,7 +30,8 @@ public class MemberResponse {
             @JsonProperty("email") String email,
             @JsonProperty("nickname") String nickname,
             @JsonProperty("providerType") String providerType,
-            @JsonProperty("role") String role
+            @JsonProperty("role") String role,
+            @JsonProperty("isDeleted") boolean isDeleted
     ) {
         this.id = id;
         this.name = name;
@@ -37,6 +39,7 @@ public class MemberResponse {
         this.nickname = nickname;
         this.providerType = OAuthProvider.valueOf(providerType);
         this.role = MemberRole.valueOf(role);
+        this.isDeleted = isDeleted;
     }
 
     public MemberResponse(Member member) {
@@ -46,6 +49,7 @@ public class MemberResponse {
         nickname = member.getNickname();
         providerType = member.getProviderType();
         role = member.getRole();
+        isDeleted = member.isDeleted();
     }
 
     public static MemberResponse fromMember(Member member) {
@@ -56,6 +60,7 @@ public class MemberResponse {
                 .nickname(member.getNickname())
                 .providerType(member.getProviderType())
                 .role(member.getRole())
+                .isDeleted(member.isDeleted())
                 .build();
     }
 }
