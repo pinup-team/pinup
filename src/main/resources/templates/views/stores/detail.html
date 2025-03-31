@@ -5,14 +5,14 @@
       layout:decorate="~{layouts/layout}">
 
 <th:block layout:fragment="pageStyles">
-    <link rel="stylesheet" th:href="@{/css/store_detail.css}" />
+    <link rel="stylesheet" th:href="@{/css/store_detail.css}"/>
 </th:block>
 
 <div layout:fragment="content" th:object="${store}">
 
     <div sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
         <a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
-<!--        <button class="delete-btn" th:data-store-id="*{id}">삭제</button>-->
+        <!--        <button class="delete-btn" th:data-store-id="*{id}">삭제</button>-->
         <a th:href="@{/stores/create}" class="create-btn" th:data-store-id="*{id}">등록</a>
     </div>
 
@@ -23,8 +23,8 @@
     <!-- 홈 디브-->
     <div>
         <!-- 이미지 슬라이더 -->
-        <div class="carousel-wrapper">
-            <div class="carousel">
+        <div class="carousel-wrapper" th:classappend="${#lists.size(storeImages) == 1} ? ' single-image'">
+            <div class="carousel" th:if="${#lists.size(storeImages) > 1}">
                 <div class="carousel-inner">
                     <ul class="carousel-list">
                         <th:block th:each="image : ${storeImages}">
@@ -38,11 +38,15 @@
                 <button class="slide-button slide-left"><</button>
                 <button class="slide-button slide-right">></button>
             </div>
+
+            <div class="single-image-container" th:if="${#lists.size(storeImages) == 1}">
+                <img th:src="${storeImages[0].imageUrl}" alt="Store Image" class="single-image"/>
+            </div>
         </div>
 
         <!-- 편의기능 바 -->
         <div>
-            <a href="/stores"><</a>
+            <a class="back-icon-button" href="/stores"><</a>
         </div>
 
         <!-- 탭 버튼 -->
@@ -70,7 +74,8 @@
                 <div class="title-area">
                     <p class="title-text-category" th:text="*{category.name}"> ></p>
                     <p class="title-text-name" th:text="*{name}"></p>
-                    <span class="title-text-duration" th:text="*{startDate()}"></span> ~ <span class="title-text-duration"
+                    <span class="title-text-duration" th:text="*{startDate()}"></span> ~ <span
+                        class="title-text-duration"
                         th:text="*{endDate()}"></span>
                     <p class="title-text-location" th:with="loc=*{location}">
                         📍 <span
@@ -81,7 +86,17 @@
                 <div class="info-container">
                     <div class="duration-container">
                         <p class="info-subtitle"> 운영시간 </p>
-                        <p> 주중 : 08:30 ~ 20:30 </p>
+                        <div>
+                            <p th:if="*{operatingHours.isEmpty()}">운영시간 준비 중입니다.</p>
+
+                            <ul th:unless="*{operatingHours.isEmpty()}">
+                                <li th:each="hour : *{operatingHours}">
+                                    <span th:text="${hour.day}"></span> :
+                                    <span th:text="${#temporals.format(hour.startTime, 'HH:mm')}"></span> ~
+                                    <span th:text="${#temporals.format(hour.endTime, 'HH:mm')}"></span>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
 
                     <div class="description-container">
@@ -89,14 +104,30 @@
                         <p class="description-textbox" th:text="*{description}"></p>
                     </div>
 
+                    <!-- 컨택트 -->
+                    <div class="contact-container"
+                         th:unless="*{contactNumber.isEmpty() and snsUrl.isEmpty() and websiteUrl.isEmpty()}">
+                        <p class="info-subtitle"> 찾아보기 </p>
+
+                        <a class="contact-textbox" th:if="*{!snsUrl.isEmpty()}" th:href="*{snsUrl}">SNS</a>
+                        <a class="contact-textbox" th:if="*{!websiteUrl.isEmpty()}" th:href="*{websiteUrl}">웹사이트</a>
+                        <span>📞 </span> <span class="contact-textbox" th:if="*{!contactNumber.isEmpty()}" th:text="*{contactNumber}"></span>
+                    </div>
+
+                    <p class="info-subtitle" th:if="*{contactNumber == null and snsUrl == null and websiteUrl == null}">
+                        연락처 정보가 준비 중입니다.
+                    </p>
+
                     <div class="map-container">
                         <input type="hidden" id="latitude-hidden" th:value="${location.latitude}">
                         <input type="hidden" id="longitude-hidden" th:value="${location.longitude}">
                         <div id="map" class="map-box"></div>
                         <div>
                             <p class="map-text-location" th:with="loc=*{location}">
-                                📍 <span
-                                    th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address} +' ' +  ${loc.addressDetail}"></span>
+                                📍
+                                <span th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address}"></span>
+                                <span th:if="${loc.addressDetail != null and !#strings.isEmpty(loc.addressDetail)}"
+                                      th:text="' ' + ${loc.addressDetail}"></span>
                             </p>
                         </div>
                     </div>
@@ -120,6 +151,7 @@
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1038c510f5de135a5c0d54f4f9181ef3&libraries=services"></script>
     <script th:src="@{/js/location.js}"></script>
+    <script th:src="@{/js/post.js}"></script>
     <script th:src="@{/js/store.js}"></script>
 </th:block>
 </html>

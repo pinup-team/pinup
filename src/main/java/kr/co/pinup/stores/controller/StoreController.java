@@ -6,7 +6,9 @@ import kr.co.pinup.store_categories.service.CategoryService;
 import kr.co.pinup.store_images.service.StoreImageService;
 import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
+import kr.co.pinup.stores.model.dto.StoreSummaryResponse;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
+import kr.co.pinup.stores.model.enums.Status;
 import kr.co.pinup.stores.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +36,25 @@ public class StoreController {
     private String kakaoMapKey;
 
     @GetMapping
-    public String listStores(Model model) {
-        model.addAttribute("stores", storeService.getStoreSummaries());
+    public String listStores(@RequestParam(required = false) String status, Model model) {
+        List<StoreSummaryResponse> stores;
+        Status selectedStatus = null;
+
+        if (status != null && !status.equalsIgnoreCase("ALL") && !status.isBlank()) {
+            try {
+                selectedStatus = Status.valueOf(status);
+                stores = storeService.getStoreSummariesByStatus(selectedStatus);
+            } catch (IllegalArgumentException e) {
+                stores = storeService.getStoreSummaries();
+            }
+        } else {
+            stores = storeService.getStoreSummaries();
+        }
+
+        model.addAttribute("stores", stores);
+        model.addAttribute("selectedStatus", selectedStatus);
         return "views/stores/list";
     }
-
     @GetMapping("/{id}")
     public String storeDetail(@PathVariable Long id, Model model) {
         StoreResponse storeResponse = storeService.getStoreById(id);
