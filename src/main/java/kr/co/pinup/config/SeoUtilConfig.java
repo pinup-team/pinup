@@ -23,10 +23,8 @@ public class SeoUtilConfig {
         if (query != null && !query.isBlank()) {
             url.append("?").append(query);
         }
-
         return url.toString();
     }
-
     public String getBaseDomain() {
         return baseDomain;
     }

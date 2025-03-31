@@ -1,6 +1,7 @@
 package kr.co.pinup.faqs.controller;
 
 import kr.co.pinup.config.SecurityConfigTest;
+import kr.co.pinup.config.SeoUtilConfigTest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.members.custom.WithMockMember;
@@ -24,7 +25,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(SecurityConfigTest.class)
+@Import({SecurityConfigTest.class, SeoUtilConfigTest.class})
 @WebMvcTest(FaqController.class)
 class FaqControllerTest {
 

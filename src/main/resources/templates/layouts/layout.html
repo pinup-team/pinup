@@ -8,12 +8,10 @@
     <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
-
     <th:block layout:fragment="pageStyles"></th:block>
 
     <!-- Favicon -->
     <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon">
-
     <!-- SEO: 메타 설명 -->
     <title>Pin-up | 한정판 팝업스토어 일정, 굿즈 정보, 감성 스팟 커뮤니티</title>
     <meta name="description" content="한정판 굿즈, 인생샷 스팟, 요즘 가장 핫한 팝업스토어 정보를 Pin-up에서 확인하세요. 팝업 일정과 커뮤니티 기능까지 한눈에!">
@@ -66,7 +64,6 @@
             "url": "https://www.pin-up.co.kr"
         }
     </script>
-
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-350098071"></script>
     <script>
@@ -85,10 +82,9 @@
     <div th:replace="~{fragments/footer::footerFragment}"></div>
 </div>
 
-<script th:src="@{/js/header.js}"></script>
-<script th:src="@{/js/member.js}"></script>
-<script th:src="@{/js/post.js}"></script>
-
+<th:block th:replace="~{fragments/script-loader :: load('header')}"></th:block>
+<th:block th:replace="~{fragments/script-loader :: load('member')}"></th:block>
+<th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
 <th:block layout:fragment="pageScripts"></th:block>
 
 </body>
