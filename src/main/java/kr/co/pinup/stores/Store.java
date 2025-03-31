@@ -59,6 +59,9 @@ public class Store extends BaseEntity {
     @Column(length = 255)
     private String snsUrl;
 
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN default false")
+    private boolean deleted;
+
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OperatingHour> operatingHours = new ArrayList<>();
@@ -74,9 +77,14 @@ public class Store extends BaseEntity {
         if (request.getStatus() != null) this.status = request.getStatus();
     }
 
+    public void deleteStore() {
+        this.deleted = true;
+    }
+
     public void updateImageUrl(String newImageUrl) {
         this.imageUrl = newImageUrl;
     }
+
 
 
 

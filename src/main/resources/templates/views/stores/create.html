@@ -24,11 +24,30 @@
         <div id="operatingHoursContainer">
             <label>운영 시간</label>
             <div class="operating-hour">
-                <input type="text" name="days" placeholder="요일 (예: 월요일, 월~목)" required>
-                <input type="time" name="startTimes" required>
-                <input type="time" name="endTimes" required>
+                <label>
+                    <input type="text" name="days" placeholder="요일 (예: 월요일, 월~목)" required>
+                </label>
+                <label>
+                    <input type="time" name="startTimes" required>
+                </label>
+                <label>
+                    <input type="time" name="endTimes" required>
+                </label>
                 <button type="button" onclick="removeOperatingHour(this)">-</button>
             </div>
+        </div>
+
+        <div id="contactContainer">
+            <label>상세 정보</label>
+            <label>
+                <input type="text" name="snsUrl" placeholder="snsUrl">
+            </label>
+            <label>
+                <input type="text" name="websiteUrl" placeholder="websiteUrl">
+            </label>
+            <label>
+                <input type="text" name="contactNumber" placeholder="contactNumber">
+            </label>
         </div>
         <button type="button" onclick="addOperatingHour()">+</button>
         <input id="locationId" type="hidden" name="locationId"/>
@@ -51,10 +70,7 @@
 <th:block layout:fragment="pageScripts">
     <script th:inline="javascript">
         window.KAKAO_API_KEY = /*[[${kakaoMapKey}]]*/ '';
-        console.log("Kakao API Key:", window.KAKAO_API_KEY);
     </script>
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <script th:src="@{/js/location.js}"></script>
-    <script th:src="@{/js/store.js}"></script>
 </th:block>
 </html>

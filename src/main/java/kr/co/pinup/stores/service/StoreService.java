@@ -117,6 +117,8 @@ public class StoreService {
         Location location = locationRepository.findById(request.locationId())
                 .orElseThrow(LocationNotFoundException::new);
 
+        Status storeStatus = request.startDate().isAfter(java.time.LocalDate.now()) ? Status.PENDING : Status.RESOLVED;
+
         Store store = Store.builder()
                 .name(request.name())
                 .description(request.description())
@@ -124,13 +126,12 @@ public class StoreService {
                 .location(location)
                 .startDate(request.startDate())
                 .endDate(request.endDate())
-                .status(Status.RESOLVED)
-                .contactNumber(request.contactNumber()) // 새 필드
-                .websiteUrl(request.websiteUrl())       // 새 필드
-                .snsUrl(request.snsUrl())               // 새 필드
+                .status(storeStatus)
+                .contactNumber(request.contactNumber())
+                .websiteUrl(request.websiteUrl())
+                .snsUrl(request.snsUrl())
                 .build();
 
-        // 운영시간 추가
         if (request.operatingHours() != null) {
             request.operatingHours().forEach(hour -> {
                 OperatingHour operatingHour = OperatingHour.builder()
@@ -164,7 +165,7 @@ public class StoreService {
         return StoreResponse.from(store);
     }
 
-    @Transactional
+/*    @Transactional
     public void deleteStore(Long id) {
         log.info("팝업스토어 삭제 요청 - ID: {}", id);
 
@@ -180,6 +181,24 @@ public class StoreService {
 
         storeRepository.delete(store);
         log.info("팝업스토어 삭제 완료 - ID: {}", id);
+    }*/
+
+    @Transactional
+    public void deleteStore(Long id) {
+
+        Store store = storeRepository.findById(id)
+                .orElseThrow(StoreNotFoundException::new);
+
+        try {
+            store.deleteStore();
+        } catch (RuntimeException e) {
+            log.error("스토어 isDeleted 상태 변환 중 에러 발생", e);
+        }
     }
 
+    public List<StoreSummaryResponse> getStoreSummariesByStatus(Status status) {
+        return storeRepository.findByStatusAndDeletedFalse(status).stream()
+                .map(StoreSummaryResponse::from)
+                .toList();
+    }
 }

@@ -18,6 +18,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByNickname(String nickname);
 
     @Modifying
-    @Query("UPDATE Member m SET m.isDeleted = true WHERE m = :member")
-    void updateIsDeletedTrue(@Param("member") Member member);
+    @Query("UPDATE Member m SET m.isDeleted = true WHERE m.id = :memberId")
+    void updateIsDeletedTrue(@Param("memberId") Long memberId);
 }

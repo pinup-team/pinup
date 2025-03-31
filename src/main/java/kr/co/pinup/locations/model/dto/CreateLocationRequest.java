@@ -27,7 +27,6 @@ public record CreateLocationRequest(
         @NotBlank(message = "주소는 필수 입력값입니다.")
         String address,
 
-        @NotBlank(message = "상세 주소는 필수 입력값입니다.")
         String addressDetail
 ) {
 }

@@ -143,7 +143,7 @@ public class MemberService {
         }
 
         try {
-            memberRepository.updateIsDeletedTrue(member);
+            memberRepository.updateIsDeletedTrue(member.getId());
             securityUtil.clearContextAndDeleteCookie();
         } catch (Exception e) {
             throw new MemberServiceException("회원 삭제 중 오류가 발생했습니다.");

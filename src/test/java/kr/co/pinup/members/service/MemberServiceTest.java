@@ -220,7 +220,7 @@ public class MemberServiceTest {
             boolean result = memberService.disable(memberInfo, memberRequest);
             assertTrue(result);
 
-            verify(memberRepository, times(1)).updateIsDeletedTrue(member);
+            verify(memberRepository, times(1)).updateIsDeletedTrue(member.getId());
             verify(securityUtil).clearContextAndDeleteCookie();
         }
 
@@ -255,7 +255,7 @@ public class MemberServiceTest {
         @DisplayName("회원 삭제 - 삭제 중 오류 발생")
         void testDeleteMember_WhenDeleteFails_ShouldThrowMemberServiceException() {
             when(memberRepository.findByNickname(memberInfo.nickname())).thenReturn(Optional.of(member));
-            doThrow(new RuntimeException("Database error")).when(memberRepository).updateIsDeletedTrue(any(Member.class));
+            doThrow(new RuntimeException("Database error")).when(memberRepository).updateIsDeletedTrue(any(Long.class));
 
             assertThrows(MemberServiceException.class, () -> {
                 memberService.disable(memberInfo, memberRequest);

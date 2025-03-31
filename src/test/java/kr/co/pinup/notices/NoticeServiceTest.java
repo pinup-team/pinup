@@ -215,7 +215,10 @@ class NoticeServiceTest {
         noticeService.remove(notice.getId());
 
         // then
-        assertThat(noticeRepository.count()).isEqualTo(0);
+        Notice result = noticeRepository.findById(notice.getId())
+                .orElseThrow(NoticeNotFound::new);
+
+        assertThat(result.isDeleted()).isTrue();
     }
 
     @ParameterizedTest
