@@ -9,6 +9,7 @@
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
     <th:block layout:fragment="pageStyles"></th:block>
+
     <!-- Favicon -->
     <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon">
     <!-- SEO: 메타 설명 -->
@@ -22,7 +23,8 @@
 
     <!-- Robots -->
     <meta name="robots" content="index, follow">
-    @@ -28,16 +30,16 @@
+
+    <!-- Open Graph for Facebook & Kakao -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="Pin-up - 요즘 핫한 팝업스토어 일정 & 굿즈 정보">
     <meta property="og:description" content="트렌디한 팝업스토어 소식과 한정판 굿즈 정보, 감성 스팟까지! Pin-up에서 가장 빠르게 확인하세요.">
@@ -83,7 +85,6 @@
 <th:block th:replace="~{fragments/script-loader :: load('header')}"></th:block>
 <th:block th:replace="~{fragments/script-loader :: load('member')}"></th:block>
 <th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
-
 <th:block layout:fragment="pageScripts"></th:block>
 
 </body>
