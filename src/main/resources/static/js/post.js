@@ -101,7 +101,27 @@ function removePost(postId, storeId) {
             .then(response => {
                 if (response.ok) {
                     alert("게시물이 성공적으로 삭제되었습니다!");
-                    window.location.href = `/post/list/${storeId}`;
+                    window.location.href = `/stores/${storeId}`;
+                } else {
+                    alert("게시물 삭제에 실패했습니다.");
+                }
+            })
+            .catch(error => {
+                console.error("게시물 삭제 중 오류 발생:", error);
+                alert("게시물 삭제 중에 오류가 발생했습니다.");
+            });
+    }
+}
+
+function disablePost(postId, storeId) {
+    if (confirm("이 게시물을 삭제하시겠습니까?")) {
+        fetch(`/api/post/${postId}/disable`, {
+            method: 'PATCH'
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("게시물이 성공적으로 삭제되었습니다!");
+                    window.location.href = `/stores/${storeId}`;
                 } else {
                     alert("게시물 삭제에 실패했습니다.");
                 }
@@ -117,6 +137,7 @@ function fileCheck(event) {
     const fileInput = event.target;
     const fileName = document.getElementById("fileName");
     const previewContainer = document.getElementById("previewContainer");
+    const fileCountMessage = document.getElementById("fileCountMessage");
 
     previewContainer.innerHTML = "";
 
@@ -124,10 +145,17 @@ function fileCheck(event) {
 
     if (files.length === 0) {
         fileName.innerText = "선택된 파일 없음";
+        fileCountMessage.style.display = 'inline';
         return;
     }
 
     fileName.innerText = `${files.length}개의 파일 선택됨`;
+
+    if (files.length >= 2) {
+        fileCountMessage.style.display = 'none';  // 2개 이상이면 메시지 숨기기
+    } else {
+        fileCountMessage.style.display = 'inline';  // 2개 미만이면 메시지 보이기
+    }
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];

@@ -37,6 +37,9 @@ public class Post extends BaseEntity {
     @Column(name = "thumbnail_url")
     private String thumbnail;
 
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private boolean isDeleted;
+
     @Builder.Default
     @JsonManagedReference
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
@@ -55,6 +58,10 @@ public class Post extends BaseEntity {
     public void update(String title, String content) {
         this.title = title;
         this.content = content;
+    }
+
+    public void disablePost(boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 
 }

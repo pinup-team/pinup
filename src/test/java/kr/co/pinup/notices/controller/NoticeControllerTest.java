@@ -1,6 +1,7 @@
 package kr.co.pinup.notices.controller;
 
 import kr.co.pinup.config.SecurityConfigTest;
+import kr.co.pinup.config.SeoUtilConfigTest;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.service.MemberService;
@@ -23,7 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(SecurityConfigTest.class)
+@Import({SecurityConfigTest.class, SeoUtilConfigTest.class})
 @WebMvcTest(NoticeController.class)
 class NoticeControllerTest {
 
