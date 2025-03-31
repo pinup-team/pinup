@@ -77,7 +77,6 @@ async function changeTab(tab) {
 async function submitStore() {
     try {
         const locationId = await registerLocation();  // 주소 등록 후 ID 받기
-        console.log("locationId", locationId);
 
         if (!locationId) {
             alert("주소 등록에 실패했습니다. 다시 시도해주세요.");
@@ -133,7 +132,6 @@ async function submitStore() {
         }
 
         const data = await response.json();
-        console.log("data", data);
 
         if (data.id) {
             alert("스토어가 성공적으로 생성되었습니다.");
@@ -216,8 +214,6 @@ document.addEventListener("DOMContentLoaded", function () {
         createForm.addEventListener("submit", function (event) {
             event.preventDefault();
 
-            console.log("createForm: ", createForm);
-
             const formData = new FormData(createForm);
 
             const jsonData = JSON.stringify({
@@ -240,15 +236,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 formData.append("imageFiles", imageFiles[i]);
             }
 
-            console.log("formData: ", formData);
-
             fetch("/api/stores", {
                 method: "POST",
                 body: formData,
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log("서버 응답:", data);
                     alert("팝업스토어 등록 성공");
                     window.location.href = `/stores/${data.id}`;
                 })
@@ -336,9 +329,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 jsonData[key] = value;
             });
 
-            console.log(formData);
-            console.log(jsonData);
-
             fetch("/api/stores", {
                 method: "POST",
                 headers: {
@@ -412,15 +402,11 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // 카카오 지도 API 로드 함수
-// 카카오 지도 API 로드 함수
 function loadMap() {
     var latitude = document.getElementById("latitude-hidden").value;
     var longitude = document.getElementById("longitude-hidden").value;
     var storeName = document.getElementById("store-name") ? document.getElementById("store-name").textContent.trim() : "매장 위치";
     var storeAddr = document.getElementById("store-address") ? document.getElementById("store-address").textContent.trim() : "";
-
-    console.log("Store Name: ", storeName);
-    console.log("Store Address: ", storeAddr);
 
     var mapContainer = document.getElementById("map");
 

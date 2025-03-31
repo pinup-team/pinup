@@ -14,7 +14,7 @@ public class SecurityConstants {
 
     // 필터 적용 제외할 URL 목록
     public static final List<String> EXCLUDED_URLS = List.of(
-            "/", "/static/", "/templates/", "/css/", "/js/", "/images/", "/terms-privacy/", "/fonts/", "/error", "/favicon.ico",
+            "/static/", "/templates/", "/css/", "/js/", "/images/", "/terms-privacy/", "/fonts/", "/error", "/favicon.ico",
             "/members/login", "/api/members/oauth/",
             "/stores", "/stores/{id}", "/api/stores", "/api/stores/summary", "/api/stores/{id}",
             "/post", "/post/{postId}", "/post/list/{storeId}", "/api/post/list/{storeId}", "/api/post/{postId}",

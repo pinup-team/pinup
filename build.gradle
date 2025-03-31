@@ -103,9 +103,9 @@ fileTree('src/main/resources/static/js').each { file ->
 	}
 }
 
-processResources {
-	exclude 'static/js/*.js' // 원본 JS 제외
-}
+//processResources {
+//	exclude 'static/js/*.js' // 원본 JS 제외
+//}
 
 bootJar {
 	enabled = true
