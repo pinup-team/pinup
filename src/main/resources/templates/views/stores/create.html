@@ -70,10 +70,7 @@
 <th:block layout:fragment="pageScripts">
     <script th:inline="javascript">
         window.KAKAO_API_KEY = /*[[${kakaoMapKey}]]*/ '';
-        console.log("Kakao API Key:", window.KAKAO_API_KEY);
     </script>
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <script th:src="@{/js/location.js}"></script>
-    <script th:src="@{/js/store.js}"></script>
 </th:block>
 </html>

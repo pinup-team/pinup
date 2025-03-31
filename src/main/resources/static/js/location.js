@@ -1,7 +1,6 @@
 // 주소 검색 함수 (Kakao 주소 API)
 
 const KAKAO_API_KEY = window.KAKAO_API_KEY;
-console.log("KAKAO_API_KEY:", KAKAO_API_KEY);
 
 function searchAddress() {
     new daum.Postcode({
