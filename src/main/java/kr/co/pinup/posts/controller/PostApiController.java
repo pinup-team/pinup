@@ -36,12 +36,12 @@ public class PostApiController {
 
     @GetMapping("/list/{storeId}")
     public List<PostResponse> getAllPosts(@PathVariable Long storeId) {
-        return postService.findByStoreId(storeId);
+        return postService.findByStoreId(storeId,false);
     }
 
     @GetMapping("/{postId}")
     public PostDetailResponse getPostById(@PathVariable Long postId) {
-        PostResponse post = postService.getPostById(postId);
+        PostResponse post = postService.getPostById(postId,false);
         List<CommentResponse> comments = commentService.findByPostId(postId);
         List<PostImageResponse> images = postImageService.findImagesByPostId(postId);
         return PostDetailResponse.from(post, comments, images);
@@ -58,7 +58,7 @@ public class PostApiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo,createPostRequest, images));
     }
 
-    @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
+    @PreAuthorize("isAuthenticated() and (hasRole('ROLE_ADMIN'))")
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
         postService.deletePost(postId);
@@ -74,4 +74,12 @@ public class PostApiController {
         Post post = postService.updatePost(postId, updatePostRequest, images, imagesToDelete);
         return ResponseEntity.ok(PostResponse.from(post));
     }
+
+    @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
+    @PatchMapping("/{postId}/disable")
+    public ResponseEntity<Void> disablePost(@PathVariable Long postId) {
+        postService.disablePost(postId);
+        return ResponseEntity.noContent().build();
+    }
+
 }
