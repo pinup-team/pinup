@@ -22,6 +22,7 @@ public class StoreStatusScheduler {
     public void updateStoreStatuses() {
 
         List<Store> stores = storeRepository.findAll();
+        // TODO
         LocalDate today = LocalDate.now();
 
         for (Store store : stores) {
