@@ -4,51 +4,30 @@ document.addEventListener("DOMContentLoaded", function () {
     const prevButton = document.querySelector(".slide-left");
     const nextButton = document.querySelector(".slide-right");
 
+    const itemWidth = 500;
     let currentIndex = 0;
-    const totalItems = items.length;
-
-    const firstClone = items[0].cloneNode(true);
-    const lastClone = items[totalItems - 1].cloneNode(true);
-
-    carouselList.appendChild(firstClone);
-    carouselList.insertBefore(lastClone, items[0]);
-
-    let realTotalItems = totalItems + 2;
-    carouselList.style.transform = `translateX(-100%)`;
+    const maxIndex = items.length - 2;
 
     function updateSlider() {
-        carouselList.style.transition = "transform 0.5s ease-in-out";
-        carouselList.style.transform = `translateX(-${(currentIndex + 1) * 100}%)`;
+        const offset = currentIndex * itemWidth;
+        carouselList.style.transform = `translateX(-${offset}px)`;
     }
 
-    nextButton.addEventListener("click", function () {
-        if (currentIndex >= totalItems) return;
-
-        currentIndex++;
-        updateSlider();
-
-        if (currentIndex === totalItems) {
-            setTimeout(() => {
-                carouselList.style.transition = "none";
-                carouselList.style.transform = `translateX(-100%)`;
-                currentIndex = 0;
-            }, 500);
+    nextButton.addEventListener("click", () => {
+        if (currentIndex < maxIndex) {
+            currentIndex++;
+            updateSlider();
         }
     });
 
-    prevButton.addEventListener("click", function () {
-        if (currentIndex <= -1) {
-            setTimeout(() => {
-                carouselList.style.transition = "none";
-                carouselList.style.transform = `translateX(-${totalItems * 100}%)`;
-                currentIndex = totalItems - 1;
-            }, 500);
+    prevButton.addEventListener("click", () => {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateSlider();
         }
-        currentIndex--;
-        updateSlider();
     });
-
 });
+
 
 async function changeTab(tab) {
     document.querySelectorAll('.tab-content').forEach(content => {
@@ -116,7 +95,6 @@ async function submitStore() {
 
         const form = document.getElementById("storeForm");
         const formData = new FormData(form);
-        console.log("formData", formData);
 
         const days = document.getElementsByName("days");
         const startTimes = document.getElementsByName("startTimes");
@@ -127,6 +105,14 @@ async function submitStore() {
             formData.append(`operatingHours[${i}].startTime`, startTimes[i].value);
             formData.append(`operatingHours[${i}].endTime`, endTimes[i].value);
         }
+
+        const snsUrl = document.querySelector("input[name='snsUrl']").value;
+        const websiteUrl = document.querySelector("input[name='websiteUrl']").value;
+        const contactNumber = document.querySelector("input[name='contactNumber']").value;
+
+        if (snsUrl) formData.set("snsUrl", snsUrl);
+        if (websiteUrl) formData.set("websiteUrl", websiteUrl);
+        if (contactNumber) formData.set("contactNumber", contactNumber);
 
         const formDataEntries = [];
         for (const pair of formData.entries()) {
@@ -143,6 +129,7 @@ async function submitStore() {
         if (!response.ok) {
             alert("스토어 생성 api 오류");
             console.error(response.statusText);
+            return;
         }
 
         const data = await response.json();
@@ -155,12 +142,12 @@ async function submitStore() {
             alert("스토어 생성에 실패했습니다.");
         }
 
-
     } catch (error) {
         console.error("주소 등록 및 게시물 생성 중 오류 발생:", error);
         alert("주소 등록 및 게시물 생성 중 오류가 발생했습니다.");
     }
 }
+
 
 document.addEventListener("DOMContentLoaded", function () {
     const createForm = document.getElementById("storeForm");
