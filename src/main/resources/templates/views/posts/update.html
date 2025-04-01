@@ -11,8 +11,7 @@
 
                 <div class="row">
                     <h3>현재 사진</h3>
-                    <input type="hidden" id="imagesToDelete" name="imagesToDelete"
-                           th:value="${imagesToDelete != null ? imagesToDelete : ''}"/>
+                    <input type="hidden" id="imagesToDelete" th:value="${imagesToDelete != null ? imagesToDelete : ''}"/>
 
                     <div class="preview-box">
                         <th:block th:each="image : ${images}">
@@ -37,8 +36,9 @@
                     <div class="col-10 d-flex align-items-center">
                         <input type="file" id="images" name="images" multiple accept="image/*" style="display: none;"
                                onchange="fileCheck(event)">
-                        <label class="btn-upload col-6" onclick="fileUpload()">파일 첨부</label>
+                        <label class="btn-upload col-6" onclick="fileUpload(true)">파일 첨부</label>
                         <span id="fileName" th:text="${fileName != null ? fileName : '선택된 파일 없음'}">선택된 파일 없음</span>
+                        <span id="fileCountMessage" class="images-file-warning" style="display: none;"></span>
                     </div>
                 </div>
 

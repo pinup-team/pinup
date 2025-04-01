@@ -69,7 +69,7 @@ public class PostApiController {
     @PutMapping("/{postId}")
     public ResponseEntity<PostResponse> updatePost(@PathVariable Long postId,
                                                    @ModelAttribute @Valid UpdatePostRequest updatePostRequest,
-                                                   @RequestParam("imagesToDelete") List<String> imagesToDelete,
+                                                   @RequestParam(required = false) List<String> imagesToDelete,
                                                    @RequestParam("images") MultipartFile[] images) {
         Post post = postService.updatePost(postId, updatePostRequest, images, imagesToDelete);
         return ResponseEntity.ok(PostResponse.from(post));
