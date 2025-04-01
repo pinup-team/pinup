@@ -1,8 +1,6 @@
 package kr.co.pinup.posts.service;
 
 import jakarta.transaction.Transactional;
-import kr.co.pinup.comments.Comment;
-import kr.co.pinup.comments.repository.CommentRepository;
 import kr.co.pinup.custom.s3.S3Service;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
@@ -14,7 +12,6 @@ import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
-import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.postImages.service.PostImageService;
@@ -43,7 +40,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;

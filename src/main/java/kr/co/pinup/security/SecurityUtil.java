@@ -158,7 +158,7 @@ public class SecurityUtil {
         Cookie cookie = new Cookie("refresh_token", refreshToken);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setSecure(false);
+        cookie.setSecure(false); // TODO true로 변경
         cookie.setMaxAge(60 * 60 * 12);
         response.addCookie(cookie);
     }
@@ -200,7 +200,7 @@ public class SecurityUtil {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        cookie.setSecure(false);
+        cookie.setSecure(false); // TODO true로 변경
         response.addCookie(cookie);
     }
 
@@ -209,7 +209,7 @@ public class SecurityUtil {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        cookie.setSecure(false);  // HTTPS 환경이라면 true 설정
+        cookie.setSecure(false); // TODO true로 변경
         response.addCookie(cookie);
     }
 }

@@ -5,7 +5,6 @@ import kr.co.pinup.BaseEntity;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "notices")
