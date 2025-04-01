@@ -26,7 +26,7 @@ async function getCoordinates(address) {
         const response = await fetch(url + `?query=${encodedAddress}`, {
             method: 'GET',
             headers: {
-                Authorization: `KakaoAK ${KAKAO_API_KEY}`,
+                Authorization: `KakaoAK ${localStorage.getItem('KAKAO_API_KEY')}`,
             },
         });
 
