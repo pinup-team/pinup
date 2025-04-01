@@ -42,5 +42,7 @@
         window.KAKAO_API_KEY = /*[[${kakaoMapKey}]]*/ '';
     </script>
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <th:block th:replace="~{fragments/script-loader :: load('store')}"></th:block>
+    <th:block th:replace="~{fragments/script-loader :: load('location')}"></th:block>
 </th:block>
 </html>
