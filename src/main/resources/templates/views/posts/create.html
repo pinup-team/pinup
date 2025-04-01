@@ -17,9 +17,9 @@
                     <div class="col-10 d-flex align-items-center">
                         <input type="file" id="images" name="images" multiple accept="image/*" style="display: none;"
                                onchange="fileCheck(event)">
-                        <label class="btn-upload col-6" onclick="fileUpload()">파일 첨부</label>
+                        <label class="btn-upload col-6" onclick="fileUpload(false)">파일 첨부</label>
                         <span id="fileName" th:text="${fileName != null ? fileName : '선택된 파일 없음'}">선택된 파일 없음</span>
-                        <span id="fileCountMessage" class="images-file-warning" style="display: none;">최소 2장의 사진을 업로드해야 합니다.</span>
+                        <span id="fileCountMessage" class="images-file-warning" style="display: none;"></span>
                     </div>
                 </div>
 

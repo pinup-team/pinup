@@ -1,18 +1,51 @@
+let isUpdateMode = false;
+
 function validateForm() {
-    const imagesToDelete = document.getElementById('imagesToDelete').value.split(',').filter(Boolean);
-    const uploadedImages = document.getElementById('images').files.length;
-
-
-    if (imagesToDelete.length === document.querySelectorAll('input[name="imagesToDelete"]:checked').length && uploadedImages === 0) {
-        alert("이미지 전체 삭제 후 수정 요청을 하려면 새로운 이미지 최소2개를 추가해야 합니다.");
+    const isValid = checkImageCount();
+    if (!isValid) {
+        alert("최종 이미지 수가 2장 이상이어야 합니다.");
         return false;
     }
+    return true;
+}
+function checkImageCount() {
+    const uploaded = document.getElementById("images").files.length;
+    const fileCountMessage = document.getElementById("fileCountMessage");
+
+    let total = uploaded;
+
+    if (isUpdateMode) {
+        const checkboxes = document.querySelectorAll('input[name="imagesToDelete"]');
+        const checked = document.querySelectorAll('input[name="imagesToDelete"]:checked');
+        const remaining = checkboxes.length - checked.length;
+
+        total += remaining;
+
+        console.log(`[이미지 검사] 모드: 수정 / 기존:${checkboxes.length}, 삭제:${checked.length}, 남음:${remaining} / 첨부:${uploaded} / 총:${total}`);
+
+        if (total < 2) {
+            fileCountMessage.innerText = "기존 이미지와 첨부한 이미지를 합쳐서 최소 2장은 있어야 합니다.";
+            fileCountMessage.style.display = "inline";
+            return false;
+        }
+    } else {
+        console.log(`[이미지 검사] 모드: 생성 / 첨부:${uploaded}`);
+
+        if (uploaded < 2) {
+            fileCountMessage.innerText = "이미지는 최소 2장 이상 등록해야 합니다.";
+            fileCountMessage.style.display = "inline";
+            return false;
+        }
+    }
+
+    fileCountMessage.style.display = "none";
     return true;
 }
 
 document.addEventListener('DOMContentLoaded', function () {
     const updatePostForm = document.getElementById('updatePostForm');
     if (updatePostForm) {
+        isUpdateMode = true;
         updatePostForm.addEventListener('submit', function (event) {
             event.preventDefault();
 
@@ -41,12 +74,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 })
                 .catch(error => {
-                    console.error("게시물 삭제 중 오류 발생:", error);
-                    alert("게시물 삭제 중에 오류가 발생했습니다.");
+                    console.error("게시물 업데이트 중 오류 발생:", error);
+                    alert("게시물 업데이트 중에 오류가 발생했습니다.");
                 });
         });
     }
+
+    initializeCarousel();
 });
+
 document.addEventListener("DOMContentLoaded", function () {
     initializeCarousel();
 });
@@ -62,6 +98,13 @@ function toggleImageToDelete(checkbox) {
     }
 
     imagesToDeleteField.value = Array.from(imagesToDelete).join(',');
+
+    // ✅ 실제 삭제가 발생할 때만 검사
+    const checkedCount = document.querySelectorAll('input[name="imagesToDelete"]:checked').length;
+
+    if (checkedCount > 0) {
+        checkImageCount();
+    }
 }
 
 function submitPost() {
@@ -140,26 +183,12 @@ function fileCheck(event) {
     const fileCountMessage = document.getElementById("fileCountMessage");
 
     previewContainer.innerHTML = "";
-
     const files = fileInput.files;
 
-    if (files.length === 0) {
-        fileName.innerText = "선택된 파일 없음";
-        fileCountMessage.style.display = 'inline';
-        return;
-    }
-
-    fileName.innerText = `${files.length}개의 파일 선택됨`;
-
-    if (files.length >= 2) {
-        fileCountMessage.style.display = 'none';  // 2개 이상이면 메시지 숨기기
-    } else {
-        fileCountMessage.style.display = 'inline';  // 2개 미만이면 메시지 보이기
-    }
+    fileName.innerText = files.length > 0 ? `${files.length}개의 파일 선택됨` : "선택된 파일 없음";
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-
         if (!file.type.startsWith("image/")) {
             alert("이미지 파일만 업로드 가능합니다!");
             continue;
@@ -174,9 +203,13 @@ function fileCheck(event) {
         };
         reader.readAsDataURL(file);
     }
+    if (event.target.files.length > 0) {
+        checkImageCount();
+    }
 }
 
-function fileUpload() {
+function fileUpload(updateMode = false) {
+    isUpdateMode = updateMode;
     document.getElementById("images").click();
 }
 
