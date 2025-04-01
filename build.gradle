@@ -103,9 +103,11 @@ fileTree('src/main/resources/static/js').each { file ->
 	}
 }
 
-//processResources {
-//	exclude 'static/js/*.js' // 원본 JS 제외
-//}
+processResources {
+	if (project.hasProperty('prod')) {
+		exclude 'static/js/*.js'
+	}
+}
 
 bootJar {
 	enabled = true
