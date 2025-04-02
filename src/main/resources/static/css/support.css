@@ -51,7 +51,7 @@
 }
 .wrap main.home_content_wrap section .header_button {
     text-align: right;
-    width: 70vw;
+    width: 67vw;
 }
 .wrap main.home_content_wrap section .header_button button {
     color: #fff;
@@ -63,13 +63,13 @@
 /* ✅ notice list section content_list area */
 .wrap main.home_content_wrap section .content_list {
     padding: 10px 0;
-    width: 70vw;
+    width: 67vw;
 }
 .wrap main.home_content_wrap .content_list_wrap .content_title {
     position: relative;
     border-bottom: none;
     font-size: initial;
-    width: 70vw;
+    width: 67vw;
 }
 .wrap main.home_content_wrap .content_list_wrap .content_title .content_title_area {
     width: 85%;
@@ -93,7 +93,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: 70vw;
+    width: 67vw;
 }
 .wrap main.home_content_wrap article .main_content_title {
     padding: 1%;

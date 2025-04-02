@@ -106,12 +106,12 @@
 
                     <!-- 컨택트 -->
                     <div class="contact-container"
-                         th:unless="*{contactNumber.isEmpty() and snsUrl.isEmpty() and websiteUrl.isEmpty()}">
+                         th:unless="${#strings.isEmpty(contactNumber) and #strings.isEmpty(snsUrl) and #strings.isEmpty(websiteUrl)}">
                         <p class="info-subtitle"> 찾아보기 </p>
 
-                        <a class="contact-textbox" th:if="*{!snsUrl.isEmpty()}" th:href="*{snsUrl}">SNS</a>
-                        <a class="contact-textbox" th:if="*{!websiteUrl.isEmpty()}" th:href="*{websiteUrl}">웹사이트</a>
-                        <span>📞 </span> <span class="contact-textbox" th:if="*{!contactNumber.isEmpty()}" th:text="*{contactNumber}"></span>
+                        <a class="contact-textbox" th:if="${!#strings.isEmpty(snsUrl)}" th:href="*{snsUrl}">SNS</a>
+                        <a class="contact-textbox" th:if="${!#strings.isEmpty(websiteUrl)}" th:href="*{websiteUrl}">웹사이트</a>
+                        <span>📞 </span> <span class="contact-textbox" th:if="${!#strings.isEmpty(contactNumber)}" th:text="*{contactNumber}"></span>
                     </div>
 
                     <p class="info-subtitle" th:if="*{contactNumber == null and snsUrl == null and websiteUrl == null}">
