@@ -16,9 +16,9 @@
         <div class="carousel">
             <div class="carousel-inner">
                 <ul class="carousel-list">
-                    <th:block th:each="i : ${#numbers.sequence(1, 13)}">
+                    <th:block th:each="i : ${#numbers.sequence(1, 2)}">
                         <li class="carousel-item">
-                            <img th:src="@{'/images/pinup_banner_'+${i}+'.jpg'}" alt="Banner Image"/>
+                            <img th:src="@{'/images/pinup_banner_'+${i}+'.png'}" alt="Banner Image"/>
                         </li>
                     </th:block>
                 </ul>

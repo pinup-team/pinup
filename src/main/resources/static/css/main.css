@@ -54,7 +54,7 @@ html, body {
 
 .carousel-inner {
     display: flex;
-    transition: transform 0.5s ease-in-out;
+    transition: transform 10.0s ease-in-out;
     width: 100%; /* 슬라이드를 화면에 맞게 가로폭을 100%로 설정 */
 }
 
