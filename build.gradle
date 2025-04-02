@@ -78,6 +78,18 @@ node {
 	download = true
 }
 
+// todo : 추후에 전역 함수들 수정하면 적용
+//def terserCacheFile = layout.buildDirectory.file("terser-cache.json")
+//tasks.register("initializeTerserCache") {
+//	doFirst {
+//		def cacheFile = terserCacheFile.get().asFile
+//		if (!cacheFile.exists()) {
+//			cacheFile.parentFile.mkdirs()
+//			cacheFile.text = '{}' // 빈 JSON 파일 생성
+//		}
+//	}
+//}
+
 // 동적 Minify 태스크 생성
 def minifyTasks = []
 fileTree('src/main/resources/static/js').each { file ->
@@ -91,8 +103,9 @@ fileTree('src/main/resources/static/js').each { file ->
 					file.absolutePath,
 					'--output', outputFile.absolutePath,
 					'--compress', 'passes=3',
-					'--mangle', 'toplevel=true',
-					'--mangle-props', 'reserved=["classList","querySelector","getAttribute","setAttribute","textContent"]'
+					'--mangle', 'toplevel=false',
+//					'--name-cache', terserCacheFile.get().asFile.absolutePath
+//					'--mangle-props', 'reserved=["classList","querySelector","getAttribute","setAttribute","textContent"]'
 			]
 			dependsOn npmInstall
 			doFirst {
