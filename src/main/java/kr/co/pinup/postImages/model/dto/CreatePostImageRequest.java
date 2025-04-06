@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreatePostImageRequest {
+public class CreatePostImageRequest implements PostImageUploadRequest {
     @NotEmpty(message = "이미지는 필수입니다.")
     @Size(min = 2, max = 5, message = "이미지는 최소 2장 이상, 최대 5장까지 등록 가능합니다.")
     private List<MultipartFile> images;

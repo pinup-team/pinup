@@ -16,6 +16,7 @@ import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.enums.Status;
 import kr.co.pinup.stores.repository.StoreRepository;
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,18 +34,12 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 @DataJpaTest
 class PostImageEntityTest {
 
-    @Autowired
-    PostRepository postRepository;
-    @Autowired
-    PostImageRepository postImageRepository;
-    @Autowired
-    MemberRepository memberRepository;
-    @Autowired
-    StoreRepository storeRepository;
-    @Autowired
-    StoreCategoryRepository storeCategoryRepository;
-    @Autowired
-    LocationRepository locationRepository;
+    @Autowired PostRepository postRepository;
+    @Autowired PostImageRepository postImageRepository;
+    @Autowired MemberRepository memberRepository;
+    @Autowired StoreRepository storeRepository;
+    @Autowired StoreCategoryRepository storeCategoryRepository;
+    @Autowired LocationRepository locationRepository;
 
     @PersistenceContext
     EntityManager em;
@@ -111,7 +106,7 @@ class PostImageEntityTest {
         // given
         PostImage postImage = PostImage.builder()
                 .s3Url("https://image.png")
-                .post(null) // ❌ 연관 Post 없음
+                .post(null)
                 .build();
 
         // when & then
@@ -193,4 +188,29 @@ class PostImageEntityTest {
         assertThat(images).isEmpty();
     }
 
+    @Test
+    @DisplayName("PostImage의 연관된 Post는 Lazy 로딩이어야 한다")
+    void shouldUseLazyLoadingForPostInPostImage() {
+        // given
+        Post post = postRepository.save(Post.builder()
+                .title("제목")
+                .content("내용")
+                .store(store)
+                .member(member)
+                .build());
+
+        PostImage postImage = postImageRepository.save(PostImage.builder()
+                .s3Url("https://image.com/sample.png")
+                .post(post)
+                .build());
+
+        em.flush();
+        em.clear();
+
+        // when
+        PostImage found = postImageRepository.findById(postImage.getId()).orElseThrow();
+
+        // then
+        assertThat(Hibernate.isInitialized(found.getPost())).isFalse();
+    }
 }

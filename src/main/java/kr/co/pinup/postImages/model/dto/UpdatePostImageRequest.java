@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdatePostImageRequest {
+public class UpdatePostImageRequest implements PostImageUploadRequest {
     private List<MultipartFile> images;
     private List<String> imagesToDelete;
 }
