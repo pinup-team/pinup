@@ -17,6 +17,7 @@ import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.enums.Status;
 import kr.co.pinup.stores.repository.StoreRepository;
+import org.hibernate.Hibernate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -266,4 +267,26 @@ class PostEntityTest {
         assertThat(again.isDeleted()).isTrue();
     }
 
+    @Test
+    @DisplayName("Post의 연관된 Store, Member는 Lazy 로딩이어야 한다")
+    void shouldUseLazyLoadingForAssociations() {
+        // given
+        Post post = Post.builder()
+                .title("제목")
+                .content("내용")
+                .store(store)
+                .member(member)
+                .build();
+
+        postRepository.save(post);
+        em.flush();
+        em.clear();
+
+        // when
+        Post found = postRepository.findById(post.getId()).orElseThrow();
+
+        // then
+        assertThat(Hibernate.isInitialized(found.getStore())).isFalse();
+        assertThat(Hibernate.isInitialized(found.getMember())).isFalse();
+    }
 }
