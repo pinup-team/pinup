@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    List<Post> findByStoreId(Long storeId);
+    List<Post> findByStoreIdAndIsDeleted(Long storeId, boolean isDeleted);
 
-    Optional<Post> findById(Long id);
+    Optional<Post> findByIdAndIsDeleted(Long postId, boolean isDeleted);
 }

@@ -1,24 +1,156 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}">
 
-<head>
-    <meta charset="UTF-8">
-    <title>팝업스토어 상세 정보</title>
-    <script defer src="/js/store.js"></script>
-</head>
-<body>
-<main layout:fragment="content" th:object="${store}">
-    <h1 th:text="*{name}"></h1>
-    <p th:text="*{description}"></p>
-    <p>카테고리: <span th:text="*{category.name}"></span></p>
-    <p th:with="loc=*{location}">위치: <span th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address} +' ' +  ${loc.addressDetail}"></span></p>
-    <p>시작 날짜: <span th:text="*{startDate}"></span></p>
-    <p>종료 날짜: <span th:text="*{endDate}"></span></p>
-    <a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
-    <button class="delete-btn" th:data-store-id="*{id}">삭제</button>
-    <a href="/stores">목록으로 돌아가기</a>
-</main>
-</body>
+<th:block layout:fragment="pageStyles">
+    <link rel="stylesheet" th:href="@{/css/store_detail.css}"/>
+</th:block>
+
+<div layout:fragment="content" th:object="${store}">
+
+    <div sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
+        <a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
+        <!--        <button class="delete-btn" th:data-store-id="*{id}">삭제</button>-->
+        <a th:href="@{/stores/create}" class="create-btn" th:data-store-id="*{id}">등록</a>
+    </div>
+
+    <!--    <a href="/stores">목록으로 돌아가기</a>-->
+
+    <input type="hidden" id="storeId" th:value="${store.id}">
+
+    <!-- 홈 디브-->
+    <div>
+        <!-- 이미지 슬라이더 -->
+        <div class="carousel-wrapper" th:classappend="${#lists.size(storeImages) == 1} ? ' single-image'">
+            <div class="carousel" th:if="${#lists.size(storeImages) > 1}">
+                <div class="carousel-inner">
+                    <ul class="carousel-list">
+                        <th:block th:each="image : ${storeImages}">
+                            <li class="carousel-item">
+                                <img th:src="${image.imageUrl}" alt="Store Image"/>
+                            </li>
+                        </th:block>
+                    </ul>
+                </div>
+
+                <button class="slide-button slide-left"><</button>
+                <button class="slide-button slide-right">></button>
+            </div>
+
+            <div class="single-image-container" th:if="${#lists.size(storeImages) == 1}">
+                <img th:src="${storeImages[0].imageUrl}" alt="Store Image" class="single-image"/>
+            </div>
+        </div>
+
+        <!-- 편의기능 바 -->
+        <div>
+            <a class="back-icon-button" href="/stores"><</a>
+        </div>
+
+        <!-- 탭 버튼 -->
+        <ul class="tab-list">
+            <li class="tab-item active" data-tab="info">
+                <a href="#" onclick="changeTab('info')">
+                    <span class="tab_text">정보</span>
+                </a>
+            </li>
+            <li class="tab-item" data-tab="media">
+                <a href="#" onclick="changeTab('media')">
+                    <span class="tab_text">미디어</span>
+                </a>
+            </li>
+            <li class="tab-item" data-tab="post">
+                <a href="#" onclick="changeTab('post')">
+                    <span class="tab_text">게시판</span>
+                </a>
+            </li>
+        </ul>
+
+        <!-- 탭 내용 -->
+        <div id="tab-content-area">
+            <div id="tab-info" class="tab-content active">
+                <div class="title-area">
+                    <p class="title-text-category" th:text="*{category.name}"> ></p>
+                    <p class="title-text-name" th:text="*{name}"></p>
+                    <span class="title-text-duration" th:text="*{startDate()}"></span> ~ <span
+                        class="title-text-duration"
+                        th:text="*{endDate()}"></span>
+                    <p class="title-text-location" th:with="loc=*{location}">
+                        📍 <span
+                            th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address} +' ' +  ${loc.addressDetail}"></span>
+                    </p>
+                </div>
+                <br>
+                <div class="info-container">
+                    <div class="duration-container">
+                        <p class="info-subtitle"> 운영시간 </p>
+                        <div>
+                            <p th:if="*{operatingHours.isEmpty()}">운영시간 준비 중입니다.</p>
+
+                            <ul th:unless="*{operatingHours.isEmpty()}">
+                                <li th:each="hour : *{operatingHours}">
+                                    <span th:text="${hour.day}"></span> :
+                                    <span th:text="${#temporals.format(hour.startTime, 'HH:mm')}"></span> ~
+                                    <span th:text="${#temporals.format(hour.endTime, 'HH:mm')}"></span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="description-container">
+                        <p class="info-subtitle"> 상세설명 </p>
+                        <p class="description-textbox" th:text="*{description}"></p>
+                    </div>
+
+                    <!-- 컨택트 -->
+                    <div class="contact-container"
+                         th:unless="${#strings.isEmpty(contactNumber) and #strings.isEmpty(snsUrl) and #strings.isEmpty(websiteUrl)}">
+                        <p class="info-subtitle"> 찾아보기 </p>
+
+                        <a class="contact-textbox" th:if="${!#strings.isEmpty(snsUrl)}" th:href="*{snsUrl}">SNS</a>
+                        <a class="contact-textbox" th:if="${!#strings.isEmpty(websiteUrl)}" th:href="*{websiteUrl}">웹사이트</a>
+                        <span>📞 </span> <span class="contact-textbox" th:if="${!#strings.isEmpty(contactNumber)}" th:text="*{contactNumber}"></span>
+                    </div>
+
+                    <p class="info-subtitle" th:if="*{contactNumber == null and snsUrl == null and websiteUrl == null}">
+                        연락처 정보가 준비 중입니다.
+                    </p>
+
+                    <div class="map-container">
+                        <input type="hidden" id="latitude-hidden" th:value="${location.latitude}">
+                        <input type="hidden" id="longitude-hidden" th:value="${location.longitude}">
+                        <div id="map" class="map-box"></div>
+                        <div>
+                            <p class="map-text-location" th:with="loc=*{location}">
+                                📍
+                                <span th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address}"></span>
+                                <span th:if="${loc.addressDetail != null and !#strings.isEmpty(loc.addressDetail)}"
+                                      th:text="' ' + ${loc.addressDetail}"></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-media" class="tab-content">
+                <!-- 미디어 탭: 숨겨진 상태 -->
+                <p>현재 준비 중인 기능입니다.</p>
+            </div>
+
+            <div id="tab-post" class="tab-content">
+                <!-- 게시판 탭: 숨겨진 상태 -->
+                <div id="post-list-container" style="display:none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block layout:fragment="pageScripts">
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1038c510f5de135a5c0d54f4f9181ef3&libraries=services"></script>
+    <th:block th:replace="~{fragments/script-loader :: load('store')}"></th:block>
+    <th:block th:replace="~{fragments/script-loader :: load('location')}"></th:block>
+</th:block>
 </html>

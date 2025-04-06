@@ -71,4 +71,6 @@ public class S3Service {
         String[] urlParts = fileUrl.split("/");
         return urlParts[urlParts.length - 1];
     }
+
 }
+

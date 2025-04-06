@@ -1,8 +1,57 @@
+let isUpdateMode = false;
+
+function validateForm() {
+    const isValid = checkImageCount();
+    if (!isValid) {
+        alert("최종 이미지 수가 2장 이상이어야 합니다.");
+        return false;
+    }
+    return true;
+}
+function checkImageCount() {
+    const uploaded = document.getElementById("images").files.length;
+    const fileCountMessage = document.getElementById("fileCountMessage");
+
+    let total = uploaded;
+
+    if (isUpdateMode) {
+        const checkboxes = document.querySelectorAll('input[name="imagesToDelete"]');
+        const checked = document.querySelectorAll('input[name="imagesToDelete"]:checked');
+        const remaining = checkboxes.length - checked.length;
+
+        total += remaining;
+
+        console.log(`[이미지 검사] 모드: 수정 / 기존:${checkboxes.length}, 삭제:${checked.length}, 남음:${remaining} / 첨부:${uploaded} / 총:${total}`);
+
+        if (total < 2) {
+            fileCountMessage.innerText = "기존 이미지와 첨부한 이미지를 합쳐서 최소 2장은 있어야 합니다.";
+            fileCountMessage.style.display = "inline";
+            return false;
+        }
+    } else {
+        console.log(`[이미지 검사] 모드: 생성 / 첨부:${uploaded}`);
+
+        if (uploaded < 2) {
+            fileCountMessage.innerText = "이미지는 최소 2장 이상 등록해야 합니다.";
+            fileCountMessage.style.display = "inline";
+            return false;
+        }
+    }
+
+    fileCountMessage.style.display = "none";
+    return true;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     const updatePostForm = document.getElementById('updatePostForm');
     if (updatePostForm) {
+        isUpdateMode = true;
         updatePostForm.addEventListener('submit', function (event) {
             event.preventDefault();
+
+            if (!validateForm()) {
+                return;
+            }
 
             const imagesToDelete = document.getElementById('imagesToDelete').value.split(',').filter(Boolean);
             const formData = new FormData(event.target);
@@ -17,19 +66,21 @@ document.addEventListener('DOMContentLoaded', function () {
             })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.id) {
+                    if (data.storeId) {
                         alert("게시물이 성공적으로 업데이트되었습니다!");
-                        window.location.href = `/post/${data.id}`;
+                        window.location.href = `/stores/${data.storeId}`;
                     } else {
                         alert("게시물 업데이트에 실패했습니다.");
                     }
                 })
                 .catch(error => {
-                    console.error("게시물 삭제 중 오류 발생:", error);
-                    alert("게시물 삭제 중에 오류가 발생했습니다.");
+                    console.error("게시물 업데이트 중 오류 발생:", error);
+                    alert("게시물 업데이트 중에 오류가 발생했습니다.");
                 });
         });
     }
+
+    initializeCarousel();
 });
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -47,11 +98,24 @@ function toggleImageToDelete(checkbox) {
     }
 
     imagesToDeleteField.value = Array.from(imagesToDelete).join(',');
+
+    // ✅ 실제 삭제가 발생할 때만 검사
+    const checkedCount = document.querySelectorAll('input[name="imagesToDelete"]:checked').length;
+
+    if (checkedCount > 0) {
+        checkImageCount();
+    }
 }
 
 function submitPost() {
     const form = document.getElementById("postForm");
     const formData = new FormData(form);
+    const images = document.getElementById("images").files;
+
+    if (images.length < 2) {
+        alert("이미지는 최소 2장 이상 등록해야 합니다.");
+        return;
+    }
 
     fetch("/api/post/create", {
         method: "POST",
@@ -61,7 +125,7 @@ function submitPost() {
         .then(data => {
             if (data.storeId) {
                 alert("게시물이 성공적으로 생성되었습니다!");
-                window.location.href = `/post/list/${data.storeId}`;
+                window.location.href = `/stores/${data.storeId}`;
             } else {
                 alert("게시물 생성에 실패했습니다.");
             }
@@ -80,7 +144,27 @@ function removePost(postId, storeId) {
             .then(response => {
                 if (response.ok) {
                     alert("게시물이 성공적으로 삭제되었습니다!");
-                    window.location.href = `/post/list/${storeId}`;
+                    window.location.href = `/stores/${storeId}`;
+                } else {
+                    alert("게시물 삭제에 실패했습니다.");
+                }
+            })
+            .catch(error => {
+                console.error("게시물 삭제 중 오류 발생:", error);
+                alert("게시물 삭제 중에 오류가 발생했습니다.");
+            });
+    }
+}
+
+function disablePost(postId, storeId) {
+    if (confirm("이 게시물을 삭제하시겠습니까?")) {
+        fetch(`/api/post/${postId}/disable`, {
+            method: 'PATCH'
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("게시물이 성공적으로 삭제되었습니다!");
+                    window.location.href = `/stores/${storeId}`;
                 } else {
                     alert("게시물 삭제에 실패했습니다.");
                 }
@@ -96,21 +180,15 @@ function fileCheck(event) {
     const fileInput = event.target;
     const fileName = document.getElementById("fileName");
     const previewContainer = document.getElementById("previewContainer");
+    const fileCountMessage = document.getElementById("fileCountMessage");
 
     previewContainer.innerHTML = "";
-
     const files = fileInput.files;
 
-    if (files.length === 0) {
-        fileName.innerText = "선택된 파일 없음";
-        return;
-    }
-
-    fileName.innerText = `${files.length}개의 파일 선택됨`;
+    fileName.innerText = files.length > 0 ? `${files.length}개의 파일 선택됨` : "선택된 파일 없음";
 
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
-
         if (!file.type.startsWith("image/")) {
             alert("이미지 파일만 업로드 가능합니다!");
             continue;
@@ -125,9 +203,13 @@ function fileCheck(event) {
         };
         reader.readAsDataURL(file);
     }
+    if (event.target.files.length > 0) {
+        checkImageCount();
+    }
 }
 
-function fileUpload() {
+function fileUpload(updateMode = false) {
+    isUpdateMode = updateMode;
     document.getElementById("images").click();
 }
 
@@ -336,7 +418,9 @@ function initializeCommentHandlers() {
 
                     commentForm.querySelector("input[name='content']").value = "";
                     commentForm.querySelector("input[name='content']").focus();
-
+                } else if (response.status === 401) {
+                    alert("로그인 후 댓글을 작성할 수 있습니다.");
+                    window.location.href = "/members/login";
                 } else {
                     throw new Error("댓글 생성 실패");
                 }

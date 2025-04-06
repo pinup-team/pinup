@@ -13,10 +13,10 @@
 
 .post-content {
     display: flex;
-    width: 80%;
-    max-width: 1200px;
-    min-width: 1400px;
-    max-height: 950px;
+    width: 80vw;
+    max-width: 110vh;
+    height: 90vh;
+    max-height: 90vh;
     background: white;
     border-radius: 10px;
     overflow: hidden;
@@ -24,7 +24,7 @@
 }
 
 .post-image {
-    flex: 2;  /* 🔹 남은 공간을 자동으로 차지 */
+    flex: 1;  /* 🔹 남은 공간을 자동으로 차지 */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -40,7 +40,7 @@
 .post-image img {
     width: 100%;
     height: auto;
-    max-height: 900px;
+    /*max-height: 900px;*/
     object-fit: cover;
 }
 
@@ -48,9 +48,9 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 2vh;
     color: black;
-    min-height: 900px;
+    /*min-height: 900px;*/
     height: auto;
     position: relative;
 }
@@ -58,9 +58,9 @@
 .post-header {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 1vh;
     border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
+    padding-bottom: 1vh;
 }
 
 .profile-img {
@@ -72,10 +72,13 @@
 
 .username {
     font-weight: bold;
+    font-size: 2.1vh;
+    color: #333; /* 닉네임 색상 */
+    margin-right: 7vh;
 }
 
 .post-body {
-    margin: 10px 0;
+    margin: 1vh  0;
     font-size: 14px;
     line-height: 1.5;
 }
@@ -116,15 +119,15 @@
 
 .comment-username {
     font-weight: bold;
-    font-size: 14px;
+    font-size: 1.1vh;
     color: #333; /* 닉네임 색상 */
-    margin-right: 10px;
 }
 
 .comment-content {
     display: flex;
     gap: 10px;
     flex-grow: 1;
+    line-height: 1.5;
 }
 
 .comment-footer {
@@ -215,6 +218,7 @@ button.transparent-button {
     border: 0;
     outline: 0;
     cursor: pointer;
+    margin: 0px;
 }
 
 .container {
@@ -269,12 +273,12 @@ article.card header > div {
 
 /*** CONENT ***/
 .card-container {
-    padding: 5px 10px;
+    padding: 0.5vh;
 }
 
 .card-buttons {
-    padding: 0 5px;
-    margin-top: 5px;
+    padding: 0 0.5vh;
+    margin-top: 0.4vh;
 }
 
 .card-buttons > div {
@@ -288,17 +292,19 @@ article.card header > div {
 }
 
 .card-likes {
-    padding: 5px;
-    font-size: 13px;
+    padding: 0.3vh;
+    font-size: 1vh;
     font-weight: 900;
 }
 
 .card-content {
-    padding: 2px 5px;
-    font-size: 13px;
+    padding: 0.3vh 0.5vh;
+    font-size: 1.2vh;
     overflow-y: auto;
-    min-height: 380px;
-    max-height: 380px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    /*min-height: 380px;*/
+    max-height: 30vh;
 }
 
 .card-content li > div {
@@ -306,6 +312,7 @@ article.card header > div {
 }
 
 .card-content li > div > span {
+    line-height: 1.5;
     font-weight: 900;
 }
 
@@ -320,20 +327,20 @@ article.card header > div {
 
 .card-time {
     padding: 3px;
-    font-size: 11px;
+    font-size: 1vh;
     color: #aaaaaa;
 }
 
 /* 🔥 댓글 입력 박스 */
 .pinup-comment-box {
-    bottom: 0;
-    width: 95%;
+    bottom: 0vh;
+    width: 28vw;
     position: absolute;
-    height: 55px;
+    height: 5vh;
     border-top: 1px solid #e0e0e0;
     display: flex;  /* 버튼과 input을 한 줄 정렬 */
     align-items: center;
-    padding: 0 10px; /* 내부 여백 추가 */
+    padding: 0 1vh; /* 내부 여백 추가 */
 }
 
 /* 🔥 댓글 입력 폼 */
@@ -349,9 +356,10 @@ article.card header > div {
     flex-grow: 1;  /* 남은 공간 채우기 */
     border: none;
     outline: none;
-    padding: 0 10px;
+    padding: 0 1vh;
     height: auto;  /* 버튼과 동일 높이 유지 */
     font-size: 14px;
+    margin : 0px;
 }
 
 /* 🔥 댓글 작성 버튼 div */
@@ -377,7 +385,7 @@ article.card header > div {
 
 
 /* 🔥 carousel 전체 감싸는 컨테이너 */
-.carousel-wrapper {
+.post-carousel-wrapper {
     height: 100%;
     max-height: 100%;
     width: 100%; /* 🔹 post-image 크기에 맞춤 */
@@ -404,7 +412,7 @@ article.card header > div {
     transition: transform 0.5s ease-in-out;
     width: 100%; /* 🔹 부모 크기에 맞춰 자동 조정 */
     height: 100%;
-    max-height: 100%;
+    /*max-height: 100%;*/
 }
 
 /* 🔥 이미지 목록 */
@@ -418,7 +426,7 @@ article.card header > div {
 }
 
 /* 🔥 개별 이미지 항목 */
-.carousel-item {
+.post-carousel-item {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -444,21 +452,34 @@ article.card header > div {
 .slide img {
     opacity: 0.75;
 }
+.slide-left {
+    width: 3vw;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 2vh;
+}
 
 .slide-right {
-    right: 0;
+    width: 3vw;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 2vh;
 }
 
 /* 🔥 캐러셀 인디케이터 컨테이너 */
 .pinup-carousel-indicators {
     position: absolute;
-    height: 20px;
+    height: 2vh;
     text-align: center;
     width: 100%;
-    bottom: 10px; /* 🔹 사진과 너무 붙지 않도록 올리기 */
-    display: flex; /* 가로 정렬 */
-    justify-content: center; /* 가운데 정렬 */
-    gap: 8px; /* 🔹 점 간격 더 넓히기 */
+    bottom: 2vh;
+    display: flex;
+    justify-content: center;
+    gap: 1vh;
 }
 
 /* 🔥 인디케이터 점 (크기 키움) */
@@ -480,28 +501,30 @@ article.card header > div {
 
 /* 🔥 게시물 제목 스타일 (인스타그램 스타일) */
 .post-body-title {
-    font-size: 16px; /* 🔹 적당한 크기 */
+    font-size: 2vh; /* 🔹 적당한 크기 */
     font-weight: bold; /* 🔹 제목 강조 */
     color: #262626; /* 🔹 인스타 스타일 기본 색상 */
     display: block; /* 🔹 줄 바꿈 적용 */
-    margin-bottom: 8px; /* 🔹 본문과 간격 */
+    margin-bottom: 0.8vh; /* 🔹 본문과 간격 */
 }
 
 /* 🔥 구분선 */
- hr {
+hr {
     border: none;
     height: 1px;
     background: #dbdbdb; /* 🔹 인스타그램 스타일의 연한 회색 */
-    margin: 4px 0 10px 0; /* 🔹 간격 조정 */
+    margin: 0.5vh 0 0.5vh 0;
 }
 
 /* 🔥 게시물 본문 스타일 */
 .post-body-content {
-    font-size: 14px; /* 🔹 본문 폰트 크기 */
+    font-size: 2.1vh; /* 🔹 본문 폰트 크기 */
     color: #333; /* 🔹 본문 색상 (너무 어둡지 않게) */
     line-height: 1.6; /* 🔹 가독성 향상 */
     white-space: pre-line; /* 🔹 줄바꿈 유지 */
-    min-height: 250px; /* 🔹 최소 높이 설정 */
+    min-height: 5vh; /* 🔹 최소 높이 설정 */
+    max-height: 30vh;
     word-break: break-word; /* 🔹 긴 단어 줄바꿈 처리 */
     overflow-wrap: break-word; /* 🔹 내용이 넘칠 경우 자동 줄바꿈 */
+    overflow-y: auto;
 }

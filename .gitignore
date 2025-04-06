@@ -36,11 +36,14 @@ out/
 ### VS Code ###
 .vscode/
 
-# Application YAML configuration
+### Application YAML ###
 *.yml
 
-# MAC OS
+### MAC OS ###
 .DS_Store
 
-# http-client
+### http-client ###
 *.env.json
+
+### node ###
+node_modules

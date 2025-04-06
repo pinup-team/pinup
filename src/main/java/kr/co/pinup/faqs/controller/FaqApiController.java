@@ -1,7 +1,6 @@
 package kr.co.pinup.faqs.controller;
 
 import jakarta.validation.Valid;
-import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.faqs.model.dto.FaqCreateRequest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
@@ -11,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,7 +27,7 @@ public class FaqApiController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<Void> save(@LoginMember MemberInfo memberInfo,
+    public ResponseEntity<Void> save(@AuthenticationPrincipal MemberInfo memberInfo,
                                      @RequestBody @Valid FaqCreateRequest request) {
         faqService.save(memberInfo, request);
 
@@ -46,9 +46,7 @@ public class FaqApiController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @PutMapping("/{faqId}")
-    public ResponseEntity<Void> update(@LoginMember MemberInfo memberInfo,
-                                       @PathVariable Long faqId,
-                                       @RequestBody @Valid FaqUpdateRequest request) {
+    public ResponseEntity<Void> update(@PathVariable Long faqId, @RequestBody @Valid FaqUpdateRequest request) {
         faqService.update(faqId, request);
 
         return ResponseEntity.noContent().build();
@@ -56,7 +54,7 @@ public class FaqApiController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{faqId}")
-    public ResponseEntity<Void> delete(@LoginMember MemberInfo memberInfo, @PathVariable Long faqId) {
+    public ResponseEntity<Void> delete(@PathVariable Long faqId) {
         faqService.remove(faqId);
 
         return ResponseEntity.noContent().build();

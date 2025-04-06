@@ -1,6 +1,7 @@
 package kr.co.pinup.oauth;
 
 import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
+import kr.co.pinup.members.exception.OAuthLoginCanceledException;
 import kr.co.pinup.members.exception.OAuthProviderNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,12 @@ public class OAuthService {
     }
 
     public Pair<OAuthResponse, OAuthToken> request(OAuthLoginParams params) {
+        String error = Optional.ofNullable(params.catchErrors().getFirst("error")).orElse("");
+
+        if ("access_denied".equals(error)) {
+            throw new OAuthLoginCanceledException();
+        }
+
         OAuthApiClient client = Optional.ofNullable(clients.get(params.oAuthProvider()))
                 .orElseThrow(() -> new OAuthProviderNotFoundException(params.oAuthProvider().toString() + "는 지원하지 않는 OAuth 제공자입니다."));
 

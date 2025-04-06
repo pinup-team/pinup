@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -23,9 +24,12 @@ public class StoreApiController {
     private final StoreService storeService;
 
     @PatchMapping("/{id}")
-    public ResponseEntity<StoreResponse> updateStore(@PathVariable Long id, @Valid @RequestBody StoreUpdateRequest request) {
+    public ResponseEntity<StoreResponse> updateStore(@PathVariable Long id,
+                                                     @Valid @RequestPart StoreUpdateRequest request,
+                                                     @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
+
         log.info("팝업스토어 수정 요청 - ID: {}", id);
-        return ResponseEntity.ok(storeService.updateStore(id, request));
+        return ResponseEntity.ok(storeService.updateStore(id, request, imageFiles));
     }
 
     @GetMapping("/summary")
@@ -47,9 +51,10 @@ public class StoreApiController {
     }
 
     @PostMapping
-    public ResponseEntity<StoreResponse> createStore(@Valid @RequestBody StoreRequest request) {
+    public ResponseEntity<StoreResponse> createStore(@Valid @ModelAttribute StoreRequest request,
+                                                     @RequestParam(value = "imageFiles", required = false) MultipartFile[] imageFiles) {
         log.info("팝업스토어 생성 요청 - 이름: {}", request.name());
-        return ResponseEntity.ok(storeService.createStore(request));
+        return ResponseEntity.ok(storeService.createStore(request, imageFiles));
     }
 
     @DeleteMapping("/{id}")

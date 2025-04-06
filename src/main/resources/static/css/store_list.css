@@ -1,0 +1,116 @@
+.store-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+    padding: 20px;
+    align-items: start;
+}
+
+.store-card {
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.store-image {
+    width: 300px;
+    height: 400px;
+    object-fit: cover;
+    display: block;
+}
+
+
+
+/* 스토어 인포 */
+
+
+.list-store-info {
+    margin-top: 8px;
+}
+
+.list-store-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #CC2F20;
+    margin: 4px 0;
+}
+
+.list-store-name:hover {
+    text-decoration: underline;
+}
+
+.list-store-category {
+    font-size: 14px;
+    color: #aaa
+}
+
+.list-store-duration {
+    font-size: 12px;
+    color: #4F261A;
+    letter-spacing: -0.5px;
+}
+
+.list-store-location {
+    font-size: 14px;
+    color: #4F261A;
+    margin: 0;
+    display: inline;
+}
+
+.list-store-status {
+    font-size: 12px;
+}
+
+.list-store-actions {
+    margin-top: 5px;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.list-like-count {
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.delete-btn {
+    background: red;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.delete-btn:hover {
+    background: darkred;
+}
+
+/* 스토어 상태 드롭다운 */
+
+#statusFilter {
+    background-color: #f9f5ef;
+    color: #3c2f2f;
+    border: 1px solid #cbbfb0;
+    border-radius: 6px;
+    padding: 6px 30px 6px 12px;
+    font-size: 14px;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='%233c2f2f' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s ease-in-out;
+}
+
+#statusFilter:focus {
+    outline: none;
+    border-color: #a89c8f;
+}

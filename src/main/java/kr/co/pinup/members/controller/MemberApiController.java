@@ -18,14 +18,17 @@ import kr.co.pinup.oauth.naver.NaverLoginParams;
 import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 @Slf4j
@@ -39,22 +42,20 @@ public class MemberApiController {
 
     @GetMapping("/oauth/naver")
     public ResponseEntity<?> loginNaver(@Valid @ModelAttribute NaverLoginParams params, HttpServletRequest request, HttpServletResponse response) {
-        log.info("Naver login process started");
         return loginProcess(params, request, response);
     }
 
     @GetMapping("/oauth/google")
     public ResponseEntity<?> loginGoogle(@Valid @ModelAttribute GoogleLoginParams params, HttpServletRequest request, HttpServletResponse response) {
-        log.info("Google login process started");
         return loginProcess(params, request, response);
     }
 
     private ResponseEntity<?> loginProcess(OAuthLoginParams params, HttpServletRequest request, HttpServletResponse response) {
         HttpSession session = request.getSession(true);
 
-        Pair<OAuthResponse, OAuthToken> oAuthResponseOAuthTokenPair = memberService.login(params, session);
+        Triple<OAuthResponse, OAuthToken, String> triple = memberService.login(params, session);
 
-        OAuthToken oAuthToken = oAuthResponseOAuthTokenPair.getRight();
+        OAuthToken oAuthToken = triple.getMiddle();
 
         if (oAuthToken == null) {
             throw new OAuthTokenRequestException("OAuth token is empty");
@@ -68,8 +69,16 @@ public class MemberApiController {
         }
         securityUtil.setRefreshTokenToCookie(response, oAuthToken.getRefreshToken());
 
-        log.debug("Login successful: {}", securityUtil.getMemberInfo());
-        return ResponseEntity.status(302)
+        // 한글 URL 인코딩 처리해 쿠키에 메시지를 저장
+        String encodedMessage = URLEncoder.encode(triple.getRight(), StandardCharsets.UTF_8);
+        ResponseCookie messageCookie = ResponseCookie.from("loginMessage", encodedMessage)
+                .path("/")
+                .maxAge(5)
+                .httpOnly(false)
+                .build();
+        response.addHeader(HttpHeaders.SET_COOKIE, messageCookie.toString());
+
+        return ResponseEntity.status(HttpStatus.FOUND)
                 .headers(headers)
                 .build();
     }
@@ -87,18 +96,16 @@ public class MemberApiController {
     public ResponseEntity<?> update(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
         MemberResponse updatedMemberResponse = memberService.update(memberInfo, memberRequest);
         if (updatedMemberResponse != null && updatedMemberResponse.getNickname().equals(memberRequest.nickname())) {
-            log.debug("닉네임 변경 성공 : {}", updatedMemberResponse.getNickname());
             return ResponseEntity.ok("닉네임이 변경되었습니다.");
         } else {
-            log.error("닉네임 변경 실패");
             return ResponseEntity.badRequest().body("닉네임 변경 실패");
         }
 
     }
 
     @DeleteMapping
-    public ResponseEntity<?> delete(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
-        if (memberService.delete(memberInfo, memberRequest)) {
+    public ResponseEntity<?> disable(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
+        if (memberService.disable(memberInfo, memberRequest)) {
             return ResponseEntity.ok().body("탈퇴 성공");
         } else {
             return ResponseEntity.badRequest().body("사용자 탈퇴 실패");

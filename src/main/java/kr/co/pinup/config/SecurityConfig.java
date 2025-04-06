@@ -39,8 +39,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SessionExpirationFilter sessionExpirationFilter() {
-        return new SessionExpirationFilter();
+    public SessionExpirationFilter sessionExpirationFilter(SecurityUtil securityUtil) {
+        return new SessionExpirationFilter(securityUtil);
     }
 
     @Bean
@@ -61,6 +61,7 @@ public class SecurityConfig {
                 .addFilterBefore(sessionExpirationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                        .requestMatchers("/members/login").anonymous()
                         .requestMatchers(SecurityConstants.PUBLIC_URLS).permitAll()
                         .anyRequest().authenticated()
                 )

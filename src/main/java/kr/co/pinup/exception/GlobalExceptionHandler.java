@@ -1,6 +1,8 @@
 package kr.co.pinup.exception;
 
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.pinup.members.exception.MemberBadRequestException;
+import kr.co.pinup.members.exception.OAuthLoginCanceledException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -36,6 +38,20 @@ public class GlobalExceptionHandler {
                 .body(errorResponse);
     }
 
+    @ResponseBody
+    @ResponseStatus(BAD_REQUEST)
+    @ExceptionHandler(MemberBadRequestException.class)
+    public ResponseEntity<ErrorResponse> memberBadRequestHandler(MemberBadRequestException ex) {
+        int status = BAD_REQUEST.value();
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(status)
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.status(status)
+                .body(errorResponse);
+    }
+
     @ResponseStatus(FORBIDDEN)
     @ExceptionHandler(AccessDeniedException.class)
     public String accessDeniedHandler(AccessDeniedException ex, Model model) {
@@ -45,6 +61,13 @@ public class GlobalExceptionHandler {
                 .build());
 
         return "error";
+    }
+
+    @ResponseStatus(BAD_REQUEST)
+    @ExceptionHandler(OAuthLoginCanceledException.class)
+    public String loginCanceledHandler(OAuthLoginCanceledException ex) {
+        log.debug("login canceled");
+        return "index";
     }
 
     @ExceptionHandler(GlobalCustomException.class)

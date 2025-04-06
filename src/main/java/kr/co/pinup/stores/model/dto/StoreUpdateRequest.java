@@ -3,10 +3,12 @@ package kr.co.pinup.stores.model.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import kr.co.pinup.stores.model.enums.Status;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Getter
+@Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class StoreUpdateRequest {
 
@@ -17,9 +19,6 @@ public class StoreUpdateRequest {
 
 //    @NotBlank(message = "스토어 설명은 필수 입력값입니다.")
     private String description;
-
-//    @NotBlank(message = "이미지 Url은 필수 입력값입니다.")
-    private String imageUrl;
 
 //    @NotNull(message = "카테고리는 필수 입력값입니다.")
     private Long categoryId;
@@ -35,4 +34,12 @@ public class StoreUpdateRequest {
 
 //    @NotNull(message = "스토어 상태는 필수 입력값입니다.")
     private Status status;
+
+    private String contactNumber;
+
+    private String websiteUrl;
+
+    private String snsUrl;
+
+    private String imageUrl;
 }

@@ -14,6 +14,7 @@ import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -33,7 +34,7 @@ public class MemberService {
     private final OAuthService oAuthService;
     private final SecurityUtil securityUtil;
 
-    public Pair<OAuthResponse, OAuthToken> login(OAuthLoginParams params, HttpSession session) {
+    public Triple<OAuthResponse, OAuthToken, String> login(OAuthLoginParams params, HttpSession session) {
         Pair<OAuthResponse, OAuthToken> oAuthResponseOAuthTokenPair = oAuthService.request(params);
         OAuthToken oAuthToken = oAuthResponseOAuthTokenPair.getRight();
         if (oAuthToken == null) {
@@ -46,7 +47,9 @@ public class MemberService {
             throw new UnauthorizedException("MemberService : OAuth response is null");
         }
 
-        Member member = findOrCreateMember(oAuthResponse);
+        Pair<Member, String> memberStringPair = findOrCreateMember(oAuthResponse);
+        Member member = memberStringPair.getLeft();
+
         MemberInfo memberInfo = MemberInfo.builder()
                 .nickname(member.getNickname())
                 .provider(member.getProviderType())
@@ -56,15 +59,20 @@ public class MemberService {
         securityUtil.setAuthentication(oAuthToken, memberInfo);
         session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, SecurityContextHolder.getContext());
 
-        return oAuthResponseOAuthTokenPair;
+        return Triple.ofNonNull(oAuthResponse, oAuthResponseOAuthTokenPair.getRight(), memberStringPair.getRight());
     }
 
-    private Member findOrCreateMember(OAuthResponse oAuthResponse) {
-        return memberRepository.findByEmail(oAuthResponse.getEmail())
-                .orElseGet(() -> newMember(oAuthResponse));
+    private Pair<Member, String> findOrCreateMember(OAuthResponse oAuthResponse) {
+        Optional<Member> optionalMember = memberRepository.findByEmailAndIsDeletedFalse(oAuthResponse.getEmail());
+        if (optionalMember.isPresent()) {
+            Member member = optionalMember.get();
+            return Pair.ofNonNull(member, "다시 돌아오신 걸 환영합니다 \""+member.getName()+"\"님");
+        } else {
+            return newMember(oAuthResponse);
+        }
     }
 
-    private Member newMember(OAuthResponse oAuthResponse) {
+    private Pair<Member, String> newMember(OAuthResponse oAuthResponse) {
         Member member = Member.builder()
                 .name(oAuthResponse.getName())
                 .email(oAuthResponse.getEmail())
@@ -73,7 +81,7 @@ public class MemberService {
                 .providerId(oAuthResponse.getId())
                 .build();
 
-        return memberRepository.save(member);
+        return Pair.ofNonNull(memberRepository.save(member), "환영합니다 \""+member.getName()+"\"님");
     }
 
     public String makeNickname() {
@@ -83,7 +91,6 @@ public class MemberService {
             String randomNoun = getRandomItem(NOUNS);
             nickname = randomAdjective + " " + randomNoun;
         } while (memberRepository.existsByNickname(nickname));
-        System.out.println("makeNickname : " + nickname);
         return nickname;
     }
 
@@ -94,7 +101,6 @@ public class MemberService {
     }
 
     public MemberResponse update(MemberInfo memberInfo, MemberRequest memberRequest) {
-        log.info("MemberService update");
         Member member = memberRepository.findByNickname(memberInfo.nickname())
                 .orElseThrow(MemberNotFoundException::new);
 
@@ -105,6 +111,8 @@ public class MemberService {
         if (memberRepository.findByNickname(memberRequest.nickname()).isPresent()) {
             throw new MemberBadRequestException("\"" + memberRequest.nickname() + "\"은 중복된 닉네임입니다.");
         }
+
+        if (memberRequest.nickname().length() > 50) throw new MemberBadRequestException("닉네임은 최대 50자입니다.");
 
         try {
             member.setNickname(memberRequest.nickname());
@@ -126,7 +134,7 @@ public class MemberService {
         }
     }
 
-    public boolean delete(MemberInfo memberInfo, MemberRequest memberRequest) {
+    public boolean disable(MemberInfo memberInfo, MemberRequest memberRequest) {
         Member member = memberRepository.findByNickname(memberInfo.nickname())
                 .orElseThrow(MemberNotFoundException::new);
 
@@ -135,7 +143,7 @@ public class MemberService {
         }
 
         try {
-            memberRepository.delete(member);
+            memberRepository.updateIsDeletedTrue(member.getId());
             securityUtil.clearContextAndDeleteCookie();
         } catch (Exception e) {
             throw new MemberServiceException("회원 삭제 중 오류가 발생했습니다.");
@@ -145,7 +153,6 @@ public class MemberService {
     }
 
     public boolean logout(OAuthProvider oAuthProvider, String accessToken) {
-        log.info("Logging out with provider {}", oAuthProvider);
         if (oAuthProvider == null) {
             throw new OAuthProviderNotFoundException("OAuth 제공자가 없습니다.");
         }
@@ -167,42 +174,38 @@ public class MemberService {
         try {
             OAuthResponse oAuthResponse = oAuthService.isAccessTokenExpired(memberInfo.provider(), accessToken);
             if (oAuthResponse != null) {
-                Optional<Member> member = memberRepository.findByEmail(oAuthResponse.getEmail());
+                Optional<Member> member = memberRepository.findByEmailAndIsDeletedFalse(oAuthResponse.getEmail());
                 if (member.isPresent()) {
                     Member presentMember = member.get();
                     MemberInfo checkMemberInfo = MemberInfo.builder().nickname(presentMember.getNickname()).provider(presentMember.getProviderType()).role(presentMember.getRole()).build();
 
                     if (!checkMemberInfo.equals(memberInfo)) {
-                        System.out.println("MemberService isAccessTokenExpired 만료 O");
+                        log.debug("MemberService isAccessTokenExpired 만료 O");
                         return true;
                     }
                 }
             }
-            System.out.println("MemberService isAccessTokenExpired 만료 X");
             return false;
         } catch (OAuthAccessTokenNotFoundException e) {
             log.error("MemberService isAccessTokenExpired 만료 OAuthAccessTokenNotFoundException : " + e.getMessage());
             return true;
         } catch (Exception e) {
-            log.error("Access token validation failed", e);
-            System.out.println("MemberService isAccessTokenExpired 만료 : " + e.getMessage());
+            log.error("MemberService isAccessTokenExpired 만료 : " + e.getMessage());
             return true;
         }
     }
 
     public String refreshAccessToken(HttpServletRequest request) {
-        log.info("MemberService refreshAccessToken");
         MemberInfo memberInfo = securityUtil.getMemberInfo();
 
         String refreshToken = securityUtil.getOptionalRefreshToken(request);
         if (refreshToken == null) {
-            log.error("refreshToken is null");
+            log.error("MemberService refreshAccessToken : refreshToken is null");
             securityUtil.clearContextAndDeleteCookie();
             throw new UnauthorizedException("로그인 정보가 없습니다.");
         }
 
         OAuthToken token = oAuthService.refresh(memberInfo.getProvider(), refreshToken);
-        log.debug("Access Token 갱신 완료 : " + token.getAccessToken());
 
         securityUtil.refreshAccessTokenInSecurityContext(token.getAccessToken());
 

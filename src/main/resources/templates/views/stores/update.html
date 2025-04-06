@@ -7,8 +7,7 @@
     <title>팝업스토어 수정</title>
     <script defer src="/js/store.js"></script>
 </head>
-<body>
-<main layout:fragment="content" th:object="${store}">
+<div layout:fragment="content" th:object="${store}">
 <h1>팝업스토어 수정</h1>
 <form id="updateForm" th:data-store-id="*{id}">
     <label>이름: <input type="text" name="name" th:value="*{name}" required></label><br>
@@ -23,11 +22,27 @@
             </option>
         </select>
     </label>
+    <input id="locationId" type="hidden" name="locationId"/>
     <label>시작 날짜: <input type="date" name="startDate" th:value="*{startDate}" required></label><br>
     <label>종료 날짜: <input type="date" name="endDate" th:value="*{endDate}" required></label><br>
+    <label>우편번호: <input type="text" id="zoneCode" name="zoneCode" th:value="${location.zoneCode}" readonly required/></label>
+    <button type="button" onclick="searchAddress()">주소 검색</button><br>
+    <label>주소: <input type="text" id="address" name="address" th:value="${location.address}" readonly required/></label>
+    <label>상세주소: <input type="text" id="addressDetail" name="addressDetail" th:value="${location.addressDetail}" required/></label>
+    <label></label>
+    <label>스토어 이미지 업로드 : <input type="file" name="imageFiles" id="imageFiles" accept="image/*" multiple required></label><br>
+    <div id="previewContainer" style="display: flex; flex-wrap: wrap"></div>
     <button type="submit">수정</button>
 </form>
 <a href="/stores">목록으로 돌아가기</a>
-</main>
-</body>
+</div>
+
+<th:block layout:fragment="pageScripts">
+    <script th:inline="javascript">
+        window.KAKAO_API_KEY = /*[[${kakaoMapKey}]]*/ '';
+    </script>
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <th:block th:replace="~{fragments/script-loader :: load('store')}"></th:block>
+    <th:block th:replace="~{fragments/script-loader :: load('location')}"></th:block>
+</th:block>
 </html>

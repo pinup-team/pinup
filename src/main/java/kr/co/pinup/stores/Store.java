@@ -4,17 +4,21 @@ import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.store_categories.StoreCategory;
+import kr.co.pinup.store_operatingHour.OperatingHour;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
 import kr.co.pinup.stores.model.enums.Status;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@Setter
 @Table(name = "stores")
 public class Store extends BaseEntity {
 
@@ -43,8 +47,24 @@ public class Store extends BaseEntity {
     @Builder.Default
     private Status status = Status.PENDING;
 
-    @Column(nullable = false, columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
+
+    @Column(length = 50)
+    private String contactNumber;
+
+    @Column(length = 255)
+    private String websiteUrl;
+
+    @Column(length = 255)
+    private String snsUrl;
+
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN default false")
+    private boolean deleted;
+
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<OperatingHour> operatingHours = new ArrayList<>();
 
     public void updateStore(StoreUpdateRequest request, StoreCategory category, Location location) {
         if (request.getName() != null) this.name = request.getName();
@@ -55,8 +75,18 @@ public class Store extends BaseEntity {
         if (request.getStartDate() != null) this.startDate = request.getStartDate();
         if (request.getEndDate() != null) this.endDate = request.getEndDate();
         if (request.getStatus() != null) this.status = request.getStatus();
-        if (request.getImageUrl() != null) this.imageUrl = request.getImageUrl();
     }
+
+    public void deleteStore() {
+        this.deleted = true;
+    }
+
+    public void updateImageUrl(String newImageUrl) {
+        this.imageUrl = newImageUrl;
+    }
+
+
+
 
 }
 

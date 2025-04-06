@@ -34,8 +34,8 @@ public class SecurityConfigTest {
     }
 
     @Bean(name = "testSessionExpirationFilter")
-    public SessionExpirationFilter sessionExpirationFilter() {
-        return new SessionExpirationFilter();
+    public SessionExpirationFilter sessionExpirationFilter(SecurityUtil securityUtil) {
+        return new SessionExpirationFilter(securityUtil);
     }
 
     @Bean(name = "testAccessTokenValidationFilter")

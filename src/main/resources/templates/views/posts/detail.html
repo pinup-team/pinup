@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layouts/layout}">
+
 
 <div layout:fragment="content">
     <div class="instagram-post-popup" id="post-popup">
@@ -9,23 +11,19 @@
             <span class="close-btn" onclick="closeDetailPopup()">&times;</span>
             <!-- 왼쪽: 이미지 영역 -->
             <div class="post-image">
-                <div class="carousel-wrapper">
+                <div class="post-carousel-wrapper">
                     <div class="carousel" data="0">
                         <div class="carousel-inner">
                             <ul class="carousel-list">
-                                <th:block th:each="image : ${post.postImages}">
-                                    <li class="carousel-item"><img th:src="${image.s3Url}" alt="Post Image"/></li>
+                                <th:block th:each="image : ${images}">
+                                    <li class="post-carousel-item"><img th:src="${image.s3Url}" alt="Post Image"/></li>
                                 </th:block>
                             </ul>
-                            <div class="slide slide-left" style="display: none;">
-                                <button class="transparent-button">⬅️</button>
-                            </div>
-                            <div class="slide slide-right">
-                                <button class="transparent-button">➡️</button>
-                            </div>
+                            <button class="slide slide-left" style="display: none;"><</button>
+                            <button class="slide slide-right">></button>
                         </div>
                         <footer class="pinup-carousel-indicators">
-                            <th:block th:each="image, iterStat : ${post.postImages}">
+                            <th:block th:each="image, iterStat : ${images}">
                                 <div th:classappend="${iterStat.index == 0} ? 'active' : ''"
                                      class="pinup-indicator"></div>
                             </th:block>
@@ -37,7 +35,7 @@
             <div class="post-details">
                 <!-- 상단: 프로필 정보 -->
                 <div class="post-header">
-                    <span class="comment-username" >닉네임 이름</span>
+                    <span class="username" th:text="${post.member.nickname}"></span>
                     <span class="post-date" th:text="*{#temporals.format(post.createdAt, 'yyyy-MM-dd')}"></span>
                 </div>
 
@@ -68,15 +66,22 @@
                     <hr>
                     <div class="card-content">
                         <ul>
-                            <th:block th:each="comment : ${post.comments}">
+                            <th:block th:each="comment : ${comments}">
                                 <li class="comment">
+                                    <span class="comment-username" th:text="${comment.member.nickname}"></span>
                                     <div class="comment-content">
-                                        <span class="comment-username" th:text="${comment.member.nickname}"></span>
                                         <span th:text="${comment.content}"></span>
                                     </div>
                                     <div class="comment-footer">
-                                        <div class="card-time" th:text="*{#temporals.format(comment.createdAt, 'yyyy-MM-dd')}"></div>
-                                        <button type="button" class="comment-delete transparent-button" th:data-comment-id="${comment.id}">삭제</button>
+                                        <div class="card-time"
+                                             th:text="*{#temporals.format(comment.createdAt, 'yyyy-MM-dd')}"></div>
+                                        <th:block sec:authorize="isAuthenticated()">
+                                            <button type="button" class="comment-delete transparent-button"
+                                                    th:data-comment-id="${comment.id}"
+                                                    th:if="${comment.member != null and comment.member.nickname != null and #authentication.principal.username == comment.member.nickname}">
+                                                삭제
+                                            </button>
+                                        </th:block>
                                     </div>
                                 </li>
                             </th:block>
@@ -90,7 +95,8 @@
                         <input type="text" name="content" placeholder="댓글 달기 ..." required class="pinup-comment-input"/>
                         <div class="pinup-comment-submit">
                             <button class="pinup-btn transparent-button pinup-comment-submit-btn" type="submit"
-                                    th:data-post-id="${post.id}">게시
+                                    th:data-post-id="${post.id}" th:disabled="${#authentication == null}">
+                                게시
                             </button>
                         </div>
                     </form>

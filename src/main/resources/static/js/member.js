@@ -1,3 +1,42 @@
+// 로그인
+// 네이버 로그인
+function naverLogin() {
+    fetch('/api/members/oauth/naver', {
+        method: 'GET',  // 혹은 필요한 HTTP 메서드
+        credentials: 'include'
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                window.location.href = "/";
+            } else if (data.error) {
+                alert(data.error);
+                window.location.href = "/members/login";
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+// 구글 로그인
+function googleLogin() {
+    fetch('/api/members/oauth/google', {
+        method: 'GET',
+        credentials: 'include'
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                alert(data.message);
+                window.location.href = "/";
+            } else if (data.error) {
+                alert(data.error);
+                window.location.href = "/members/login";
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
 // 로그아웃
 function logOut() {
     fetch('/api/members/logout', {
@@ -9,7 +48,9 @@ function logOut() {
         .then(response => {
             if (!response.ok) {
                 // 응답 상태 코드가 200번대가 아닌 경우
-                return response.text().then(text => { throw new Error(text); });
+                return response.text().then(text => {
+                    throw new Error(text);
+                });
             }
             return response.text(); // 로그아웃 성공 메시지
         })
@@ -57,7 +98,6 @@ function updateAccount() {
         providerType: profile.providerType,
         role: profile.role
     };
-    console.log("updatedProfile", updatedProfile)
 
     fetch('/api/members', {
         method: 'PATCH',
@@ -66,54 +106,53 @@ function updateAccount() {
         },
         body: JSON.stringify(updatedProfile)
     })
-        .then(response => response.text())
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(error => {
+                    throw new Error(error.message);
+                });
+            }
+            return response.text();
+        })
         .then(text => {
+            alert(text);
             if (text === "수정 성공") {
-                alert(text);
                 window.location.reload();
-            } else {
-                alert(text);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('서버와의 연결에 실패했습니다.');
+            alert(error.message);
         });
 }
 
 // 탈퇴
 function deleteAccount() {
-    fetch('/api/members', {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(profile)
-    })
-        .then(response => response.text())
-        .then(text => {
-            if (text === "탈퇴 성공") {
-                alert(text);
-                window.location.href = "/";
-            } else {
-                alert(text);
-            }
+    if (confirm("정말 탈퇴하시겠습니까?\n이 작업은 되돌릴 수 없습니다.\n" +
+        "또한, 작성한 게시글과 댓글은 삭제되지 않습니다.")) {
+        fetch('/api/members', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(profile)
         })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('서버와의 연결에 실패했습니다.');
-        });
+            .then(response => response.text())
+            .then(text => {
+                if (text === "탈퇴 성공") {
+                    alert(text);
+                    window.location.href = "/";
+                } else {
+                    alert(text);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('서버와의 연결에 실패했습니다.');
+            });
+    } else alert('탈퇴 취소')
 }
 
 function redirectToHome() {
     window.location.href = "/";
-}
-
-// 햄버거 버튼
-function toggleMenu() {
-    const hamburger = document.querySelector('.hamburger');
-    const menu = document.querySelector('.menu');
-
-    hamburger.classList.toggle('open');
-    menu.classList.toggle('open');
 }

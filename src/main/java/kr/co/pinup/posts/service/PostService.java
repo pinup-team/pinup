@@ -1,6 +1,7 @@
 package kr.co.pinup.posts.service;
 
 import jakarta.transaction.Transactional;
+import kr.co.pinup.comments.repository.CommentRepository;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.MemberNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -39,6 +40,7 @@ public class PostService {
     private final PostImageService postImageService;
     private final MemberRepository memberRepository;
     private final StoreRepository  storeRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public PostResponse createPost(MemberInfo memberInfo, CreatePostRequest createPostRequest, MultipartFile[] images) {
@@ -71,18 +73,26 @@ public class PostService {
         return PostResponse.from(post);
     }
 
-    public List<PostResponse> findByStoreId(Long storeId) {
-        List<Post> posts = postRepository.findByStoreId(storeId);
+    public List<PostResponse> findByStoreId(Long storeId, boolean isDeleted) {
+        List<Post> posts = postRepository.findByStoreIdAndIsDeleted(storeId, isDeleted);
         return posts.stream()
                 .map(PostResponse::from)
                 .collect(Collectors.toList());
     }
 
-    public Post getPostById(Long id) {
-        return postRepository.findById(id)
-                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + id));
+    public List<PostResponse> findByStoreIdWithCommentCount(Long storeId, boolean isDeleted) {
+        List<Post> posts = postRepository.findByStoreIdAndIsDeleted(storeId, isDeleted);
+        return posts.stream()
+                .map(post -> PostResponse.fromPostWithComments(post, commentRepository.countByPostId(post.getId())))
+                .collect(Collectors.toList());
     }
 
+    public PostResponse getPostById(Long id, boolean isDeleted) {
+        return postRepository.findByIdAndIsDeleted(id, isDeleted)
+                .map(PostResponse::from)
+                .orElseThrow(PostNotFoundException::new);
+    }
+    
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + postId));
@@ -135,5 +145,12 @@ public class PostService {
         }
 
         return postRepository.save(existingPost);
+    }
+
+    public void disablePost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + postId));
+        post.disablePost(true);
+        postRepository.save(post);
     }
 }

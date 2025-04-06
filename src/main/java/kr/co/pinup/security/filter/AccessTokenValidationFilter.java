@@ -46,7 +46,6 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
                     log.error("AccessTokenValidationFilter : Access Token Refresh Fail");
                     throw new OAuthTokenRequestException("Access Token Refresh Fail");
                 } else {
-                    log.debug("AccessTokenValidationFilter : Access Token Refresh Success");
                     securityUtil.refreshAccessTokenInSecurityContext(accessToken);
                 }
             }

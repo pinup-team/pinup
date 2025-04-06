@@ -13,11 +13,13 @@ import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.oauth.OAuthResponse;
 import kr.co.pinup.oauth.OAuthService;
 import kr.co.pinup.oauth.OAuthToken;
+import kr.co.pinup.oauth.google.GoogleLoginParams;
 import kr.co.pinup.oauth.naver.NaverLoginParams;
 import kr.co.pinup.oauth.naver.NaverResponse;
 import kr.co.pinup.oauth.naver.NaverToken;
 import kr.co.pinup.security.SecurityUtil;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -63,6 +65,7 @@ public class NaverOAuthTest {
     private Pair<OAuthResponse, OAuthToken> naverPair;
 
     private NaverLoginParams params;
+    private GoogleLoginParams errorParams;
 
     private String accessToken = "valid-access-token";
     private String invalidAccessToken = "invalid-access-token";
@@ -70,7 +73,6 @@ public class NaverOAuthTest {
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(memberService).build();
-//        memberInfo = new MemberInfo("testUser", OAuthProvider.NAVER, MemberRole.ROLE_USER);
 
         member = Member.builder()
                 .name("testUser")
@@ -87,6 +89,7 @@ public class NaverOAuthTest {
                 .build();
 
         params = NaverLoginParams.builder().code("test-code").state("test-state").build();
+        errorParams = GoogleLoginParams.builder().error("access_denied").build();
 
         naverResponse = NaverResponse.builder().response(NaverResponse.Response.builder().id("testId123456789").name("testUser").email("test@naver.com").build()).build();
         naverToken = NaverToken.builder().accessToken("valid-access-token").refreshToken("valid-refresh-token").tokenType("test-token-type").expiresIn(1000).result("success").error("test-error").errorDescription("test-error-description").build();
@@ -106,46 +109,66 @@ public class NaverOAuthTest {
         @DisplayName("OAuth 로그인 성공")
         void login_Success() {
             when(oAuthService.request(any())).thenReturn(naverPair);
-            when(memberRepository.findByEmail(any())).thenReturn(Optional.ofNullable(member));
+            when(memberRepository.findByEmailAndIsDeletedFalse(any())).thenReturn(Optional.ofNullable(member));
             doNothing().when(securityUtil).setAuthentication(any(), any());
 
-            Pair<OAuthResponse, OAuthToken> result = memberService.login(params, session);
+            Triple<OAuthResponse, OAuthToken, String> result = memberService.login(params, session);
             OAuthResponse oAuthResponse = result.getLeft();
+            OAuthToken oAuthToken = result.getMiddle();
+            String message = result.getRight();
 
             assertNotNull(result);
             assertEquals(member.getName(), oAuthResponse.getName());
             assertEquals(member.getEmail(), oAuthResponse.getEmail());
             assertEquals(member.getProviderId(), oAuthResponse.getId());
             assertEquals(member.getProviderType(), oAuthResponse.getOAuthProvider());
+            assertFalse(member.isDeleted());
+
+            assertEquals(message, "다시 돌아오신 걸 환영합니다 \""+member.getName()+"\"님");
+
             verify(oAuthService).request(any());
-            verify(memberRepository).findByEmail(anyString());
+            verify(memberRepository).findByEmailAndIsDeletedFalse(anyString());
 
             SecurityContext securityContext = (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
             assertNotNull(securityContext);
             assertNotNull(securityContext.getAuthentication());
             assertEquals(memberInfo, securityContext.getAuthentication().getPrincipal());
+            assertEquals(oAuthToken.getAccessToken(), securityContext.getAuthentication().getDetails());
         }
 
         @Test
         @DisplayName("로그인 실패_회원 정보 없음_회원가입 발생")
         void testLogin_WhenMemberNotFound_ShouldCreateNewMember() {
             when(oAuthService.request(any())).thenReturn(naverPair); // OAuth 응답 설정
-            when(memberRepository.findByEmail(anyString())).thenReturn(Optional.empty()); // 회원 정보가 없을 때
+            when(memberRepository.findByEmailAndIsDeletedFalse(anyString())).thenReturn(Optional.empty()); // 회원 정보가 없을 때
             when(memberRepository.save(any(Member.class))).thenReturn(member); // 새로운 회원 저장
 
-            Pair<OAuthResponse, OAuthToken> result = memberService.login(NaverLoginParams.builder()
-                    .code("test-code")
-                    .state("test-state")
-                    .build(), session);
+            Triple<OAuthResponse, OAuthToken, String> result = memberService.login(params, session);
             OAuthResponse oAuthResponse = result.getLeft();
+            String message = result.getRight();
 
             assertNotNull(result);
             assertEquals(member.getName(), oAuthResponse.getName());
             assertEquals(member.getEmail(), oAuthResponse.getEmail());
             assertEquals(member.getProviderId(), oAuthResponse.getId());
             assertEquals(member.getProviderType(), oAuthResponse.getOAuthProvider());
-            verify(memberRepository).findByEmail(anyString()); // 이메일로 회원 조회
+            assertFalse(member.isDeleted());
+
+            assertEquals(message, "환영합니다 \""+member.getName()+"\"님");
+
+            verify(oAuthService).request(any());
+            verify(memberRepository).findByEmailAndIsDeletedFalse(anyString()); // 이메일로 회원 조회
             verify(memberRepository).save(any(Member.class)); // 새 회원 저장이 호출되었는지 확인
+        }
+
+        @Test
+        @DisplayName("로그인 실패_사용자 취소")
+        void testLogin_WhenOAuthRequestFails_ShouldThrowOAuthLoginCanceledException() {
+            when(oAuthService.request(any())).thenThrow(new OAuthLoginCanceledException("로그인을 취소합니다."));
+
+            assertThrows(OAuthLoginCanceledException.class, () -> {
+                memberService.login(errorParams, session);
+            });
         }
 
         @Test
@@ -154,10 +177,7 @@ public class NaverOAuthTest {
             when(oAuthService.request(any())).thenThrow(new UnauthorizedException("Invalid OAuth request"));
 
             assertThrows(UnauthorizedException.class, () -> {
-                memberService.login(NaverLoginParams.builder()
-                        .code("test-code")
-                        .state("test-state")
-                        .build(), session);
+                memberService.login(params, session);
             });
         }
     }
@@ -250,13 +270,13 @@ public class NaverOAuthTest {
             when(oAuthService.isAccessTokenExpired(memberInfo.provider(), accessToken))
                     .thenReturn(naverResponse);
 
-            when(memberRepository.findByEmail(anyString())).thenReturn(Optional.of(member));
+            when(memberRepository.findByEmailAndIsDeletedFalse(anyString())).thenReturn(Optional.of(member));
 
             boolean result = memberService.isAccessTokenExpired(memberInfo, accessToken);
 
             assertFalse(result); // 만료되지 않은 경우 false 반환
             verify(oAuthService).isAccessTokenExpired(memberInfo.provider(), accessToken);
-            verify(memberRepository).findByEmail(anyString());
+            verify(memberRepository).findByEmailAndIsDeletedFalse(anyString());
         }
 
         @Test

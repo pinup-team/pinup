@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class CommentServiceTest {
+public class CommentServiceUnitTest {
 
     @InjectMocks
     private CommentService commentService;
@@ -43,11 +43,12 @@ public class CommentServiceTest {
     @Mock
     private MemberRepository memberRepository;
 
-    @DisplayName("게시글 ID로 댓글 조회")
     @Test
-    void testFindByPostId() {
+    @DisplayName("게시글 ID로 댓글 조회 - 성공")
+    void getCommentsByPostId_whenCommentsExist_thenReturnsCommentList() {
+        // Given
         Long postId = 1L;
-        Member mockMember = new Member( "행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER);
+        Member mockMember = new Member("행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER, false);
 
         List<CommentResponse> commentResponses = List.of(
                 CommentResponse.builder()
@@ -67,41 +68,57 @@ public class CommentServiceTest {
         );
 
         when(commentRepository.findByPostId(postId)).thenReturn(commentResponses);
+
+        // When
         List<CommentResponse> result = commentService.findByPostId(postId);
+
+        // Then
         assertNotNull(result);
         assertEquals(2, result.size());
         verify(commentRepository).findByPostId(postId);
     }
 
-    @DisplayName("댓글 삭제")
     @Test
-    void testDeleteComment() {
+    @DisplayName("댓글 삭제 - 성공")
+    void deleteComment_whenExistingComment_thenSuccess() {
+        // Given
         Long commentId = 1L;
         when(commentRepository.existsById(commentId)).thenReturn(true);
+
+        // When
         commentService.deleteComment(commentId);
+
+        // Then
         verify(commentRepository).existsById(commentId);
         verify(commentRepository).deleteById(commentId);
     }
 
-    @DisplayName("댓글 삭제 실패 - 존재하지 않는 댓글")
     @Test
-    void testDeleteComment_NotFound() {
+    @DisplayName("댓글 삭제 실패 - 존재하지 않는 댓글")
+    void deleteComment_whenCommentNotExists_thenThrowsCommentNotFoundException() {
+        // Given
         Long commentId = 1L;
         when(commentRepository.existsById(commentId)).thenReturn(false);
+
+        // When & Then
         assertThrows(CommentNotFoundException.class, () -> commentService.deleteComment(commentId));
         verify(commentRepository).existsById(commentId);
         verify(commentRepository, never()).deleteById(commentId);
     }
+
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    @DisplayName("댓글 생성")
     @Test
-    void testCreateComment() {
+    @DisplayName("댓글 생성 - 성공")
+    void createComment_whenValidRequest_givenExistingPost_thenSuccess() {
+        // Given
         Long postId = 1L;
         String commentContent = "Test Comment";
-        Member mockMember = new Member("행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER);
+        Member mockMember = new Member("행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER, false);
+
         CreateCommentRequest createCommentRequest = CreateCommentRequest.builder()
                 .content(commentContent)
                 .build();
+
         Post post = Post.builder()
                 .title("Test Post")
                 .content("Test Content")
@@ -112,7 +129,6 @@ public class CommentServiceTest {
                 .member(mockMember)
                 .content(commentContent)
                 .build();
-
 
         CommentResponse expectedResponse = CommentResponse.builder()
                 .id(savedComment.getId())
@@ -126,12 +142,14 @@ public class CommentServiceTest {
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
         when(commentRepository.save(any(Comment.class))).thenReturn(savedComment);
 
+        // When
         CommentResponse result = commentService.createComment(
                 new MemberInfo(mockMember.getNickname(), mockMember.getProviderType(), mockMember.getRole()),
                 postId,
                 createCommentRequest
         );
 
+        // Then
         assertNotNull(result);
         assertEquals(expectedResponse.postId(), result.postId());
         assertEquals(expectedResponse.member(), result.member());
@@ -142,26 +160,27 @@ public class CommentServiceTest {
         verify(commentRepository).save(any(Comment.class));
     }
 
-
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    @DisplayName("댓글 생성 실패 - 존재하지 않는 게시글")
     @Test
-    void testCreateComment_PostNotFound() {
+    @DisplayName("댓글 생성 실패 - 존재하지 않는 게시글")
+    void createComment_whenPostNotExists_givenValidRequest_thenThrowsPostNotFoundException() {
+        // Given
         Long postId = 1L;
         CreateCommentRequest createCommentRequest = CreateCommentRequest.builder()
                 .content("Test Comment")
                 .build();
-        Member mockMember = new Member( "행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER);
+
+        Member mockMember = new Member("행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER, false);
 
         when(memberRepository.findByNickname(mockMember.getNickname())).thenReturn(Optional.of(mockMember));
         when(postRepository.findById(postId)).thenReturn(Optional.empty());
 
-        assertThrows(PostNotFoundException.class, () ->
-                commentService.createComment(
-                        new MemberInfo(mockMember.getNickname(), mockMember.getProviderType(), mockMember.getRole()),
-                        postId,
-                        createCommentRequest
-                ));
+        // When & Then
+        assertThrows(PostNotFoundException.class, () -> commentService.createComment(
+                new MemberInfo(mockMember.getNickname(), mockMember.getProviderType(), mockMember.getRole()),
+                postId,
+                createCommentRequest
+        ));
 
         verify(memberRepository).findByNickname(mockMember.getNickname());
         verify(postRepository).findById(postId);

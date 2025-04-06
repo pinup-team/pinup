@@ -4,57 +4,20 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
-<!--    <link rel="stylesheet" th:href="@{/css/common.css}">-->
+    <link rel="stylesheet" th:href="@{/css/common.css}">
     <link rel="stylesheet" th:href="@{/css/header.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
-    <link rel="stylesheet" th:href="@{/css/post_list.css}">
-    <link rel="stylesheet" th:href="@{/css/post_modal.css}">
-
     <link rel="stylesheet" th:href="@{/css/main.css}">
-    <link rel="stylesheet" th:href="@{/css/member.css}">
     <title>Pin-up</title>
 </head>
 <body>
 <div class="header" th:replace="~{fragments/header::headerFragment}"></div>
-<div class="content">
-    <div class="container">
-        <div layout:fragment="content"></div>
-    </div>
-</div>
+<div class="content" layout:fragment="content"></div>
 <div class="footer" th:replace="~{fragments/footer::footerFragment}"></div>
-<script th:src="@{/js/member.js}"></script>
-<script th:src="@{/js/post.js}"></script>
-<script th:src="@{/js/store.js}"></script>
-<script th:src="@{/js/faq.js}"></script>
-<script th:src="@{/js/support.js}"></script>
-
-<script>
-    async function fetchStoreSummaries() {
-        try {
-            const response = await fetch('/api/stores');
-
-            if (!response.ok) {
-                throw new Error('네트워크 응답이 올바르지 않습니다.');
-            }
-
-            const stores = await response.json();
-            const storeListElement = document.getElementById('store-list');
-
-            // 리스트에 팝업스토어 추가
-            stores.forEach(store => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `<img src="${store.imageUrl}" alt="Loading Image">
-                                      <a href="/stores/${store.id}">${store.name}</a>
-                                      <p>${store.description}</p>`;
-                storeListElement.appendChild(listItem);
-            });
-        } catch (error) {
-            console.error('팝업스토어 목록을 가져오는 중 오류 발생:', error);
-        }
-    }
-
-    // 페이지가 로드되면 팝업스토어 목록을 가져옴
-    document.addEventListener('DOMContentLoaded', fetchStoreSummaries);
-</script>
+<th:block th:replace="~{fragments/script-loader :: load('header')}"></th:block>
+<th:block th:replace="~{fragments/script-loader :: load('member')}"></th:block>
+<th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
+<th:block th:replace="~{fragments/script-loader :: load('store')}"></th:block>
+<th:block th:replace="~{fragments/script-loader :: load('location')}"></th:block>
 </body>
 </html>
