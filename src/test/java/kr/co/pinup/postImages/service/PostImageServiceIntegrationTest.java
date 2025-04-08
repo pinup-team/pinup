@@ -12,8 +12,8 @@ import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageDeleteFailedException;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
-import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
+import kr.co.pinup.postImages.model.dto.UpdatePostImageRequest;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.repository.PostRepository;
@@ -47,26 +47,13 @@ import static org.mockito.Mockito.*;
 @Transactional
 class PostImageServiceIntegrationTest {
 
-    @Autowired
-    private PostImageService postImageService;
-
-    @Autowired
-    private PostImageRepository postImageRepository;
-
-    @Autowired
-    private PostRepository postRepository;
-
-    @Autowired
-    private StoreRepository storeRepository;
-
-    @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
-    private StoreCategoryRepository storeCategoryRepository;
-
-    @Autowired
-    private LocationRepository locationRepository;
+    @Autowired private PostImageService postImageService;
+    @Autowired private PostImageRepository postImageRepository;
+    @Autowired private PostRepository postRepository;
+    @Autowired private StoreRepository storeRepository;
+    @Autowired private MemberRepository memberRepository;
+    @Autowired private StoreCategoryRepository storeCategoryRepository;
+    @Autowired private LocationRepository locationRepository;
 
     @Autowired
     private S3Service s3Service;
@@ -181,7 +168,7 @@ class PostImageServiceIntegrationTest {
         PostImage image = postImageRepository.save(new PostImage(post, imageUrl));
         when(s3Service.extractFileName(imageUrl)).thenReturn("img.jpg");
 
-        PostImageRequest request = PostImageRequest.builder()
+        UpdatePostImageRequest request = UpdatePostImageRequest.builder()
                 .imagesToDelete(List.of(imageUrl))
                 .build();
 
@@ -202,7 +189,7 @@ class PostImageServiceIntegrationTest {
         when(s3Service.extractFileName(imageUrl)).thenReturn("img.jpg");
         doThrow(new ImageDeleteFailedException("삭제 실패")).when(s3Service).deleteFromS3("img.jpg");
 
-        PostImageRequest request = PostImageRequest.builder()
+        UpdatePostImageRequest request = UpdatePostImageRequest.builder()
                 .imagesToDelete(List.of(imageUrl))
                 .build();
 
@@ -215,7 +202,7 @@ class PostImageServiceIntegrationTest {
     @DisplayName("선택 이미지 삭제 실패 - 삭제 리스트 없음")
     void deleteSelectedImages_whenEmptyRequest_thenThrowsException() {
         // Given
-        PostImageRequest request = PostImageRequest.builder()
+        UpdatePostImageRequest request = UpdatePostImageRequest.builder()
                 .imagesToDelete(Collections.emptyList())
                 .build();
 
