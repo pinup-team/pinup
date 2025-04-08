@@ -7,8 +7,9 @@ import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageDeleteFailedException;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
 import kr.co.pinup.postImages.exception.postimage.PostImageSaveFailedException;
-import kr.co.pinup.postImages.model.dto.PostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
+import kr.co.pinup.postImages.model.dto.PostImageUploadRequest;
+import kr.co.pinup.postImages.model.dto.UpdatePostImageRequest;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.posts.Post;
 import lombok.RequiredArgsConstructor;
@@ -30,12 +31,12 @@ public class PostImageService  {
     private static final String PATH_PREFIX = "post";
 
     @Transactional
-    public List<PostImage> savePostImages(PostImageRequest postImageRequest, Post post) {
-        if (postImageRequest.getImages() == null || postImageRequest.getImages().isEmpty()) {
+    public List<PostImage> savePostImages(PostImageUploadRequest postImageUploadRequest, Post post) {
+        if (postImageUploadRequest.getImages() == null || postImageUploadRequest.getImages().isEmpty()) {
             throw new PostImageNotFoundException("업로드할 이미지가 없습니다.");
         }
 
-        List<String> imageUrls = uploadFiles(postImageRequest.getImages(),PATH_PREFIX);
+        List<String> imageUrls = uploadFiles(postImageUploadRequest.getImages(),PATH_PREFIX);
 
         List<PostImage> postImages = imageUrls.stream()
                 .map(s3Url -> new PostImage(post, s3Url))
@@ -69,8 +70,8 @@ public class PostImageService  {
         }
     }
 
-    public void deleteSelectedImages(Long postId, PostImageRequest postImageRequest) {
-        List<String> imagesToDelete = postImageRequest.getImagesToDelete();
+    public void deleteSelectedImages(Long postId, UpdatePostImageRequest updatePostImageRequest) {
+        List<String> imagesToDelete = updatePostImageRequest.getImagesToDelete();
 
         if (imagesToDelete != null && !imagesToDelete.isEmpty()) {
             List<PostImage> postImages = postImageRepository.findByPostIdAndS3UrlIn(postId, imagesToDelete);
