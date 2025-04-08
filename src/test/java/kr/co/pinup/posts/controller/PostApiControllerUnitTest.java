@@ -6,6 +6,7 @@ import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.oauth.OAuthProvider;
+import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.ImageCountException;
@@ -110,7 +111,7 @@ public class PostApiControllerUnitTest {
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     void createPost_whenAuthenticated_givenValidRequest_thenSuccess() throws Exception {
         // Given
-        when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(MultipartFile[].class)))
+        when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(CreatePostImageRequest.class)))
                 .thenReturn(PostResponse.builder().id(1L).storeId(1L).title("Title 1").content("Content 1").thumbnail("Thumbnail").build());
 
         MockMultipartFile image1 = new MockMultipartFile("images", "image1.jpg", "image/jpeg", "image content 1".getBytes());

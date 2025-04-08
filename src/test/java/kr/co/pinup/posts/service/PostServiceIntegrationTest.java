@@ -1,8 +1,6 @@
 package kr.co.pinup.posts.service;
 
 import jakarta.transaction.Transactional;
-import kr.co.pinup.comments.Comment;
-import kr.co.pinup.comments.repository.CommentRepository;
 import kr.co.pinup.custom.s3.S3Service;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
@@ -14,7 +12,7 @@ import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
-import kr.co.pinup.postImages.model.dto.PostImageRequest;
+import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.postImages.service.PostImageService;
@@ -43,7 +41,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -99,7 +96,14 @@ public class PostServiceIntegrationTest {
     @DisplayName("게시물 생성 - 이미지 포함")
     void createPost_whenValidRequestWithImages_thenSuccess() {
         // Given
-        MultipartFile[] files = { new MockMultipartFile("img", "test.jpg", "image/jpeg", "data".getBytes()) };
+        List<MultipartFile> validFiles = List.of(
+                new MockMultipartFile("img", "test1.jpg", "image/jpeg", "data1".getBytes()),
+                new MockMultipartFile("img", "test2.jpg", "image/jpeg", "data2".getBytes())
+        );
+
+        CreatePostImageRequest request = CreatePostImageRequest.builder()
+                .images(validFiles)
+                .build();
         MemberInfo info = new MemberInfo(mockMember.getNickname(), mockMember.getProviderType(), mockMember.getRole());
         CreatePostRequest req = new CreatePostRequest(mockPost.getStore().getId(), "New Title", "New Content");
 
@@ -107,7 +111,7 @@ public class PostServiceIntegrationTest {
         when(s3Service.extractFileName(any())).thenReturn("test.jpg");
 
         // When
-        PostResponse res = postService.createPost(info, req, files);
+        PostResponse res = postService.createPost(info, req, request);
 
         // Then
         assertNotNull(res);
@@ -151,12 +155,25 @@ public class PostServiceIntegrationTest {
     void updatePost_whenImagesDeletedAndUploaded_thenSuccess() {
         // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
-        when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(List.of(
-                PostImageResponse.builder().id(1L).postId(mockPost.getId()).s3Url("remain_url").build()
-        ));
+
+        when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(
+                List.of(
+                        PostImageResponse.builder().id(1L).postId(mockPost.getId()).s3Url("img1").build(),
+                        PostImageResponse.builder().id(2L).postId(mockPost.getId()).s3Url("remain_url").build()
+                ),
+                List.of(
+                        PostImageResponse.builder().id(2L).postId(mockPost.getId()).s3Url("remain_url").build()
+                )
+        );
+
+        doNothing().when(postImageService).deleteSelectedImages(eq(mockPost.getId()), any());
+
+        MultipartFile img = new MockMultipartFile("img", "file.jpg", "image/jpeg", "data".getBytes());
+        when(postImageService.savePostImages(any(), eq(mockPost)))
+                .thenReturn(List.of(new PostImage(mockPost, "new_url")));
 
         // When
-        Post result = postService.updatePost(mockPost.getId(), req, new MultipartFile[0], List.of("img1"));
+        Post result = postService.updatePost(mockPost.getId(), req, new MultipartFile[]{img}, List.of("img1"));
 
         // Then
         assertNotNull(result);
@@ -168,13 +185,20 @@ public class PostServiceIntegrationTest {
     void updatePost_whenImagesDeletedOnly_thenSuccess() {
         // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
-        when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(List.of(
-                PostImageResponse.builder()
-                        .id(1L)
-                        .postId(mockPost.getId())
-                        .s3Url("remaining_image_url.jpg")
-                        .build()
-        ));
+
+        when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(
+                List.of(
+                        PostImageResponse.builder().id(1L).postId(mockPost.getId()).s3Url("img1").build(),
+                        PostImageResponse.builder().id(2L).postId(mockPost.getId()).s3Url("img2").build(),
+                        PostImageResponse.builder().id(3L).postId(mockPost.getId()).s3Url("remaining_image_url.jpg").build()
+                ),
+                List.of(
+                        PostImageResponse.builder().id(2L).postId(mockPost.getId()).s3Url("img2").build(),
+                        PostImageResponse.builder().id(3L).postId(mockPost.getId()).s3Url("remaining_image_url.jpg").build()
+                )
+        );
+
+        doNothing().when(postImageService).deleteSelectedImages(eq(mockPost.getId()), any());
 
         // When
         Post result = postService.updatePost(mockPost.getId(), req, new MultipartFile[0], List.of("img1"));
@@ -189,16 +213,27 @@ public class PostServiceIntegrationTest {
     void updatePost_whenImagesUploadedOnly_thenSuccess() {
         // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
-        MultipartFile img = new MockMultipartFile("img", "file.jpg", "image/jpeg", "data".getBytes());
-        PostImage uploaded = PostImage.builder().post(mockPost).s3Url("https://s3.com/new.jpg").build();
-        when(postImageService.savePostImages(any(), eq(mockPost))).thenReturn(List.of(uploaded));
+
+        when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(List.of());
+
+        MultipartFile[] imgs = {
+                new MockMultipartFile("img", "file1.jpg", "image/jpeg", "data1".getBytes()),
+                new MockMultipartFile("img", "file2.jpg", "image/jpeg", "data2".getBytes())
+        };
+
+        List<PostImage> uploadedImages = List.of(
+                PostImage.builder().post(mockPost).s3Url("https://s3.com/file1.jpg").build(),
+                PostImage.builder().post(mockPost).s3Url("https://s3.com/file2.jpg").build()
+        );
+
+        when(postImageService.savePostImages(any(), eq(mockPost))).thenReturn(uploadedImages);
 
         // When
-        Post result = postService.updatePost(mockPost.getId(), req, new MultipartFile[]{img}, List.of());
+        Post result = postService.updatePost(mockPost.getId(), req, imgs, List.of());
 
         // Then
         assertNotNull(result);
-        assertEquals("https://s3.com/new.jpg", result.getThumbnail());
+        assertEquals("https://s3.com/file1.jpg", result.getThumbnail());
     }
 
     @Test

@@ -8,8 +8,10 @@ import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
-import kr.co.pinup.postImages.model.dto.PostImageRequest;
+import kr.co.pinup.postImages.exception.postimage.PostImageUpdateCountException;
+import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
+import kr.co.pinup.postImages.model.dto.UpdatePostImageRequest;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostDeleteFailedException;
@@ -43,7 +45,7 @@ public class PostService {
     private final CommentRepository commentRepository;
 
     @Transactional
-    public PostResponse createPost(MemberInfo memberInfo, CreatePostRequest createPostRequest, MultipartFile[] images) {
+    public PostResponse createPost(MemberInfo memberInfo, CreatePostRequest createPostRequest, CreatePostImageRequest createPostImageRequest) {
 
         Member member = memberRepository.findByNickname(memberInfo.nickname())
                 .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
@@ -60,11 +62,7 @@ public class PostService {
 
         post = postRepository.save(post);
 
-        PostImageRequest postImageRequest = PostImageRequest.builder()
-                .images(Arrays.asList(images))
-                .build();
-
-        List<PostImage> postImages = postImageService.savePostImages(postImageRequest, post);
+        List<PostImage> postImages = postImageService.savePostImages(createPostImageRequest, post);
 
         if (!postImages.isEmpty()) {
             post.updateThumbnail(postImages.get(0).getS3Url());
@@ -123,18 +121,33 @@ public class PostService {
             return postRepository.save(existingPost);
         }
 
-        PostImageRequest postImageRequest = PostImageRequest.builder()
+
+        List<PostImageResponse> currentImages = postImageService.findImagesByPostId(id);
+        int currentCount = currentImages.size();
+
+        int deleteCount = (imagesToDelete != null) ? imagesToDelete.size() : 0;
+        int uploadCount = (images != null)
+                ? (int) Arrays.stream(images).filter(f -> !f.isEmpty()).count()
+                : 0;
+
+        int remainingCount = currentCount - deleteCount + uploadCount;
+
+        if (remainingCount < 2) {
+            throw new PostImageUpdateCountException();
+        }
+
+        UpdatePostImageRequest updatePostImageRequest = UpdatePostImageRequest.builder()
                 .images(hasNewImages ? Arrays.asList(images) : Collections.emptyList())
                 .imagesToDelete(hasImagesToDelete ? imagesToDelete : Collections.emptyList())
                 .build();
 
         if (hasImagesToDelete) {
-            postImageService.deleteSelectedImages(id, postImageRequest);
+            postImageService.deleteSelectedImages(id, updatePostImageRequest);
         }
 
         List<PostImageResponse> remainingImages = postImageService.findImagesByPostId(id);
 
-        List<PostImage> uploadedImages = hasNewImages ? postImageService.savePostImages(postImageRequest, existingPost) : Collections.emptyList();
+        List<PostImage> uploadedImages = hasNewImages ? postImageService.savePostImages(updatePostImageRequest, existingPost) : Collections.emptyList();
 
         if (!remainingImages.isEmpty()) {
             existingPost.updateThumbnail(remainingImages.get(0).getS3Url());

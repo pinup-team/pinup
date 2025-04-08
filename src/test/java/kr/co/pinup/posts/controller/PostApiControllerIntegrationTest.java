@@ -16,6 +16,7 @@ import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
+import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.postImages.service.PostImageService;
@@ -241,7 +242,7 @@ public class PostApiControllerIntegrationTest {
                 .thumbnail("Thumbnail")
                 .build();
 
-        when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(MultipartFile[].class)))
+        when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(CreatePostImageRequest.class)))
                 .thenReturn(createdPostResponse);
 
         MockMultipartFile image1 = new MockMultipartFile("images", "image1.jpg", "image/jpeg", "image content 1".getBytes());

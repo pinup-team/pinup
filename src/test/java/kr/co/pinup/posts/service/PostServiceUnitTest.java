@@ -8,6 +8,8 @@ import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
+import kr.co.pinup.postImages.exception.postimage.PostImageUpdateCountException;
+import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
@@ -84,9 +86,14 @@ public class PostServiceUnitTest {
         // Given
         MemberInfo memberInfo = new MemberInfo("행복한돼지", OAuthProvider.NAVER, MemberRole.ROLE_USER);
         CreatePostRequest req = new CreatePostRequest(1L, "New Post", "Content");
-        MultipartFile[] images = new MultipartFile[]{
-                new MockMultipartFile("image", "image.jpg", "image/jpeg", "data".getBytes())
-        };
+        List<MultipartFile> validFiles = List.of(
+                new MockMultipartFile("img", "test1.jpg", "image/jpeg", "data1".getBytes()),
+                new MockMultipartFile("img", "test2.jpg", "image/jpeg", "data2".getBytes())
+        );
+
+        CreatePostImageRequest request = CreatePostImageRequest.builder()
+                .images(validFiles)
+                .build();
 
         Post post = Post.builder().store(store).member(member).title(req.title()).content(req.content()).build();
 
@@ -96,7 +103,7 @@ public class PostServiceUnitTest {
         when(postImageService.savePostImages(any(), any())).thenReturn(List.of(new PostImage(post, "image_url")));
 
         // When
-        PostResponse result = postService.createPost(memberInfo, req, images);
+        PostResponse result = postService.createPost(memberInfo, req, request);
 
         // Then
         assertEquals("New Post", result.title());
@@ -153,16 +160,31 @@ public class PostServiceUnitTest {
         // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
         Post post = Post.builder().title("Old").content("Old").build();
-
         List<String> toDelete = List.of("url1");
+
+        when(postImageService.findImagesByPostId(1L)).thenReturn(
+                List.of(
+                        PostImageResponse.builder().id(1L).postId(1L).s3Url("url1").build(),
+                        PostImageResponse.builder().id(2L).postId(1L).s3Url("remain_url").build()
+                ),
+                List.of(
+                        PostImageResponse.builder().id(2L).postId(1L).s3Url("remain_url").build()
+                )
+        );
+
+        doNothing().when(postImageService).deleteSelectedImages(eq(1L), any());
+
+        MultipartFile[] newImages = {
+                new MockMultipartFile("img", "new.jpg", "image/jpeg", "valid data".getBytes())
+        };
+        when(postImageService.savePostImages(any(), eq(post)))
+                .thenReturn(List.of(new PostImage(post, "new_url")));
+
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
-        when(postImageService.findImagesByPostId(1L)).thenReturn(List.of(
-                PostImageResponse.builder().id(1L).postId(1L).s3Url("remain_url").build()
-        ));
         when(postRepository.save(any())).thenReturn(post);
 
         // When
-        Post result = postService.updatePost(1L, req, new MultipartFile[0], toDelete);
+        Post result = postService.updatePost(1L, req, newImages, toDelete);
 
         // Then
         assertEquals("Updated", result.getTitle());
@@ -176,9 +198,18 @@ public class PostServiceUnitTest {
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
         Post post = Post.builder().title("Old").content("Old").build();
 
-        MultipartFile[] images = {mock(MultipartFile.class)};
+        when(postImageService.findImagesByPostId(1L)).thenReturn(List.of(
+                PostImageResponse.builder().id(1L).postId(1L).s3Url("existing_url.jpg").build()
+        ));
+
+        MultipartFile[] images = {
+                new MockMultipartFile("img", "upload1.jpg", "image/jpeg", "data1".getBytes())
+        };
+
+        when(postImageService.savePostImages(any(), eq(post)))
+                .thenReturn(List.of(new PostImage(post, "new_url")));
+
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
-        when(postImageService.savePostImages(any(), eq(post))).thenReturn(List.of(new PostImage(post, "new_url")));
         when(postRepository.save(any())).thenReturn(post);
 
         // When
@@ -186,7 +217,7 @@ public class PostServiceUnitTest {
 
         // Then
         assertEquals("Updated", result.getTitle());
-        assertEquals("new_url", result.getThumbnail());
+        assertEquals("existing_url.jpg", result.getThumbnail()); // ✅ 기존 이미지 우선
     }
 
     @Test
@@ -221,4 +252,32 @@ public class PostServiceUnitTest {
         assertThrows(PostImageNotFoundException.class, () ->
                 postService.updatePost(1L, req, new MultipartFile[0], List.of("url1")));
     }
+
+    @Test
+    @DisplayName("게시물 수정 - 이미지가 2장 미만이면 예외 발생")
+    void updatePost_whenImageCountIsLessThanTwo_thenThrowException() {
+        // Given
+        UpdatePostRequest req = new UpdatePostRequest("제목", "내용");
+
+        Post post = Post.builder().store(store).member(member).title("Old Title").content("Old Content").build();
+
+        when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
+        when(postImageService.findImagesByPostId(post.getId()))
+                .thenReturn(List.of(
+                        PostImageResponse.builder()
+                                .id(1L)
+                                .postId(post.getId())
+                                .s3Url("img1")
+                                .build()
+                ));
+
+        List<String> toDelete = List.of("img1");
+        MultipartFile[] upload = new MultipartFile[0];
+
+        // When & Then
+        assertThrows(PostImageUpdateCountException.class, () ->
+                postService.updatePost(post.getId(), req, upload, toDelete)
+        );
+    }
+
 }
