@@ -7,7 +7,6 @@ import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
-import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
 import kr.co.pinup.postImages.exception.postimage.PostImageUpdateCountException;
 import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
@@ -239,18 +238,33 @@ public class PostServiceUnitTest {
     }
 
     @Test
-    @DisplayName("게시물 수정 실패 - 모든 이미지 삭제 후 예외 발생")
-    void updatePost_whenAllImagesDeleted_thenThrowsException() {
+    @DisplayName("게시물 수정 실패 - 모든 이미지 삭제 후 예외 발생 (이미지 2장 미만)")
+    void updatePost_whenAllImagesDeleted_thenThrowsUpdateCountException() {
         // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
-        Post post = Post.builder().title("Old").content("Old").build();
+
+        Post post = Post.builder()
+                .title("Old")
+                .content("Old")
+                .build();
 
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
-        when(postImageService.findImagesByPostId(1L)).thenReturn(List.of());
+
+        when(postImageService.findImagesByPostId(1L)).thenReturn(List.of(
+                PostImageResponse.builder()
+                        .id(1L)
+                        .postId(1L)
+                        .s3Url("url1")
+                        .build()
+        ));
+
+        List<String> toDelete = List.of("url1");
+        MultipartFile[] upload = new MultipartFile[0];
 
         // When & Then
-        assertThrows(PostImageNotFoundException.class, () ->
-                postService.updatePost(1L, req, new MultipartFile[0], List.of("url1")));
+        assertThrows(PostImageUpdateCountException.class, () ->
+                postService.updatePost(1L, req, upload, toDelete)
+        );
     }
 
     @Test

@@ -52,6 +52,7 @@ public class PostApiController {
     public ResponseEntity<PostResponse> createPost(@AuthenticationPrincipal MemberInfo memberInfo,
                                                    @ModelAttribute @Valid CreatePostRequest createPostRequest,
                                                    @ModelAttribute @Valid CreatePostImageRequest createPostImageRequest) {
+        log.info("넘어온 이미지 개수: {}", createPostImageRequest.getImages().size());
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo,createPostRequest, createPostImageRequest));
     }
 

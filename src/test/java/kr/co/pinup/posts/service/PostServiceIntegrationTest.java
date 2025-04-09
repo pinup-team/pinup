@@ -11,7 +11,7 @@ import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
-import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
+import kr.co.pinup.postImages.exception.postimage.PostImageUpdateCountException;
 import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
@@ -39,7 +39,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -237,14 +236,20 @@ public class PostServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("게시물 수정 실패 - 모든 이미지 삭제 후 예외 발생")
+    @DisplayName("게시물 수정 실패 - 모든 이미지 삭제 후 예외 발생 (이미지 2장 미만)")
     void updatePost_whenAllImagesDeleted_thenThrowsException() {
         // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
-        when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(Collections.emptyList());
+
+        postImageRepository.save(PostImage.builder()
+                .post(mockPost)
+                .s3Url("img1")
+                .build());
 
         // When & Then
-        assertThrows(PostImageNotFoundException.class, () ->
-                postService.updatePost(mockPost.getId(), req, new MultipartFile[0], List.of("img1")));
+        assertThrows(PostImageUpdateCountException.class, () -> {
+            postService.updatePost(mockPost.getId(), req, new MultipartFile[0], List.of("img1"));
+        });
     }
+
 }
