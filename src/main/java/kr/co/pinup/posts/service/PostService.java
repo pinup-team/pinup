@@ -46,20 +46,7 @@ public class PostService {
 
     @Transactional
     public PostResponse createPost(MemberInfo memberInfo, CreatePostRequest createPostRequest, CreatePostImageRequest createPostImageRequest) {
-
-        Member member = memberRepository.findByNickname(memberInfo.nickname())
-                .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
-
-        Store store = storeRepository.findById(createPostRequest.storeId())
-                .orElseThrow(() -> new StoreNotFoundException(createPostRequest.storeId() + "을 찾을 수 없습니다."));
-
-        Post post = Post.builder()
-                .store(store)
-                .member(member)
-                .title(createPostRequest.title())
-                .content(createPostRequest.content())
-                .build();
-
+        Post post = createPostEntity(memberInfo, createPostRequest);
         post = postRepository.save(post);
 
         List<PostImage> postImages = postImageService.savePostImages(createPostImageRequest, post);
@@ -69,6 +56,21 @@ public class PostService {
         }
 
         return PostResponse.from(post);
+    }
+
+    private Post createPostEntity(MemberInfo memberInfo, CreatePostRequest createPostRequest) {
+        Member member = memberRepository.findByNickname(memberInfo.nickname())
+                .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
+
+        Store store = storeRepository.findById(createPostRequest.storeId())
+                .orElseThrow(() -> new StoreNotFoundException(createPostRequest.storeId() + "을 찾을 수 없습니다."));
+
+        return Post.builder()
+                .store(store)
+                .member(member)
+                .title(createPostRequest.title())
+                .content(createPostRequest.content())
+                .build();
     }
 
     public List<PostResponse> findByStoreId(Long storeId, boolean isDeleted) {
@@ -92,8 +94,7 @@ public class PostService {
     }
     
     public void deletePost(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + postId));
+        Post post = findByIdOrThrow(postId);
         try {
             postImageService.deleteAllByPost(postId);
         } catch (Exception e) {
@@ -108,62 +109,65 @@ public class PostService {
 
     @Transactional
     public Post updatePost(Long id, UpdatePostRequest updatePostRequest, MultipartFile[] images, List<String> imagesToDelete) {
-
-        Post existingPost = postRepository.findById(id)
-                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + id));
-
-        boolean hasNewImages = images != null && images.length > 0 && Arrays.stream(images).noneMatch(MultipartFile::isEmpty);
-        boolean hasImagesToDelete = imagesToDelete != null && !imagesToDelete.isEmpty();
-
+        Post existingPost = findByIdOrThrow(id);
         existingPost.update(updatePostRequest.title(), updatePostRequest.content());
 
-        if (!hasNewImages && !hasImagesToDelete) {
-            return postRepository.save(existingPost);
-        }
+        UpdatePostImageRequest imageRequest = buildImageUpdateRequest(images, imagesToDelete);
 
-
-        List<PostImageResponse> currentImages = postImageService.findImagesByPostId(id);
-        int currentCount = currentImages.size();
-
-        int deleteCount = (imagesToDelete != null) ? imagesToDelete.size() : 0;
-        int uploadCount = (images != null)
-                ? (int) Arrays.stream(images).filter(f -> !f.isEmpty()).count()
-                : 0;
-
-        int remainingCount = currentCount - deleteCount + uploadCount;
-
-        if (remainingCount < 2) {
-            throw new PostImageUpdateCountException();
-        }
-
-        UpdatePostImageRequest updatePostImageRequest = UpdatePostImageRequest.builder()
-                .images(hasNewImages ? Arrays.asList(images) : Collections.emptyList())
-                .imagesToDelete(hasImagesToDelete ? imagesToDelete : Collections.emptyList())
-                .build();
-
-        if (hasImagesToDelete) {
-            postImageService.deleteSelectedImages(id, updatePostImageRequest);
-        }
-
-        List<PostImageResponse> remainingImages = postImageService.findImagesByPostId(id);
-
-        List<PostImage> uploadedImages = hasNewImages ? postImageService.savePostImages(updatePostImageRequest, existingPost) : Collections.emptyList();
-
-        if (!remainingImages.isEmpty()) {
-            existingPost.updateThumbnail(remainingImages.get(0).getS3Url());
-        } else if (!uploadedImages.isEmpty()) {
-            existingPost.updateThumbnail(uploadedImages.get(0).getS3Url());
-        } else {
-            throw new PostImageNotFoundException("썸네일을 설정할 수 없습니다. 게시물에 남은 이미지가 없습니다.");
+        if (!(imageRequest.getImages().isEmpty() && imageRequest.getImagesToDelete().isEmpty())) {
+            validateRemainingImageCount(id, imageRequest);
+            handleImageDeletionAndUpload(id, existingPost, imageRequest);
+            updateThumbnailFromCurrentImages(existingPost, id);
         }
 
         return postRepository.save(existingPost);
     }
 
+    private UpdatePostImageRequest buildImageUpdateRequest(MultipartFile[] images, List<String> deleteUrls) {
+        return UpdatePostImageRequest.builder()
+                .images(images != null ? Arrays.asList(images) : Collections.emptyList())
+                .imagesToDelete(deleteUrls != null ? deleteUrls : Collections.emptyList())
+                .build();
+    }
+
+    private void validateRemainingImageCount(Long postId, UpdatePostImageRequest request) {
+        int currentCount = postImageService.findImagesByPostId(postId).size();
+        int deleteCount = request.getImagesToDelete().size();
+        int uploadCount = (int) request.getImages().stream().filter(f -> !f.isEmpty()).count();
+
+        int remaining = currentCount - deleteCount + uploadCount;
+        if (remaining < 2) {
+            throw new PostImageUpdateCountException();
+        }
+    }
+
+    private void handleImageDeletionAndUpload(Long postId, Post post, UpdatePostImageRequest request) {
+        if (!request.getImagesToDelete().isEmpty()) {
+            postImageService.deleteSelectedImages(postId, request);
+        }
+        if (request.getImages().stream().anyMatch(file -> !file.isEmpty())) {
+            postImageService.savePostImages(request, post);
+        }
+
+    }
+
+    private void updateThumbnailFromCurrentImages(Post post, Long postId) {
+        List<PostImageResponse> remainingImages = postImageService.findImagesByPostId(postId);
+        if (!remainingImages.isEmpty()) {
+            post.updateThumbnail(remainingImages.get(0).getS3Url());
+        } else {
+            throw new PostImageNotFoundException("썸네일을 설정할 수 없습니다.");
+        }
+    }
+
     public void disablePost(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + postId));
+        Post post = findByIdOrThrow(postId);
         post.disablePost(true);
         postRepository.save(post);
+    }
+
+    public Post findByIdOrThrow(Long id) {
+        return postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없습니다. ID: " + id));
     }
 }

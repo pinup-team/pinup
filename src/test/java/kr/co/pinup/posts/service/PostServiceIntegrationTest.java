@@ -213,19 +213,29 @@ public class PostServiceIntegrationTest {
         // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
 
-        when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(List.of());
-
         MultipartFile[] imgs = {
                 new MockMultipartFile("img", "file1.jpg", "image/jpeg", "data1".getBytes()),
                 new MockMultipartFile("img", "file2.jpg", "image/jpeg", "data2".getBytes())
         };
 
-        List<PostImage> uploadedImages = List.of(
-                PostImage.builder().post(mockPost).s3Url("https://s3.com/file1.jpg").build(),
-                PostImage.builder().post(mockPost).s3Url("https://s3.com/file2.jpg").build()
-        );
+        PostImage postImage1 = PostImage.builder()
+                .post(mockPost)
+                .s3Url("https://s3.com/file1.jpg")
+                .build();
 
+        PostImage postImage2 = PostImage.builder()
+                .post(mockPost)
+                .s3Url("https://s3.com/file2.jpg")
+                .build();
+
+        List<PostImage> uploadedImages = List.of(postImage1, postImage2);
         when(postImageService.savePostImages(any(), eq(mockPost))).thenReturn(uploadedImages);
+
+        List<PostImageResponse> uploadedResponses = List.of(
+                PostImageResponse.from(postImage1),
+                PostImageResponse.from(postImage2)
+        );
+        when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(uploadedResponses);
 
         // When
         Post result = postService.updatePost(mockPost.getId(), req, imgs, List.of());
