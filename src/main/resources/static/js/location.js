@@ -1,7 +1,5 @@
 // 주소 검색 함수 (Kakao 주소 API)
 
-const KAKAO_API_KEY = window.KAKAO_API_KEY;
-
 function searchAddress() {
     new daum.Postcode({
         oncomplete: function (data) {
@@ -18,7 +16,24 @@ function searchAddress() {
         }
     }).open();
 }
+
+async function getCoordinates(address) {
+    try {
+        const response = await fetch(`/api/map/coord?address=${encodeURIComponent(address)}`);
+        if (!response.ok) {
+            throw new Error("카카오맵 서버 API 호출 실패");
+        }
+
+        const result = await response.json();
+
+        window.locationData.latitude = result.lat;
+        window.locationData.longitude = result.lng;
+    } catch (error) {
+        console.error("카카오맵 서버 API 호출 실패:", error);
+    }
+}
 // 주소로부터 위도와 경도 얻기 (Kakao Geocoding API 사용)
+/*
 async function getCoordinates(address) {
     const url = `https://dapi.kakao.com/v2/local/search/address.json`;
     const encodedAddress = encodeURIComponent(address);
@@ -51,6 +66,7 @@ async function getCoordinates(address) {
         console.error("Kakao API 호출 실패:", error);
     }
 }
+*/
 
 async function registerLocation() {
     const zoneCode = document.getElementById("zoneCode").value;
