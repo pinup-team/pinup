@@ -6,8 +6,10 @@ import kr.co.pinup.members.Member;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageDeleteFailedException;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
-import kr.co.pinup.postImages.model.dto.PostImageRequest;
+
+import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
+import kr.co.pinup.postImages.model.dto.UpdatePostImageRequest;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.stores.Store;
@@ -56,7 +58,7 @@ class PostImageServiceUnitTest {
     @DisplayName("이미지 저장 실패 - 이미지가 없는 경우")
     void savePostImages_whenNoImagesProvided_thenThrowsException() {
         // Given
-        PostImageRequest request = PostImageRequest.builder().images(null).build();
+        CreatePostImageRequest request = CreatePostImageRequest.builder().images(null).build();
 
         // When & Then
         assertThrows(PostImageNotFoundException.class,
@@ -113,7 +115,7 @@ class PostImageServiceUnitTest {
     @DisplayName("선택 이미지 삭제 실패 - 삭제 리스트 없음")
     void deleteSelectedImages_whenEmptyRequest_thenThrowsException() {
         // Given
-        PostImageRequest request = PostImageRequest.builder()
+        UpdatePostImageRequest request = UpdatePostImageRequest.builder()
                 .imagesToDelete(Collections.emptyList()).build();
 
         // When & Then
@@ -133,7 +135,7 @@ class PostImageServiceUnitTest {
                 .thenReturn(List.of(img));
         when(s3Service.extractFileName(url)).thenReturn(file);
 
-        PostImageRequest request = PostImageRequest.builder()
+        UpdatePostImageRequest request = UpdatePostImageRequest.builder()
                 .imagesToDelete(List.of(url)).build();
 
         // When
@@ -157,7 +159,7 @@ class PostImageServiceUnitTest {
         when(s3Service.extractFileName(url)).thenReturn(file);
         doThrow(new ImageDeleteFailedException("fail")).when(s3Service).deleteFromS3(file);
 
-        PostImageRequest request = PostImageRequest.builder()
+        UpdatePostImageRequest request = UpdatePostImageRequest.builder()
                 .imagesToDelete(List.of(url)).build();
 
         // When & Then
