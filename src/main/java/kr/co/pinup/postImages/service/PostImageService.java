@@ -60,7 +60,7 @@ public class PostImageService  {
         try {
         postImages.forEach(postImage -> {
             String fileUrl = postImage.getS3Url();
-            String fileName = s3Service.extractFileName(fileUrl);
+            String fileName = PATH_PREFIX+ "/" + s3Service.extractFileName(fileUrl);
 
                 s3Service.deleteFromS3(fileName);
         });
@@ -78,7 +78,7 @@ public class PostImageService  {
 
             postImages.forEach(postImage -> {
                 String fileUrl = postImage.getS3Url();
-                String fileName = s3Service.extractFileName(fileUrl);
+                String fileName = PATH_PREFIX+ "/" + s3Service.extractFileName(fileUrl);
                 try {
                     s3Service.deleteFromS3(fileName);
                 } catch (ImageDeleteFailedException e) {

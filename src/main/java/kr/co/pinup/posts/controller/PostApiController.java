@@ -68,8 +68,7 @@ public class PostApiController {
                                                    @ModelAttribute @Valid UpdatePostRequest updatePostRequest,
                                                    @RequestParam(required = false) List<String> imagesToDelete,
                                                    @RequestParam("images") MultipartFile[] images) {
-        Post post = postService.updatePost(postId, updatePostRequest, images, imagesToDelete);
-        return ResponseEntity.ok(PostResponse.from(post));
+        return ResponseEntity.ok(postService.updatePost(postId, updatePostRequest, images, imagesToDelete));
     }
 
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")

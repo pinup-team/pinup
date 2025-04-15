@@ -172,11 +172,11 @@ public class PostServiceIntegrationTest {
                 .thenReturn(List.of(new PostImage(mockPost, "new_url")));
 
         // When
-        Post result = postService.updatePost(mockPost.getId(), req, new MultipartFile[]{img}, List.of("img1"));
+        PostResponse result = postService.updatePost(mockPost.getId(), req, new MultipartFile[]{img}, List.of("img1"));
 
         // Then
         assertNotNull(result);
-        assertEquals("remain_url", result.getThumbnail());
+        assertEquals("remain_url", result.thumbnail());
     }
 
     @Test
@@ -200,11 +200,11 @@ public class PostServiceIntegrationTest {
         doNothing().when(postImageService).deleteSelectedImages(eq(mockPost.getId()), any());
 
         // When
-        Post result = postService.updatePost(mockPost.getId(), req, new MultipartFile[0], List.of("img1"));
+        PostResponse result = postService.updatePost(mockPost.getId(), req, new MultipartFile[0], List.of("img1"));
 
         // Then
         assertNotNull(result);
-        assertEquals("Updated", result.getTitle());
+        assertEquals("Updated", result.title());
     }
 
     @Test
@@ -238,11 +238,11 @@ public class PostServiceIntegrationTest {
         when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(uploadedResponses);
 
         // When
-        Post result = postService.updatePost(mockPost.getId(), req, imgs, List.of());
+        PostResponse result = postService.updatePost(mockPost.getId(), req, imgs, List.of());
 
         // Then
         assertNotNull(result);
-        assertEquals("https://s3.com/file1.jpg", result.getThumbnail());
+        assertEquals("https://s3.com/file1.jpg", result.thumbnail());
     }
 
     @Test

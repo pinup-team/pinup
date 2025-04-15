@@ -108,7 +108,7 @@ public class PostService {
     }
 
     @Transactional
-    public Post updatePost(Long id, UpdatePostRequest updatePostRequest, MultipartFile[] images, List<String> imagesToDelete) {
+    public PostResponse  updatePost(Long id, UpdatePostRequest updatePostRequest, MultipartFile[] images, List<String> imagesToDelete) {
         Post existingPost = findByIdOrThrow(id);
         existingPost.update(updatePostRequest.title(), updatePostRequest.content());
 
@@ -120,7 +120,7 @@ public class PostService {
             updateThumbnailFromCurrentImages(existingPost, id);
         }
 
-        return postRepository.save(existingPost);
+        return PostResponse.from(postRepository.save(existingPost));
     }
 
     private UpdatePostImageRequest buildImageUpdateRequest(MultipartFile[] images, List<String> deleteUrls) {

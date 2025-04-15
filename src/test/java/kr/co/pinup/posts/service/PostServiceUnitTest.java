@@ -219,14 +219,14 @@ public class PostServiceUnitTest {
         @DisplayName("게시물 수정 - 제목과 내용만 변경, 이미지 변경 없음")
         void updatePost_whenOnlyTextUpdated_thenSkipsImageHandling() {
             UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
-            Post post = Post.builder().title("Old").content("Old").build();
+            Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
             when(postRepository.save(any())).thenReturn(post);
 
-            Post result = postService.updatePost(1L, req, new MultipartFile[0], List.of());
+            PostResponse result = postService.updatePost(1L, req, new MultipartFile[0], List.of());
 
-            assertEquals("Updated", result.getTitle());
+            assertEquals("Updated", result.title());
             verify(postImageService, never()).deleteSelectedImages(anyLong(), any());
             verify(postImageService, never()).savePostImages(any(), any());
         }
@@ -235,14 +235,14 @@ public class PostServiceUnitTest {
         @DisplayName("게시물 수정 - 내용만 수정")
         void updatePost_whenOnlyContentUpdated_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("Old Title", "Updated Content");
-            Post post = Post.builder().title("Old Title").content("Old").build();
+            Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
             when(postRepository.save(any())).thenReturn(post);
 
-            Post result = postService.updatePost(1L, req, new MultipartFile[0], List.of());
+            PostResponse result = postService.updatePost(1L, req, new MultipartFile[0], List.of());
 
-            assertEquals("Updated Content", result.getContent());
+            assertEquals("Updated Content", result.content());
             verify(postImageService, never()).deleteSelectedImages(anyLong(), any());
             verify(postImageService, never()).savePostImages(any(), any());
         }
@@ -251,22 +251,22 @@ public class PostServiceUnitTest {
         @DisplayName("게시물 수정 - 제목과 내용 모두 수정")
         void updatePost_whenTitleAndContentUpdated_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("Updated Title", "Updated Content");
-            Post post = Post.builder().title("Old Title").content("Old").build();
+            Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
             when(postRepository.save(any())).thenReturn(post);
 
-            Post result = postService.updatePost(1L, req, new MultipartFile[0], List.of());
+            PostResponse result = postService.updatePost(1L, req, new MultipartFile[0], List.of());
 
-            assertEquals("Updated Title", result.getTitle());
-            assertEquals("Updated Content", result.getContent());
+            assertEquals("Updated Title", result.title());
+            assertEquals("Updated Content", result.content());
         }
 
         @Test
         @DisplayName("게시물 수정 - 제목과 내용 수정 + 이미지 삭제")
         void updatePost_whenTitleContentAndImagesDeleted_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("New Title", "New Content");
-            Post post = Post.builder().title("Old").content("Old").build();
+            Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
             List<String> toDelete = List.of("img1.jpg");
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
@@ -286,18 +286,18 @@ public class PostServiceUnitTest {
 
             doNothing().when(postImageService).deleteSelectedImages(eq(1L), any());
 
-            Post result = postService.updatePost(1L, req, new MultipartFile[0], toDelete);
+            PostResponse result = postService.updatePost(1L, req, new MultipartFile[0], toDelete);
 
-            assertEquals("New Title", result.getTitle());
-            assertEquals("New Content", result.getContent());
-            assertEquals("img2.jpg", result.getThumbnail());
+            assertEquals("New Title", result.title());
+            assertEquals("New Content", result.content());
+            assertEquals("img2.jpg", result.thumbnail());
         }
 
         @Test
         @DisplayName("게시물 수정 - 제목 수정 + 이미지 업로드")
         void updatePost_whenTitleUpdatedAndImagesUploaded_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("New Title", "Old Content");
-            Post post = Post.builder().title("Old Title").content("Old Content").build();
+            Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
 
             MultipartFile[] upload = {
                     new MockMultipartFile("img", "new1.jpg", "image/jpeg", "data".getBytes())
@@ -311,17 +311,17 @@ public class PostServiceUnitTest {
             when(postImageService.savePostImages(any(), eq(post)))
                     .thenReturn(List.of(new PostImage(post, "new1.jpg")));
 
-            Post result = postService.updatePost(1L, req, upload, List.of());
+            PostResponse result = postService.updatePost(1L, req, upload, List.of());
 
-            assertEquals("New Title", result.getTitle());
-            assertEquals("existing.jpg", result.getThumbnail());
+            assertEquals("New Title", result.title());
+            assertEquals("existing.jpg", result.thumbnail());
         }
 
         @Test
         @DisplayName("게시물 수정 - 제목 수정 + 이미지 삭제")
         void updatePost_whenTitleUpdatedAndImagesDeleted_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("New Title", "Old Content");
-            Post post = Post.builder().title("Old Title").content("Old Content").build();
+            Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
             List<String> toDelete = List.of("img1.jpg");
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
@@ -341,17 +341,17 @@ public class PostServiceUnitTest {
 
             doNothing().when(postImageService).deleteSelectedImages(eq(1L), any());
 
-            Post result = postService.updatePost(1L, req, new MultipartFile[0], toDelete);
+            PostResponse result = postService.updatePost(1L, req, new MultipartFile[0], toDelete);
 
-            assertEquals("New Title", result.getTitle());
-            assertEquals("img2.jpg", result.getThumbnail());
+            assertEquals("New Title", result.title());
+            assertEquals("img2.jpg", result.thumbnail());
         }
 
         @Test
         @DisplayName("게시물 수정 - 내용 수정 + 이미지 업로드")
         void updatePost_whenContentUpdatedAndImagesUploaded_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("Old Title", "Updated Content");
-            Post post = Post.builder().title("Old Title").content("Old Content").build();
+            Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
 
             MultipartFile[] upload = {
                     new MockMultipartFile("img", "new1.jpg", "image/jpeg", "data".getBytes())
@@ -365,17 +365,17 @@ public class PostServiceUnitTest {
             when(postImageService.savePostImages(any(), eq(post)))
                     .thenReturn(List.of(new PostImage(post, "new1.jpg")));
 
-            Post result = postService.updatePost(1L, req, upload, List.of());
+            PostResponse result = postService.updatePost(1L, req, upload, List.of());
 
-            assertEquals("Updated Content", result.getContent());
-            assertEquals("existing.jpg", result.getThumbnail());
+            assertEquals("Updated Content", result.content());
+            assertEquals("existing.jpg", result.thumbnail());
         }
 
         @Test
         @DisplayName("게시물 수정 - 내용 수정 + 이미지 삭제")
         void updatePost_whenContentUpdatedAndImagesDeleted_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("Old Title", "Updated Content");
-            Post post = Post.builder().title("Old Title").content("Old Content").build();
+            Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
             List<String> toDelete = List.of("img1.jpg");
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
@@ -396,17 +396,17 @@ public class PostServiceUnitTest {
 
             doNothing().when(postImageService).deleteSelectedImages(eq(1L), any());
 
-            Post result = postService.updatePost(1L, req, new MultipartFile[0], toDelete);
+            PostResponse result = postService.updatePost(1L, req, new MultipartFile[0], toDelete);
 
-            assertEquals("Updated Content", result.getContent());
-            assertEquals("img2.jpg", result.getThumbnail());
+            assertEquals("Updated Content", result.content());
+            assertEquals("img2.jpg", result.thumbnail());
         }
 
         @Test
         @DisplayName("게시물 수정 - 이미지 삭제만 수행 (남은 이미지 2장 이상)")
         void updatePost_whenImagesToDeleteProvided_thenDeletesImages() {
             UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
-            Post post = Post.builder().title("Old").content("Old").build();
+            Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
             List<String> toDelete = List.of("url1");
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
@@ -436,7 +436,7 @@ public class PostServiceUnitTest {
         @DisplayName("게시물 수정 - 새 이미지 업로드만 수행")
         void updatePost_whenNewImagesUploaded_thenSavesNewImages() {
             UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
-            Post post = Post.builder().title("Old").content("Old").build();
+            Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
 
             MultipartFile[] images = {
                     new MockMultipartFile("img", "upload1.jpg", "image/jpeg", "data1".getBytes())
@@ -451,17 +451,17 @@ public class PostServiceUnitTest {
             when(postImageService.savePostImages(any(), eq(post)))
                     .thenReturn(List.of(new PostImage(post, "upload1.jpg")));
 
-            Post result = postService.updatePost(1L, req, images, List.of());
+            PostResponse result = postService.updatePost(1L, req, images, List.of());
 
             verify(postImageService).savePostImages(any(), eq(post));
-            assertEquals("Updated", result.getTitle());
+            assertEquals("Updated", result.title());
         }
 
         @Test
         @DisplayName("게시물 수정 - 이미지 삭제 및 업로드 동시 처리")
         void updatePost_whenImagesDeletedAndUploaded_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
-            Post post = Post.builder().title("Old").content("Old").build();
+            Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
             List<String> toDelete = List.of("url1");
 
             MultipartFile[] newImages = {
@@ -484,10 +484,10 @@ public class PostServiceUnitTest {
             when(postImageService.savePostImages(any(), eq(post)))
                     .thenReturn(List.of(new PostImage(post, "new_url")));
 
-            Post result = postService.updatePost(1L, req, newImages, toDelete);
+            PostResponse result = postService.updatePost(1L, req, newImages, toDelete);
 
-            assertEquals("Updated", result.getTitle());
-            assertEquals("remain_url", result.getThumbnail());
+            assertEquals("Updated", result.title());
+            assertEquals("remain_url", result.thumbnail());
         }
 
         @Test
@@ -512,7 +512,7 @@ public class PostServiceUnitTest {
         @DisplayName("게시물 수정 - 썸네일 우선순위 검증 (삭제 후 업로드 이미지 적용)")
         void updatePost_whenThumbnailIsUpdated_thenAppliesPriorityRules() {
             UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
-            Post post = Post.builder().title("Old").content("Old").build();
+            Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
             List<String> toDelete = List.of("existing.jpg");
 
             MultipartFile[] upload = {
@@ -535,9 +535,9 @@ public class PostServiceUnitTest {
             when(postImageService.savePostImages(any(), eq(post)))
                     .thenReturn(List.of(new PostImage(post, "new1.jpg")));
 
-            Post result = postService.updatePost(1L, req, upload, toDelete);
+            PostResponse result = postService.updatePost(1L, req, upload, toDelete);
 
-            assertEquals("new1.jpg", result.getThumbnail());
+            assertEquals("new1.jpg", result.thumbnail());
         }
     }
 

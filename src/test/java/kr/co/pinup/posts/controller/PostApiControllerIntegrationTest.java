@@ -307,7 +307,7 @@ public class PostApiControllerIntegrationTest {
                 .build();
 
         when(postService.updatePost(eq(postId), any(UpdatePostRequest.class), any(MultipartFile[].class), anyList()))
-                .thenReturn(updatedPost);
+                .thenReturn(PostResponse.from(updatedPost));
 
         MockMultipartFile images = new MockMultipartFile(
                 "images",
