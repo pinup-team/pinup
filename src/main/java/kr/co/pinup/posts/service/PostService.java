@@ -114,7 +114,7 @@ public class PostService {
 
         UpdatePostImageRequest imageRequest = buildImageUpdateRequest(images, imagesToDelete);
 
-        if (!(imageRequest.getImages().isEmpty() && imageRequest.getImagesToDelete().isEmpty())) {
+        if (hasImagesToDelete(imageRequest) || hasNewImagesToUpload(imageRequest)) {
             validateRemainingImageCount(id, imageRequest);
             handleImageDeletionAndUpload(id, existingPost, imageRequest);
             updateThumbnailFromCurrentImages(existingPost, id);
@@ -142,13 +142,20 @@ public class PostService {
     }
 
     private void handleImageDeletionAndUpload(Long postId, Post post, UpdatePostImageRequest request) {
-        if (!request.getImagesToDelete().isEmpty()) {
+        if (hasImagesToDelete(request)) {
             postImageService.deleteSelectedImages(postId, request);
         }
-        if (request.getImages().stream().anyMatch(file -> !file.isEmpty())) {
+        if (hasNewImagesToUpload(request)) {
             postImageService.savePostImages(request, post);
         }
+    }
 
+    private boolean hasImagesToDelete(UpdatePostImageRequest request) {
+        return !request.getImagesToDelete().isEmpty();
+    }
+
+    private boolean hasNewImagesToUpload(UpdatePostImageRequest request) {
+        return request.getImages().stream().anyMatch(file -> !file.isEmpty());
     }
 
     private void updateThumbnailFromCurrentImages(Post post, Long postId) {
