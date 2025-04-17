@@ -107,7 +107,7 @@ class PostImageServiceUnitTest {
         postImageService.deleteAllByPost(mockPost.getId());
 
         // Then
-        verify(s3Service).deleteFromS3("img.jpg");
+        verify(s3Service).deleteFromS3("post/img.jpg");
         verify(postImageRepository).deleteAllByPostId(mockPost.getId());
     }
 
@@ -142,7 +142,7 @@ class PostImageServiceUnitTest {
         postImageService.deleteSelectedImages(mockPost.getId(), request);
 
         // Then
-        verify(s3Service).deleteFromS3(file);
+        verify(s3Service).deleteFromS3("post/"+file);
         verify(postImageRepository).deleteAll(List.of(img));
     }
 
@@ -157,7 +157,7 @@ class PostImageServiceUnitTest {
         when(postImageRepository.findByPostIdAndS3UrlIn(mockPost.getId(), List.of(url)))
                 .thenReturn(List.of(img));
         when(s3Service.extractFileName(url)).thenReturn(file);
-        doThrow(new ImageDeleteFailedException("fail")).when(s3Service).deleteFromS3(file);
+        doThrow(new ImageDeleteFailedException("fail")).when(s3Service).deleteFromS3("post/"+file);
 
         UpdatePostImageRequest request = UpdatePostImageRequest.builder()
                 .imagesToDelete(List.of(url)).build();

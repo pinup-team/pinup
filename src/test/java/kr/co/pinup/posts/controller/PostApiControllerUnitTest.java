@@ -6,9 +6,9 @@ import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.oauth.OAuthProvider;
+import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
-import kr.co.pinup.posts.exception.post.ImageCountException;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
@@ -26,6 +26,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -110,19 +111,28 @@ public class PostApiControllerUnitTest {
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     void createPost_whenAuthenticated_givenValidRequest_thenSuccess() throws Exception {
         // Given
-        when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(MultipartFile[].class)))
-                .thenReturn(PostResponse.builder().id(1L).storeId(1L).title("Title 1").content("Content 1").thumbnail("Thumbnail").build());
+        when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(CreatePostImageRequest.class)))
+                .thenReturn(PostResponse.builder()
+                        .id(1L)
+                        .storeId(1L)
+                        .title("Title 1")
+                        .content("Content 1")
+                        .thumbnail("Thumbnail")
+                        .build());
 
+        // Multipart 이미지 2장 (DTO 유효성 통과용)
         MockMultipartFile image1 = new MockMultipartFile("images", "image1.jpg", "image/jpeg", "image content 1".getBytes());
         MockMultipartFile image2 = new MockMultipartFile("images", "image2.jpg", "image/jpeg", "image content 2".getBytes());
 
         // When
         ResultActions result = mockMvc.perform(multipart("/api/post/create")
-                .file(image1).file(image2)
+                .file(image1)
+                .file(image2)
                 .param("storeId", "1")
                 .param("title", "Title 1")
                 .param("content", "Content 1")
-                .param("thumbnail", "Thumbnail"));
+                .with(request -> { request.setMethod("POST"); return request; })
+        );
 
         // Then
         result.andExpect(status().isCreated())
@@ -134,9 +144,9 @@ public class PostApiControllerUnitTest {
     }
 
     @Test
-    @DisplayName("게시글 생성 실패 - 이미지 부족")
+    @DisplayName("게시글 생성 실패 - 이미지 부족 (유효성 검증 실패)")
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    void createPost_whenInsufficientImages_thenThrowsException() throws Exception {
+    void createPost_whenInsufficientImages_thenReturnsBadRequest() throws Exception {
         // Given
         MockMultipartFile image = new MockMultipartFile("images", "image.jpg", "image/jpeg", "image content".getBytes());
 
@@ -145,12 +155,11 @@ public class PostApiControllerUnitTest {
                 .file(image)
                 .param("storeId", "1")
                 .param("title", "Title 1")
-                .param("content", "Content 1")
-                .param("thumbnail", "Thumbnail"));
+                .param("content", "Content 1"));
 
         // Then
         result.andExpect(status().isBadRequest())
-                .andExpect(r -> assertTrue(r.getResolvedException() instanceof ImageCountException));
+                .andExpect(result1 -> assertTrue(result1.getResolvedException() instanceof MethodArgumentNotValidException));
     }
 
     @Test
@@ -177,12 +186,12 @@ public class PostApiControllerUnitTest {
                 .title("Updated Title")
                 .content("Updated Content")
                 .thumbnail("Updated Thumbnail")
-                .store(mockStore)  // <- Store 설정 추가
+                .store(mockStore)
                 .member(mockMember)
                 .build();
 
         when(postService.updatePost(eq(1L), any(UpdatePostRequest.class), any(MultipartFile[].class), anyList()))
-                .thenReturn(updatedPost);
+                .thenReturn(PostResponse.from(updatedPost));
 
         MockMultipartFile images = new MockMultipartFile(
                 "images",
