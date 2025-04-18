@@ -143,7 +143,7 @@ class PostImageServiceIntegrationTest {
         postImageService.deleteAllByPost(post.getId());
 
         // Then
-        verify(s3Service, times(1)).deleteFromS3("test.jpg");
+        verify(s3Service, times(1)).deleteFromS3("post/test.jpg");
         assertTrue(postImageRepository.findByPostId(post.getId()).isEmpty());
     }
 
@@ -153,7 +153,7 @@ class PostImageServiceIntegrationTest {
         // Given
         PostImage image = postImageRepository.save(new PostImage(post, "https://s3.com/test.jpg"));
         when(s3Service.extractFileName(image.getS3Url())).thenReturn("test.jpg");
-        doThrow(new ImageDeleteFailedException("삭제 실패")).when(s3Service).deleteFromS3("test.jpg");
+        doThrow(new ImageDeleteFailedException("삭제 실패")).when(s3Service).deleteFromS3("post/test.jpg");
 
         // When & Then
         assertThrows(PostImageDeleteFailedException.class, () ->
@@ -176,7 +176,7 @@ class PostImageServiceIntegrationTest {
         postImageService.deleteSelectedImages(post.getId(), request);
 
         // Then
-        verify(s3Service).deleteFromS3("img.jpg");
+        verify(s3Service).deleteFromS3("post/img.jpg");
         assertTrue(postImageRepository.findByPostId(post.getId()).isEmpty());
     }
 
@@ -187,7 +187,7 @@ class PostImageServiceIntegrationTest {
         String imageUrl = "https://s3.com/img.jpg";
         postImageRepository.save(new PostImage(post, imageUrl));
         when(s3Service.extractFileName(imageUrl)).thenReturn("img.jpg");
-        doThrow(new ImageDeleteFailedException("삭제 실패")).when(s3Service).deleteFromS3("img.jpg");
+        doThrow(new ImageDeleteFailedException("삭제 실패")).when(s3Service).deleteFromS3("post/img.jpg");
 
         UpdatePostImageRequest request = UpdatePostImageRequest.builder()
                 .imagesToDelete(List.of(imageUrl))

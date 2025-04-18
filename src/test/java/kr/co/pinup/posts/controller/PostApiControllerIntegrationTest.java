@@ -16,11 +16,11 @@ import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
+import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
-import kr.co.pinup.posts.exception.post.ImageCountException;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
@@ -51,7 +51,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -87,32 +86,20 @@ public class PostApiControllerIntegrationTest {
         }
     }
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-    @Autowired
-    private PostRepository postRepository;
-    @Autowired
-    private CommentRepository commentRepository;
-    @Autowired
-    private PostImageRepository postImageRepository;
-    @Autowired
-    private MemberRepository memberRepository;
-    @Autowired
-    private StoreRepository storeRepository;
-    @Autowired
-    private StoreCategoryRepository storeCategoryRepository;
-    @Autowired
-    private LocationRepository locationRepository;
+    @Autowired private PostRepository postRepository;
+    @Autowired private CommentRepository commentRepository;
+    @Autowired private PostImageRepository postImageRepository;
+    @Autowired private MemberRepository memberRepository;
+    @Autowired private StoreRepository storeRepository;
+    @Autowired private StoreCategoryRepository storeCategoryRepository;
+    @Autowired private LocationRepository locationRepository;
 
-    @Autowired
-    private MemberService memberService;
-    @Autowired
-    private PostService postService;
-    @Autowired
-    private CommentService commentService;
-    @Autowired
-    private PostImageService postImageService;
+    @Autowired private MemberService memberService;
+    @Autowired private PostService postService;
+    @Autowired private CommentService commentService;
+    @Autowired private PostImageService postImageService;
 
     private Member mockMember;
     private Member mockAdminMember;
@@ -241,7 +228,7 @@ public class PostApiControllerIntegrationTest {
                 .thumbnail("Thumbnail")
                 .build();
 
-        when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(MultipartFile[].class)))
+        when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(CreatePostImageRequest.class)))
                 .thenReturn(createdPostResponse);
 
         MockMultipartFile image1 = new MockMultipartFile("images", "image1.jpg", "image/jpeg", "image content 1".getBytes());
@@ -281,7 +268,7 @@ public class PostApiControllerIntegrationTest {
 
         // Then
         result.andExpect(status().isBadRequest())
-                .andExpect(r -> assertTrue(r.getResolvedException() instanceof ImageCountException));
+                .andExpect(jsonPath("$.validation.images").value("이미지는 최소 2장 이상, 최대 5장까지 등록 가능합니다."));
     }
 
     @Test
@@ -320,7 +307,7 @@ public class PostApiControllerIntegrationTest {
                 .build();
 
         when(postService.updatePost(eq(postId), any(UpdatePostRequest.class), any(MultipartFile[].class), anyList()))
-                .thenReturn(updatedPost);
+                .thenReturn(PostResponse.from(updatedPost));
 
         MockMultipartFile images = new MockMultipartFile(
                 "images",

@@ -64,4 +64,7 @@
         </div>
     </div>
 </div>
+<th:block layout:fragment="pageScripts">
+    <th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
+</th:block>
 </html>
