@@ -1,13 +1,13 @@
 package kr.co.pinup.posts.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
-import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostDetailResponse;
 import kr.co.pinup.posts.model.dto.PostResponse;
@@ -19,12 +19,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/api/post")
 @RequiredArgsConstructor
@@ -35,12 +37,12 @@ public class PostApiController {
     private final PostImageService postImageService;
 
     @GetMapping("/list/{storeId}")
-    public List<PostResponse> getAllPosts(@PathVariable Long storeId) {
+    public List<PostResponse> getAllPosts(@PathVariable @Positive Long storeId) {
         return postService.findByStoreId(storeId,false);
     }
 
     @GetMapping("/{postId}")
-    public PostDetailResponse getPostById(@PathVariable Long postId) {
+    public PostDetailResponse getPostById(@PathVariable @Positive Long postId) {
         PostResponse post = postService.getPostById(postId,false);
         List<CommentResponse> comments = commentService.findByPostId(postId);
         List<PostImageResponse> images = postImageService.findImagesByPostId(postId);
