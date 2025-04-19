@@ -1,9 +1,8 @@
-package kr.co.pinup.posts;
+package kr.co.pinup.posts.controller;
 
 import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.exception.ErrorResponse;
 import kr.co.pinup.postImages.service.PostImageService;
-import kr.co.pinup.posts.controller.PostController;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.service.PostService;
