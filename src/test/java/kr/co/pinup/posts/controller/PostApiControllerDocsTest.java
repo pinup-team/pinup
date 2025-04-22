@@ -11,7 +11,6 @@ import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
-import kr.co.pinup.posts.model.dto.PostDetailResponse;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.service.PostService;
 import org.junit.jupiter.api.DisplayName;
@@ -22,12 +21,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-
-import static io.restassured.RestAssured.when;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
-
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -37,9 +30,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.multipart;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -71,6 +66,148 @@ class PostApiControllerDocsTest {
                     .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                     .build();
         }
+    }
+
+    @Test
+    @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
+    @DisplayName("GET /api/post/list/{storeId} - 특정 스토어 게시글 목록 조회 문서화")
+    void getPostListByStore_document() throws Exception {
+        // given
+        Long storeId = 10L;
+        LocalDateTime now = LocalDateTime.now();
+
+        MemberResponse writer = MemberResponse.builder()
+                .id(1L)
+                .nickname("행복한돼지")
+                .email("test@example.com")
+                .providerType(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_USER)
+                .isDeleted(false)
+                .build();
+
+        List<PostResponse> posts = List.of(
+                new PostResponse(1L, storeId, writer, "제목1", "내용1", "thumb1.jpg", now, now, 3),
+                new PostResponse(2L, storeId, writer, "제목2", "내용2", "thumb2.jpg", now, now, 1)
+        );
+
+        given(postService.findByStoreId(eq(storeId), eq(false))).willReturn(posts);
+
+        // when + then
+        mockMvc.perform(get("/api/post/list/{storeId}", storeId))
+                .andExpect(status().isOk())
+                .andDo(document("post-get-list",
+                        pathParameters(
+                                parameterWithName("storeId").description("스토어 ID")
+                        ),
+                        responseFields(
+                                fieldWithPath("[].id").description("게시글 ID"),
+                                fieldWithPath("[].storeId").description("스토어 ID"),
+                                fieldWithPath("[].member.id").description("작성자 ID"),
+                                fieldWithPath("[].member.name").description("작성자 이름 (nullable)").optional(),
+                                fieldWithPath("[].member.nickname").description("작성자 닉네임"),
+                                fieldWithPath("[].member.email").description("작성자 이메일"),
+                                fieldWithPath("[].member.providerType").description("OAuth 제공자"),
+                                fieldWithPath("[].member.role").description("사용자 권한"),
+                                fieldWithPath("[].member.deleted").description("탈퇴 여부"),
+                                fieldWithPath("[].title").description("게시글 제목"),
+                                fieldWithPath("[].content").description("게시글 내용"),
+                                fieldWithPath("[].thumbnail").description("썸네일 이미지 URL"),
+                                fieldWithPath("[].createdAt").description("작성일시"),
+                                fieldWithPath("[].updatedAt").description("수정일시"),
+                                fieldWithPath("[].commentCount").description("댓글 수")
+                        )
+
+                ));
+    }
+
+    @Test
+    @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
+    @DisplayName("GET /api/post/{postId} - 게시글 상세 조회 문서화")
+    void getPostById_document() throws Exception {
+        // given
+        Long postId = 1L;
+        LocalDateTime now = LocalDateTime.now();
+
+        MemberResponse writer = MemberResponse.builder()
+                .id(1L)
+                .nickname("행복한돼지")
+                .email("test@example.com")
+                .providerType(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_USER)
+                .isDeleted(false)
+                .build();
+
+        PostResponse postResponse = new PostResponse(
+                postId, 10L, writer,
+                "문서화 제목", "문서화 내용", "https://s3.bucket/thumb.jpg",
+                now, now, 1
+        );
+
+        Member commentWriter = Member.builder()
+                .nickname("댓글유저")
+                .email("comment@example.com")
+                .providerType(OAuthProvider.NAVER)
+                .role(MemberRole.ROLE_USER)
+                .isDeleted(false)
+                .build();
+
+        List<CommentResponse> comments = List.of(
+                CommentResponse.builder()
+                        .id(100L)
+                        .postId(postId)
+                        .content("댓글 내용")
+                        .member(commentWriter)
+                        .createdAt(now)
+                        .build()
+        );
+
+        List<PostImageResponse> postImages = List.of(
+                new PostImageResponse(201L, postId, "https://s3.bucket/image1.jpg"),
+                new PostImageResponse(202L, postId, "https://s3.bucket/image2.jpg")
+        );
+
+        given(postService.getPostById(eq(postId), eq(false))).willReturn(postResponse);
+        given(commentService.findByPostId(eq(postId))).willReturn(comments);
+        given(postImageService.findImagesByPostId(eq(postId))).willReturn(postImages);
+
+        // then
+        mockMvc.perform(get("/api/post/{postId}", postId))
+                .andExpect(status().isOk())
+                .andDo(document("post-get-by-id",
+                        pathParameters(
+                                parameterWithName("postId").description("게시글 ID")
+                        ),
+                        responseFields(
+                                subsectionWithPath("post").description("게시글 정보"),
+                                fieldWithPath("post.id").description("게시글 ID"),
+                                fieldWithPath("post.storeId").description("스토어 ID"),
+                                fieldWithPath("post.member.id").description("작성자 ID"),
+                                fieldWithPath("post.member.nickname").description("작성자 닉네임"),
+                                fieldWithPath("post.member.email").description("작성자 이메일"),
+                                fieldWithPath("post.member.providerType").description("OAuth 제공자"),
+                                fieldWithPath("post.member.role").description("사용자 권한"),
+                                fieldWithPath("post.member.deleted").description("탈퇴 여부"),
+
+                                fieldWithPath("post.title").description("게시글 제목"),
+                                fieldWithPath("post.content").description("게시글 내용"),
+                                fieldWithPath("post.thumbnail").description("썸네일 이미지 URL"),
+                                fieldWithPath("post.createdAt").description("게시글 생성일"),
+                                fieldWithPath("post.updatedAt").description("게시글 수정일"),
+                                fieldWithPath("post.commentCount").description("댓글 수"),
+
+                                subsectionWithPath("comments").description("댓글 목록"),
+                                fieldWithPath("comments[].id").description("댓글 ID"),
+                                fieldWithPath("comments[].postId").description("댓글이 속한 게시글 ID"),
+                                fieldWithPath("comments[].member.nickname").description("댓글 작성자 닉네임"),
+                                fieldWithPath("comments[].content").description("댓글 내용"),
+                                fieldWithPath("comments[].createdAt").description("댓글 작성일"),
+
+                                subsectionWithPath("postImages").description("게시글 이미지 목록"),
+                                fieldWithPath("postImages[].id").description("이미지 ID"),
+                                fieldWithPath("postImages[].postId").description("이미지가 속한 게시글 ID"),
+                                fieldWithPath("postImages[].s3Url").description("이미지 S3 URL")
+                        )
+                ));
     }
 
     @Test
@@ -121,5 +258,41 @@ class PostApiControllerDocsTest {
                 ));
     }
 
+    @Test
+    @WithMockMember(role = MemberRole.ROLE_ADMIN)
+    @DisplayName("DELETE /api/post/{postId} - 게시글 삭제 문서화")
+    void deletePost_document() throws Exception {
+        Long postId = 1L;
+
+        // when + then
+        mockMvc.perform(delete("/api/post/{postId}", postId)
+                        .with(csrf()))
+                .andExpect(status().isNoContent())
+                .andDo(document("post-delete",
+                        pathParameters(
+                                parameterWithName("postId").description("삭제할 게시글 ID")
+                        )
+                ));
+    }
+
+    @Test
+    @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
+    @DisplayName("PATCH /api/post/{postId}/disable - 게시글 비활성화 문서화")
+    void disablePost_document() throws Exception {
+        // given
+        Long postId = 1L;
+
+        // when + then
+        mockMvc.perform(
+                        patch("/api/post/{postId}/disable", postId)
+                                .with(csrf())
+                )
+                .andExpect(status().isNoContent())
+                .andDo(document("post-disable",
+                        pathParameters(
+                                parameterWithName("postId").description("비활성화할 게시글 ID")
+                        )
+                ));
+    }
 
 }
