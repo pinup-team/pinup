@@ -68,10 +68,10 @@ public class PostApiController {
 
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @PutMapping("/{postId}")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable Long postId,
-                                                   @ModelAttribute @Valid UpdatePostRequest updatePostRequest,
-                                                   @RequestParam(required = false) List<String> imagesToDelete,
-                                                   @RequestParam("images") MultipartFile[] images) {
+    public ResponseEntity<PostResponse> updatePost(    @PathVariable Long postId,
+                                                       @RequestPart("updatePostRequest") @Valid UpdatePostRequest updatePostRequest,
+                                                       @RequestParam(required = false) List<String> imagesToDelete,
+                                                       @RequestPart(name = "images", required = false) MultipartFile[] images) {
         return ResponseEntity.ok(postService.updatePost(postId, updatePostRequest, images, imagesToDelete));
     }
 

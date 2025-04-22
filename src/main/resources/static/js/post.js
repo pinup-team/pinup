@@ -48,19 +48,31 @@ document.addEventListener('DOMContentLoaded', function () {
         isUpdateMode = true;
         updatePostForm.addEventListener('submit', function (event) {
             event.preventDefault();
+            if (!validateForm()) return;
 
-            if (!validateForm()) {
-                return;
-            }
-
+            const postId = document.getElementById('postId').value;
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const images = document.getElementById('images').files;
             const imagesToDelete = document.getElementById('imagesToDelete').value.split(',').filter(Boolean);
-            const formData = new FormData(event.target);
 
-            if (imagesToDelete.length > 0) {
-                formData.set('imagesToDelete', imagesToDelete.join(','));
+            const updatePostRequest = {
+                title: title,
+                content: content
+            };
+
+            const formData = new FormData();
+            formData.append("updatePostRequest", new Blob([JSON.stringify(updatePostRequest)], { type: "application/json" }));
+
+            for (let i = 0; i < images.length; i++) {
+                formData.append("images", images[i]);
             }
 
-            fetch('/api/post/' + formData.get('postId'), {
+            for (let i = 0; i < imagesToDelete.length; i++) {
+                formData.append("imagesToDelete", imagesToDelete[i]);
+            }
+
+            fetch('/api/post/' + postId, {
                 method: 'PUT',
                 body: formData,
             })

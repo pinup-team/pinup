@@ -12,6 +12,7 @@ import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
+import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.service.PostService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,6 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @WebMvcTest(PostApiController.class)
 @AutoConfigureRestDocs(outputDir = "build/generated-snippets")
@@ -274,6 +274,67 @@ class PostApiControllerDocsTest {
                         )
                 ));
     }
+
+    @Test
+    @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
+    @DisplayName("PUT /api/post/{postId} - 게시글 수정 문서화")
+    void updatePost_document() throws Exception {
+        // given
+        Long postId = 1L;
+
+        MockMultipartFile updatePostRequest = new MockMultipartFile(
+                "updatePostRequest",
+                "updatePostRequest.json",
+                "application/json",
+                objectMapper.writeValueAsBytes(new UpdatePostRequest("수정 제목", "수정 내용"))
+        );
+
+        MockMultipartFile image1 = new MockMultipartFile(
+                "images",
+                "image1.jpg",
+                "image/jpeg",
+                "이미지데이터1".getBytes()
+        );
+
+        MockMultipartFile image2 = new MockMultipartFile(
+                "images",
+                "image2.jpg",
+                "image/jpeg",
+                "이미지데이터2".getBytes()
+        );
+
+        // when + then
+        mockMvc.perform(
+                        multipart("/api/post/{postId}", postId)
+                                .file(updatePostRequest)
+                                .file(image1)
+                                .file(image2)
+                                .param("imagesToDelete", "img1.jpg", "img2.jpg")
+                                .with(csrf())
+                                .with(request -> {
+                                    request.setMethod("PUT"); // ✅ 명시적으로 PUT 메서드 설정
+                                    return request;
+                                })
+                )
+                .andExpect(status().isOk())
+                .andDo(document("post-update",
+                        pathParameters(
+                                parameterWithName("postId").description("수정할 게시글 ID")
+                        ),
+                        requestParts(
+                                partWithName("updatePostRequest").description("수정할 게시글 정보 (title, content 포함)"),
+                                partWithName("images").description("추가로 업로드할 이미지 파일들 (0개 이상 가능)")
+                        ),
+                        queryParameters(
+                                parameterWithName("imagesToDelete").optional().description("삭제할 이미지 파일 이름 목록 (선택)")
+                        ),
+                        requestPartFields("updatePostRequest",
+                                fieldWithPath("title").description("수정할 제목"),
+                                fieldWithPath("content").description("수정할 내용")
+                        )
+                ));
+    }
+
 
     @Test
     @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
