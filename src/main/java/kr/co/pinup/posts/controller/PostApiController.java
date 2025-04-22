@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Positive;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.postImages.exception.postimage.PostImageUpdateCountException;
 import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
@@ -49,15 +50,16 @@ public class PostApiController {
         return PostDetailResponse.from(post, comments, images);
     }
 
-    @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @PostMapping("/create")
     public ResponseEntity<PostResponse> createPost(@AuthenticationPrincipal MemberInfo memberInfo,
                                                    @RequestPart("post") @Valid CreatePostRequest post,
-                                                   @RequestPart("images") List<MultipartFile> images) {CreatePostImageRequest imageRequest = new CreatePostImageRequest(images);
+                                                   @RequestPart(name = "images") List<MultipartFile> images
+    ) {
+        if (images == null || images.size() < 2) {throw new PostImageUpdateCountException("이미지는 2장 이상 등록해야 합니다.");}
+        CreatePostImageRequest imageRequest = new CreatePostImageRequest(images);
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo, post, imageRequest)
         );
     }
-
 
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_ADMIN'))")
     @DeleteMapping("/{postId}")

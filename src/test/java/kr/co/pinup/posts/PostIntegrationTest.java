@@ -11,6 +11,8 @@ import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.repository.PostImageRepository;
+import kr.co.pinup.posts.model.dto.CreatePostRequest;
+import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.repository.PostRepository;
 import kr.co.pinup.store_categories.StoreCategory;
 import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
@@ -54,7 +56,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -161,14 +164,22 @@ public class PostIntegrationTest {
             MockMultipartFile image1 = new MockMultipartFile("images", "img1.jpg", "image/jpeg", "data1".getBytes());
             MockMultipartFile image2 = new MockMultipartFile("images", "img2.jpg", "image/jpeg", "data2".getBytes());
 
+            CreatePostRequest requestDto = new CreatePostRequest(
+                    store.getId(),
+                    "테스트 제목",
+                    "테스트 내용"
+            );
+            String json = new ObjectMapper().writeValueAsString(requestDto);
+
+            MockMultipartFile postPart = new MockMultipartFile(
+                    "post", "post.json", "application/json", json.getBytes(StandardCharsets.UTF_8)
+            );
+
             // When: 게시글 생성 요청
             mockMvc.perform(multipart("/api/post/create")
                             .file(image1)
                             .file(image2)
-                            .param("storeId", String.valueOf(store.getId()))
-                            .param("title", "테스트 제목")
-                            .param("content", "테스트 내용")
-                            .param("thumbnail", "img1.jpg")
+                            .file(postPart)
                             .with(csrf()))
                     // Then: 응답이 성공이고 JSON 응답이 예상한 값과 일치함
                     .andExpect(status().isCreated())
@@ -191,6 +202,7 @@ public class PostIntegrationTest {
                 }
             });
         }
+
     }
 
     @Nested
@@ -201,30 +213,17 @@ public class PostIntegrationTest {
         @DisplayName("게시글 삭제 요청 시 DB에서 삭제되고 이미지도 함께 삭제된다")
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
         void deletePost_thenCascadeDeleteWorks() throws Exception {
-            // Given: 게시글 + 이미지 생성
-            MockMultipartFile image1 = new MockMultipartFile("images", "img1.jpg", "image/jpeg", "data1".getBytes());
-            MockMultipartFile image2 = new MockMultipartFile("images", "img2.jpg", "image/jpeg", "data2".getBytes());
+            // Given: 게시글 생성
+            Long postId = createPostAsLoggedInUser("삭제용 제목", "img1.jpg");
 
-            mockMvc.perform(multipart("/api/post/create")
-                            .file(image1)
-                            .file(image2)
-                            .param("storeId", String.valueOf(store.getId()))
-                            .param("title", "삭제용 제목")
-                            .param("content", "삭제용 내용")
-                            .param("thumbnail", "img1.jpg")
-                            .with(csrf()))
-                    .andExpect(status().isCreated());
-
-            // When: 삭제 요청 실행
+            // When + Then: 삭제 요청 실행 및 검증
             TransactionTemplate txTemplate = new TransactionTemplate(txManager);
             txTemplate.executeWithoutResult(status -> {
-                Post post = postRepository.findAll().get(0);
+                Post post = postRepository.findById(postId).orElseThrow();
                 Hibernate.initialize(post.getPostImages());
-                Long postId = post.getId();
                 List<PostImage> images = post.getPostImages();
                 assertThat(images).hasSize(2);
 
-                // When: 삭제 요청
                 new TransactionTemplate(txManager).executeWithoutResult(deleteTx -> {
                     try {
                         mockMvc.perform(delete("/api/post/" + postId).with(csrf()))
@@ -234,20 +233,20 @@ public class PostIntegrationTest {
                     }
                 });
 
-                // Then: DB에서 게시글 및 이미지 삭제됨
+                // DB 삭제 확인
                 assertThat(postRepository.findById(postId)).isEmpty();
                 assertThat(postImageRepository.findByPostId(postId)).isEmpty();
 
-                // And: S3에서도 이미지가 삭제됨
+                // S3 삭제 확인
                 List<String> deletedKeys = images.stream()
                         .map(PostImage::getS3Url)
                         .map(PostIntegrationTest.this::extractS3Key)
                         .map(fileName -> "post/" + fileName)
                         .toList();
-
                 assertS3ObjectsDeleted(deletedKeys);
             });
         }
+
     }
 
     @Nested
@@ -267,9 +266,7 @@ public class PostIntegrationTest {
             MockMultipartFile newImage = new MockMultipartFile("images", "img3.jpg", "image/jpeg", "data3".getBytes());
             mockMvc.perform(multipart("/api/post/" + postId)
                             .file(newImage)
-                            .param("title", "수정된 제목")
-                            .param("content", "수정된 내용")
-                            .param("thumbnail", "img3.jpg")
+                            .file(createUpdatePostRequestPart("수정된 제목", "수정된 내용"))
                             .param("imagesToDelete", deleteTargetUrl)
                             .with(csrf())
                             .with(req -> { req.setMethod("PUT"); return req; }))
@@ -306,9 +303,7 @@ public class PostIntegrationTest {
             MockMultipartFile image3 = new MockMultipartFile("images", "img3.jpg", "image/jpeg", "data3".getBytes());
             mockMvc.perform(multipart("/api/post/" + postId)
                             .file(image3)
-                            .param("title", "업로드 테스트")
-                            .param("content", "내용")
-                            .param("thumbnail", "img3.jpg")
+                            .file(createUpdatePostRequestPart("업로드 테스트", "내용"))
                             .with(csrf())
                             .with(req -> { req.setMethod("PUT"); return req; }))
                     .andExpect(status().isOk());
@@ -340,9 +335,7 @@ public class PostIntegrationTest {
             MockMultipartFile image3 = new MockMultipartFile("images", "img3.jpg", "image/jpeg", "data3".getBytes());
             mockMvc.perform(multipart("/api/post/" + postId)
                             .file(image3)
-                            .param("title", "수정된 제목")
-                            .param("content", "내용")
-                            .param("thumbnail", "img3.jpg")
+                            .file(createUpdatePostRequestPart("수정된 제목", "내용"))
                             .with(csrf())
                             .with(req -> { req.setMethod("PUT"); return req; }))
                     .andExpect(status().isOk())
@@ -379,9 +372,7 @@ public class PostIntegrationTest {
             MockMultipartFile empty = new MockMultipartFile("images", "", "application/octet-stream", new byte[0]);
             mockMvc.perform(multipart("/api/post/" + postId)
                             .file(empty)
-                            .param("title", "예외 제목 수정")
-                            .param("content", "내용")
-                            .param("thumbnail", remainingUrl)
+                            .file(createUpdatePostRequestPart("예외 제목 수정", "내용"))
                             .param("imagesToDelete", deleteTargetUrl)
                             .with(csrf())
                             .with(req -> { req.setMethod("PUT"); return req; }))
@@ -518,23 +509,33 @@ public class PostIntegrationTest {
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
         void updatePost_whenNotFound_thenFail() throws Exception {
             // Given: 존재하지 않는 게시글 ID
+            long nonExistentPostId = 9999L;
 
-            // When: 수정 요청 실행
-            mockMvc.perform(multipart("/api/post/9999")
-                            .file(new MockMultipartFile("images", "", "application/octet-stream", new byte[0]))
-                            .param("title", "수정 제목")
-                            .param("content", "수정 내용")
-                            .param("thumbnail", "img.jpg")
+            // JSON part
+            UpdatePostRequest request = UpdatePostRequest.builder()
+                    .title("수정 제목")
+                    .content("수정 내용")
+                    .build();
+            String json = new ObjectMapper().writeValueAsString(request);
+            MockMultipartFile updatePostPart = new MockMultipartFile(
+                    "updatePostRequest", "updatePostRequest.json", "application/json", json.getBytes(StandardCharsets.UTF_8)
+            );
+
+            // 빈 이미지
+            MockMultipartFile emptyImages = new MockMultipartFile("images", "", "application/octet-stream", new byte[0]);
+
+            // When & Then
+            mockMvc.perform(multipart("/api/post/" + nonExistentPostId)
+                            .file(updatePostPart)
+                            .file(emptyImages)
                             .with(csrf())
                             .with(req -> { req.setMethod("PUT"); return req; }))
-                    // Then: 404 Not Found 응답
                     .andExpect(status().isNotFound())
-                    // And: 예외 클래스명이 PostNotFoundException
                     .andExpect(result ->
                             assertThat(result.getResolvedException().getClass().getSimpleName())
-                                    .isEqualTo("PostNotFoundException")
-                    );
+                                    .isEqualTo("PostNotFoundException"));
         }
+
     }
 
     private String extractS3Key(String url) {
@@ -579,18 +580,37 @@ public class PostIntegrationTest {
     private Long createPostAsLoggedInUser(String title, String thumbnailName) throws Exception {
         MockMultipartFile image1 = new MockMultipartFile("images", "img1.jpg", "image/jpeg", "data1".getBytes());
         MockMultipartFile image2 = new MockMultipartFile("images", "img2.jpg", "image/jpeg", "data2".getBytes());
+        CreatePostRequest postRequest = new CreatePostRequest(
+                store.getId(),
+                title,
+                "내용"
+        );
+        String postJson = new ObjectMapper().writeValueAsString(postRequest);
+        MockMultipartFile postPart = new MockMultipartFile("post", "post.json", "application/json", postJson.getBytes(StandardCharsets.UTF_8));
 
         mockMvc.perform(multipart("/api/post/create")
                         .file(image1)
                         .file(image2)
-                        .param("storeId", String.valueOf(store.getId()))
-                        .param("title", title)
-                        .param("content", "내용")
+                        .file(postPart)
                         .param("thumbnail", thumbnailName)
                         .with(csrf()))
                 .andExpect(status().isCreated());
 
         return postRepository.findAll().get(0).getId();
+    }
+
+    private MockMultipartFile createUpdatePostRequestPart(String title, String content) throws Exception {
+        UpdatePostRequest request = UpdatePostRequest.builder()
+                .title(title)
+                .content(content)
+                .build();
+        String json = new ObjectMapper().writeValueAsString(request);
+        return new MockMultipartFile(
+                "updatePostRequest",
+                "updatePostRequest.json",
+                "application/json",
+                json.getBytes(StandardCharsets.UTF_8)
+        );
     }
 
 }

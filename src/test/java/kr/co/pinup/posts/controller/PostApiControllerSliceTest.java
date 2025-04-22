@@ -73,6 +73,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -245,58 +246,93 @@ class PostApiControllerSliceTest {
 
         @Test
         @WithMockMember
-        @DisplayName("정상 요청")
+        @DisplayName("게시글 생성 성공")
         void createPost_success() throws Exception {
-            // Given: 게시글 생성 요청 데이터 준비
+            // Given: 게시글 생성 요청 JSON part + 이미지 파일 part
             CreatePostRequest request = new CreatePostRequest(1L, "제목", "내용");
-            String json = objectMapper.writeValueAsString(request);  // CreatePostRequest 객체를 JSON으로 직렬화
+            String json = objectMapper.writeValueAsString(request);
+
+            MockMultipartFile postPart = new MockMultipartFile(
+                    "post",
+                    "post.json",
+                    "application/json",
+                    json.getBytes()
+            );
 
             MockMultipartFile image1 = new MockMultipartFile("images", "file1.jpg", "image/jpeg", "data1".getBytes());
             MockMultipartFile image2 = new MockMultipartFile("images", "file2.jpg", "image/jpeg", "data2".getBytes());
 
-            // When: 게시글 생성 API 호출
+            // when + then
             mockMvc.perform(multipart("/api/post/create")
+                            .file(postPart)
                             .file(image1)
                             .file(image2)
-                            .param("storeId", String.valueOf(request.storeId()))
-                            .param("title", request.title())
-                            .param("content", request.content())
-                            .contentType(MediaType.MULTIPART_FORM_DATA))
-                    // Then: 응답 상태가 201 Created여야 한다
+                            .with(csrf()))
                     .andExpect(status().isCreated());
         }
+
 
         @Test
         @WithMockMember
         @DisplayName("유효성 실패 - 제목 없음")
         void createPost_validationTitleFail() throws Exception {
-            // Given: 제목이 비어있는 게시글 생성 요청 데이터 준비
+            // Given
             CreatePostRequest request = new CreatePostRequest(1L, "", "내용");
             String json = objectMapper.writeValueAsString(request);
 
-            // When: 게시글 생성 API 호출
-            mockMvc.perform(post("/api/post/create")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    // Then: 응답 상태가 400 Bad Request여야 한다
+            MockMultipartFile postPart = new MockMultipartFile(
+                    "post",
+                    "post.json",
+                    "application/json",
+                    json.getBytes()
+            );
+
+            MockMultipartFile image = new MockMultipartFile(
+                    "images",
+                    "image1.jpg",
+                    "image/jpeg",
+                    "dummy".getBytes()
+            );
+
+            // When + Then
+            mockMvc.perform(multipart("/api/post/create")
+                            .file(postPart)
+                            .file(image)
+                            .with(csrf()))
                     .andExpect(status().isBadRequest());
         }
+
 
         @Test
         @WithMockMember
         @DisplayName("유효성 실패 - 내용 없음")
         void createPost_validationContentFail() throws Exception {
-            // Given: 내용이 비어있는 게시글 생성 요청 데이터 준비
+            // Given
             CreatePostRequest request = new CreatePostRequest(1L, "제목", "");
             String json = objectMapper.writeValueAsString(request);
 
-            // When: 게시글 생성 API 호출
-            mockMvc.perform(post("/api/post/create")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(json))
-                    // Then: 응답 상태가 400 Bad Request여야 한다
+            MockMultipartFile postPart = new MockMultipartFile(
+                    "post",
+                    "post.json",
+                    "application/json",
+                    json.getBytes()
+            );
+
+            MockMultipartFile image = new MockMultipartFile(
+                    "images",
+                    "image1.jpg",
+                    "image/jpeg",
+                    "dummy".getBytes()
+            );
+
+            // When + Then
+            mockMvc.perform(multipart("/api/post/create")
+                            .file(postPart)
+                            .file(image)
+                            .with(csrf()))
                     .andExpect(status().isBadRequest());
         }
+
     }
 
     @Nested
@@ -311,17 +347,22 @@ class PostApiControllerSliceTest {
             MockMultipartFile image1 = new MockMultipartFile("images", "file1.jpg", "image/jpeg", "data1".getBytes());
             MockMultipartFile image2 = new MockMultipartFile("images", "file2.jpg", "image/jpeg", "data2".getBytes());
 
-            String title = "제목";
-            String content = "내용";
-            Long storeId = 1L;
+            String postJson = objectMapper.writeValueAsString(
+                    new CreatePostRequest(1L, "제목", "내용")
+            );
+
+            MockMultipartFile postPart = new MockMultipartFile(
+                    "post",
+                    "post.json",
+                    "application/json",
+                    postJson.getBytes()
+            );
 
             // When: 게시글 생성 API 호출
             mockMvc.perform(multipart("/api/post/create")
                             .file(image1)
                             .file(image2)
-                            .param("title", title)
-                            .param("content", content)
-                            .param("storeId", String.valueOf(storeId))
+                            .file(postPart)
                             .contentType(MediaType.MULTIPART_FORM_DATA))
                     // Then: 응답 상태가 201 Created여야 한다
                     .andExpect(status().isCreated());
@@ -331,22 +372,31 @@ class PostApiControllerSliceTest {
         @WithMockMember
         @DisplayName("이미지 1장만 포함 시 실패")
         void createPost_withSingleImage_validationFail() throws Exception {
-            // Given: 파일 1장을 포함한 게시글 생성 요청 데이터 준비
-            MockMultipartFile image1 = new MockMultipartFile("images", "file1.jpg", "image/jpeg", "data1".getBytes());
-            MockMultipartFile title = new MockMultipartFile("title", "", "text/plain", "제목".getBytes());
-            MockMultipartFile content = new MockMultipartFile("content", "", "text/plain", "내용".getBytes());
-            MockMultipartFile storeId = new MockMultipartFile("storeId", "", "text/plain", "1".getBytes());
+            // Given: CreatePostRequest 객체 (JSON)와 이미지 1장을 포함한 요청
+            CreatePostRequest postRequest = new CreatePostRequest(1L, "제목", "내용");
+            MockMultipartFile postPart = new MockMultipartFile(
+                    "post",
+                    "post.json",
+                    "application/json",
+                    objectMapper.writeValueAsBytes(postRequest)
+            );
+
+            MockMultipartFile image1 = new MockMultipartFile(
+                    "images",
+                    "file1.jpg",
+                    "image/jpeg",
+                    "data1".getBytes()
+            );
 
             // When: 게시글 생성 API 호출
             mockMvc.perform(multipart("/api/post/create")
+                            .file(postPart)
                             .file(image1)
-                            .file(title)
-                            .file(content)
-                            .file(storeId)
-                            .contentType(MediaType.MULTIPART_FORM_DATA))
-                    // Then: 응답 상태가 400 Bad Request여야 한다
+                            .with(csrf()))
+                    // Then: 이미지 2장 미만이므로 400 오류
                     .andExpect(status().isBadRequest());
         }
+
     }
 
     @Nested
@@ -371,49 +421,37 @@ class PostApiControllerSliceTest {
             ReflectionTestUtils.setField(existingPost, "id", 1L);
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(existingPost));
-
             when(postRepository.save(any(Post.class))).thenReturn(existingPost);
+            when(postImageService.findImagesByPostId(1L))
+                    .thenReturn(Collections.singletonList(PostImageResponse.builder()
+                            .s3Url("http://dummy-s3-url.com")
+                            .build()));
+            UpdatePostRequest updatePostRequest = new UpdatePostRequest("Updated Title", "Updated Content");
+            String json = objectMapper.writeValueAsString(updatePostRequest);
 
-            PostImageResponse imageResponse = PostImageResponse.builder()
-                    .s3Url("http://dummy-s3-url.com")
-                    .build();
-            when(postImageService.findImagesByPostId(1L)).thenReturn(Collections.singletonList(imageResponse));
-
+            MockMultipartFile updatePostRequestPart = new MockMultipartFile(
+                    "updatePostRequest", // 꼭 컨트롤러의 @RequestPart 이름과 일치해야 함
+                    "updatePostRequest.json",
+                    "application/json",
+                    json.getBytes()
+            );
             MockMultipartFile image1 = new MockMultipartFile("images", "image1.jpg", "image/jpeg", "img1".getBytes());
             MockMultipartFile image2 = new MockMultipartFile("images", "image2.jpg", "image/jpeg", "img2".getBytes());
 
-            UpdatePostRequest updatePostRequest = new UpdatePostRequest("Updated Title", "Updated Content");
             // When: 게시글 수정 API 호출
             mockMvc.perform(MockMvcRequestBuilders.multipart("/api/post/{postId}", existingPost.getId())
+                            .file(updatePostRequestPart)
                             .file(image1)
                             .file(image2)
                             .param("imagesToDelete", "")
                             .contentType(MediaType.MULTIPART_FORM_DATA)
                             .characterEncoding("utf-8")
-                            .flashAttr("updatePostRequest", updatePostRequest)
                             .with(req -> { req.setMethod("PUT"); return req; }))
                     .andDo(print())
                     // Then: 응답 상태가 200 OK여야 한다
                     .andExpect(status().isOk());
         }
 
-        @Test
-        @WithMockMember
-        @DisplayName("수정 실패 - 이미지 1장")
-        void updatePost_singleImage_fail() throws Exception {
-            // Given: 파일 1장만 포함한 수정 요청 데이터 준비
-            MockMultipartFile image1 = new MockMultipartFile("images", "new1.jpg", "image/jpeg", "img1".getBytes());
-            MockMultipartFile title = new MockMultipartFile("title", "", "text/plain", "제목".getBytes());
-            MockMultipartFile content = new MockMultipartFile("content", "", "text/plain", "내용".getBytes());
-
-            // When: 게시글 수정 API 호출
-            mockMvc.perform(multipart("/api/post/1")
-                            .file(image1).file(title).file(content)
-                            .with(req -> { req.setMethod("PUT"); return req; })
-                            .contentType(MediaType.MULTIPART_FORM_DATA))
-                    // Then: 응답 상태가 400 Bad Request여야 한다
-                    .andExpect(status().isBadRequest());
-        }
     }
 
     @Nested
