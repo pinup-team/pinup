@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.4.1'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'com.github.node-gradle.node' version '7.1.0'
+	id 'org.asciidoctor.jvm.convert' version '4.0.4'
 }
 
 group = 'kr.co'
@@ -18,6 +19,7 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	asciidoctorExt
 }
 
 repositories {
@@ -63,6 +65,19 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	testImplementation 'org.springframework.security:spring-security-test'
+
+	// rest-assured(java dsl)
+	testImplementation 'io.rest-assured:rest-assured'
+	testImplementation 'io.rest-assured:json-path'
+
+	// REST Docs 관련 의존성 추가 (테스트 코드에서 REST Docs 사용 가능)
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc:3.0.3'
+	testImplementation 'org.springframework.restdocs:spring-restdocs-core:3.0.3' // 👈 명시적으로 추가!
+	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor:3.0.3'
+
+}
+ext {
+	snippetsDir = file('build/generated-snippets')  // REST Docs 스니펫 생성 위치 설정
 }
 
 tasks.named('test') {
@@ -70,6 +85,7 @@ tasks.named('test') {
 	testLogging {
 		events "passed", "skipped", "failed"
 	}
+	outputs.dir snippetsDir
 }
 
 node {
@@ -122,9 +138,20 @@ processResources {
 	}
 }
 
+// REST Docs 기반으로 HTML 문서 생성하는 태스크 수정 (기존 등록된 태스크 사용)
+tasks.named('asciidoctor') {
+	inputs.dir snippetsDir             // REST Docs 스니펫 입력 경로 지정
+	configurations 'asciidoctorExt'    // asciidoctor 확장 설정
+	dependsOn test                     // 테스트 태스크 완료 후 문서 생성
+}
+
 bootJar {
 	enabled = true
 	dependsOn minifyTasks
+	dependsOn asciidoctor              // 문서 생성 후 jar 생성
+	from("${asciidoctor.outputDir}") {
+		into 'static/docs'             // 문서 접근 경로 (http://localhost:8080/docs/)
+	}
 }
 
 jar {

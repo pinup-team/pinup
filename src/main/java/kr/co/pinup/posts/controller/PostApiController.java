@@ -52,10 +52,12 @@ public class PostApiController {
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @PostMapping("/create")
     public ResponseEntity<PostResponse> createPost(@AuthenticationPrincipal MemberInfo memberInfo,
-                                                   @ModelAttribute @Valid CreatePostRequest createPostRequest,
-                                                   @ModelAttribute @Valid CreatePostImageRequest createPostImageRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo,createPostRequest, createPostImageRequest));
+                                                   @RequestPart("post") @Valid CreatePostRequest post,
+                                                   @RequestPart("images") List<MultipartFile> images) {CreatePostImageRequest imageRequest = new CreatePostImageRequest(images);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo, post, imageRequest)
+        );
     }
+
 
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_ADMIN'))")
     @DeleteMapping("/{postId}")

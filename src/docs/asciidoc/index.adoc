@@ -1,0 +1,11 @@
+= Pinup API 문서
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+
+== 게시글 API
+
+=== 게시글 생성
+
+operation::post-create[snippets='request-fields,http-request,http-response']

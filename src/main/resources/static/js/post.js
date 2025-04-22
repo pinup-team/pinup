@@ -109,12 +109,22 @@ function toggleImageToDelete(checkbox) {
 
 function submitPost() {
     const form = document.getElementById("postForm");
-    const formData = new FormData(form);
     const images = document.getElementById("images").files;
 
     if (images.length < 2) {
         alert("이미지는 최소 2장 이상 등록해야 합니다.");
         return;
+    }
+    const formData = new FormData();
+    const postData = {
+        storeId: form.storeId.value,
+        title: form.title.value,
+        content: form.content.value
+    };
+    formData.append("post", new Blob([JSON.stringify(postData)], { type: "application/json" }));
+
+    for (let i = 0; i < images.length; i++) {
+        formData.append("images", images[i]);
     }
 
     fetch("/api/post/create", {
