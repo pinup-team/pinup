@@ -1,0 +1,24 @@
+name: Run Tests (CI)
+
+on:
+  push:
+    branches: [ "ci-test" ]
+  pull_request:
+    branches: [ "ci-test" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Run Gradle tests
+        run: ./gradlew clean test
