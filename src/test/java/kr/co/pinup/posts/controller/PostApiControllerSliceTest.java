@@ -37,6 +37,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -65,6 +66,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -246,90 +248,61 @@ class PostApiControllerSliceTest {
 
         @Test
         @WithMockMember
-        @DisplayName("게시글 생성 성공")
+        @DisplayName("게시글 생성 성공 - 이미지 2장 이상 포함")
         void createPost_success() throws Exception {
-            // Given: 게시글 생성 요청 JSON part + 이미지 파일 part
             CreatePostRequest request = new CreatePostRequest(1L, "제목", "내용");
-            String json = objectMapper.writeValueAsString(request);
-
             MockMultipartFile postPart = new MockMultipartFile(
-                    "post",
-                    "post.json",
-                    "application/json",
-                    json.getBytes()
-            );
+                    "post", "post.json", "application/json", objectMapper.writeValueAsBytes(request));
+            MockMultipartFile image1 = new MockMultipartFile("images", "img1.jpg", "image/jpeg", "image1".getBytes());
+            MockMultipartFile image2 = new MockMultipartFile("images", "img2.jpg", "image/jpeg", "image2".getBytes());
 
-            MockMultipartFile image1 = new MockMultipartFile("images", "file1.jpg", "image/jpeg", "data1".getBytes());
-            MockMultipartFile image2 = new MockMultipartFile("images", "file2.jpg", "image/jpeg", "data2".getBytes());
-
-            // when + then
             mockMvc.perform(multipart("/api/post/create")
                             .file(postPart)
                             .file(image1)
                             .file(image2)
-                            .with(csrf()))
+                            .with(csrf())
+                            .contentType(MediaType.MULTIPART_FORM_DATA)
+                            .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isCreated());
         }
-
 
         @Test
         @WithMockMember
         @DisplayName("유효성 실패 - 제목 없음")
-        void createPost_validationTitleFail() throws Exception {
-            // Given
+        void createPost_validationFail_missingTitle() throws Exception {
             CreatePostRequest request = new CreatePostRequest(1L, "", "내용");
-            String json = objectMapper.writeValueAsString(request);
-
             MockMultipartFile postPart = new MockMultipartFile(
-                    "post",
-                    "post.json",
-                    "application/json",
-                    json.getBytes()
-            );
+                    "post", "post.json", "application/json", objectMapper.writeValueAsBytes(request));
+            MockMultipartFile image1 = new MockMultipartFile("images", "img1.jpg", "image/jpeg", "image1".getBytes());
+            MockMultipartFile image2 = new MockMultipartFile("images", "img2.jpg", "image/jpeg", "image2".getBytes());
 
-            MockMultipartFile image = new MockMultipartFile(
-                    "images",
-                    "image1.jpg",
-                    "image/jpeg",
-                    "dummy".getBytes()
-            );
-
-            // When + Then
             mockMvc.perform(multipart("/api/post/create")
                             .file(postPart)
-                            .file(image)
-                            .with(csrf()))
+                            .file(image1)
+                            .file(image2)
+                            .with(csrf())
+                            .contentType(MediaType.MULTIPART_FORM_DATA)
+                            .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
         }
-
 
         @Test
         @WithMockMember
         @DisplayName("유효성 실패 - 내용 없음")
-        void createPost_validationContentFail() throws Exception {
-            // Given
+        void createPost_validationFail_missingContent() throws Exception {
             CreatePostRequest request = new CreatePostRequest(1L, "제목", "");
-            String json = objectMapper.writeValueAsString(request);
-
             MockMultipartFile postPart = new MockMultipartFile(
-                    "post",
-                    "post.json",
-                    "application/json",
-                    json.getBytes()
-            );
+                    "post", "post.json", "application/json", objectMapper.writeValueAsBytes(request));
+            MockMultipartFile image1 = new MockMultipartFile("images", "img1.jpg", "image/jpeg", "image1".getBytes());
+            MockMultipartFile image2 = new MockMultipartFile("images", "img2.jpg", "image/jpeg", "image2".getBytes());
 
-            MockMultipartFile image = new MockMultipartFile(
-                    "images",
-                    "image1.jpg",
-                    "image/jpeg",
-                    "dummy".getBytes()
-            );
-
-            // When + Then
             mockMvc.perform(multipart("/api/post/create")
                             .file(postPart)
-                            .file(image)
-                            .with(csrf()))
+                            .file(image1)
+                            .file(image2)
+                            .with(csrf())
+                            .contentType(MediaType.MULTIPART_FORM_DATA)
+                            .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());
         }
 
@@ -343,28 +316,20 @@ class PostApiControllerSliceTest {
         @WithMockMember
         @DisplayName("파일 2장 이상 포함 시 생성 성공")
         void createPost_withValidMultipart_success() throws Exception {
-            // Given: 파일 2장을 포함한 게시글 생성 요청 데이터 준비
             MockMultipartFile image1 = new MockMultipartFile("images", "file1.jpg", "image/jpeg", "data1".getBytes());
             MockMultipartFile image2 = new MockMultipartFile("images", "file2.jpg", "image/jpeg", "data2".getBytes());
 
-            String postJson = objectMapper.writeValueAsString(
-                    new CreatePostRequest(1L, "제목", "내용")
-            );
-
+            String postJson = objectMapper.writeValueAsString(new CreatePostRequest(1L, "제목", "내용"));
             MockMultipartFile postPart = new MockMultipartFile(
-                    "post",
-                    "post.json",
-                    "application/json",
-                    postJson.getBytes()
-            );
+                    "post", "post.json", "application/json", postJson.getBytes(StandardCharsets.UTF_8));
 
-            // When: 게시글 생성 API 호출
-            mockMvc.perform(multipart("/api/post/create")
+            mockMvc.perform(multipart(HttpMethod.POST, "/api/post/create")
+                            .file(postPart)
                             .file(image1)
                             .file(image2)
-                            .file(postPart)
-                            .contentType(MediaType.MULTIPART_FORM_DATA))
-                    // Then: 응답 상태가 201 Created여야 한다
+                            .with(csrf())
+                            .contentType(MediaType.MULTIPART_FORM_DATA)
+                            .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isCreated());
         }
 
