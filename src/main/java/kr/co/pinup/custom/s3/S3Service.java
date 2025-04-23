@@ -31,6 +31,11 @@ public class S3Service {
         try {
             String fileName = pathPrefix + "/" + UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
 
+            System.out.println("fileName=" + fileName);
+            System.out.println("bucketName=" + bucketName);
+            System.out.println("file.getContentType()=" + file.getContentType());
+            System.out.println("file=" + file);
+
             try (InputStream inputStream = file.getInputStream()) {
                 PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                         .bucket(bucketName)

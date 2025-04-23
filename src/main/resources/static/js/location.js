@@ -8,8 +8,8 @@ function searchAddress() {
             document.getElementById("address").value = data.roadAddress;
             document.getElementById("addressDetail").value = '';
 
-            // getCoordinates 함수 호출하여 위도와 경도 가져오기
-            getCoordinates(data.roadAddress);
+         /*   // getCoordinates 함수 호출하여 위도와 경도 가져오기
+            getCoordinates(data.roadAddress);*/
 
             // window.locationData 객체에 값 저장
             window.locationData = { state: data.sido, district: data.sigungu, zoneCode: data.zonecode, address: data.roadAddress };
@@ -17,7 +17,7 @@ function searchAddress() {
     }).open();
 }
 
-async function getCoordinates(address) {
+/*async function getCoordinates(address) {
     try {
         const response = await fetch(`/api/map/coord?address=${encodeURIComponent(address)}`);
         if (!response.ok) {
@@ -31,7 +31,7 @@ async function getCoordinates(address) {
     } catch (error) {
         console.error("카카오맵 서버 API 호출 실패:", error);
     }
-}
+}*/
 // 주소로부터 위도와 경도 얻기 (Kakao Geocoding API 사용)
 /*
 async function getCoordinates(address) {
@@ -76,18 +76,11 @@ async function registerLocation() {
     const addressDetail = document.getElementById("addressDetail").value;
     console.log("addressDetail", addressDetail);
 
-    if (!zoneCode || !address || !window.locationData.latitude || !window.locationData.longitude) {
-        alert("주소 검색을 먼저 진행해주세요.");
-        return;
-    }
-
     const requestData = {
         name: "등록된 주소",
         zoneCode: zoneCode,
         state: window.locationData.state,
         district: window.locationData.district,
-        latitude: window.locationData.latitude,
-        longitude: window.locationData.longitude,
         address: address,
         addressDetail: addressDetail
     };

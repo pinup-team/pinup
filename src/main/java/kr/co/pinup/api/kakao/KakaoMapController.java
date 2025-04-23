@@ -20,6 +20,5 @@ public class KakaoMapController {
     @GetMapping("/coord")
     public ResponseEntity<Map<String, String>> getLatLng(@RequestParam String address) {
         Map<String, String> result = kakaoMapService.searchLatLng(address);
-        return ResponseEntity.ok(result);
-    }
+        return ResponseEntity.ok(result);    }
 }

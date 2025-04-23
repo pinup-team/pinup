@@ -2,6 +2,7 @@ package kr.co.pinup.api.kakao;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -11,19 +12,22 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class KakaoMapService {
 
     private final WebClient kakaoWebClient;
 
-    public KakaoMapService(@Qualifier("kakaoWebClinet") WebClient kakaoWebClient) {
+    public KakaoMapService(@Qualifier("kakaoWebClient") WebClient kakaoWebClient) {
         this.kakaoWebClient = kakaoWebClient;
     }
+
 
     public Map<String, String> searchLatLng(String address) {
         try {
             String encodedAddress = URLEncoder.encode(address, StandardCharsets.UTF_8);
-            String url = "/v2/local/search/address.json?query=" + encodedAddress;
+            System.out.println("encodedAddress=" + encodedAddress);
+            String url = "/v2/local/search/address.json?query=" + address;
 
             String response = kakaoWebClient.get()
                     .uri(url)
@@ -32,9 +36,14 @@ public class KakaoMapService {
                     .block(); // subscribe() 대신 비동기 응답을 동기적으로 리턴, 나중에 변경 필요할수도
 
             ObjectMapper objectMapper = new ObjectMapper();
+
+            System.out.println("📦 Kakao API 응답:\n" + response);
+
             JsonNode json = objectMapper.readTree(response);
 
-            JsonNode document = json.get("document").get(0);
+            JsonNode document = json.get("documents").get(0);
+
+            System.out.println(document);
 
             if (document == null || document.isMissingNode()) {
                 return Map.of("error", "no_result");
