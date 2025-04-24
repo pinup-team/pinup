@@ -47,3 +47,6 @@ out/
 
 ### node ###
 node_modules
+
+### REST Docs 출력 디렉토리 ###
+!src/docs/

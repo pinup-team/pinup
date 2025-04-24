@@ -48,19 +48,31 @@ document.addEventListener('DOMContentLoaded', function () {
         isUpdateMode = true;
         updatePostForm.addEventListener('submit', function (event) {
             event.preventDefault();
+            if (!validateForm()) return;
 
-            if (!validateForm()) {
-                return;
-            }
-
+            const postId = document.getElementById('postId').value;
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+            const images = document.getElementById('images').files;
             const imagesToDelete = document.getElementById('imagesToDelete').value.split(',').filter(Boolean);
-            const formData = new FormData(event.target);
 
-            if (imagesToDelete.length > 0) {
-                formData.set('imagesToDelete', imagesToDelete.join(','));
+            const updatePostRequest = {
+                title: title,
+                content: content
+            };
+
+            const formData = new FormData();
+            formData.append("updatePostRequest", new Blob([JSON.stringify(updatePostRequest)], { type: "application/json" }));
+
+            for (let i = 0; i < images.length; i++) {
+                formData.append("images", images[i]);
             }
 
-            fetch('/api/post/' + formData.get('postId'), {
+            for (let i = 0; i < imagesToDelete.length; i++) {
+                formData.append("imagesToDelete", imagesToDelete[i]);
+            }
+
+            fetch('/api/post/' + postId, {
                 method: 'PUT',
                 body: formData,
             })
@@ -109,12 +121,22 @@ function toggleImageToDelete(checkbox) {
 
 function submitPost() {
     const form = document.getElementById("postForm");
-    const formData = new FormData(form);
     const images = document.getElementById("images").files;
 
     if (images.length < 2) {
         alert("이미지는 최소 2장 이상 등록해야 합니다.");
         return;
+    }
+    const formData = new FormData();
+    const postData = {
+        storeId: form.storeId.value,
+        title: form.title.value,
+        content: form.content.value
+    };
+    formData.append("post", new Blob([JSON.stringify(postData)], { type: "application/json" }));
+
+    for (let i = 0; i < images.length; i++) {
+        formData.append("images", images[i]);
     }
 
     fetch("/api/post/create", {
