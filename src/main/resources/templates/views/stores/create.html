@@ -49,7 +49,7 @@
                 <input type="text" name="contactNumber" placeholder="contactNumber">
             </label>
         </div>
-        <button type="button" onclick="addOperatingHour()">+</button>
+        <button type="button" id="addOperatingHour">+</button>
         <input id="locationId" type="hidden" name="locationId"/>
         <label>우편번호: <input type="text" id="zoneCode" name="zoneCode" readonly required/></label>
         <button type="button" onclick="searchAddress()">주소 검색</button>
@@ -62,7 +62,7 @@
                                     required></label><br>
         <div id="previewContainer" style="display: flex; flex-wrap: wrap"></div>
         <input type="hidden" id="thumbnailImage" name="thumbnailImage" />
-        <button type="button" onclick="submitStore()">생성</button>
+        <button type="button" id="submitStoreButton" onclick="submitStore()">생성</button>
     </form>
     <a href="/stores">목록으로 돌아가기</a>
 </div>
@@ -72,7 +72,7 @@
         localStorage.setItem('KAKAO_API_KEY', /*[[${kakaoMapKey}]]*/);
     </script>
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <th:block th:replace="~{fragments/script-loader :: load('store')}"></th:block>
+    <th:block th:replace="~{fragments/script-loader :: load('store-create')}"></th:block>
     <th:block th:replace="~{fragments/script-loader :: load('location')}"></th:block>
 </th:block>
 </html>
