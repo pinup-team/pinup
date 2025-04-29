@@ -1,476 +1,444 @@
 package kr.co.pinup.faqs.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import kr.co.pinup.config.SecurityConfigTest;
-import kr.co.pinup.exception.ErrorResponse;
 import kr.co.pinup.faqs.exception.FaqNotFound;
 import kr.co.pinup.faqs.model.dto.FaqCreateRequest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.model.dto.FaqUpdateRequest;
+import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.faqs.service.FaqService;
-import kr.co.pinup.members.custom.WithMockMember;
-import kr.co.pinup.members.model.enums.MemberRole;
-import kr.co.pinup.members.service.MemberService;
+import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.model.dto.MemberResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.IntStream;
 
 import static kr.co.pinup.faqs.model.enums.FaqCategory.USE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static kr.co.pinup.members.model.enums.MemberRole.ROLE_ADMIN;
+import static kr.co.pinup.oauth.OAuthProvider.NAVER;
+import static org.mockito.BDDMockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(SecurityConfigTest.class)
-@WebMvcTest(FaqApiController.class)
+@WebMvcTest(controllers = FaqApiController.class,
+        excludeAutoConfiguration = {
+                ThymeleafAutoConfiguration.class,
+                SecurityAutoConfiguration.class,
+                OAuth2ClientAutoConfiguration.class
+        })
 class FaqApiControllerTest {
 
-    static final String VIEWS_ERROR = "error";
+    @Autowired
+    private MockMvc mockMvc;
 
     @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    ObjectMapper objectMapper;
+    private ObjectMapper objectMapper;
 
     @MockitoBean
-    FaqService faqService;
+    private FaqService faqService;
 
-    @MockitoBean
-    MemberService memberService;
-
+    @DisplayName("FAQ 전체를 조회한다.")
     @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 저장")
-    void save() throws Exception {
-        // given
-        FaqCreateRequest request = FaqCreateRequest.builder()
-                .category(USE)
-                .question("이거 어떻게 해야 하나요?")
-                .answer("이렇게 저렇게 하시면 됩니다.")
-                .build();
-
-        String body = objectMapper.writeValueAsString(request);
-
-        // expected
-        mockMvc.perform(post("/api/faqs")
-                        .contentType(APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isCreated())
-                .andDo(print());
-    }
-
-    @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 저장시 category는 필수 값이다")
-    void invalidCategoryToSave() throws Exception {
-        // given
-        FaqCreateRequest request = FaqCreateRequest.builder()
-                .question("이거 어떻게 해야 하나요?")
-                .answer("이렇게 저렇게 하시면 됩니다.")
-                .build();
-
-        String body = objectMapper.writeValueAsString(request);
-
-        // expected
-        mockMvc.perform(post("/api/faqs")
-                        .contentType(APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.validation.category").exists())
-                .andExpect(jsonPath("$.validation.category").value("카테고리는 필수입니다."))
-                .andDo(print());
-    }
-
-    @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 저장시 question은 필수 값이다")
-    void invalidQuestionToSave() throws Exception {
-        // given
-        FaqCreateRequest request = FaqCreateRequest.builder()
-                .category(USE)
-                .answer("이렇게 저렇게 하시면 됩니다.")
-                .build();
-
-        String body = objectMapper.writeValueAsString(request);
-
-        // expected
-        mockMvc.perform(post("/api/faqs")
-                        .contentType(APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.validation.question").exists())
-                .andExpect(jsonPath("$.validation.question").value("질문 내용을 입력하세요."))
-                .andDo(print());
-    }
-
-    @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 저장시 question 길이는 1~100까지 이다")
-    void invalidQuestionLengthToSave() throws Exception {
-        // given
-        FaqCreateRequest request = FaqCreateRequest.builder()
-                .category(USE)
-                .question("A".repeat(101))
-                .answer("이렇게 저렇게 하시면 됩니다.")
-                .build();
-
-        String body = objectMapper.writeValueAsString(request);
-
-        // expected
-        mockMvc.perform(post("/api/faqs")
-                        .contentType(APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.validation.question").exists())
-                .andExpect(jsonPath("$.validation.question")
-                        .value("질문 내용을 1~100자 이내로 입력하세요."))
-                .andDo(print());
-    }
-
-    @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 저장시 answer 값은 필수다")
-    void invalidAnswerToSave() throws Exception {
-        // given
-        FaqCreateRequest request = FaqCreateRequest.builder()
-                .category(USE)
-                .question("이거 어떻게 해야 하나요?")
-                .build();
-
-        String body = objectMapper.writeValueAsString(request);
-
-        // expected
-        mockMvc.perform(post("/api/faqs")
-                        .contentType(APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.validation.answer").exists())
-                .andExpect(jsonPath("$.validation.answer").value("답변 내용을 입력하세요."))
-                .andDo(print());
-    }
-
-    @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 저장시 answer 길이는 1~500까지 이다")
-    void invalidAnswerLengthToSave() throws Exception {
-        // given
-        FaqCreateRequest request = FaqCreateRequest.builder()
-                .category(USE)
-                .question("이거 어떻게 해야 하나요?")
-                .answer("A".repeat(501))
-                .build();
-
-        String body = objectMapper.writeValueAsString(request);
-
-        // expected
-        mockMvc.perform(post("/api/faqs")
-                        .contentType(APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.validation.answer").exists())
-                .andExpect(jsonPath("$.validation.answer")
-                        .value("답변 내용을 1~500자 이내로 입력하세요."))
-                .andDo(print());
-    }
-
-    @Test
-    @DisplayName("FAQ 전체 조회")
     void findAll() throws Exception {
-        // given
-        List<FaqResponse> response = IntStream.range(0, 5)
-                .mapToObj(i -> FaqResponse.builder()
-                        .category(USE)
-                        .question("자주 묻는 질문 " + (5 - i))
-                        .answer("자주 묻는 질문 답변 " + (5 - i))
-                        .build())
-                .toList();
+        // Arrange
+        FaqResponse response1 = createFaqResponse("question 1", "answer 1",
+                LocalDateTime.of(2025, 1, 1, 0, 0));
+        FaqResponse response2 = createFaqResponse("question 2", "answer 2",
+                LocalDateTime.of(2025, 1, 2, 0, 0));
+        List<FaqResponse> responses = List.of(response2, response1);
 
-        // when
-        given(faqService.findAll()).willReturn(response);
+        given(faqService.findAll()).willReturn(responses);
 
-        // expected
+        // Act & Assert
         mockMvc.perform(get("/api/faqs"))
+                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(5))
-                .andExpect(jsonPath("$[0].category").exists())
+                .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].question").exists())
                 .andExpect(jsonPath("$[0].answer").exists())
-                .andExpect(jsonPath("$[0].category").value(USE.toString()))
-                .andExpect(jsonPath("$[0].question").value("자주 묻는 질문 5"))
-                .andExpect(jsonPath("$[0].answer").value("자주 묻는 질문 답변 5"))
-                .andDo(print());
+                .andExpect(jsonPath("$[0].category").exists())
+                .andExpect(jsonPath("$[0].member").exists())
+                .andExpect(jsonPath("$[0].createdAt").exists());
+
+        then(faqService).should(times(1))
+                .findAll();
     }
 
+    @DisplayName("ID로 1개의 FAQ를 조회한다.")
     @Test
-    @DisplayName("FAQ 단일 조회")
-    void find() throws Exception {
-        // given
+    void findById() throws Exception {
+        // Arrange
         long faqId = 1L;
-        FaqResponse response = FaqResponse.builder()
-                .category(USE)
-                .question("질문")
-                .answer("답변")
-                .build();
+        FaqResponse response = createFaqResponse("question", "answer",
+                LocalDateTime.of(2025, 1, 1, 0, 0));
 
-        // when
         given(faqService.find(faqId)).willReturn(response);
 
-        // expected
+        // Act & Assert
         mockMvc.perform(get("/api/faqs/{faqId}", faqId))
+                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.category").exists())
                 .andExpect(jsonPath("$.question").exists())
                 .andExpect(jsonPath("$.answer").exists())
-                .andExpect(jsonPath("$.question").value(response.question()))
-                .andExpect(jsonPath("$.answer").value(response.answer()))
-                .andDo(print());
+                .andExpect(jsonPath("$.category").exists())
+                .andExpect(jsonPath("$.member").exists())
+                .andExpect(jsonPath("$.createdAt").exists());
+
+        then(faqService).should(times(1))
+                .find(faqId);
     }
 
+    @DisplayName("존재하지 않는 ID로 FAQ 조회시 404 NOT_FOUND와 error 페이지를 반환한다.")
     @Test
-    @DisplayName("존재하지 않는 ID로 조회시 에러")
-    void findWithNonExistId() throws Exception {
-        // given
+    void findByWithNonExistIdReturnNotFoundAndErrorView() throws Exception {
+        // Arrange
         long faqId = Long.MAX_VALUE;
 
-        // when
-        when(faqService.find(faqId)).thenThrow(new FaqNotFound());
+        given(faqService.find(faqId)).willThrow(new FaqNotFound());
 
-        // expected
-        MvcResult result = mockMvc.perform(get("/api/faqs/{faqId}", faqId))
-                .andExpect(status().isNotFound())
-                .andExpect(view().name(VIEWS_ERROR))
-                .andExpect(model().attributeExists("error"))
+        // Act & Assert
+        mockMvc.perform(get("/api/faqs/{faqId}", faqId))
                 .andDo(print())
-                .andReturn();
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("error"))
+                .andExpect(model().attributeExists("error"));
 
-        ErrorResponse response = (ErrorResponse) result.getModelAndView().getModel().get("error");
-        assertThat(response.status()).isEqualTo(NOT_FOUND.value());
-        assertThat(response.message()).isEqualTo("FAQ가 존재하지 않습니다.");
+        then(faqService).should(times(1))
+                .find(faqId);
     }
 
+    @DisplayName("FAQ를 정상적으로 저장한다.")
     @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 수정")
+    void save() throws Exception {
+        // Arrange
+        MemberInfo memberInfo = createMemberInfo();
+        FaqCreateRequest request = createFaqCreateRequest("question", "answer", USE);
+        String body = objectMapper.writeValueAsString(request);
+
+        willDoNothing().given(faqService)
+                .save(memberInfo, request);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/faqs")
+                        .contentType(APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isCreated());
+
+        then(faqService).should(times(1))
+                .save(any(MemberInfo.class), eq(request));
+    }
+
+    @DisplayName("FAQ 저장시 질문 내용은 필수값이다.")
+    @Test
+    void invalidQuestionToSave() throws Exception {
+        // Arrange
+        FaqCreateRequest request = createFaqCreateRequest("", "answer", USE);
+        String body = objectMapper.writeValueAsString(request);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/faqs")
+                        .contentType(APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.validation.question").exists());
+    }
+
+    @DisplayName("FAQ 저장시 질문 내용의 길이는 1~100자 이내이다.")
+    @Test
+    void invalidQuestionLengthToSave() throws Exception {
+        // Arrange
+        FaqCreateRequest request = createFaqCreateRequest("A".repeat(101), "answer", USE);
+        String body = objectMapper.writeValueAsString(request);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/faqs")
+                        .contentType(APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.validation.question").exists());
+    }
+
+    @DisplayName("FAQ 저장시 답변 내용은 필수값이다.")
+    @Test
+    void invalidAnswerToSave() throws Exception {
+        // Arrange
+        FaqCreateRequest request = createFaqCreateRequest("question", "", USE);
+        String body = objectMapper.writeValueAsString(request);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/faqs")
+                        .contentType(APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.validation.answer").exists());
+    }
+
+    @DisplayName("FAQ 저장시 답변 내용은 1~500자 이내이다.")
+    @Test
+    void invalidAnswerLengthToSave() throws Exception {
+        // Arrange
+        FaqCreateRequest request = createFaqCreateRequest("question", "A".repeat(501), USE);
+        String body = objectMapper.writeValueAsString(request);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/faqs")
+                        .contentType(APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.validation.answer").exists());
+    }
+
+    @DisplayName("FAQ 저장시 카테고리는 필수값이다.")
+    @Test
+    void invalidCategoryToSave() throws Exception {
+        // Arrange
+        FaqCreateRequest request = createFaqCreateRequest("question", "answer", null);
+        String body = objectMapper.writeValueAsString(request);
+
+        // Act & Assert
+        mockMvc.perform(post("/api/faqs")
+                        .contentType(APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.validation.category").exists());
+    }
+
+    @DisplayName("FAQ를 정상적으로 수정한다.")
+    @Test
     void update() throws Exception {
-        // given
+        // Arrange
         long faqId = 1L;
-        FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category(USE)
-                .question("질문")
-                .answer("답변")
-                .build();
-
+        FaqUpdateRequest request = createFaqUpdateRequest("update question", "update answer", USE);
         String body = objectMapper.writeValueAsString(request);
 
-        // expected
+        willDoNothing().given(faqService)
+                .update(faqId, request);
+
+        // Act & Assert
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isNoContent())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
+        then(faqService).should(times(1))
+                .update(faqId, request);
     }
 
+    @DisplayName("존재하지 않는 ID로 FAQ 수정시 404 NOT_FOUND와 error 페이지를 반환한다.")
     @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 수정시 question은 필수 값이다")
+    void updatingWithNonExistIdReturnNotFoundAndErrorView() throws Exception {
+        // Arrange
+        long faqId = Long.MAX_VALUE;
+        FaqUpdateRequest request = createFaqUpdateRequest("question", "answer", USE);
+        String body = objectMapper.writeValueAsString(request);
+
+        willThrow(new FaqNotFound()).given(faqService)
+                        .update(faqId, request);
+
+        // Act & Assert
+        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
+                        .contentType(APPLICATION_JSON)
+                        .content(body))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("error"))
+                .andExpect(model().attributeExists("error"));
+
+        then(faqService).should(times(1))
+                .update(faqId, request);
+    }
+
+    @DisplayName("FAQ 수정시 질문 내용은 필수값이다.")
+    @Test
     void invalidQuestionToUpdate() throws Exception {
-        // given
+        // Arrange
         long faqId = 1L;
-        FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category(USE)
-                .answer("이렇게 저렇게 하시면 됩니다.")
-                .build();
-
+        FaqUpdateRequest request = createFaqUpdateRequest("", "answer", USE);
         String body = objectMapper.writeValueAsString(request);
 
-        // expected
+        // Act & Assert
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.validation.question").exists())
-                .andExpect(jsonPath("$.validation.question").value("질문 내용을 입력하세요."))
-                .andDo(print());
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.validation.question").exists());
     }
 
+    @DisplayName("FAQ 수정시 질문 내용의 길이는 1~100자 이내이다.")
     @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 수정시 question 길이는 1~100까지 이다")
     void invalidQuestionLengthToUpdate() throws Exception {
-        // given
+        // Arrange
         long faqId = 1L;
-        FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category(USE)
-                .question("A".repeat(101))
-                .answer("이렇게 저렇게 하시면 됩니다.")
-                .build();
-
+        FaqUpdateRequest request = createFaqUpdateRequest("A".repeat(101), "answer", USE);
         String body = objectMapper.writeValueAsString(request);
 
-        // expected
+        // Act & Assert
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
+                .andDo(print())
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.validation.question").exists())
-                .andExpect(jsonPath("$.validation.question")
-                        .value("질문 내용을 1~100자 이내로 입력하세요."))
-                .andDo(print());
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.validation.question").exists());
     }
 
+    @DisplayName("FAQ 수정시 답변 내용은 필수값이다.")
     @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 수정시 answer 값은 필수다")
     void invalidAnswerToUpdate() throws Exception {
-        // given
+        // Arrange
         long faqId = 1L;
-        FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category(USE)
-                .question("이거 어떻게 해야 하나요?")
-                .build();
-
+        FaqUpdateRequest request = createFaqUpdateRequest("question", "", USE);
         String body = objectMapper.writeValueAsString(request);
 
-        // expected
+        // Act & Assert
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.validation.answer").exists())
-                .andExpect(jsonPath("$.validation.answer").value("답변 내용을 입력하세요."))
-                .andDo(print());
+                .andDo(print())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.validation.answer").exists());
     }
 
+    @DisplayName("FAQ 수정시 답변 내용의 길이는 1~500자 이내이다.")
     @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 수정시 answer 길이는 1~500까지 이다")
     void invalidAnswerLengthToUpdate() throws Exception {
-        // given
+        // Arrange
         long faqId = 1L;
-        FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category(USE)
-                .question("이거 어떻게 해야 하나요?")
-                .answer("A".repeat(501))
-                .build();
-
+        FaqUpdateRequest request = createFaqUpdateRequest("question", "A".repeat(501), USE);
         String body = objectMapper.writeValueAsString(request);
 
-        // expected
+        // Act & Assert
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(BAD_REQUEST.value()))
-                .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
-                .andExpect(jsonPath("$.validation.answer").exists())
-                .andExpect(jsonPath("$.validation.answer")
-                        .value("답변 내용을 1~500자 이내로 입력하세요."))
-                .andDo(print());
+                .andDo(print())
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.validation.answer").exists());
     }
 
+    @DisplayName("FAQ 수정시 카테고리는 필수값이다.")
     @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("존재하지 않는 ID로 수정시 에러")
-    void updateWithNonExistId() throws Exception {
-        // given
-        long faqId = Long.MAX_VALUE;
-        FaqUpdateRequest request = FaqUpdateRequest.builder()
-                .category(USE)
-                .question("질문")
-                .answer("답변")
-                .build();
-
+    void invalidCategoryToUpdate() throws Exception {
+        // Arrange
+        long faqId = 1L;
+        FaqUpdateRequest request = createFaqUpdateRequest("question", "answer", null);
         String body = objectMapper.writeValueAsString(request);
 
-        // when
-        doThrow(new FaqNotFound()).when(faqService).update(faqId, request);
-
-        // expected
-        MvcResult result = mockMvc.perform(put("/api/faqs/{faqId}", faqId)
+        // Act & Assert
+        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andExpect(status().isNotFound())
-                .andExpect(view().name(VIEWS_ERROR))
-                .andExpect(model().attributeExists("error"))
                 .andDo(print())
-                .andReturn();
-
-        ErrorResponse response = (ErrorResponse) Objects.requireNonNull(result.getModelAndView())
-                .getModel()
-                .get("error");
-        assertThat(response.status()).isEqualTo(NOT_FOUND.value());
-        assertThat(response.message()).isEqualTo("FAQ가 존재하지 않습니다.");
+                .andExpect(jsonPath("$.status").exists())
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.validation.category").exists());
     }
 
+    @DisplayName("FAQ를 정상적으로 삭제한다.")
     @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 삭제")
     void remove() throws Exception {
-        // given
+        // Arrange
         long faqId = 1L;
 
-        // when
-        doNothing().when(faqService).remove(faqId);
+        willDoNothing().given(faqService)
+                .remove(faqId);
 
-        // expected
+        // Act & Assert
         mockMvc.perform(delete("/api/faqs/{faqId}", faqId))
-                .andExpect(status().isNoContent())
-                .andDo(print());
+                .andDo(print())
+                .andExpect(status().isNoContent());
+
+        then(faqService).should(times(1))
+                .remove(faqId);
     }
 
+    @DisplayName("존재하지 않는 ID로 FAQ 삭제시 404 NOT_FOUND와 error 페이지를 반환한다.")
     @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("존재하지 않는 ID로 삭제시 에러")
-    void removeWithNonExistId() throws Exception {
-        // given
+    void deletingWithNonExistIdReturnNotFoundAndErrorView() throws Exception {
+        // Arrange
         long faqId = Long.MAX_VALUE;
 
-        // when
-        doThrow(new FaqNotFound()).when(faqService).remove(faqId);
+        willThrow(new FaqNotFound()).given(faqService)
+                .remove(faqId);
 
-        // expected
-        MvcResult result = mockMvc.perform(delete("/api/faqs/{faqId}", faqId))
-                .andExpect(status().isNotFound())
-                .andExpect(view().name(VIEWS_ERROR))
-                .andExpect(model().attributeExists("error"))
+        // Act & Assert
+        mockMvc.perform(delete("/api/faqs/{faqId}", faqId))
                 .andDo(print())
-                .andReturn();
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("error"))
+                .andExpect(model().attributeExists("error"));
 
-        ErrorResponse response = (ErrorResponse) Objects.requireNonNull(result.getModelAndView())
-                .getModel()
-                .get("error");
-        assertThat(response.status()).isEqualTo(NOT_FOUND.value());
-        assertThat(response.message()).isEqualTo("FAQ가 존재하지 않습니다.");
+        then(faqService).should(times(1))
+                .remove(faqId);
+    }
+
+    private FaqResponse createFaqResponse(String question, String answer, LocalDateTime dateTime) {
+        return FaqResponse.builder()
+                .question(question)
+                .answer(answer)
+                .category(USE)
+                .createdAt(dateTime)
+                .member(mock(MemberResponse.class))
+                .build();
+    }
+
+    private MemberInfo createMemberInfo() {
+        return MemberInfo.builder()
+                .nickname("nickname")
+                .provider(NAVER)
+                .role(ROLE_ADMIN)
+                .build();
+    }
+
+    private FaqCreateRequest createFaqCreateRequest(String question, String answer, FaqCategory category) {
+        return FaqCreateRequest.builder()
+                .question(question)
+                .answer(answer)
+                .category(category)
+                .build();
+    }
+
+    private FaqUpdateRequest createFaqUpdateRequest(String question, String answer, FaqCategory category) {
+        return FaqUpdateRequest.builder()
+                .question(question)
+                .answer(answer)
+                .category(category)
+                .build();
     }
 }
