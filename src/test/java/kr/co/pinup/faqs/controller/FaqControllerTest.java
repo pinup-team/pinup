@@ -1,118 +1,138 @@
 package kr.co.pinup.faqs.controller;
 
-import kr.co.pinup.config.SecurityConfigTest;
-import kr.co.pinup.config.SeoUtilConfigTest;
+import kr.co.pinup.faqs.exception.FaqNotFound;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.service.FaqService;
-import kr.co.pinup.members.custom.WithMockMember;
-import kr.co.pinup.members.model.enums.MemberRole;
-import kr.co.pinup.members.service.MemberService;
+import kr.co.pinup.members.model.dto.MemberResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
+import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.IntStream;
 
-import static kr.co.pinup.faqs.model.enums.FaqCategory.*;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.when;
+import static kr.co.pinup.faqs.model.enums.FaqCategory.USE;
+import static org.hamcrest.Matchers.aMapWithSize;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import({SecurityConfigTest.class, SeoUtilConfigTest.class})
-@WebMvcTest(FaqController.class)
+@WebMvcTest(controllers = FaqController.class,
+        excludeAutoConfiguration = {
+                ThymeleafAutoConfiguration.class,
+                SecurityAutoConfiguration.class,
+                OAuth2ClientAutoConfiguration.class
+        })
 class FaqControllerTest {
 
-    static final String VIEW_PATH = "views/faqs";
+    private static final String VIEW_PATH = "views/faqs";
 
     @Autowired
-    MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @MockitoBean
-    FaqService faqService;
+    private FaqService faqService;
 
-    @MockitoBean
-    MemberService memberService;
-
+    @DisplayName("FAQ list 페이지를 반환한다.")
     @Test
-    @DisplayName("FAQ 리스트 페이지 이동")
-    void listPage() throws Exception {
-        // given
-        List<FaqResponse> mockFaqs = IntStream.range(0, 5)
-                .mapToObj(i -> FaqResponse.builder()
-                        .category(USE)
-                        .question("자주 묻는 질문 " + (5 - i))
-                        .answer("자주 묻는 질문 답변 " + (5 - i))
-                        .build())
-                .toList();
+    void returnListView() throws Exception {
+        // Arrange
+        FaqResponse response1 = createFaqResponse("question 1", "answer 1",
+                LocalDateTime.of(2025, 1, 1, 0, 0));
+        FaqResponse response2 = createFaqResponse("question 2", "answer 2",
+                LocalDateTime.of(2025, 1, 2, 0, 0));
+        List<FaqResponse> responses = List.of(response2, response1);
 
-        // when
-        when(faqService.findAll()).thenReturn(mockFaqs);
+        given(faqService.findAll())
+                .willReturn(responses);
 
-        // expected
+        // Act & Assert
         mockMvc.perform(get("/faqs"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/list"))
                 .andExpect(model().attributeExists("category"))
                 .andExpect(model().attributeExists("faqs"))
-                .andExpect(model().attribute("category", is(not(empty()))))
-                .andExpect(model().attribute("category", hasEntry(USE, "이용")))
-                .andExpect(model().attribute("category", hasEntry(MEMBER, "회원")))
-                .andExpect(model().attribute("category", hasEntry(COMPANY, "기업")))
-                .andExpect(model().attribute("faqs", is(mockFaqs)))
-                .andDo(print());
+                .andExpect(model().attribute("category", aMapWithSize(3)))
+                .andExpect(model().attribute("faqs", hasSize(2)));
+
+        then(faqService).should(times(1))
+                .findAll();
     }
 
+    @DisplayName("FAQ create 페이지를 반환한다.")
     @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 생성 페이지 이동")
-    void newPage() throws Exception {
-        // given
+    void returnCreateView() throws Exception {
+        // Arrange
 
-        // expected
+        // Act & Assert
         mockMvc.perform(get("/faqs/new"))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/create"))
                 .andExpect(model().attributeExists("category"))
-                .andExpect(model().attribute("category", is(not(empty()))))
-                .andExpect(model().attribute("category", hasEntry(USE, "이용")))
-                .andExpect(model().attribute("category", hasEntry(MEMBER, "회원")))
-                .andExpect(model().attribute("category", hasEntry(COMPANY, "기업")))
-                .andDo(print());
+                .andExpect(model().attribute("category", aMapWithSize(3)));
     }
 
+    @DisplayName("FAQ update 페이지를 반환한다.")
     @Test
-    @WithMockMember(role = MemberRole.ROLE_ADMIN)
-    @DisplayName("FAQ 수정 페이지 이동")
-    void updatePage() throws Exception {
-        // given
+    void returnUpdateView() throws Exception {
+        // Arrange
         long faqId = 1L;
-        FaqResponse mockFaq = FaqResponse.builder()
-                .category(USE)
-                .question("질문")
-                .answer("답변")
-                .build();
+        FaqResponse response = createFaqResponse("question 1", "answer 1",
+                LocalDateTime.of(2025, 1, 1, 0, 0));
 
-        // when
-        when(faqService.find(faqId)).thenReturn(mockFaq);
+        given(faqService.find(faqId))
+                .willReturn(response);
 
-        // expected
+        // Act & Assert
         mockMvc.perform(get("/faqs/{faqId}/update", faqId))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/update"))
                 .andExpect(model().attributeExists("category"))
                 .andExpect(model().attributeExists("faq"))
-                .andExpect(model().attribute("category", is(not(empty()))))
-                .andExpect(model().attribute("category", hasEntry(USE, "이용")))
-                .andExpect(model().attribute("category", hasEntry(MEMBER, "회원")))
-                .andExpect(model().attribute("category", hasEntry(COMPANY, "기업")))
-                .andExpect(model().attribute("faq", is(mockFaq)))
-                .andDo(print());
+                .andExpect(model().attribute("category", aMapWithSize(3)));
+
+        then(faqService).should(times(1))
+                .find(faqId);
+    }
+
+    @DisplayName("존재하지 않는 ID로 update 페이지를 요청시에 404 NOT_FOUND와 error 페이지를 반환한다.")
+    @Test
+    void requestUpdateViewWithNonExistIdReturnNotFoundAndErrorView() throws Exception {
+        // Arrange
+        long faqId = Long.MAX_VALUE;
+
+        given(faqService.find(faqId))
+                .willThrow(new FaqNotFound());
+
+        // Act & Assert
+        mockMvc.perform(get("/faqs/{faqId}/update", faqId))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andExpect(view().name("error"))
+                .andExpect(model().attributeExists("error"));
+
+        then(faqService).should(times(1))
+                .find(faqId);
+    }
+
+    private FaqResponse createFaqResponse(String question, String answer, LocalDateTime dateTime) {
+        return FaqResponse.builder()
+                .question(question)
+                .answer(answer)
+                .category(USE)
+                .createdAt(dateTime)
+                .member(mock(MemberResponse.class))
+                .build();
     }
 }

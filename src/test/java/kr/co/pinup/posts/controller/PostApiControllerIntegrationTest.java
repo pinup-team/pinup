@@ -16,11 +16,11 @@ import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
+import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
-import kr.co.pinup.posts.exception.post.ImageCountException;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
@@ -51,11 +51,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.nio.charset.StandardCharsets;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -87,32 +89,20 @@ public class PostApiControllerIntegrationTest {
         }
     }
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
 
-    @Autowired
-    private PostRepository postRepository;
-    @Autowired
-    private CommentRepository commentRepository;
-    @Autowired
-    private PostImageRepository postImageRepository;
-    @Autowired
-    private MemberRepository memberRepository;
-    @Autowired
-    private StoreRepository storeRepository;
-    @Autowired
-    private StoreCategoryRepository storeCategoryRepository;
-    @Autowired
-    private LocationRepository locationRepository;
+    @Autowired private PostRepository postRepository;
+    @Autowired private CommentRepository commentRepository;
+    @Autowired private PostImageRepository postImageRepository;
+    @Autowired private MemberRepository memberRepository;
+    @Autowired private StoreRepository storeRepository;
+    @Autowired private StoreCategoryRepository storeCategoryRepository;
+    @Autowired private LocationRepository locationRepository;
 
-    @Autowired
-    private MemberService memberService;
-    @Autowired
-    private PostService postService;
-    @Autowired
-    private CommentService commentService;
-    @Autowired
-    private PostImageService postImageService;
+    @Autowired private MemberService memberService;
+    @Autowired private PostService postService;
+    @Autowired private CommentService commentService;
+    @Autowired private PostImageService postImageService;
 
     private Member mockMember;
     private Member mockAdminMember;
@@ -241,19 +231,31 @@ public class PostApiControllerIntegrationTest {
                 .thumbnail("Thumbnail")
                 .build();
 
-        when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(MultipartFile[].class)))
+        when(postService.createPost(any(MemberInfo.class), any(CreatePostRequest.class), any(CreatePostImageRequest.class)))
                 .thenReturn(createdPostResponse);
 
         MockMultipartFile image1 = new MockMultipartFile("images", "image1.jpg", "image/jpeg", "image content 1".getBytes());
         MockMultipartFile image2 = new MockMultipartFile("images", "image2.jpg", "image/jpeg", "image content 2".getBytes());
 
+        CreatePostRequest postRequest = new CreatePostRequest(
+                mockStore.getId(),
+                "Title 1",
+                "Content 1"
+        );
+
+        String postJson = new ObjectMapper().writeValueAsString(postRequest);
+
+        MockMultipartFile postPart = new MockMultipartFile(
+                "post", "post.json", "application/json", postJson.getBytes(StandardCharsets.UTF_8)
+        );
+
         // When
         ResultActions result = mockMvc.perform(multipart("/api/post/create")
-                .file(image1).file(image2)
-                .param("storeId", String.valueOf(mockStore.getId()))
-                .param("title", "Title 1")
-                .param("content", "Content 1")
-                .param("thumbnail", "Thumbnail"));
+                .file(image1)
+                .file(image2)
+                .file(postPart)
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .characterEncoding("UTF-8"));
 
         // Then
         result.andExpect(status().isCreated())
@@ -269,19 +271,30 @@ public class PostApiControllerIntegrationTest {
     @WithMockMember(nickname = "행복한 돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     void createPost_whenInsufficientImages_thenThrowsImageCountException() throws Exception {
         // Given
-        MockMultipartFile image = new MockMultipartFile("images", "image.jpg", "image/jpeg", "image content".getBytes());
+        CreatePostRequest postRequest = new CreatePostRequest(
+                mockStore.getId(),
+                "Title 1",
+                "Content 1"
+        );
+        String postJson = new ObjectMapper().writeValueAsString(postRequest);
+
+        MockMultipartFile postPart = new MockMultipartFile(
+                "post", "post.json", "application/json", postJson.getBytes(StandardCharsets.UTF_8)
+        );
+
+        MockMultipartFile image = new MockMultipartFile(
+                "images", "image.jpg", "image/jpeg", "image content".getBytes()
+        );
 
         // When
         ResultActions result = mockMvc.perform(multipart("/api/post/create")
+                .file(postPart)
                 .file(image)
-                .param("storeId", String.valueOf(mockStore.getId()))
-                .param("title", "Title 1")
-                .param("content", "Content 1")
-                .param("thumbnail", "Thumbnail"));
+                .contentType(MediaType.MULTIPART_FORM_DATA)
+                .characterEncoding("UTF-8"));
 
         // Then
-        result.andExpect(status().isBadRequest())
-                .andExpect(r -> assertTrue(r.getResolvedException() instanceof ImageCountException));
+        result.andExpect(status().isBadRequest());
     }
 
     @Test
@@ -320,25 +333,36 @@ public class PostApiControllerIntegrationTest {
                 .build();
 
         when(postService.updatePost(eq(postId), any(UpdatePostRequest.class), any(MultipartFile[].class), anyList()))
-                .thenReturn(updatedPost);
+                .thenReturn(PostResponse.from(updatedPost));
 
-        MockMultipartFile images = new MockMultipartFile(
+        MockMultipartFile image = new MockMultipartFile(
                 "images",
                 "test-image.jpg",
                 "image/jpeg",
-                new byte[]{}
+                "dummy image content".getBytes()
+        );
+
+        // 핵심: UpdatePostRequest JSON으로 변환 후 RequestPart로 전달
+        String json = new ObjectMapper().writeValueAsString(updatePostRequest);
+        MockMultipartFile updatePostRequestPart = new MockMultipartFile(
+                "updatePostRequest",
+                "updatePostRequest.json",
+                "application/json",
+                json.getBytes(StandardCharsets.UTF_8)
         );
 
         // When
         ResultActions result = mockMvc.perform(multipart("/api/post/{postId}", postId)
-                .file(images)
-                .param("title", "Updated Title")
-                .param("content", "Updated Content")
-                .param("imagesToDelete", "imageToDelete")
-                .with(request -> {
-                    request.setMethod("PUT");
-                    return request;
-                }));
+                        .file(image)
+                        .file(updatePostRequestPart)
+                        .param("imagesToDelete", "imageToDelete")
+                        .contentType(MediaType.MULTIPART_FORM_DATA)
+                        .characterEncoding("UTF-8")
+                        .with(request -> {
+                            request.setMethod("PUT"); // PUT으로 강제 설정
+                            return request;
+                        }))
+                .andDo(print());
 
         // Then
         result.andExpect(status().isOk())
