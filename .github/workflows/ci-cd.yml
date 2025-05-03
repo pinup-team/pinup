@@ -210,6 +210,7 @@ jobs:
 
   # Release시 빌드
   release-build:
+      if: github.event_name == 'release' && github.event.action == 'published'
       runs-on: ubuntu-latest
 
       steps:
