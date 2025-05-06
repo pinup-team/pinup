@@ -22,7 +22,6 @@ public class KakaoMapService {
         this.kakaoWebClient = kakaoWebClient;
     }
 
-
     public Map<String, String> searchLatLng(String address) {
         try {
             String encodedAddress = URLEncoder.encode(address, StandardCharsets.UTF_8);

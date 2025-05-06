@@ -35,14 +35,14 @@ public class StoreController {
     private final KakaoApiKeyProperties kakaoProps;
 
     @GetMapping
-    public String listStores(@RequestParam(required = false) String status, Model model) {
-        List<StoreSummaryResponse> stores;
-        Status selectedStatus = null;
+                public String listStores(@RequestParam(required = false) String status, Model model) {
+                    List<StoreSummaryResponse> stores;
+                    Status selectedStatus = null;
 
-        if (status != null && !status.equalsIgnoreCase("ALL") && !status.isBlank()) {
-            try {
-                selectedStatus = Status.valueOf(status);
-                stores = storeService.getStoreSummariesByStatus(selectedStatus);
+                    if (status != null && !status.equalsIgnoreCase("ALL") && !status.isBlank()) {
+                        try {
+                            selectedStatus = Status.valueOf(status);
+                            stores = storeService.getStoreSummariesByStatus(selectedStatus);
             } catch (IllegalArgumentException e) {
                 stores = storeService.getStoreSummaries();
             }

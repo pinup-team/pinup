@@ -154,6 +154,8 @@ public class StoreService {
                 }
             }
 
+            //TODO stream으로 변경
+
             storeRepository.save(store);
             log.info("스토어 저장 완료 - ID: {}", store.getId());
 
@@ -174,11 +176,15 @@ public class StoreService {
                 }
             }
 
+            //TODO save 두 번 사용하지 않도록 최적화
+
             return StoreResponse.from(store);
         } catch (Exception e) {
             log.error("❌ 팝업스토어 생성 중 오류 발생: {}", e.getMessage(), e);
             throw e;
         }
+
+        //TODO 예외처리 분리하기
     }
 
 /*    @Transactional

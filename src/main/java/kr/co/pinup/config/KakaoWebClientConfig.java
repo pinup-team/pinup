@@ -1,7 +1,7 @@
 package kr.co.pinup.config;
 
 import jakarta.annotation.PostConstruct;
-import kr.co.pinup.util.SecretsManagerUtil;
+import kr.co.pinup.util.SecretsFetcher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,23 +12,23 @@ public class KakaoWebClientConfig {
     //TODO RestTemplate 관련 내용 같이 블로그에 정리하기
     //TODO clientConfig 나중에 없애기
 
-    private final SecretsManagerUtil secretsManagerUtil;
+    private final SecretsFetcher secretsFetcher;
 
-    public KakaoWebClientConfig(SecretsManagerUtil secretsManagerUtil) {
-        this.secretsManagerUtil = secretsManagerUtil;
+    public KakaoWebClientConfig(SecretsFetcher secretsFetcher) {
+        this.secretsFetcher = secretsFetcher;
     }
 
     @PostConstruct
     public void printKey() {
-        String restKey = secretsManagerUtil.getSecretField("kakao-map", "kakao.api.key.rest");
-        String jsKey = secretsManagerUtil.getSecretField("kakao-map", "kakao.api.key.js");
+        String restKey = secretsFetcher.getSecretField("kakao.api.key.rest");
+        String jsKey = secretsFetcher.getSecretField("kakao.api.key.js");
         System.out.println("🔑 kakaoRestKey = " + restKey);
         System.out.println("🔑 kakaoJsKey   = " + jsKey);
     }
 
     @Bean
     public WebClient kakaoWebClient() {
-        String KakaoRestKey = secretsManagerUtil.getSecretField("kakao-map", "kakao.api.key.rest");
+        String KakaoRestKey = secretsFetcher.getSecretField("kakao.api.key.rest");
         return WebClient.builder()
                 .baseUrl("https://dapi.kakao.com")
                 .defaultHeader("Authorization", "KakaoAK " + KakaoRestKey)
