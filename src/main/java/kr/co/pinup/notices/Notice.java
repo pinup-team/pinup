@@ -3,16 +3,17 @@ package kr.co.pinup.notices;
 import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
 import kr.co.pinup.members.Member;
+import kr.co.pinup.members.exception.MemberNotFoundException;
 import kr.co.pinup.notices.model.dto.NoticeUpdateRequest;
-import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "notices")
 @Getter
-@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 public class Notice extends BaseEntity {
 
     @Column(nullable = false, length = 100)
@@ -27,6 +28,17 @@ public class Notice extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private Member member;
+
+    @Builder
+    private Notice(String title, String content, boolean isDeleted, Member member) {
+        if (member == null) {
+            throw new MemberNotFoundException("작성자는 필수입니다.");
+        }
+        this.title = title;
+        this.content = content;
+        this.isDeleted = isDeleted;
+        this.member = member;
+    }
 
     public void update(NoticeUpdateRequest update) {
         title = update.title();

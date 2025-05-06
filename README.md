@@ -58,7 +58,8 @@
 [🔗ERD Cloud](https://www.erdcloud.com/d/ZBjzfrDw49fGojDaC)
 ![ERD Preview](https://github.com/user-attachments/assets/794e4986-2f52-4a66-8751-bff0b504f4c8)
 
-**운영 & 기술 고민(Wiki)**
+**운영 & 기술 고민(Wiki)**  
+<a href="https://github.com/pinup-team/pinup/wiki"><img src="https://camo.githubusercontent.com/4467f1d9af68170d662631f418182822a36af709876be260441447f888f534ed/687474703a2f2f696d672e736869656c64732e696f2f62616467652f2d47697448756225323057694b692d3339354643313f7374796c653d666c6174266c6f676f3d476974487562266c6f676f436f6c6f723d7768697465266c696e6b3d68747470733a2f2f6769746875622e636f6d2f776f6f7761636f757273652d7465616d732f323032322d7069636b7069636b2f77696b69" alt="WIKI" data-canonical-src="http://img.shields.io/badge/-GitHub%20WiKi-395FC1?style=flat&amp;logo=GitHub&amp;logoColor=white&amp;link=https://github.com/pinup-team/pinup/wiki" style="max-width: 100%;"></a>
 
 ## 👀 구동 화면
 ![main page](https://github.com/user-attachments/assets/959dd92a-c911-4eac-8036-4d87e2610891)

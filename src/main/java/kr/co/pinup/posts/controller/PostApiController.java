@@ -1,13 +1,14 @@
 package kr.co.pinup.posts.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.postImages.exception.postimage.PostImageUpdateCountException;
+import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
-import kr.co.pinup.posts.Post;
-import kr.co.pinup.posts.exception.post.ImageCountException;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostDetailResponse;
 import kr.co.pinup.posts.model.dto.PostResponse;
@@ -19,12 +20,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 @Slf4j
+@Validated
 @RestController
 @RequestMapping("/api/post")
 @RequiredArgsConstructor
@@ -35,27 +38,27 @@ public class PostApiController {
     private final PostImageService postImageService;
 
     @GetMapping("/list/{storeId}")
-    public List<PostResponse> getAllPosts(@PathVariable Long storeId) {
+    public List<PostResponse> getAllPosts(@PathVariable @Positive Long storeId) {
         return postService.findByStoreId(storeId,false);
     }
 
     @GetMapping("/{postId}")
-    public PostDetailResponse getPostById(@PathVariable Long postId) {
+    public PostDetailResponse getPostById(@PathVariable @Positive Long postId) {
         PostResponse post = postService.getPostById(postId,false);
         List<CommentResponse> comments = commentService.findByPostId(postId);
         List<PostImageResponse> images = postImageService.findImagesByPostId(postId);
         return PostDetailResponse.from(post, comments, images);
     }
 
-    @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @PostMapping("/create")
     public ResponseEntity<PostResponse> createPost(@AuthenticationPrincipal MemberInfo memberInfo,
-                                                   @ModelAttribute @Valid CreatePostRequest createPostRequest,
-                                                   @RequestParam(value = "images", required = true) MultipartFile[] images) {
-        if (images == null || images.length < 2) {
-            throw new ImageCountException();
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo,createPostRequest, images));
+                                                   @RequestPart("post") @Valid CreatePostRequest post,
+                                                   @RequestPart(name = "images") List<MultipartFile> images
+    ) {
+        if (images == null || images.size() < 2) {throw new PostImageUpdateCountException("이미지는 2장 이상 등록해야 합니다.");}
+        CreatePostImageRequest imageRequest = new CreatePostImageRequest(images);
+        return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo, post, imageRequest)
+        );
     }
 
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_ADMIN'))")
@@ -67,12 +70,11 @@ public class PostApiController {
 
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @PutMapping("/{postId}")
-    public ResponseEntity<PostResponse> updatePost(@PathVariable Long postId,
-                                                   @ModelAttribute @Valid UpdatePostRequest updatePostRequest,
-                                                   @RequestParam(required = false) List<String> imagesToDelete,
-                                                   @RequestParam("images") MultipartFile[] images) {
-        Post post = postService.updatePost(postId, updatePostRequest, images, imagesToDelete);
-        return ResponseEntity.ok(PostResponse.from(post));
+    public ResponseEntity<PostResponse> updatePost(    @PathVariable Long postId,
+                                                       @RequestPart("updatePostRequest") @Valid UpdatePostRequest updatePostRequest,
+                                                       @RequestParam(required = false) List<String> imagesToDelete,
+                                                       @RequestPart(name = "images", required = false) MultipartFile[] images) {
+        return ResponseEntity.ok(postService.updatePost(postId, updatePostRequest, images, imagesToDelete));
     }
 
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
