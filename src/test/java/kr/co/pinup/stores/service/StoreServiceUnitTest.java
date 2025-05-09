@@ -85,6 +85,7 @@ public class StoreServiceUnitTest {
         assertEquals(sampleStore.getName(), response.name());
         assertEquals(sampleStore.getDescription(), response.description());
         verify(storeRepository, times(1)).findById(1L);
+        // verify:  Mock 객체 메서드 호출 검증용
     }
 
     @Test
