@@ -69,10 +69,8 @@ class NoticeApiControllerTest {
     private NoticeService noticeService;
 
     @BeforeEach
-    void setUp(
-            final WebApplicationContext context,
-            final RestDocumentationContextProvider provider
-    ) {
+    void setUp(final WebApplicationContext context,
+               final RestDocumentationContextProvider provider) {
         mockMvc = MockMvcBuilders.webAppContextSetup(context)
                 .apply(documentationConfiguration(provider))
                 .alwaysDo(print())

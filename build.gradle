@@ -141,6 +141,10 @@ processResources {
 tasks.named('asciidoctor') {
 	inputs.dir snippetsDir             // REST Docs 스니펫 입력 경로 지정
 	configurations 'asciidoctorExt'    // asciidoctor 확장 설정
+	sources {
+		include("**/index.adoc")
+	}
+	baseDirFollowsSourceFile()
 	dependsOn test                     // 테스트 태스크 완료 후 문서 생성
 }
 
