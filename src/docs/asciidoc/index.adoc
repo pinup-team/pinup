@@ -1,10 +1,35 @@
-= Pinup API 문서
+= PinUp API Document
+PinUp team
 :doctype: book
 :icons: font
 :source-highlighter: highlightjs
 :toc: left
+:toclevels: 2
+:sectlinks:
 
+[[introduction]]
+== 소개
 
-include::post.adoc[]
+핀업 API 문서 입니다.
 
-include::comment.adoc[]
+== 게시글 API
+
+=== 게시글 생성
+operation::post-create[snippets='requestParts,requestFields,http-request,http-response']
+
+=== 게시글 목록 조회
+operation::post-get-list[snippets='path-parameters,response-fields']
+
+=== 게시글 상세 조회
+operation::post-get-by-id[snippets='path-parameters,response-fields']
+
+=== 게시글 수정
+operation::post-update[snippets='requestParts,requestFields,http-request,http-response']
+
+=== 게시글 삭제
+operation::post-delete[snippets='path-parameters']
+
+=== 게시글 비활성화
+operation::post-disable[snippets='path-parameters']
+
+include::notice.adoc[]

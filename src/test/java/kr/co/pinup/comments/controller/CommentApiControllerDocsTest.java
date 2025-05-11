@@ -8,19 +8,26 @@ import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.oauth.OAuthProvider;
+import kr.co.pinup.support.RestDocsSupport;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 
@@ -30,26 +37,38 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
-import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = CommentApiController.class)
-@AutoConfigureRestDocs(outputDir = "build/generated-snippets")
-@Import({CommentApiControllerDocsTest.MockConfig.class, CommentApiControllerDocsTest.SecurityConfig.class})
+@ExtendWith(RestDocumentationExtension.class)
+@Import({CommentApiControllerDocsTest.MockConfig.class, CommentApiControllerDocsTest.SecurityConfig.class, RestDocsSupport.class})
 class CommentApiControllerDocsTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired ObjectMapper objectMapper;
     @Autowired CommentService commentService;
+    @Autowired RestDocumentationResultHandler restDocs;
+
+    @BeforeEach
+    void setUp(WebApplicationContext context, RestDocumentationContextProvider provider) {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context)
+                .apply(documentationConfiguration(provider))
+                .alwaysDo(print())
+                .alwaysDo(restDocs)
+                .build();
+    }
 
     @TestConfiguration
     static class MockConfig {
-        @Bean public CommentService commentService() { return mock(CommentService.class); }
+        @Bean public CommentService commentService() {
+            return mock(CommentService.class);
+        }
     }
 
     @TestConfiguration
@@ -65,7 +84,6 @@ class CommentApiControllerDocsTest {
     @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     @DisplayName("POST /api/comment/{postId} - 댓글 생성 문서화")
     void createComment_document() throws Exception {
-        // given
         Long postId = 1L;
         CreateCommentRequest request = new CreateCommentRequest("댓글 내용");
         String json = objectMapper.writeValueAsString(request);
@@ -80,38 +98,24 @@ class CommentApiControllerDocsTest {
                 .build();
 
         CommentResponse response = new CommentResponse(
-                1L,
-                postId,
-                mockMember,
-                "댓글 내용",
-                LocalDateTime.now()
-
-        );
-
+                1L, postId, mockMember, "댓글 내용", LocalDateTime.now());
 
         given(commentService.createComment(any(), eq(postId), any())).willReturn(response);
 
-        // when & then
         mockMvc.perform(post("/api/comment/{postId}", postId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
                         .content(json)
                         .with(csrf()))
                 .andExpect(status().isCreated())
-                .andDo(document("comment-create",
-                        pathParameters(
-                                parameterWithName("postId").description("댓글을 작성할 게시글 ID")
-                        ),
-                        requestFields(
-                                fieldWithPath("content").description("댓글 내용")
-                        ),
+                .andDo(restDocs.document(
+                        pathParameters(parameterWithName("postId").description("댓글을 작성할 게시글 ID")),
+                        requestFields(fieldWithPath("content").description("댓글 내용")),
                         responseFields(
                                 fieldWithPath("id").description("댓글 ID"),
                                 fieldWithPath("postId").description("게시글 ID"),
                                 fieldWithPath("content").description("댓글 내용"),
                                 fieldWithPath("createdAt").description("작성 시각"),
-
-                                // member 내부 필드 (실제 응답 기준)
                                 fieldWithPath("member.id").optional().description("작성자 ID"),
                                 fieldWithPath("member.nickname").description("작성자 닉네임"),
                                 fieldWithPath("member.name").description("작성자 이름"),
@@ -124,26 +128,19 @@ class CommentApiControllerDocsTest {
                                 fieldWithPath("member.updatedAt").optional().description("작성자 수정 시각")
                         )
                 ));
-
     }
 
     @Test
     @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     @DisplayName("DELETE /api/comment/{commentId} - 댓글 삭제 문서화")
     void deleteComment_document() throws Exception {
-        // given
         Long commentId = 1L;
         willDoNothing().given(commentService).deleteComment(commentId);
 
-        // when & then
-        mockMvc.perform(delete("/api/comment/{commentId}", commentId)
-                        .with(csrf()))
+        mockMvc.perform(delete("/api/comment/{commentId}", commentId).with(csrf()))
                 .andExpect(status().isNoContent())
-                .andDo(document("comment-delete",
-                        pathParameters(
-                                parameterWithName("commentId").description("삭제할 댓글 ID")
-                        )
+                .andDo(restDocs.document(
+                        pathParameters(parameterWithName("commentId").description("삭제할 댓글 ID"))
                 ));
     }
 }
-
