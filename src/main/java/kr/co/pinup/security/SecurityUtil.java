@@ -12,6 +12,7 @@ import kr.co.pinup.oauth.OAuthService;
 import kr.co.pinup.oauth.OAuthToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +25,9 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 public class SecurityUtil {
 
     private static OAuthService oAuthService;
+
+    @Value("${cookie.secure}")
+    private boolean cookieSecure;
 
     @Autowired
     public void setOAuthService(OAuthService oAuthService) {
@@ -69,19 +73,6 @@ public class SecurityUtil {
         }
         return currentAuth;
     }
-//  TODO SecurityUtil getAuthentication() session으로 수정하고 추가하기
-//    public Authentication getAuthentication() {
-//        HttpSession session = getSession(false);
-//
-//        SecurityContext securityContext = (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
-//
-//        Authentication currentAuth = (securityContext != null) ? securityContext.getAuthentication() : null;
-//
-//        if (currentAuth == null || !currentAuth.isAuthenticated()) {
-//            throw new UnauthorizedException();
-//        }
-//        return currentAuth;
-//    }
 
     public void setMemberInfo(MemberInfo newMemberInfo) {
         try {
@@ -200,7 +191,7 @@ public class SecurityUtil {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        cookie.setSecure(false); // TODO true로 변경
+        cookie.setSecure(cookieSecure);
         response.addCookie(cookie);
     }
 
@@ -209,7 +200,7 @@ public class SecurityUtil {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        cookie.setSecure(false); // TODO true로 변경
+        cookie.setSecure(cookieSecure);
         response.addCookie(cookie);
     }
 }
