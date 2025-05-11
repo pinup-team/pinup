@@ -37,7 +37,6 @@ import static kr.co.pinup.faqs.model.enums.FaqCategory.USE;
 import static kr.co.pinup.members.model.enums.MemberRole.ROLE_ADMIN;
 import static kr.co.pinup.oauth.OAuthProvider.NAVER;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
@@ -452,7 +451,7 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         willThrow(new FaqNotFound()).given(faqService)
-                        .update(faqId, request);
+                .update(faqId, request);
 
         // Act & Assert
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)

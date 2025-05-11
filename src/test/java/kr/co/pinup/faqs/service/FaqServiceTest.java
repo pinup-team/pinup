@@ -197,11 +197,11 @@ class FaqServiceTest {
     @Test
     void deleted() {
         // Arrange
-       long faqId = 1L;
+        long faqId = 1L;
         Faq faq = createFaq("question 1", "answer 1");
 
         given(faqRepository.findById(faqId))
-               .willReturn(Optional.ofNullable(faq));
+                .willReturn(Optional.ofNullable(faq));
 
         // Act
         faqService.remove(faqId);

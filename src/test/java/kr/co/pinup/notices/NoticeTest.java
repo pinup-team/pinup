@@ -33,13 +33,13 @@ class NoticeTest {
         // Arrange
         Notice notice = createNotice("title 1", "content 1");
         NoticeUpdateRequest request = createUpdateRequest();
-        
+
         // Act
         notice.update(request);
-        
+
         // Assert
         assertThat(notice).extracting(Notice::getTitle, Notice::getContent)
-            .containsOnly(request.title(), request.content());
+                .containsOnly(request.title(), request.content());
     }
 
     @DisplayName("공지사항 삭제시 isDeleted가 true로 변경되어야 한다.")
@@ -47,10 +47,10 @@ class NoticeTest {
     void changeIsDeletedValueTrue() {
         // Arrange
         Notice notice = createNotice("title 1", "content 2");
-        
+
         // Act
         notice.changeDeleted(true);
-        
+
         // Assert
         assertThat(notice.isDeleted()).isTrue();
     }

@@ -388,7 +388,7 @@ class NoticeApiControllerTest {
         long noticeId = 1L;
         NoticeUpdateRequest request = createUpdateRequest(null, "update content");
         String body = objectMapper.writeValueAsString(request);
-        
+
         // Act & Assert
         final ResultActions result = mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
@@ -427,7 +427,7 @@ class NoticeApiControllerTest {
         long noticeId = 1L;
         NoticeUpdateRequest request = createUpdateRequest("A".repeat(101), "update content");
         String body = objectMapper.writeValueAsString(request);
-        
+
         // Act & Assert
         final ResultActions result = mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
@@ -466,7 +466,7 @@ class NoticeApiControllerTest {
         long noticeId = 1L;
         NoticeUpdateRequest request = createUpdateRequest("title update", null);
         String body = objectMapper.writeValueAsString(request);
-        
+
         // Act & Assert
         final ResultActions result = mockMvc.perform(put("/api/notices/{noticeId}", noticeId)
                         .contentType(APPLICATION_JSON)
@@ -506,7 +506,7 @@ class NoticeApiControllerTest {
 
         willDoNothing().given(noticeService)
                 .remove(noticeId);
-        
+
         // Act & Assert
         final ResultActions result = mockMvc.perform(delete("/api/notices/{noticeId}", noticeId))
                 .andExpect(status().isNoContent());
@@ -541,7 +541,7 @@ class NoticeApiControllerTest {
     }
 
     private NoticeResponse createNoticeResponse(Long id, String title, String content,
-                                                       LocalDateTime dateTime) {
+                                                LocalDateTime dateTime) {
         return NoticeResponse.builder()
                 .id(id)
                 .title(title)
