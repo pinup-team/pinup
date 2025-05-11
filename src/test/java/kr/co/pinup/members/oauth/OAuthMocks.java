@@ -13,11 +13,11 @@ import static org.springframework.http.HttpStatus.OK;
 import static org.springframework.util.StreamUtils.copyToString;
 
 public class OAuthMocks {
-    private static OauthConfig oauthConfig;
-    private static OauthConfig.Registration naverRegistration;
-    private static OauthConfig.Registration googleRegistration;
-    private static OauthConfig.Provider naverProvider;
-    private static OauthConfig.Provider googleProvider;
+    private final OauthConfig oauthConfig;
+    private final OauthConfig.Registration naverRegistration;
+    private final OauthConfig.Registration googleRegistration;
+    private final OauthConfig.Provider naverProvider;
+    private final OauthConfig.Provider googleProvider;
     HttpSession session;
 
     public OAuthMocks(OauthConfig oauthConfig) {
@@ -28,7 +28,7 @@ public class OAuthMocks {
         this.googleProvider = oauthConfig.getProvider().get("google");
     }
 
-    public static void setupResponse() throws IOException {
+    public void setupResponse() throws IOException {
 //        setupMockTokenResponse();
 //        setupMockUserInformationResponse();
 
@@ -39,7 +39,7 @@ public class OAuthMocks {
         setupGoogleMockUserInformationResponse();
     }
 
-    public static void setupMockTokenResponse() throws IOException {
+    public void setupMockTokenResponse() throws IOException {
         stubFor(post(urlEqualTo("/?client_id=clientId&redirect_uri=redirectUri&code=code"))
                 .willReturn(aResponse()
                         .withStatus(OK.value())
@@ -49,7 +49,7 @@ public class OAuthMocks {
         );
     }
 
-    public static void setupNaverMockTokenResponse() throws IOException {
+    public void setupNaverMockTokenResponse() throws IOException {
         stubFor(post(urlEqualTo("/test/members/naver/token"))
 //                wireMockServer.stubFor(post(urlEqualTo(naverProvider.getTokenUri()))
                 .withQueryParam("client_id", matching(naverRegistration.getClientId()))
@@ -57,10 +57,10 @@ public class OAuthMocks {
                 .withQueryParam("grant_type", matching(naverRegistration.getAuthorizationGrantType()))
                 .withQueryParam("code", matching("oauthTestCode"))
                 .withQueryParam("state", matching("oauthTestState"))
-                .willReturn(aResponse().withStatus(200).withBody("{ \"access_token\": \"mock-access-token-oauthTestCode\", \"refresh_token\": \"mock-refresh-token\", \"token_type\": \"Bearer\", \"expires_in\": \"3600\" }")));
+                .willReturn(aResponse().withStatus(200).withBody("{ \"access_token\": \"mock-access-token\", \"refresh_token\": \"mock-refresh-token\", \"token_type\": \"Bearer\", \"expires_in\": \"3600\" }")));
     }
 
-    public static void setupGoogleMockTokenResponse() throws IOException {
+    public void setupGoogleMockTokenResponse() throws IOException {
         stubFor(post(urlEqualTo("/test/members/google/token"))
                 //                wireMockServer.stubFor(post(urlEqualTo(googleProvider.getTokenUri()))
                 .withQueryParam("client_id", matching(googleRegistration.getClientId()))
@@ -68,10 +68,10 @@ public class OAuthMocks {
                 .withQueryParam("grant_type", matching(googleRegistration.getAuthorizationGrantType()))
                 .withQueryParam("code", matching("oauthTestCode"))
                 .withQueryParam("redirect_uri", matching(googleRegistration.getRedirectUri()))
-                .willReturn(aResponse().withStatus(200).withBody("{ \"access_token\": \"mock-access-token-oauthTestCode\", \"refresh_token\": \"mock-refresh-token\", \"token_type\": \"Bearer\", \"expires_in\": \"3600\", \"scope\": \"read\" }")));
+                .willReturn(aResponse().withStatus(200).withBody("{ \"access_token\": \"mock-access-token\", \"refresh_token\": \"mock-refresh-token\", \"token_type\": \"Bearer\", \"expires_in\": \"3600\", \"scope\": \"read\" }")));
     }
 
-    public static void setupMockUserInformationResponse() throws IOException {
+    public void setupMockUserInformationResponse() throws IOException {
         stubFor(get(urlEqualTo("/v2/user/me"))
                 .withHeader("Authorization", equalTo("bearer accessToken"))
                 .willReturn(aResponse()
@@ -82,25 +82,25 @@ public class OAuthMocks {
         );
     }
 
-    public static void setupNaverMockUserInformationResponse() throws IOException {
+    public void setupNaverMockUserInformationResponse() throws IOException {
         stubFor(post(urlEqualTo("/test/members/naver/userInfo"))
 //                wireMockServer.stubFor(post(urlEqualTo(naverProvider.getUserInfoUri()))
                 .withHeader("Authorization", matching("Bearer mock-access-token-oauthTestCode"))
                 .willReturn(aResponse().withStatus(200).withBody("{ \"response\": { \"id\": \"123456789\", \"name\": \"test user\", \"email\": \"testuser@naver.com\" }}")));
     }
 
-    public static void setupGoogleMockUserInformationResponse() throws IOException {
+    public void setupGoogleMockUserInformationResponse() throws IOException {
         stubFor(post(urlEqualTo("/test/members/google/userInfo"))
 //                wireMockServer.stubFor(post(urlEqualTo(googleProvider.getUserInfoUri()))
                 .withHeader("Authorization", matching("Bearer mock-access-token-oauthTestCode"))
                 .willReturn(aResponse().withStatus(200).withBody("{ \"id\": \"a1b2c3d4e5_f6g7h8\", \"name\": \"test user\", \"email\": \"testuser@google.com\" }")));
     }
 
-    private static String getMockResponseBodyByPath(String path) throws IOException {
+    private String getMockResponseBodyByPath(String path) throws IOException {
         return copyToString(getMockResourceStream(path), defaultCharset());
     }
 
-    private static InputStream getMockResourceStream(String path) {
+    private InputStream getMockResourceStream(String path) {
         return OAuthMocks.class.getClassLoader().getResourceAsStream(path);
     }
 }
