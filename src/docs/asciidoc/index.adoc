@@ -1,8 +1,16 @@
-= Pinup API 문서
+= PinUp API Document
+PinUp team
 :doctype: book
 :icons: font
 :source-highlighter: highlightjs
 :toc: left
+:toclevels: 2
+:sectlinks:
+
+[[introduction]]
+== 소개
+
+핀업 API 문서 입니다.
 
 == 게시글 API
 
@@ -23,3 +31,5 @@ operation::post-delete[snippets='path-parameters']
 
 === 게시글 비활성화
 operation::post-disable[snippets='path-parameters']
+
+include::notice.adoc[]

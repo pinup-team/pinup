@@ -49,10 +49,13 @@ class NoticeServiceTest {
     @Test
     void findAll() {
         // Arrange
+        final LocalDateTime time1 = LocalDateTime.of(2025, 1, 1, 0, 0, 0);
+        final LocalDateTime time2 = LocalDateTime.of(2025, 1, 1, 1, 0, 0);
+
         Notice notice1 = createNotice("title 1", "content 1");
         Notice notice2 = createNotice("title 2", "content 2");
-        ReflectionTestUtils.setField(notice1, "createdAt", LocalDateTime.of(2025, 1, 1, 0, 0, 0));
-        ReflectionTestUtils.setField(notice2, "createdAt", LocalDateTime.of(2025, 1, 1, 1, 0, 0));
+        ReflectionTestUtils.setField(notice1, "createdAt", time1);
+        ReflectionTestUtils.setField(notice2, "createdAt", time2);
 
         List<Notice> notices = List.of(notice2, notice1);
 

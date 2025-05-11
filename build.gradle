@@ -26,6 +26,10 @@ repositories {
 	mavenCentral()
 }
 
+ext {
+	snippetsDir = file('build/generated-snippets')  // REST Docs 스니펫 생성 위치 설정
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -72,12 +76,8 @@ dependencies {
 
 	// REST Docs 관련 의존성 추가 (테스트 코드에서 REST Docs 사용 가능)
 	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc:3.0.3'
-	testImplementation 'org.springframework.restdocs:spring-restdocs-core:3.0.3' // 👈 명시적으로 추가!
+	testImplementation 'org.springframework.restdocs:spring-restdocs-core:3.0.3'
 	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor:3.0.3'
-
-}
-ext {
-	snippetsDir = file('build/generated-snippets')  // REST Docs 스니펫 생성 위치 설정
 }
 
 tasks.named('test') {
@@ -138,7 +138,6 @@ processResources {
 	}
 }
 
-// REST Docs 기반으로 HTML 문서 생성하는 태스크 수정 (기존 등록된 태스크 사용)
 tasks.named('asciidoctor') {
 	inputs.dir snippetsDir             // REST Docs 스니펫 입력 경로 지정
 	configurations 'asciidoctorExt'    // asciidoctor 확장 설정

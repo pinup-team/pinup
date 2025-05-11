@@ -46,10 +46,11 @@ class NoticeControllerTest {
     @Test
     void returnListView() throws Exception {
         // Arrange
-        NoticeResponse response1 = createNoticeResponse("title 1", "content 1",
-                LocalDateTime.of(2025, 1, 1, 0, 0, 0));
-        NoticeResponse response2 = createNoticeResponse("title 2", "content 2",
-                LocalDateTime.of(2025, 1, 1, 1, 0, 0));
+        final LocalDateTime time1 = LocalDateTime.of(2025, 1, 1, 0, 0, 0);
+        final LocalDateTime time2 = LocalDateTime.of(2025, 1, 1, 1, 0, 0);
+
+        NoticeResponse response1 = createNoticeResponse("title 1", "content 1", time1);
+        NoticeResponse response2 = createNoticeResponse("title 2", "content 2", time2);
         List<NoticeResponse> responses = List.of(response2, response1);
 
         given(noticeService.findAll()).willReturn(responses);
@@ -83,8 +84,9 @@ class NoticeControllerTest {
     void returnDetailView() throws Exception {
         // Arrange
         long noticeId = 1L;
-        NoticeResponse response = createNoticeResponse("title 1", "content 1",
-                LocalDateTime.of(2025, 1, 1, 0, 0, 0));
+        final LocalDateTime time = LocalDateTime.of(2025, 1, 1, 0, 0, 0);
+
+        NoticeResponse response = createNoticeResponse("title 1", "content 1", time);
 
         given(noticeService.find(noticeId)).willReturn(response);
 
@@ -123,8 +125,9 @@ class NoticeControllerTest {
     void returnUpdateView() throws Exception {
         // Arrange
         long noticeId = 1L;
-        NoticeResponse response = createNoticeResponse("title 1", "content 1",
-                LocalDateTime.of(2025, 1, 1, 0, 0, 0));
+        final LocalDateTime time = LocalDateTime.of(2025, 1, 1, 0, 0, 0);
+
+        NoticeResponse response = createNoticeResponse("title 1", "content 1", time);
 
         given(noticeService.find(noticeId)).willReturn(response);
 
