@@ -27,7 +27,7 @@ repositories {
 }
 
 ext {
-	snippetsDir = file('build/generated-snippets')  // REST Docs 스니펫 생성 위치 설정
+	snippetsDir = file('build/generated-snippets')
 }
 
 dependencies {
