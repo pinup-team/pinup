@@ -11,7 +11,7 @@ on:
 jobs:
   # PR 생성 시 테스트
   pr-test:
-    if: github.event_name == 'pull_request' && github.ref == 'refs/heads/dev'
+    if: github.event_name == 'pull_request' && github.base_ref == 'dev'
     runs-on: ubuntu-latest
 
     services:
@@ -157,7 +157,7 @@ jobs:
 
   # main 브랜치 pr(build 및 docs 정적 배포)
   build:
-    if: github.event_name == 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
