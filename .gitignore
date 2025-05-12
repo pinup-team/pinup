@@ -50,3 +50,8 @@ node_modules
 
 ### REST Docs 출력 디렉토리 ###
 !src/docs/
+
+### GitAction 출력 디렉토리 ###
+!.github/
+!.github/workflows/
+!.github/workflows/*
