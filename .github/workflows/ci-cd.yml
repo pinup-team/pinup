@@ -11,8 +11,11 @@ on:
 jobs:
   # PR 생성 시 테스트
   pr-test:
-    if: github.event_name == 'pull_request' && github.ref == 'refs/heads/dev'
+    if: github.event_name == 'pull_request' && github.base_ref == 'dev'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
 
     services:
       localstack:
@@ -89,7 +92,7 @@ jobs:
         if: ${{ success() }}
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: '✅ Pull Request 성공 알림'
+          args: '@everyone ✅ Pull Request 성공 알림'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           DISCORD_USERNAME: WAPP_BOT
@@ -124,7 +127,7 @@ jobs:
         if: ${{ failure() }}
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: '❌ Pull Request 실패 알림'
+          args: '@everyone ❌ Pull Request 실패 알림'
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           DISCORD_USERNAME: WAPP_BOT
@@ -157,7 +160,7 @@ jobs:
 
   # main 브랜치 pr(build 및 docs 정적 배포)
   build:
-    if: github.event_name == 'pull_request' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
     runs-on: ubuntu-latest
     permissions:
       contents: write

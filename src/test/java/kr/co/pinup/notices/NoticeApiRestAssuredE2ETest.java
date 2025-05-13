@@ -29,7 +29,7 @@ class NoticeApiRestAssuredE2ETest {
 
     @LocalServerPort
     private int port;
-    
+
     @Autowired
     private NoticeRepository noticeRepository;
 
@@ -63,23 +63,23 @@ class NoticeApiRestAssuredE2ETest {
         Notice notice1 = createNotice("title 1", "content 1", member);
         Notice notice2 = createNotice("title 2", "content 2", member);
         Notice notice3 = Notice.builder()
-            .title("title 3")
-            .content("content 3")
-            .member(member)
-            .isDeleted(true)
-            .build();
+                .title("title 3")
+                .content("content 3")
+                .member(member)
+                .isDeleted(true)
+                .build();
 
         noticeRepository.saveAll(List.of(notice1, notice2, notice3));
-        
+
         // Act & Assert
-       RestAssured.given()
-               .when()
-               .get("/api/notices")
-               .then()
-               .statusCode(HttpStatus.OK.value())
-               .body("$", hasSize(2))
-               .body("[0].title", equalTo("title 2"))
-               .body("[0].content", equalTo("content 2"));
+        RestAssured.given()
+                .when()
+                .get("/api/notices")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("$", hasSize(2))
+                .body("[0].title", equalTo("title 2"))
+                .body("[0].content", equalTo("content 2"));
 
         List<Notice> notices = noticeRepository.findAllByIsDeletedFalseOrderByCreatedAtDescIdDesc();
         assertThat(notices).hasSize(2)

@@ -45,14 +45,14 @@ class FaqControllerTest {
     @Test
     void returnListView() throws Exception {
         // Arrange
-        FaqResponse response1 = createFaqResponse("question 1", "answer 1",
-                LocalDateTime.of(2025, 1, 1, 0, 0));
-        FaqResponse response2 = createFaqResponse("question 2", "answer 2",
-                LocalDateTime.of(2025, 1, 2, 0, 0));
+        final LocalDateTime time1 = LocalDateTime.of(2025, 1, 1, 0, 0);
+        final LocalDateTime time2 = LocalDateTime.of(2025, 1, 2, 0, 0);
+
+        FaqResponse response1 = createFaqResponse("question 1", "answer 1", time1);
+        FaqResponse response2 = createFaqResponse("question 2", "answer 2", time2);
         List<FaqResponse> responses = List.of(response2, response1);
 
-        given(faqService.findAll())
-                .willReturn(responses);
+        given(faqService.findAll()).willReturn(responses);
 
         // Act & Assert
         mockMvc.perform(get("/faqs"))
@@ -87,11 +87,11 @@ class FaqControllerTest {
     void returnUpdateView() throws Exception {
         // Arrange
         long faqId = 1L;
-        FaqResponse response = createFaqResponse("question 1", "answer 1",
-                LocalDateTime.of(2025, 1, 1, 0, 0));
+        final LocalDateTime time = LocalDateTime.of(2025, 1, 1, 0, 0);
 
-        given(faqService.find(faqId))
-                .willReturn(response);
+        FaqResponse response = createFaqResponse("question 1", "answer 1", time);
+
+        given(faqService.find(faqId)).willReturn(response);
 
         // Act & Assert
         mockMvc.perform(get("/faqs/{faqId}/update", faqId))
@@ -112,8 +112,7 @@ class FaqControllerTest {
         // Arrange
         long faqId = Long.MAX_VALUE;
 
-        given(faqService.find(faqId))
-                .willThrow(new FaqNotFound());
+        given(faqService.find(faqId)).willThrow(new FaqNotFound());
 
         // Act & Assert
         mockMvc.perform(get("/faqs/{faqId}/update", faqId))

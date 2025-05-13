@@ -9,15 +9,26 @@ import kr.co.pinup.faqs.model.enums.FaqCategory;
 import kr.co.pinup.faqs.service.FaqService;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberResponse;
+import kr.co.pinup.support.RestDocsSupport;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.restdocs.RestDocumentationExtension;
+import org.springframework.restdocs.constraints.ConstraintDescriptions;
+import org.springframework.restdocs.mockmvc.RestDocumentationResultHandler;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,9 +37,14 @@ import static kr.co.pinup.faqs.model.enums.FaqCategory.USE;
 import static kr.co.pinup.members.model.enums.MemberRole.ROLE_ADMIN;
 import static kr.co.pinup.oauth.OAuthProvider.NAVER;
 import static org.mockito.BDDMockito.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.payload.JsonFieldType.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.snippet.Attributes.key;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -39,6 +55,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 SecurityAutoConfiguration.class,
                 OAuth2ClientAutoConfiguration.class
         })
+@ExtendWith(RestDocumentationExtension.class)
+@Import(RestDocsSupport.class)
 class FaqApiControllerTest {
 
     @Autowired
@@ -47,24 +65,37 @@ class FaqApiControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private RestDocumentationResultHandler restDocs;
+
     @MockitoBean
     private FaqService faqService;
+
+    @BeforeEach
+    void setUp(final WebApplicationContext context,
+               final RestDocumentationContextProvider provider) {
+        mockMvc = MockMvcBuilders.webAppContextSetup(context)
+                .apply(documentationConfiguration(provider))
+                .alwaysDo(print())
+                .alwaysDo(restDocs)
+                .build();
+    }
 
     @DisplayName("FAQ 전체를 조회한다.")
     @Test
     void findAll() throws Exception {
         // Arrange
-        FaqResponse response1 = createFaqResponse("question 1", "answer 1",
-                LocalDateTime.of(2025, 1, 1, 0, 0));
-        FaqResponse response2 = createFaqResponse("question 2", "answer 2",
-                LocalDateTime.of(2025, 1, 2, 0, 0));
+        final LocalDateTime time1 = LocalDateTime.of(2025, 1, 1, 0, 0);
+        final LocalDateTime time2 = LocalDateTime.of(2025, 1, 2, 0, 0);
+
+        FaqResponse response1 = createFaqResponse(1L, "question 1", "answer 1", time1);
+        FaqResponse response2 = createFaqResponse(2L, "question 2", "answer 2", time2);
         List<FaqResponse> responses = List.of(response2, response1);
 
         given(faqService.findAll()).willReturn(responses);
 
         // Act & Assert
-        mockMvc.perform(get("/api/faqs"))
-                .andDo(print())
+        final ResultActions result = mockMvc.perform(get("/api/faqs"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].question").exists())
@@ -72,6 +103,24 @@ class FaqApiControllerTest {
                 .andExpect(jsonPath("$[0].category").exists())
                 .andExpect(jsonPath("$[0].member").exists())
                 .andExpect(jsonPath("$[0].createdAt").exists());
+
+        result.andDo(restDocs.document(
+                responseFields(
+                        fieldWithPath("[].id").type(NUMBER).description("FAQ ID"),
+                        fieldWithPath("[].question").type(STRING).description("FAQ 질문"),
+                        fieldWithPath("[].answer").type(STRING).description("FAQ 답변"),
+                        fieldWithPath("[].category").type(STRING).description("FAQ 카테고리"),
+                        fieldWithPath("[].member.id").type(NUMBER).description("작성자 ID"),
+                        fieldWithPath("[].member.name").type(STRING).description("작성자 이름"),
+                        fieldWithPath("[].member.email").type(STRING).description("작성자 이메일"),
+                        fieldWithPath("[].member.nickname").type(STRING).description("작성자 닉네임"),
+                        fieldWithPath("[].member.providerType").type(STRING).description("OAuth 제공자"),
+                        fieldWithPath("[].member.role").type(STRING).description("작성자 권한"),
+                        fieldWithPath("[].member.deleted").type(BOOLEAN).description("작성자 탈퇴 여부"),
+                        fieldWithPath("[].createdAt").type(STRING).description("FAQ 작성일"),
+                        fieldWithPath("[].updatedAt").type(STRING).optional().description("FAQ 수정일")
+                )
+        ));
 
         then(faqService).should(times(1))
                 .findAll();
@@ -82,20 +131,41 @@ class FaqApiControllerTest {
     void findById() throws Exception {
         // Arrange
         long faqId = 1L;
-        FaqResponse response = createFaqResponse("question", "answer",
-                LocalDateTime.of(2025, 1, 1, 0, 0));
+        final LocalDateTime time = LocalDateTime.of(2025, 1, 1, 0, 0);
+
+        FaqResponse response = createFaqResponse(1L, "question", "answer", time);
 
         given(faqService.find(faqId)).willReturn(response);
 
         // Act & Assert
-        mockMvc.perform(get("/api/faqs/{faqId}", faqId))
-                .andDo(print())
+        final ResultActions result = mockMvc.perform(get("/api/faqs/{faqId}", faqId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.question").exists())
                 .andExpect(jsonPath("$.answer").exists())
                 .andExpect(jsonPath("$.category").exists())
                 .andExpect(jsonPath("$.member").exists())
                 .andExpect(jsonPath("$.createdAt").exists());
+
+        result.andDo(restDocs.document(
+                pathParameters(
+                        parameterWithName("faqId").description("FAQ ID")
+                ),
+                responseFields(
+                        fieldWithPath("id").type(NUMBER).description("FAQ ID"),
+                        fieldWithPath("question").type(STRING).description("FAQ 질문"),
+                        fieldWithPath("answer").type(STRING).description("FAQ 답변"),
+                        fieldWithPath("category").type(STRING).description("FAQ 카테고리"),
+                        fieldWithPath("member.id").type(NUMBER).description("작성자 ID"),
+                        fieldWithPath("member.name").type(STRING).description("작성자 이름"),
+                        fieldWithPath("member.email").type(STRING).description("작성자 이메일"),
+                        fieldWithPath("member.nickname").type(STRING).description("작성자 닉네임"),
+                        fieldWithPath("member.providerType").type(STRING).description("OAuth 제공자"),
+                        fieldWithPath("member.role").type(STRING).description("작성자 권한"),
+                        fieldWithPath("member.deleted").type(BOOLEAN).description("작성자 탈퇴 여부"),
+                        fieldWithPath("createdAt").type(STRING).description("FAQ 작성일"),
+                        fieldWithPath("updatedAt").type(STRING).optional().description("FAQ 수정일")
+                )
+        ));
 
         then(faqService).should(times(1))
                 .find(faqId);
@@ -111,7 +181,6 @@ class FaqApiControllerTest {
 
         // Act & Assert
         mockMvc.perform(get("/api/faqs/{faqId}", faqId))
-                .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(view().name("error"))
                 .andExpect(model().attributeExists("error"));
@@ -132,11 +201,24 @@ class FaqApiControllerTest {
                 .save(memberInfo, request);
 
         // Act & Assert
-        mockMvc.perform(post("/api/faqs")
+        final ResultActions result = mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isCreated());
+
+        result.andDo(restDocs.document(
+                requestFields(
+                        fieldWithPath("question").type(STRING)
+                                .description("FAQ 질문")
+                                .attributes(key("constraints").value(getConstraintDescription("question"))),
+                        fieldWithPath("answer").type(STRING)
+                                .description("FAQ 답변")
+                                .attributes(key("constraints").value(getConstraintDescription("answer"))),
+                        fieldWithPath("category").type(STRING)
+                                .description("FAQ 카테고리")
+                                .attributes(key("constraints").value(getConstraintDescription("category")))
+                )
+        ));
 
         then(faqService).should(times(1))
                 .save(any(MemberInfo.class), eq(request));
@@ -150,14 +232,32 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // Act & Assert
-        mockMvc.perform(post("/api/faqs")
+        final ResultActions result = mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").exists())
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.validation.question").exists());
+
+        result.andDo(restDocs.document(
+                requestFields(
+                        fieldWithPath("question").type(null)
+                                .description("FAQ 질문")
+                                .attributes(key("constraints").value(getConstraintDescription("question"))),
+                        fieldWithPath("answer").type(STRING)
+                                .description("FAQ 답변")
+                                .attributes(key("constraints").value(getConstraintDescription("answer"))),
+                        fieldWithPath("category").type(STRING)
+                                .description("FAQ 카테고리")
+                                .attributes(key("constraints").value(getConstraintDescription("category")))
+                ),
+                responseFields(
+                        fieldWithPath("status").description("상태 코드"),
+                        fieldWithPath("message").description("에러 메시지"),
+                        fieldWithPath("validation.question").description("질문은 필수 입력 필드입니다.")
+                )
+        ));
     }
 
     @DisplayName("FAQ 저장시 질문 내용의 길이는 1~100자 이내이다.")
@@ -168,14 +268,32 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // Act & Assert
-        mockMvc.perform(post("/api/faqs")
+        final ResultActions result = mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").exists())
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.validation.question").exists());
+
+        result.andDo(restDocs.document(
+                requestFields(
+                        fieldWithPath("question").type(STRING)
+                                .description("FAQ 질문")
+                                .attributes(key("constraints").value(getConstraintDescription("question"))),
+                        fieldWithPath("answer").type(STRING)
+                                .description("FAQ 답변")
+                                .attributes(key("constraints").value(getConstraintDescription("answer"))),
+                        fieldWithPath("category").type(STRING)
+                                .description("FAQ 카테고리")
+                                .attributes(key("constraints").value(getConstraintDescription("category")))
+                ),
+                responseFields(
+                        fieldWithPath("status").description("상태 코드"),
+                        fieldWithPath("message").description("에러 메시지"),
+                        fieldWithPath("validation.question").description("질문은 1~100자 이내여야 합니다.")
+                )
+        ));
     }
 
     @DisplayName("FAQ 저장시 답변 내용은 필수값이다.")
@@ -186,14 +304,32 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // Act & Assert
-        mockMvc.perform(post("/api/faqs")
+        final ResultActions result = mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").exists())
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.validation.answer").exists());
+
+        result.andDo(restDocs.document(
+                requestFields(
+                        fieldWithPath("question").type(STRING)
+                                .description("FAQ 질문")
+                                .attributes(key("constraints").value(getConstraintDescription("question"))),
+                        fieldWithPath("answer").type(null)
+                                .description("FAQ 답변")
+                                .attributes(key("constraints").value(getConstraintDescription("answer"))),
+                        fieldWithPath("category").type(STRING)
+                                .description("FAQ 카테고리")
+                                .attributes(key("constraints").value(getConstraintDescription("category")))
+                ),
+                responseFields(
+                        fieldWithPath("status").description("상태 코드"),
+                        fieldWithPath("message").description("에러 메시지"),
+                        fieldWithPath("validation.answer").description("답변은 필수 입력 필드입니다.")
+                )
+        ));
     }
 
     @DisplayName("FAQ 저장시 답변 내용은 1~500자 이내이다.")
@@ -204,14 +340,32 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // Act & Assert
-        mockMvc.perform(post("/api/faqs")
+        final ResultActions result = mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").exists())
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.validation.answer").exists());
+
+        result.andDo(restDocs.document(
+                requestFields(
+                        fieldWithPath("question").type(STRING)
+                                .description("FAQ 질문")
+                                .attributes(key("constraints").value(getConstraintDescription("question"))),
+                        fieldWithPath("answer").type(STRING)
+                                .description("FAQ 답변")
+                                .attributes(key("constraints").value(getConstraintDescription("answer"))),
+                        fieldWithPath("category").type(STRING)
+                                .description("FAQ 카테고리")
+                                .attributes(key("constraints").value(getConstraintDescription("category")))
+                ),
+                responseFields(
+                        fieldWithPath("status").description("상태 코드"),
+                        fieldWithPath("message").description("에러 메시지"),
+                        fieldWithPath("validation.answer").description("답변은 1~500자 이내여야 합니다.")
+                )
+        ));
     }
 
     @DisplayName("FAQ 저장시 카테고리는 필수값이다.")
@@ -222,14 +376,32 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // Act & Assert
-        mockMvc.perform(post("/api/faqs")
+        final ResultActions result = mockMvc.perform(post("/api/faqs")
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").exists())
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.validation.category").exists());
+
+        result.andDo(restDocs.document(
+                requestFields(
+                        fieldWithPath("question").type(STRING)
+                                .description("FAQ 질문")
+                                .attributes(key("constraints").value(getConstraintDescription("question"))),
+                        fieldWithPath("answer").type(STRING)
+                                .description("FAQ 답변")
+                                .attributes(key("constraints").value(getConstraintDescription("answer"))),
+                        fieldWithPath("category").type(null)
+                                .description("FAQ 카테고리")
+                                .attributes(key("constraints").value(getConstraintDescription("category")))
+                ),
+                responseFields(
+                        fieldWithPath("status").description("상태 코드"),
+                        fieldWithPath("message").description("에러 메시지"),
+                        fieldWithPath("validation.category").description("카테고리는 필수 입력 필드입니다.")
+                )
+        ));
     }
 
     @DisplayName("FAQ를 정상적으로 수정한다.")
@@ -244,11 +416,27 @@ class FaqApiControllerTest {
                 .update(faqId, request);
 
         // Act & Assert
-        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
+        final ResultActions result = mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isNoContent());
+
+        result.andDo(restDocs.document(
+                pathParameters(
+                        parameterWithName("faqId").description("FAQ ID")
+                ),
+                requestFields(
+                        fieldWithPath("question").type(STRING)
+                                .description("FAQ 질문")
+                                .attributes(key("constraints").value(getConstraintDescription("question"))),
+                        fieldWithPath("answer").type(STRING)
+                                .description("FAQ 답변")
+                                .attributes(key("constraints").value(getConstraintDescription("answer"))),
+                        fieldWithPath("category").type(STRING)
+                                .description("FAQ 카테고리")
+                                .attributes(key("constraints").value(getConstraintDescription("category")))
+                )
+        ));
 
         then(faqService).should(times(1))
                 .update(faqId, request);
@@ -263,13 +451,12 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         willThrow(new FaqNotFound()).given(faqService)
-                        .update(faqId, request);
+                .update(faqId, request);
 
         // Act & Assert
         mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isNotFound())
                 .andExpect(view().name("error"))
                 .andExpect(model().attributeExists("error"));
@@ -287,14 +474,32 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // Act & Assert
-        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
+        final ResultActions result = mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").exists())
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.validation.question").exists());
+
+        result.andDo(restDocs.document(
+                requestFields(
+                        fieldWithPath("question").type(null)
+                                .description("FAQ 질문")
+                                .attributes(key("constraints").value(getConstraintDescription("question"))),
+                        fieldWithPath("answer").type(STRING)
+                                .description("FAQ 답변")
+                                .attributes(key("constraints").value(getConstraintDescription("answer"))),
+                        fieldWithPath("category").type(STRING)
+                                .description("FAQ 카테고리")
+                                .attributes(key("constraints").value(getConstraintDescription("category")))
+                ),
+                responseFields(
+                        fieldWithPath("status").description("상태 코드"),
+                        fieldWithPath("message").description("에러 메시지"),
+                        fieldWithPath("validation.question").description("질문은 필수 입력 필드입니다.")
+                )
+        ));
     }
 
     @DisplayName("FAQ 수정시 질문 내용의 길이는 1~100자 이내이다.")
@@ -306,14 +511,32 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // Act & Assert
-        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
+        final ResultActions result = mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").exists())
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.validation.question").exists());
+
+        result.andDo(restDocs.document(
+                requestFields(
+                        fieldWithPath("question").type(STRING)
+                                .description("FAQ 질문")
+                                .attributes(key("constraints").value(getConstraintDescription("question"))),
+                        fieldWithPath("answer").type(STRING)
+                                .description("FAQ 답변")
+                                .attributes(key("constraints").value(getConstraintDescription("answer"))),
+                        fieldWithPath("category").type(STRING)
+                                .description("FAQ 카테고리")
+                                .attributes(key("constraints").value(getConstraintDescription("category")))
+                ),
+                responseFields(
+                        fieldWithPath("status").description("상태 코드"),
+                        fieldWithPath("message").description("에러 메시지"),
+                        fieldWithPath("validation.question").description("질문은 1~100자 이내여야 합니다.")
+                )
+        ));
     }
 
     @DisplayName("FAQ 수정시 답변 내용은 필수값이다.")
@@ -325,13 +548,31 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // Act & Assert
-        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
+        final ResultActions result = mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(jsonPath("$.status").exists())
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.validation.answer").exists());
+
+        result.andDo(restDocs.document(
+                requestFields(
+                        fieldWithPath("question").type(STRING)
+                                .description("FAQ 질문")
+                                .attributes(key("constraints").value(getConstraintDescription("question"))),
+                        fieldWithPath("answer").type(null)
+                                .description("FAQ 답변")
+                                .attributes(key("constraints").value(getConstraintDescription("answer"))),
+                        fieldWithPath("category").type(STRING)
+                                .description("FAQ 카테고리")
+                                .attributes(key("constraints").value(getConstraintDescription("category")))
+                ),
+                responseFields(
+                        fieldWithPath("status").description("상태 코드"),
+                        fieldWithPath("message").description("에러 메시지"),
+                        fieldWithPath("validation.answer").description("답변은 필수 입력 필드입니다.")
+                )
+        ));
     }
 
     @DisplayName("FAQ 수정시 답변 내용의 길이는 1~500자 이내이다.")
@@ -343,13 +584,31 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // Act & Assert
-        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
+        final ResultActions result = mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(jsonPath("$.status").exists())
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.validation.answer").exists());
+
+        result.andDo(restDocs.document(
+                requestFields(
+                        fieldWithPath("question").type(STRING)
+                                .description("FAQ 질문")
+                                .attributes(key("constraints").value(getConstraintDescription("question"))),
+                        fieldWithPath("answer").type(STRING)
+                                .description("FAQ 답변")
+                                .attributes(key("constraints").value(getConstraintDescription("answer"))),
+                        fieldWithPath("category").type(STRING)
+                                .description("FAQ 카테고리")
+                                .attributes(key("constraints").value(getConstraintDescription("category")))
+                ),
+                responseFields(
+                        fieldWithPath("status").description("상태 코드"),
+                        fieldWithPath("message").description("에러 메시지"),
+                        fieldWithPath("validation.answer").description("답변은 1~500자 이내여야 합니다.")
+                )
+        ));
     }
 
     @DisplayName("FAQ 수정시 카테고리는 필수값이다.")
@@ -361,13 +620,31 @@ class FaqApiControllerTest {
         String body = objectMapper.writeValueAsString(request);
 
         // Act & Assert
-        mockMvc.perform(put("/api/faqs/{faqId}", faqId)
+        final ResultActions result = mockMvc.perform(put("/api/faqs/{faqId}", faqId)
                         .contentType(APPLICATION_JSON)
                         .content(body))
-                .andDo(print())
                 .andExpect(jsonPath("$.status").exists())
                 .andExpect(jsonPath("$.message").exists())
                 .andExpect(jsonPath("$.validation.category").exists());
+
+        result.andDo(restDocs.document(
+                requestFields(
+                        fieldWithPath("question").type(STRING)
+                                .description("FAQ 질문")
+                                .attributes(key("constraints").value(getConstraintDescription("question"))),
+                        fieldWithPath("answer").type(STRING)
+                                .description("FAQ 답변")
+                                .attributes(key("constraints").value(getConstraintDescription("answer"))),
+                        fieldWithPath("category").type(null)
+                                .description("FAQ 카테고리")
+                                .attributes(key("constraints").value(getConstraintDescription("category")))
+                ),
+                responseFields(
+                        fieldWithPath("status").description("상태 코드"),
+                        fieldWithPath("message").description("에러 메시지"),
+                        fieldWithPath("validation.category").description("카테고리는 필수 입력 필드입니다.")
+                )
+        ));
     }
 
     @DisplayName("FAQ를 정상적으로 삭제한다.")
@@ -380,9 +657,14 @@ class FaqApiControllerTest {
                 .remove(faqId);
 
         // Act & Assert
-        mockMvc.perform(delete("/api/faqs/{faqId}", faqId))
-                .andDo(print())
+        final ResultActions result = mockMvc.perform(delete("/api/faqs/{faqId}", faqId))
                 .andExpect(status().isNoContent());
+
+        result.andDo(restDocs.document(
+                pathParameters(
+                        parameterWithName("faqId").description("FAQ ID")
+                )
+        ));
 
         then(faqService).should(times(1))
                 .remove(faqId);
@@ -408,13 +690,26 @@ class FaqApiControllerTest {
                 .remove(faqId);
     }
 
-    private FaqResponse createFaqResponse(String question, String answer, LocalDateTime dateTime) {
+    private FaqResponse createFaqResponse(Long id, String question, String answer, LocalDateTime dateTime) {
         return FaqResponse.builder()
+                .id(id)
                 .question(question)
                 .answer(answer)
                 .category(USE)
                 .createdAt(dateTime)
-                .member(mock(MemberResponse.class))
+                .member(createMemberResponse())
+                .build();
+    }
+
+    private MemberResponse createMemberResponse() {
+        return MemberResponse.builder()
+                .id(1L)
+                .name("핀업")
+                .email("pinup0106@gmail.com")
+                .nickname("핀업")
+                .providerType(NAVER)
+                .role(ROLE_ADMIN)
+                .isDeleted(false)
                 .build();
     }
 
@@ -440,5 +735,10 @@ class FaqApiControllerTest {
                 .answer(answer)
                 .category(category)
                 .build();
+    }
+
+    private List<String> getConstraintDescription(String fieldName) {
+        final ConstraintDescriptions constraintDescriptions = new ConstraintDescriptions(FaqCreateRequest.class);
+        return constraintDescriptions.descriptionsForProperty(fieldName);
     }
 }

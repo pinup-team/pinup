@@ -43,15 +43,15 @@ operation::notice-api-controller-test/update[snippets='curl-request,http-request
 - View name: `error`
 - Model attributes: `error`
 
-=== 저장 시 제목 누락 예외
+=== 수정 시 제목 누락 예외
 
 operation::notice-api-controller-test/invalid-title-to-update[snippets='curl-request,http-request,http-response,response-fields']
 
-=== 저장 시 제목 길이 제한 예외
+=== 수정 시 제목 길이 제한 예외
 
 operation::notice-api-controller-test/invalid-title-length-to-update[snippets='curl-request,http-request,http-response,response-fields']
 
-=== 저장 시 내용 누락 예외
+=== 수정 시 내용 누락 예외
 
 operation::notice-api-controller-test/invalid-content-to-update[snippets='curl-request,http-request,http-response,response-fields']
 
