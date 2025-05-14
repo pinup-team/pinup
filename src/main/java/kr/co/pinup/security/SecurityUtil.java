@@ -1,5 +1,6 @@
 package kr.co.pinup.security;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,13 +28,20 @@ public class SecurityUtil {
     private static OAuthService oAuthService;
 
     @Value("${cookie.secure}")
-    private static String cookieSecure;
+    private String cookieSecure;
 
-    private static final boolean cookieSetting = !cookieSecure.equals("N");
+    private boolean cookieSetting;
 
     @Autowired
     public void setOAuthService(OAuthService oAuthService) {
         SecurityUtil.oAuthService = oAuthService;
+    }
+
+    @PostConstruct
+    private void init() {
+        // YAML 에 N 이면 false, 그 외에는 true
+        this.cookieSetting = !"N".equalsIgnoreCase(cookieSecure);
+        log.info("cookie.secure='{}' → cookieSetting={}", cookieSecure, cookieSetting);
     }
 
     public HttpSession getSession(boolean result) {

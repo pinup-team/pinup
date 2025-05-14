@@ -61,8 +61,21 @@ class MemberApiControllerDocsTest {
     @Autowired
     RestDocumentationResultHandler restDocs;
 
-    MemberRequest request = MemberRequest.builder().name("test").email("test@naver.com").nickname("updatedTestNickname").providerType(OAuthProvider.NAVER).build();
-    MemberResponse response = MemberResponse.builder().id(1L).name("test").email("test@naver.com").nickname("updatedTestNickname").providerType(OAuthProvider.NAVER).role(MemberRole.ROLE_USER).build();
+    MemberRequest request = MemberRequest.builder()
+            .name("test")
+            .email("test@naver.com")
+            .nickname("updatedTestNickname")
+            .providerType(OAuthProvider.NAVER)
+            .build();
+
+    MemberResponse response = MemberResponse.builder()
+            .id(1L)
+            .name("test")
+            .email("test@naver.com")
+            .nickname("updatedTestNickname")
+            .providerType(OAuthProvider.NAVER)
+            .role(MemberRole.ROLE_USER)
+            .build();
 
     @BeforeEach
     void setUp(WebApplicationContext context, RestDocumentationContextProvider provider) {
@@ -101,7 +114,6 @@ class MemberApiControllerDocsTest {
         }
     }
 
-    // TODO 도희 : JSON 형식으로 변경 하기!
     @Test
     @WithMockMember
     @DisplayName("Get /api/members/nickname - 닉네임 생성 문서화")
@@ -109,18 +121,15 @@ class MemberApiControllerDocsTest {
         when(memberService.makeNickname()).thenReturn("generatedNickname");
 
         mockMvc.perform(get("/api/members/nickname")
-//                        .header("Authorization", "Bearer testToken")
                         .contentType(MediaType.TEXT_PLAIN_VALUE))
                 .andExpect(status().isOk())
                 .andExpect(content().string("generatedNickname"))
-                .andDo(document("generatedNickname"));
-//                .andDo(restDocs.document(
-//                responseFields(
-//                        fieldWithPath(".")
-//                                .type(MediaType.TEXT_PLAIN_VALUE)
-//                                .description("생성된 닉네임 (예: 'generatedNickname')")
-//                )
-//        ));
+                .andDo(document("members-nickname",
+                        responseFields(
+                                fieldWithPath(".")
+                                        .description("생성된 닉네임 (예: 'generatedNickname')")
+                        )
+                ));
     }
 
     @Test
@@ -137,18 +146,18 @@ class MemberApiControllerDocsTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("닉네임이 변경되었습니다."))
-                .andDo(document("닉네임이 변경되었습니다."));
-//                .andDo(restDocs.document(
-//                        requestFields(
-//                                fieldWithPath("name").description("이름"),
-//                                fieldWithPath("email").description("이메일"),
-//                                fieldWithPath("nickname").description("변경할 닉네임"),
-//                                fieldWithPath("providerType").description("OAuth 제공자")
-//                        ),
-//                        responseFields(
-//                                fieldWithPath(".").description("닉네임이 변경되었습니다.")
-//                        )
-//                ));
+                .andDo(document("members-update-nickname",
+                        requestFields(
+                                fieldWithPath("name").description("이름"),
+                                fieldWithPath("email").description("이메일"),
+                                fieldWithPath("nickname").description("변경할 닉네임"),
+                                fieldWithPath("providerType").description("OAuth 제공자")
+                        ),
+                        responseFields(
+                                fieldWithPath(".")
+                                        .description("닉네임 변경 결과 메시지 (예: '닉네임이 변경되었습니다.')")
+                        )
+                ));
     }
 
     @Test
@@ -162,22 +171,18 @@ class MemberApiControllerDocsTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andDo(document("탈퇴 성공"));
-//                .andDo(document("member-disable",
-//                        requestHeaders(
-//                                headerWithName("Authorization").description("Bearer Access Token")
-//                        ),
-//                        requestFields(
-//                                fieldWithPath("name").optional().description("이름"),
-//                                fieldWithPath("email").optional().description("이메일"),
-//                                fieldWithPath("nickname").optional().description("닉네임"),
-//                                fieldWithPath("providerType").description("OAuth 제공자 (예: NAVER, GOOGLE 등)")
-//                        ),
-//                        responseFields(
-//                                fieldWithPath("status").description("응답 상태 (예: 200)"),
-//                                fieldWithPath("message").description("탈퇴 성공 메시지 (예: '탈퇴 성공')")
-//                        )
-//                ));
+                .andDo(document("members-disable",
+                        requestFields(
+                                fieldWithPath("name").description("이름"),
+                                fieldWithPath("email").description("이메일"),
+                                fieldWithPath("nickname").description("닉네임"),
+                                fieldWithPath("providerType").description("OAuth 제공자")
+                        ),
+                        responseFields(
+                                fieldWithPath(".")
+                                        .description("탈퇴 성공 메시지 (예: '탈퇴 성공')")
+                        )
+                ));
     }
 
     @Test
@@ -191,13 +196,11 @@ class MemberApiControllerDocsTest {
                         .header("Authorization", "Bearer testToken"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("로그아웃 성공"))
-                .andDo(document("로그아웃 성공"));
-//                .andDo(restDocs.document(
-//                        responseFields(
-//                                fieldWithPath(".")
-//                                        .type(JsonFieldType.STRING)
-//                                        .description("로그아웃 성공 메시지 (예: '로그아웃 성공')")
-//                        )
-//                ));
+                .andDo(document("members-logout",
+                        responseFields(
+                                fieldWithPath(".")
+                                        .description("로그아웃 성공 메시지 (예: '로그아웃 성공')")
+                        )
+                ));
     }
 }
