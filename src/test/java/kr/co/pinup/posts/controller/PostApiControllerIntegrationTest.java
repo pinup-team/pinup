@@ -1,5 +1,6 @@
 package kr.co.pinup.posts.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import kr.co.pinup.comments.Comment;
 import kr.co.pinup.comments.model.dto.CommentResponse;
@@ -47,6 +48,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -56,8 +58,6 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.nio.charset.StandardCharsets;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -67,7 +67,7 @@ import java.nio.charset.StandardCharsets;
 public class PostApiControllerIntegrationTest {
 
     @TestConfiguration
-    static class MockServiceTestConfig {
+    public static class MockServiceTestConfig {
         @Bean
         public MemberService memberService() {
             return mock(MemberService.class);
