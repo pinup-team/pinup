@@ -45,10 +45,11 @@ jobs:
           mkdir -p src/test/resources
           echo "${{ secrets.APPLICATION_TEST_YML }}" | base64 --decode > src/test/resources/application-test.yml
 
-      - name: Initialize Secrets Manager
+      - name: Install awslocal and create dummy secret
         run: |
-          chmod +x .github/workflows/init-secrets.sh
-          ./.github/workflows/init-secrets.sh
+          pip install awscli-local
+          echo '{"kakao.api.key.rest":"dummy-test-key"}' > secrets.json
+          awslocal secretsmanager create-secret \--name test/api/kakaomap \--secret-string file://secrets.json
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
