@@ -19,10 +19,7 @@ import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Triple;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -83,7 +80,7 @@ public class MemberApiController {
                 .build();
     }
 
-    @GetMapping("/nickname")
+    @GetMapping(value = "/nickname", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> makeNickname(@LoginMember MemberInfo memberInfo) {
         return Optional.ofNullable(memberInfo).map(user -> {
             String nickname = memberService.makeNickname();
@@ -92,15 +89,14 @@ public class MemberApiController {
                 .body("로그인 정보가 없습니다."));
     }
 
-    @PatchMapping
+    @PatchMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> update(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
         MemberResponse updatedMemberResponse = memberService.update(memberInfo, memberRequest);
         if (updatedMemberResponse != null && updatedMemberResponse.getNickname().equals(memberRequest.nickname())) {
-            return ResponseEntity.ok("닉네임이 변경되었습니다.");
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body("닉네임이 변경되었습니다.");
         } else {
-            return ResponseEntity.badRequest().body("닉네임 변경 실패");
+            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("닉네임 변경 실패");
         }
-
     }
 
     @DeleteMapping

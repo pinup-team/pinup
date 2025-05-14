@@ -1,5 +1,6 @@
 package kr.co.pinup.posts;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.pinup.config.S3ClientConfig;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
@@ -41,6 +42,7 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -56,8 +58,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.nio.charset.StandardCharsets;
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")

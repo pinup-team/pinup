@@ -1,5 +1,6 @@
 package kr.co.pinup.security;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,6 +13,7 @@ import kr.co.pinup.oauth.OAuthService;
 import kr.co.pinup.oauth.OAuthToken;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,9 +27,21 @@ public class SecurityUtil {
 
     private static OAuthService oAuthService;
 
+    @Value("${cookie.secure}")
+    private String cookieSecure;
+
+    private boolean cookieSetting;
+
     @Autowired
     public void setOAuthService(OAuthService oAuthService) {
         SecurityUtil.oAuthService = oAuthService;
+    }
+
+    @PostConstruct
+    private void init() {
+        // YAML 에 N 이면 false, 그 외에는 true
+        this.cookieSetting = !"N".equalsIgnoreCase(cookieSecure);
+        log.info("cookie.secure='{}' → cookieSetting={}", cookieSecure, cookieSetting);
     }
 
     public HttpSession getSession(boolean result) {
@@ -69,19 +83,6 @@ public class SecurityUtil {
         }
         return currentAuth;
     }
-//  TODO SecurityUtil getAuthentication() session으로 수정하고 추가하기
-//    public Authentication getAuthentication() {
-//        HttpSession session = getSession(false);
-//
-//        SecurityContext securityContext = (SecurityContext) session.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
-//
-//        Authentication currentAuth = (securityContext != null) ? securityContext.getAuthentication() : null;
-//
-//        if (currentAuth == null || !currentAuth.isAuthenticated()) {
-//            throw new UnauthorizedException();
-//        }
-//        return currentAuth;
-//    }
 
     public void setMemberInfo(MemberInfo newMemberInfo) {
         try {
@@ -158,7 +159,7 @@ public class SecurityUtil {
         Cookie cookie = new Cookie("refresh_token", refreshToken);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
-        cookie.setSecure(false);
+        cookie.setSecure(false); // TODO true로 변경
         cookie.setMaxAge(60 * 60 * 12);
         response.addCookie(cookie);
     }
@@ -200,7 +201,7 @@ public class SecurityUtil {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        cookie.setSecure(false);
+        cookie.setSecure(cookieSetting);
         response.addCookie(cookie);
     }
 
@@ -209,7 +210,7 @@ public class SecurityUtil {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        cookie.setSecure(false);  // HTTPS 환경이라면 true 설정
+        cookie.setSecure(cookieSetting);
         response.addCookie(cookie);
     }
 }
