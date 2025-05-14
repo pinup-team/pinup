@@ -16,6 +16,7 @@ import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
@@ -146,6 +147,10 @@ public class S3ConfigTest {
                     .endpointOverride(URI.create(endpoint))
                     .region(Region.US_EAST_1)
                     .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create("test", "test")))
+                    .serviceConfiguration(S3Configuration.builder()
+                            .chunkedEncodingEnabled(false)
+                            .pathStyleAccessEnabled(true)
+                            .build())
                     .build();
         }
     }
