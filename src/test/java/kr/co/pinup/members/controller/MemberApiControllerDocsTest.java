@@ -37,6 +37,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -138,9 +139,6 @@ class MemberApiControllerDocsTest {
                 .andExpect(content().string("닉네임이 변경되었습니다."))
                 .andDo(document("닉네임이 변경되었습니다."));
 //                .andDo(restDocs.document(
-//                        requestHeaders(
-//                                headerWithName("Authorization").description("Bearer 토큰")
-//                        ),
 //                        requestFields(
 //                                fieldWithPath("name").description("이름"),
 //                                fieldWithPath("email").description("이메일"),
@@ -148,8 +146,7 @@ class MemberApiControllerDocsTest {
 //                                fieldWithPath("providerType").description("OAuth 제공자")
 //                        ),
 //                        responseFields(
-//                                fieldWithPath("status").description("응답 상태 (예: 200)"),
-//                                fieldWithPath("message").description("닉네임 변경 결과 메시지 (예: '닉네임이 변경되었습니다.')")
+//                                fieldWithPath(".").description("닉네임이 변경되었습니다.")
 //                        )
 //                ));
     }
