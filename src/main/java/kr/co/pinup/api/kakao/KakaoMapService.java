@@ -42,8 +42,6 @@ public class KakaoMapService {
 
             JsonNode document = json.get("documents").get(0);
 
-            System.out.println(document);
-
             if (document == null || document.isMissingNode()) {
                 return Map.of("error", "no_result");
             }

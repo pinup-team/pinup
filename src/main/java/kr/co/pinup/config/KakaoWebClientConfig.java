@@ -2,10 +2,12 @@ package kr.co.pinup.config;
 
 import jakarta.annotation.PostConstruct;
 import kr.co.pinup.util.SecretsFetcher;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 
+@Slf4j
 @Configuration
 public class KakaoWebClientConfig {
 
@@ -22,8 +24,8 @@ public class KakaoWebClientConfig {
     public void printKey() {
         String restKey = secretsFetcher.getSecretField("kakao.api.key.rest");
         String jsKey = secretsFetcher.getSecretField("kakao.api.key.js");
-        System.out.println("🔑 kakaoRestKey = " + restKey);
-        System.out.println("🔑 kakaoJsKey   = " + jsKey);
+        log.info("🔑 kakaoRestKey = {}", restKey);
+        log.info("🔑 kakaoJsKey   = {}", jsKey);
     }
 
     @Bean
