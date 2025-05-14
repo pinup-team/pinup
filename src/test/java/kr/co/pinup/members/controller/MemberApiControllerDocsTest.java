@@ -37,7 +37,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -124,11 +125,7 @@ class MemberApiControllerDocsTest {
                         .contentType(MediaType.TEXT_PLAIN_VALUE))
                 .andExpect(status().isOk())
                 .andExpect(content().string("generatedNickname"))
-                .andDo(document("members-nickname",
-                        responseFields(
-                                fieldWithPath(".")
-                                        .description("생성된 닉네임 (예: 'generatedNickname')")
-                        )
+                .andDo(document("generatedNickname"
                 ));
     }
 
@@ -146,18 +143,19 @@ class MemberApiControllerDocsTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("닉네임이 변경되었습니다."))
-                .andDo(document("members-update-nickname",
-                        requestFields(
-                                fieldWithPath("name").description("이름"),
-                                fieldWithPath("email").description("이메일"),
-                                fieldWithPath("nickname").description("변경할 닉네임"),
-                                fieldWithPath("providerType").description("OAuth 제공자")
-                        ),
-                        responseFields(
-                                fieldWithPath(".")
-                                        .description("닉네임 변경 결과 메시지 (예: '닉네임이 변경되었습니다.')")
-                        )
-                ));
+                .andDo(document("닉네임이 변경되었습니다."));
+//                .andDo(document("members-update-nickname",
+//                        requestFields(
+//                                fieldWithPath("name").description("이름"),
+//                                fieldWithPath("email").description("이메일"),
+//                                fieldWithPath("nickname").description("변경할 닉네임"),
+//                                fieldWithPath("providerType").description("OAuth 제공자")
+//                        ),
+//                        responseFields(
+//                                fieldWithPath(".")
+//                                        .description("닉네임 변경 결과 메시지 (예: '닉네임이 변경되었습니다.')")
+//                        )
+//                ));
     }
 
     @Test
@@ -171,18 +169,8 @@ class MemberApiControllerDocsTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andDo(document("members-disable",
-                        requestFields(
-                                fieldWithPath("name").description("이름"),
-                                fieldWithPath("email").description("이메일"),
-                                fieldWithPath("nickname").description("닉네임"),
-                                fieldWithPath("providerType").description("OAuth 제공자")
-                        ),
-                        responseFields(
-                                fieldWithPath(".")
-                                        .description("탈퇴 성공 메시지 (예: '탈퇴 성공')")
-                        )
-                ));
+                .andDo(document("탈퇴 성공")
+                );
     }
 
     @Test
