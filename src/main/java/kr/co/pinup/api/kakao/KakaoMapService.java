@@ -2,8 +2,8 @@ package kr.co.pinup.api.kakao;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import groovy.util.logging.Slf4j;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -36,7 +36,7 @@ public class KakaoMapService {
 
             ObjectMapper objectMapper = new ObjectMapper();
 
-            System.out.println("📦 Kakao API 응답:\n" + response);
+            log.info("📦 Kakao API 응답:\n{}", response);
 
             JsonNode json = objectMapper.readTree(response);
 
