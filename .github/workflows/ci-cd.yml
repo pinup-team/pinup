@@ -59,6 +59,13 @@ jobs:
           set -o pipefail
           ./gradlew test --console=plain --no-daemon --stacktrace | tee test-log.txt
 
+      - name: 📄 Upload Test Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: build/reports/tests/test
+
       - name: 💬 PR Comment (Test Result)
         if: always()
         uses: marocchino/sticky-pull-request-comment@v2
