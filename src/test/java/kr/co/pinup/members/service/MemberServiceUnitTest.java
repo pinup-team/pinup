@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @MemberTestAnnotation
-public class MemberServiceTest {
+public class MemberServiceUnitTest {
     MockMvc mockMvc;
 
     @Mock

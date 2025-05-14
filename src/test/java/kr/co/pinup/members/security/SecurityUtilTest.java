@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
+import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.oauth.OAuthProvider;
@@ -14,10 +15,7 @@ import kr.co.pinup.oauth.OAuthService;
 import kr.co.pinup.oauth.OAuthToken;
 import kr.co.pinup.oauth.naver.NaverToken;
 import kr.co.pinup.security.SecurityUtil;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -283,27 +281,28 @@ public class SecurityUtilTest {
             assertNull(SecurityContextHolder.getContext().getAuthentication());
         }
 
-    /*@Test CHECK
-    @WithMockMember(nickname = "testUser", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    public void testClearContextAndDeleteCookie_TokenRevokeFail() {
-        *//*when(oAuthService.revoke(any(), any())).thenReturn(false);
-        OAuthTokenRequestException exception = assertThrows(OAuthTokenRequestException.class, securityUtil::clearContextAndDeleteCookie);
-        assertEquals("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.", exception.getMessage());*//*
+        @Test
+        @WithMockMember(nickname = "testUser", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
+        @Disabled
+        public void testClearContextAndDeleteCookie_TokenRevokeFail() {
+            when(oAuthService.revoke(any(), any())).thenReturn(false);
+            OAuthTokenRequestException exception = assertThrows(OAuthTokenRequestException.class, securityUtil::clearContextAndDeleteCookie);
+            assertEquals("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.", exception.getMessage());
 
-        // 테스트를 위한 더미 데이터
-        String accessToken = "dummyAccessToken";
-        MemberInfo mockMemberInfo = mock(MemberInfo.class);
-        when(mockMemberInfo.provider()).thenReturn(OAuthProvider.NAVER);
+            // 테스트를 위한 더미 데이터
+            String accessToken = "dummyAccessToken";
+            MemberInfo mockMemberInfo = mock(MemberInfo.class);
+            when(mockMemberInfo.provider()).thenReturn(OAuthProvider.NAVER);
 
-        // Mock의 동작 정의
-        when(securityUtil.getAccessTokenFromSecurityContext()).thenReturn(accessToken);
-        when(securityUtil.getMemberInfo()).thenReturn(mockMemberInfo);
-        when(oAuthService.revoke(any(), any())).thenReturn(false); // revoke가 false를 반환
+            // Mock의 동작 정의
+            when(securityUtil.getAccessTokenFromSecurityContext()).thenReturn(accessToken);
+            when(securityUtil.getMemberInfo()).thenReturn(mockMemberInfo);
+            when(oAuthService.revoke(any(), any())).thenReturn(false); // revoke가 false를 반환
 
-        // 예외 발생 검증
-        Exception exception = assertThrows(OAuthTokenRequestException.class, securityUtil::clearContextAndDeleteCookie);
-        assertEquals("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.", exception.getMessage());
-    }*/
+            // 예외 발생 검증
+            Exception ex = assertThrows(OAuthTokenRequestException.class, securityUtil::clearContextAndDeleteCookie);
+            assertEquals("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.", ex.getMessage());
+        }
 
         @Test
         @DisplayName("리프레시 토큰 쿠키 삭제")
