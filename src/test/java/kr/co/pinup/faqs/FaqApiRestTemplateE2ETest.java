@@ -72,7 +72,8 @@ class FaqApiRestTemplateE2ETest {
                 url,
                 HttpMethod.GET,
                 null,
-                new ParameterizedTypeReference<List<FaqResponse>>() {}
+                new ParameterizedTypeReference<List<FaqResponse>>() {
+                }
         );
 
         // Assert

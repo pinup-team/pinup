@@ -49,10 +49,13 @@ class NoticeServiceTest {
     @Test
     void findAll() {
         // Arrange
+        final LocalDateTime time1 = LocalDateTime.of(2025, 1, 1, 0, 0, 0);
+        final LocalDateTime time2 = LocalDateTime.of(2025, 1, 1, 1, 0, 0);
+
         Notice notice1 = createNotice("title 1", "content 1");
         Notice notice2 = createNotice("title 2", "content 2");
-        ReflectionTestUtils.setField(notice1, "createdAt", LocalDateTime.of(2025, 1, 1, 0, 0, 0));
-        ReflectionTestUtils.setField(notice2, "createdAt", LocalDateTime.of(2025, 1, 1, 1, 0, 0));
+        ReflectionTestUtils.setField(notice1, "createdAt", time1);
+        ReflectionTestUtils.setField(notice2, "createdAt", time2);
 
         List<Notice> notices = List.of(notice2, notice1);
 
@@ -89,9 +92,9 @@ class NoticeServiceTest {
         Notice notice = response.get();
 
         assertThat(result).isNotNull()
-            .extracting(NoticeResponse::title, NoticeResponse::content)
-            .containsOnly(notice.getTitle(), notice.getContent());
-        
+                .extracting(NoticeResponse::title, NoticeResponse::content)
+                .containsOnly(notice.getTitle(), notice.getContent());
+
         then(noticeRepository).should(times(1))
                 .findByIdAndIsDeletedFalse(noticeId);
     }
@@ -103,12 +106,12 @@ class NoticeServiceTest {
         long noticeId = Long.MAX_VALUE;
 
         given(noticeRepository.findByIdAndIsDeletedFalse(noticeId)).willThrow(new NoticeNotFound());
-        
+
         // Act & Assert
         assertThatThrownBy(() -> noticeService.find(noticeId))
-            .isInstanceOf(NoticeNotFound.class)
-            .hasMessage(NOTICE_ERROR_MESSAGE);
-        
+                .isInstanceOf(NoticeNotFound.class)
+                .hasMessage(NOTICE_ERROR_MESSAGE);
+
         then(noticeRepository).should(times(1))
                 .findByIdAndIsDeletedFalse(noticeId);
     }
@@ -120,14 +123,14 @@ class NoticeServiceTest {
         MemberInfo memberInfo = createMemberInfo();
         NoticeCreateRequest request = createRequest();
         Member member = Member.builder()
-            .nickname("nickname")
-            .build();
+                .nickname("nickname")
+                .build();
 
         given(memberRepository.findByNickname(memberInfo.nickname())).willReturn(Optional.of(member));
-        
+
         // Act
         noticeService.save(memberInfo, request);
-        
+
         // Assert
         then(noticeRepository).should(times(1))
                 .save(any(Notice.class));
@@ -139,14 +142,14 @@ class NoticeServiceTest {
         // Arrange
         MemberInfo memberInfo = createMemberInfo();
         NoticeCreateRequest request = createRequest();
-        
+
         given(memberRepository.findByNickname(memberInfo.nickname()))
                 .willThrow(new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
-        
+
         // Act & Assert
         assertThatThrownBy(() -> noticeService.save(memberInfo, request))
-            .isInstanceOf(MemberNotFoundException.class)
-            .hasMessage(memberInfo.nickname() + "님을 찾을 수 없습니다.");
+                .isInstanceOf(MemberNotFoundException.class)
+                .hasMessage(memberInfo.nickname() + "님을 찾을 수 없습니다.");
     }
 
     @DisplayName("공지사항을 정상적으로 수정한다.")
@@ -159,10 +162,10 @@ class NoticeServiceTest {
         Notice noticeMock = mock(Notice.class);
 
         given(noticeRepository.findById(noticeId)).willReturn(Optional.ofNullable(noticeMock));
-        
+
         // Act
         noticeService.update(noticeId, request);
-        
+
         // Assert
         then(noticeMock).should(times(1))
                 .update(request);
@@ -176,11 +179,11 @@ class NoticeServiceTest {
         NoticeUpdateRequest request = createUpdateRequest();
 
         given(noticeRepository.findById(noticeId)).willThrow(new NoticeNotFound());
-        
+
         // Act & Assert
         assertThatThrownBy(() -> noticeService.update(noticeId, request))
-            .isInstanceOf(NoticeNotFound.class)
-            .hasMessage(NOTICE_ERROR_MESSAGE);
+                .isInstanceOf(NoticeNotFound.class)
+                .hasMessage(NOTICE_ERROR_MESSAGE);
 
         then(noticeRepository).should(times(1))
                 .findById(noticeId);
@@ -194,10 +197,10 @@ class NoticeServiceTest {
         Notice noticeMock = mock(Notice.class);
 
         given(noticeRepository.findById(noticeId)).willReturn(Optional.of(noticeMock));
-        
+
         // Act
         noticeService.remove(noticeId);
-        
+
         // Assert
         then(noticeMock).should(times(1))
                 .changeDeleted(true);
@@ -210,40 +213,40 @@ class NoticeServiceTest {
         long noticeId = 1L;
 
         given(noticeRepository.findById(noticeId)).willThrow(new NoticeNotFound());
-        
+
         // Act & Assert
         assertThatThrownBy(() -> noticeService.remove(noticeId))
-            .isInstanceOf(NoticeNotFound.class)
-            .hasMessage(NOTICE_ERROR_MESSAGE);
+                .isInstanceOf(NoticeNotFound.class)
+                .hasMessage(NOTICE_ERROR_MESSAGE);
     }
 
     private Notice createNotice(String title, String content) {
         return Notice.builder()
-            .title(title)
-            .content(content)
-            .isDeleted(false)
-            .member(mock(Member.class))
-            .build();
+                .title(title)
+                .content(content)
+                .isDeleted(false)
+                .member(mock(Member.class))
+                .build();
     }
 
     private MemberInfo createMemberInfo() {
         return MemberInfo.builder()
-            .nickname("nickname")
-            .role(ROLE_ADMIN)
-            .build();
+                .nickname("nickname")
+                .role(ROLE_ADMIN)
+                .build();
     }
 
     private NoticeCreateRequest createRequest() {
         return NoticeCreateRequest.builder()
-            .title("title 1")
-            .content("content 1")
-            .build();
+                .title("title 1")
+                .content("content 1")
+                .build();
     }
 
     private NoticeUpdateRequest createUpdateRequest() {
         return NoticeUpdateRequest.builder()
-            .title("title 1")
-            .content("update content")
-            .build();
+                .title("title 1")
+                .content("update content")
+                .build();
     }
 }

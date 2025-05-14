@@ -50,15 +50,17 @@ class FaqServiceTest {
     @Test
     void findAll() {
         // Arrange
+        final LocalDateTime time1 = LocalDateTime.of(2025, 1, 1, 0, 0, 0);
+        final LocalDateTime time2 = LocalDateTime.of(2025, 1, 1, 1, 0, 0);
+
         Faq faq1 = createFaq("question 1", "answer 1");
         Faq faq2 = createFaq("question 2", "answer 2");
-        ReflectionTestUtils.setField(faq1, "createdAt", LocalDateTime.of(2025, 1, 1, 0, 0, 0));
-        ReflectionTestUtils.setField(faq2, "createdAt", LocalDateTime.of(2025, 1, 1, 1, 0, 0));
+        ReflectionTestUtils.setField(faq1, "createdAt", time1);
+        ReflectionTestUtils.setField(faq2, "createdAt", time2);
 
         List<Faq> faqs = List.of(faq2, faq1);
 
-        given(faqRepository.findAllByOrderByCreatedAtDescIdDesc())
-                .willReturn(faqs);
+        given(faqRepository.findAllByOrderByCreatedAtDescIdDesc()).willReturn(faqs);
 
         // Act
         List<FaqResponse> result = faqService.findAll();
@@ -84,8 +86,7 @@ class FaqServiceTest {
         Optional<Faq> response = Optional.ofNullable(
                 createFaq("question 1", "answer 1"));
 
-        given(faqRepository.findById(faqId))
-                .willReturn(response);
+        given(faqRepository.findById(faqId)).willReturn(response);
 
         // Act
         FaqResponse result = faqService.find(faqId);
@@ -107,8 +108,7 @@ class FaqServiceTest {
         // Arrange
         long faqId = Long.MAX_VALUE;
 
-        given(faqRepository.findById(faqId))
-                .willThrow(new FaqNotFound());
+        given(faqRepository.findById(faqId)).willThrow(new FaqNotFound());
 
         // Act & Assert
         assertThatThrownBy(() -> faqService.find(faqId))
@@ -182,8 +182,7 @@ class FaqServiceTest {
         long faqId = Long.MAX_VALUE;
         FaqUpdateRequest request = createFaqUpdateRequest();
 
-        given(faqRepository.findById(faqId))
-                .willThrow(new FaqNotFound());
+        given(faqRepository.findById(faqId)).willThrow(new FaqNotFound());
 
         // Act & Assert
         assertThatThrownBy(() -> faqService.update(faqId, request))
@@ -198,11 +197,11 @@ class FaqServiceTest {
     @Test
     void deleted() {
         // Arrange
-       long faqId = 1L;
+        long faqId = 1L;
         Faq faq = createFaq("question 1", "answer 1");
 
         given(faqRepository.findById(faqId))
-               .willReturn(Optional.ofNullable(faq));
+                .willReturn(Optional.ofNullable(faq));
 
         // Act
         faqService.remove(faqId);
@@ -218,8 +217,7 @@ class FaqServiceTest {
         // Arrange
         long faqId = Long.MAX_VALUE;
 
-        given(faqRepository.findById(faqId))
-                .willThrow(new FaqNotFound());
+        given(faqRepository.findById(faqId)).willThrow(new FaqNotFound());
 
         // Act & Assert
         assertThatThrownBy(() -> faqService.remove(faqId))
