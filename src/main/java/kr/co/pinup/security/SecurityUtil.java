@@ -27,7 +27,9 @@ public class SecurityUtil {
     private static OAuthService oAuthService;
 
     @Value("${cookie.secure}")
-    private boolean cookieSecure;
+    private static String cookieSecure;
+
+    private static final boolean cookieSetting = !cookieSecure.equals("N");
 
     @Autowired
     public void setOAuthService(OAuthService oAuthService) {
@@ -191,7 +193,7 @@ public class SecurityUtil {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        cookie.setSecure(cookieSecure);
+        cookie.setSecure(cookieSetting);
         response.addCookie(cookie);
     }
 
@@ -200,7 +202,7 @@ public class SecurityUtil {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
-        cookie.setSecure(cookieSecure);
+        cookie.setSecure(cookieSetting);
         response.addCookie(cookie);
     }
 }
