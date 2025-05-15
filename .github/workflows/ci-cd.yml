@@ -23,13 +23,13 @@ jobs:
         ports:
           - 4566:4566
         env:
-          SERVICES: s3,secretsmanager
+          SERVICES: s3,secretsmanager,iam
           DEBUG: 1
           DATA_DIR: /tmp/localstack/data
 
     env:
-      AWS_ACCESS_KEY_ID: test
-      AWS_SECRET_ACCESS_KEY: test
+      AWS_ACCESS_KEY_ID: $(jq -r '.AccessKey.AccessKeyId' s3-access-key.json)
+      AWS_SECRET_ACCESS_KEY: $(jq -r '.AccessKey.SecretAccessKey' s3-access-key.json)
       AWS_REGION: us-east-1
       AWS_S3_BUCKET_NAME: pinup-test
       JAVA_TOOL_OPTIONS: >-
@@ -70,7 +70,8 @@ jobs:
 
       - name: Run tests
         run: |
-          ./gradlew test --console=plain --no-daemon --stacktrace -Dspring.profiles.active=test | tee test-log.txt
+          set -o pipefail
+          ./gradlew test --console=plain --no-daemon | tee test-log.txt
 
       - name: 📄 Upload Test Report
         if: always()
@@ -194,12 +195,10 @@ jobs:
           SERVICES: s3,secretsmanager
           DEBUG: 1
           DATA_DIR: /tmp/localstack/data
-          DEFAULT_REGION: us-east-1
-          AWS_DEFAULT_REGION: us-east-1
-          AWS_ACCESS_KEY_ID: test
-          AWS_SECRET_ACCESS_KEY: test
 
     env:
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
       AWS_REGION: us-east-1
       AWS_S3_BUCKET_NAME: pinup-test
       JAVA_TOOL_OPTIONS: >-
