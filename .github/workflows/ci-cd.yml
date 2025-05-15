@@ -50,11 +50,6 @@ jobs:
           pip install awscli-local
           sleep 10
 
-      - name: Create dummy secret in LocalStack
-        run: |
-         echo '{"kakao.api.key.rest":"dummy-test-key"}' > secrets.json
-         awslocal secretsmanager create-secret \--name test/api/kakaomap \--secret-string file://secrets.json
-
       - name: Initialize Secrets Manager
         run: |
           chmod +x .github/workflows/init-secrets.sh
