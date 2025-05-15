@@ -70,8 +70,7 @@ jobs:
 
       - name: Run tests
         run: |
-          set -o pipefail
-          ./gradlew test --console=plain --no-daemon | tee test-log.txt
+          ./gradlew test --console=plain --no-daemon --stacktrace -Dspring.profiles.active=test | tee test-log.txt
 
       - name: 📄 Upload Test Report
         if: always()
