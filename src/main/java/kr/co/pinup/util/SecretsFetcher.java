@@ -13,7 +13,6 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueReques
 import java.net.URI;
 
 @Component
-@Profile("!test")
 public class SecretsFetcher {
 
     private final String secretName;
