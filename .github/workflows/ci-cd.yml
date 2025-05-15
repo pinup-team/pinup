@@ -50,6 +50,10 @@ jobs:
           pip install awscli-local
           sleep 10
 
+      - name: Init S3 Bucket
+        run: |
+          awslocal s3api create-bucket --bucket pinup-test || echo "Bucket already exists"
+
       - name: Initialize Secrets Manager
         run: |
           chmod +x .github/workflows/init-secrets.sh
