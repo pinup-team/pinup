@@ -16,28 +16,21 @@ public class SecretsFetcher {
     private final String secretName;
     private final String region;
     private final String endpoint;
-    private final String profile;
 
     public SecretsFetcher(
             @Value("${cloud.aws.secretsmanager.endpoint}") String endpoint,
             @Value("${cloud.aws.secretsmanager.region}") String region,
-            @Value("${cloud.aws.secretsmanager.secret-name}") String secretName,
-            @Value("${spring.config.activate.on-profile}") String profile
+            @Value("${cloud.aws.secretsmanager.secret-name}") String secretName
     ) {
 
         this.secretName = secretName;
         this.region = region;
         this.endpoint = endpoint;
-        this.profile = profile;
     }
 
     public String getSecret() {
-
-        if ("test".equals(profile)) {
-            return "{\"kakao.api.key.rest\":\"dummy-test-key\"}";
-        }
-
         SecretsManagerClient client;
+
 
         if (endpoint != null && !endpoint.isBlank()) {
             client = SecretsManagerClient.builder()
