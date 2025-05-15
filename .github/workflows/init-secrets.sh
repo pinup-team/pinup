@@ -41,8 +41,8 @@ echo "🪣 S3 사용자 생성 중..."
 awslocal iam create-user --user-name localstack-s3-user
 
 S3_KEYS=$(awslocal iam create-access-key --user-name localstack-s3-user)
-ACCESS_KEY_ID=$(echo "$S3_KEYS" | jq -r '.AccessKey.AccessKeyId')
-SECRET_ACCESS_KEY=$(echo "$S3_KEYS" | jq -r '.AccessKey.SecretAccessKey')
+ACCESS_KEY_ID="test"
+SECRET_ACCESS_KEY="test"
 
 awslocal iam put-user-policy \
     --user-name localstack-s3-user \
@@ -78,7 +78,7 @@ awslocal secretsmanager create-secret \
     --name test/api/kakaomap \
     --secret-string '{
         "kakao.api.key.rest": "test-rest-key",
-        "kakao.api.key.js": "test-js-key",
+        "kakao.api.key.js": "test-js-key"
     }'
 echo "✅ 시크릿 생성 완료"
 
