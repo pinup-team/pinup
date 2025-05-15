@@ -23,7 +23,7 @@ jobs:
         ports:
           - 4566:4566
         env:
-          SERVICES: s3,secretsmanager
+          SERVICES: s3,secretsmanager,iam
           DEBUG: 1
           DATA_DIR: /tmp/localstack/data
 
