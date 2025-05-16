@@ -45,8 +45,8 @@ async function changeTab(tab) {
 
 
 document.addEventListener("DOMContentLoaded", function () {
-    const carouselList = document.querySelector(".carousel-list");
-    const items = document.querySelectorAll(".carousel-item");
+    const imageList = document.querySelector(".image-list");
+    const items = document.querySelectorAll(".image-item");
     const prevButton = document.querySelector(".slide-left");
     const nextButton = document.querySelector(".slide-right");
 
@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function updateSlider() {
         const offset = currentIndex * itemWidth;
-        carouselList.style.transform = `translateX(-${offset}px)`;
+        imageList.style.transform = `translateX(-${offset}px)`;
     }
 
     nextButton.addEventListener("click", () => {
