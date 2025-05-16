@@ -5,7 +5,6 @@
 <head>
     <meta charset="UTF-8">
     <title>팝업스토어 수정</title>
-    <script defer src="/js/store.js"></script>
 </head>
 <div layout:fragment="content" th:object="${store}">
 <h1>팝업스토어 수정</h1>
@@ -42,7 +41,7 @@
         window.KAKAO_API_KEY = /*[[${kakaoMapKey}]]*/ '';
     </script>
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <th:block th:replace="~{fragments/script-loader :: load('store')}"></th:block>
+    <th:block th:replace="~{fragments/script-loader :: load('store-update')}"></th:block>
     <th:block th:replace="~{fragments/script-loader :: load('location')}"></th:block>
 </th:block>
 </html>

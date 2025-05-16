@@ -31,10 +31,15 @@
 }
 
 .list-store-name {
+    display: block;
+    max-width: 260px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 18px;
     font-weight: bold;
     color: #CC2F20;
-    margin: 4px 0;
+    margin: 0;
 }
 
 .list-store-name:hover {
