@@ -1,7 +1,7 @@
 package kr.co.pinup.comments.controller;
 
 import jakarta.validation.Valid;
-
+import jakarta.validation.constraints.Positive;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.model.dto.CreateCommentRequest;
 import kr.co.pinup.comments.service.CommentService;
@@ -14,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.constraints.Positive;
 
 @Slf4j
 @RestController

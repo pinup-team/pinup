@@ -106,4 +106,9 @@
     </div>
 </div>
 
+<th:block layout:fragment="pageScripts">
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=e6c84f4e658018f352467363162e6f92&libraries=services"></script>
+    <th:block th:replace="~{fragments/script-loader :: load('store-detail')}"></th:block>
+    <th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
+</th:block>
 </html>

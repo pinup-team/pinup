@@ -30,6 +30,12 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String requestURI = request.getRequestURI();
 
+        // .well-known 및 appspecific 경로 차단
+        if (requestURI.startsWith("/.well-known/") || requestURI.startsWith("/appspecific/")) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
+
         if (isExcluded(requestURI)) {
             filterChain.doFilter(request, response);
             return;
