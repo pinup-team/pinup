@@ -3,8 +3,6 @@ package kr.co.pinup.members.custom;
 import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import org.junit.jupiter.api.Test;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-
 @WireMockTest(httpPort = 8888) // WireMock 서버가 http://localhost:8080 에서 실행됨
 public class MyServiceWireMockTest {
     @Test

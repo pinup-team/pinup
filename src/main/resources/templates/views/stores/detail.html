@@ -23,12 +23,12 @@
     <!-- 홈 디브-->
     <div>
         <!-- 이미지 슬라이더 -->
-        <div class="carousel-wrapper" th:classappend="${#lists.size(storeImages) == 1} ? ' single-image'">
-            <div class="carousel" th:if="${#lists.size(storeImages) > 1}">
-                <div class="carousel-inner">
-                    <ul class="carousel-list">
+        <div class="image-wrapper" th:classappend="${#lists.size(storeImages) == 1} ? ' single-image'">
+            <div class="image" th:if="${#lists.size(storeImages) > 1}">
+                <div class="image-inner">
+                    <ul class="image-list">
                         <th:block th:each="image : ${storeImages}">
-                            <li class="carousel-item">
+                            <li class="image-item">
                                 <img th:src="${image.imageUrl}" alt="Store Image"/>
                             </li>
                         </th:block>
@@ -151,5 +151,6 @@
 <th:block layout:fragment="pageScripts">
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=e6c84f4e658018f352467363162e6f92&libraries=services"></script>
     <th:block th:replace="~{fragments/script-loader :: load('store-detail')}"></th:block>
+    <th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
 </th:block>
 </html>
