@@ -98,7 +98,7 @@
 }
 
 /*이미지*/
-.carousel-wrapper {
+.image-wrapper {
     width: 100%;
     max-width: 1000px;
     height: 600px;
@@ -107,7 +107,7 @@
     overflow: hidden;
 }
 
-.carousel-list {
+.image-list {
     display: flex;
     transition: transform 0.5s ease-in-out;
     padding: 0;
@@ -115,7 +115,7 @@
     list-style: none;
 }
 
-.carousel-item {
+.image-item {
     height: 600px;
     flex: 0 0 500px;
     max-width: 500px;
@@ -124,19 +124,19 @@
     overflow: hidden;
 }
 
-.carousel-item img {
+.image-item img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
 }
 
-.carousel-wrapper.single-image {
+.image-wrapper.single-image {
     overflow: visible;
     height: auto;
 }
 
-.carousel-wrapper.single-image .slide-button {
+.image-wrapper.single-image .slide-button {
     display: none;
 }
 
