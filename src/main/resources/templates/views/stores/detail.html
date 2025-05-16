@@ -118,6 +118,7 @@
                         연락처 정보가 준비 중입니다.
                     </p>
 
+                    <!-- 맵 영역 -->
                     <div class="map-container">
                         <input type="hidden" id="latitude-hidden" th:value="${location.latitude}">
                         <input type="hidden" id="longitude-hidden" th:value="${location.longitude}">
@@ -148,9 +149,7 @@
 </div>
 
 <th:block layout:fragment="pageScripts">
-    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=1038c510f5de135a5c0d54f4f9181ef3&libraries=services"></script>
+    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=e6c84f4e658018f352467363162e6f92&libraries=services"></script>
     <th:block th:replace="~{fragments/script-loader :: load('store-detail')}"></th:block>
-    <th:block th:replace="~{fragments/script-loader :: load('location')}"></th:block>
 </th:block>
 </html>

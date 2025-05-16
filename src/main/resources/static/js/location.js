@@ -17,57 +17,6 @@ function searchAddress() {
     }).open();
 }
 
-/*async function getCoordinates(address) {
-    try {
-        const response = await fetch(`/api/map/coord?address=${encodeURIComponent(address)}`);
-        if (!response.ok) {
-            throw new Error("카카오맵 서버 API 호출 실패");
-        }
-
-        const result = await response.json();
-
-        window.locationData.latitude = result.lat;
-        window.locationData.longitude = result.lng;
-    } catch (error) {
-        console.error("카카오맵 서버 API 호출 실패:", error);
-    }
-}*/
-// 주소로부터 위도와 경도 얻기 (Kakao Geocoding API 사용)
-/*
-async function getCoordinates(address) {
-    const url = `https://dapi.kakao.com/v2/local/search/address.json`;
-    const encodedAddress = encodeURIComponent(address);
-    try {
-        const response = await fetch(url + `?query=${encodedAddress}`, {
-            method: 'GET',
-            headers: {
-                Authorization: `KakaoAK ${localStorage.getItem('KAKAO_API_KEY')}`,
-            },
-        });
-
-        if (!response.ok) {
-            throw new Error('Kakao API 호출 실패');
-        }
-
-        const data = await response.json();
-        const result = data.documents[0];
-
-        if (result) {
-            const latitude = result.y;
-            const longitude = result.x;
-
-            window.locationData.latitude = latitude;
-            window.locationData.longitude = longitude;
-
-        } else {
-            console.error("위도와 경도를 찾을 수 없습니다.");
-        }
-    } catch (error) {
-        console.error("Kakao API 호출 실패:", error);
-    }
-}
-*/
-
 async function registerLocation() {
     const zoneCode = document.getElementById("zoneCode").value;
     console.log("zoneCode", zoneCode);
