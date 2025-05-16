@@ -11,9 +11,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class KakaoWebClientConfig {
 
-    //TODO RestTemplate 관련 내용 같이 블로그에 정리하기
-    //TODO clientConfig 나중에 없애기
-
     private final SecretsFetcher secretsFetcher;
 
     public KakaoWebClientConfig(SecretsFetcher secretsFetcher) {
@@ -21,19 +18,28 @@ public class KakaoWebClientConfig {
     }
 
     @PostConstruct
-    public void printKey() {
-        String restKey = secretsFetcher.getSecretField("kakao.api.key.rest");
-        String jsKey = secretsFetcher.getSecretField("kakao.api.key.js");
-        log.info("🔑 kakaoRestKey = {}", restKey);
-        log.info("🔑 kakaoJsKey   = {}", jsKey);
+    public void printKeys() {
+        try {
+            String restKey = secretsFetcher.getSecretField("kakao.api.key.rest");
+            String jsKey = secretsFetcher.getSecretField("kakao.api.key.js");
+            log.info("🔑 Kakao REST Key: {}", restKey);
+            log.info("🔑 Kakao JS Key: {}", jsKey);
+        } catch (Exception e) {
+            log.error("🔑 시크릿 로드 실패: {}", e.getMessage());
+        }
     }
 
     @Bean
     public WebClient kakaoWebClient() {
-        String KakaoRestKey = secretsFetcher.getSecretField("kakao.api.key.rest");
-        return WebClient.builder()
-                .baseUrl("https://dapi.kakao.com")
-                .defaultHeader("Authorization", "KakaoAK " + KakaoRestKey)
-                .build();
+        try {
+            String kakaoRestKey = secretsFetcher.getSecretField("kakao.api.key.rest");
+            return WebClient.builder()
+                    .baseUrl("https://dapi.kakao.com")
+                    .defaultHeader("Authorization", "KakaoAK " + kakaoRestKey)
+                    .build();
+        } catch (Exception e) {
+            log.error("🔑 WebClient 생성 중 시크릿 로드 실패: {}", e.getMessage());
+            throw new RuntimeException("WebClient 생성 실패", e);
+        }
     }
 }
