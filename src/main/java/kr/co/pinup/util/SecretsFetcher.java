@@ -44,7 +44,6 @@ public class SecretsFetcher {
         } else {
             client = SecretsManagerClient.builder()
                     .region(Region.of(region))
-                    .credentialsProvider(DefaultCredentialsProvider.create())
                     .build();
         }
 
