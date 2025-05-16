@@ -74,7 +74,7 @@ public class SecretsFetcher {
             JsonNode root = mapper.readTree(getSecret());
             return root.path(fieldName).asText();
         } catch (Exception e) {
-            throw new RuntimeException("파싱 실패, 핊드명: " + fieldName + ", 시크릿명: " + secretName, e);
+            throw new RuntimeException("파싱 실패, 필드명: " + fieldName + ", 시크릿명: " + secretName, e);
         }
     }
 }
