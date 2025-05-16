@@ -3,8 +3,6 @@ package kr.co.pinup.util;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
@@ -76,7 +74,7 @@ public class SecretsFetcher {
             JsonNode root = mapper.readTree(getSecret());
             return root.path(fieldName).asText();
         } catch (Exception e) {
-            throw new RuntimeException("파싱 실패, 핊드명: " + fieldName + ", 시크릿명: " + secretName, e);
+            throw new RuntimeException("파싱 실패, 필드명: " + fieldName + ", 시크릿명: " + secretName, e);
         }
     }
 }

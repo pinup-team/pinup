@@ -23,8 +23,13 @@ public class SessionExpirationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-
         String requestURI = request.getRequestURI();
+
+        // .well-known 및 appspecific 경로 차단
+        if (requestURI.startsWith("/.well-known/") || requestURI.startsWith("/appspecific/")) {
+            response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
 
         if (isExcluded(requestURI)) {
             chain.doFilter(request, response);
