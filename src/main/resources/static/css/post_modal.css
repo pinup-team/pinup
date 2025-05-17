@@ -273,6 +273,9 @@ article.card header > div {
 
 /*** CONENT ***/
 .card-container {
+    display: flex;
+    flex-direction: column;
+    height: clamp(300px, calc(72vh - 60px), 1000px);
     padding: 0.5vh;
 }
 
@@ -303,8 +306,7 @@ article.card header > div {
     overflow-y: auto;
     word-break: break-word;
     overflow-wrap: break-word;
-    /*min-height: 380px;*/
-    max-height: 30vh;
+    min-height: 0;
 }
 
 .card-content li > div {
@@ -333,9 +335,7 @@ article.card header > div {
 
 /* 🔥 댓글 입력 박스 */
 .pinup-comment-box {
-    bottom: 0vh;
-    width: 28vw;
-    position: absolute;
+    flex-shrink: 0;
     height: 5vh;
     border-top: 1px solid #e0e0e0;
     display: flex;  /* 버튼과 input을 한 줄 정렬 */
