@@ -275,7 +275,7 @@ article.card header > div {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    height: clamp(300px, calc(72vh - 60px), 1000px);
+    height: clamp(300px, calc(76vh - 60px), 1000px);
     padding: 0.5vh;
 }
 
