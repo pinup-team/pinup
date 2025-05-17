@@ -446,7 +446,10 @@ function initializeCommentHandlers() {
                     body: JSON.stringify({ content }),
                 });
 
-                if (response.ok) {
+                if (response.status === 401) {
+                    alert("로그인 후 댓글을 작성할 수 있습니다.");
+                    window.location.href = "/members/login";
+                } else if (response.ok) {
                     const newComment = await response.json();
                     const newCommentElement = document.createElement("li");
                     newCommentElement.classList.add("comment");
@@ -466,11 +469,10 @@ function initializeCommentHandlers() {
 
                     commentForm.querySelector("input[name='content']").value = "";
                     commentForm.querySelector("input[name='content']").focus();
-                } else if (response.status === 401) {
-                    alert("로그인 후 댓글을 작성할 수 있습니다.");
-                    window.location.href = "/members/login";
                 } else {
-                    throw new Error("댓글 생성 실패");
+                    const errorData = await response.json().catch(() => null);
+                    const message = errorData?.message || "댓글 생성에 실패했습니다.";
+                    alert("❌ " + message);
                 }
             } catch (error) {
                 console.error("❌ 댓글 생성 실패:", error);
