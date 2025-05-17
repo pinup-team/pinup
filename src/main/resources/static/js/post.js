@@ -127,12 +127,27 @@ function submitPost() {
         alert("이미지는 최소 2장 이상 등록해야 합니다.");
         return;
     }
+
+    const title = form.title.value.trim();
+    const content = form.content.value.trim();
+
+    if (!title) {
+        alert("제목을 입력해주세요.");
+        return;
+    }
+
+    if (!content) {
+        alert("내용을 입력해주세요.");
+        return;
+    }
+
     const formData = new FormData();
     const postData = {
         storeId: form.storeId.value,
-        title: form.title.value,
-        content: form.content.value
+        title: title,
+        content: content
     };
+
     formData.append("post", new Blob([JSON.stringify(postData)], { type: "application/json" }));
 
     for (let i = 0; i < images.length; i++) {
@@ -143,13 +158,24 @@ function submitPost() {
         method: "POST",
         body: formData
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.storeId) {
+        .then(async response => {
+            const isJson = response.headers.get("content-type")?.includes("application/json");
+            const data = isJson ? await response.json() : null;
+
+            if (response.ok) {
                 alert("게시물이 성공적으로 생성되었습니다!");
                 window.location.href = `/stores/${data.storeId}`;
             } else {
-                alert("게시물 생성에 실패했습니다.");
+                if (data?.validation && typeof data.validation === "object") {
+                    const messages = Object.entries(data.validation)
+                        .map(([field, msg]) => `${field}: ${msg}`)
+                        .join("\n");
+                    alert("입력 오류:\n" + messages);
+                } else if (data?.message) {
+                    alert(data.message);
+                } else {
+                    alert("게시물 생성에 실패했습니다.");
+                }
             }
         })
         .catch(error => {
