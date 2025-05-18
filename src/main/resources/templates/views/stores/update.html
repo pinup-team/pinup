@@ -13,7 +13,10 @@
     <h1>팝업스토어 수정</h1>
     <form id="updateForm" enctype="multipart/form-data" th:data-store-id="*{id}">
         <label>이름: <input type="text" name="name" th:value="*{name}" required></label><br>
-        <label>설명: <textarea name="description" rows="4" required>*{description}</textarea></label><br>
+
+        <label>설명:</label>
+        <textarea name="description" th:text="*{description}" rows="4" required></textarea><br>
+
         <label>시작 날짜: <input type="date" name="startDate" th:value="*{startDate}" required></label><br>
         <label>종료 날짜: <input type="date" name="endDate" th:value="*{endDate}" required></label><br>
 
@@ -42,12 +45,19 @@
         <button type="button" id="addOperatingHour">+</button><br>
 
         <label>스토어 이미지 업로드 : <input type="file" name="imageFiles" id="imageFiles" accept="image/*" multiple></label><br>
-        <div id="previewContainer" style="display: flex; flex-wrap: wrap"></div>
+
+        <div id="previewContainer" style="display: flex; flex-wrap: wrap">
+            <div th:each="imageUrl : ${store.storeImages}">
+                <img th:src="@{${imageUrl}}" alt="이미지" style="width: 150px; margin: 5px;">
+            </div>
+        </div>
+
         <input type="hidden" id="thumbnailImage" name="thumbnailImage" />
 
         <button type="button" onclick="submitUpdateForm()">수정</button>
     </form>
     <a href="/stores">목록으로 돌아가기</a>
+
 </div>
 
 <th:block layout:fragment="pageScripts">

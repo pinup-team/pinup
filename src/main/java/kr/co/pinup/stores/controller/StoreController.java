@@ -75,7 +75,9 @@ public class StoreController {
 
     @GetMapping("/{id}/update")
     public String editStoreForm(@PathVariable Long id, Model model) {
-        model.addAttribute("store", storeService.getStoreById(id));
+        StoreResponse storeResponse = storeService.getStoreById(id);
+
+        model.addAttribute("store", storeResponse);
         model.addAttribute("categories", categoryService.getAllCategories());
         return "views/stores/update";
     }

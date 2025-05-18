@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const addButton = document.getElementById("addOperatingHour");
     const operatingHoursContainer = document.getElementById("operatingHoursContainer");
 
-    // 운영 시간 추가 버튼
     if (addButton) {
         addButton.addEventListener("click", addOperatingHour);
     }
@@ -24,14 +23,12 @@ document.addEventListener("DOMContentLoaded", function () {
         operatingHoursContainer.appendChild(div);
     }
 
-    // 이벤트 위임으로 삭제 버튼 처리
     operatingHoursContainer.addEventListener("click", (event) => {
         if (event.target.classList.contains("remove-btn")) {
             event.target.parentElement.remove();
         }
     });
 
-    // 이미지 미리보기
     if (imageInput) {
         imageInput.addEventListener("change", function (event) {
             const files = event.target.files;
@@ -89,16 +86,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.submitUpdateForm = async function () {
         try {
-            const formData = new FormData(form);
+            const formData = new FormData();
 
-            const days = document.getElementsByName("days");
-            const startTimes = document.getElementsByName("startTimes");
-            const endTimes = document.getElementsByName("endTimes");
+            // 📅 StoreRequest JSON 데이터 추가
+            const storeRequest = {
+                name: form.name.value,
+                description: form.description.value,
+                startDate: form.startDate.value,
+                endDate: form.endDate.value,
+                categoryId: form.categoryId.value,
+                contactNumber: form.contactNumber ? form.contactNumber.value : "",
+                websiteUrl: form.websiteUrl ? form.websiteUrl.value : "",
+                snsUrl: form.snsUrl ? form.snsUrl.value : "",
+                thumbnailImage: form.thumbnailImage.value || 0,
+                operatingHours: Array.from(document.querySelectorAll(".operating-hour")).map(hour => ({
+                    day: hour.querySelector("input[name='days']").value,
+                    startTime: hour.querySelector("input[name='startTimes']").value,
+                    endTime: hour.querySelector("input[name='endTimes']").value,
+                }))
+            };
 
-            for (let i = 0; i < days.length; i++) {
-                formData.append(`operatingHours[${i}].day`, days[i].value);
-                formData.append(`operatingHours[${i}].startTime`, startTimes[i].value);
-                formData.append(`operatingHours[${i}].endTime`, endTimes[i].value);
+            formData.append("request", new Blob([JSON.stringify(storeRequest)], { type: "application/json" }));
+
+            // 🖼️ 이미지 파일 추가
+            const imageFiles = document.getElementById("imageFiles").files;
+            for (const file of imageFiles) {
+                formData.append("imageFiles", file);
             }
 
             const response = await fetch(`/api/stores/${form.dataset.storeId}`, {
@@ -127,3 +140,13 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
+
+function selectThumbnail(element) {
+    const thumbnails = document.querySelectorAll(".thumbnail-image");
+    thumbnails.forEach(thumb => thumb.classList.remove("selected"));
+
+    element.classList.add("selected");
+
+    const index = element.dataset.index;
+    document.getElementById("thumbnailImage").value = index;
+}

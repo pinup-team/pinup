@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.store_categories.StoreCategory;
+import kr.co.pinup.store_images.StoreImage;
 import kr.co.pinup.store_operatingHour.OperatingHour;
-import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
 import kr.co.pinup.stores.model.enums.Status;
 import lombok.*;
 
@@ -62,32 +62,37 @@ public class Store extends BaseEntity {
     @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN default false")
     private boolean deleted;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer thumbnailIndex = 0;
+
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OperatingHour> operatingHours = new ArrayList<>();
 
-    public void updateStore(StoreUpdateRequest request, StoreCategory category, Location location) {
-        if (request.getName() != null) this.name = request.getName();
-
-        if (request.getDescription() != null) this.description = request.getDescription();
-        if (request.getCategoryId() != null) this.category = category;
-        if (request.getLocationId() != null) this.location = location;
-        if (request.getStartDate() != null) this.startDate = request.getStartDate();
-        if (request.getEndDate() != null) this.endDate = request.getEndDate();
-        if (request.getStatus() != null) this.status = request.getStatus();
-    }
+    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<StoreImage> storeImages = new ArrayList<>();
 
     public void deleteStore() {
         this.deleted = true;
     }
 
-    public void updateImageUrl(String newImageUrl) {
-        this.imageUrl = newImageUrl;
+    public void setThumbnailIndex(int index) {
+        if (index >= 0 && index < storeImages.size()) {
+            this.thumbnailIndex = index;
+            this.imageUrl = storeImages.get(index).getImageUrl();
+        }
     }
 
+    public int getThumbnailIndex() {
+        return this.thumbnailIndex;
+    }
 
-
-
+    public String getThumbnailUrl() {
+        if (thumbnailIndex >= 0 && thumbnailIndex < storeImages.size()) {
+            return storeImages.get(thumbnailIndex).getImageUrl();
+        }
+        return null;
+    }
 }
-
-

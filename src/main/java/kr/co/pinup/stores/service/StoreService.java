@@ -47,7 +47,6 @@ public class StoreService {
 
     @Transactional
     public StoreResponse updateStore(Long id, StoreUpdateRequest request, List<MultipartFile> imageFiles) {
-        log.info("팝업스토어 수정 요청 - ID: {}", id);
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
 
@@ -107,21 +106,18 @@ public class StoreService {
     }
 
     public List<StoreSummaryResponse> getStoreSummaries() {
-        log.info("홈페이지 목록 조회 요청됨");
         return storeRepository.findAll().stream()
                 .map(StoreSummaryResponse::from)
                 .toList();
     }
 
     public List<StoreResponse> getAllStores() {
-        log.info("모든 팝업스토어 조회 요청");
         return storeRepository.findAll().stream()
                 .map(StoreResponse::from)
                 .toList();
     }
 
     public StoreResponse getStoreById(Long id) {
-        log.info("특정 팝업스토어 조회 요청 - ID: {}", id);
 
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
@@ -132,19 +128,15 @@ public class StoreService {
 
     @Transactional
     public StoreResponse createStore(StoreRequest request, MultipartFile[] imageFiles) {
-        log.info("팝업스토어 생성 요청 - 이름: {}", request.name());
 
         try {
             StoreCategory category = storeCategoryRepository.findById(request.categoryId())
                     .orElseThrow(StoreNotFoundException::new);
-            log.info("카테고리 불러오기 완료");
 
             Location location = locationRepository.findById(request.locationId())
                     .orElseThrow(LocationNotFoundException::new);
-            log.info("위치 불러오기 완료");
 
             Status storeStatus = request.startDate().isAfter(LocalDate.now()) ? Status.PENDING : Status.RESOLVED;
-            log.info("상태 설정 완료: {}", storeStatus);
 
             Store store = Store.builder()
                     .name(request.name())
@@ -158,22 +150,20 @@ public class StoreService {
                     .websiteUrl(request.websiteUrl())
                     .snsUrl(request.snsUrl())
                     .build();
-            log.info("스토어 빌드 완료");
 
-            if (request.operatingHours() != null) {
-                for (OperatingHourRequest hour : request.operatingHours()) {
-                    log.info("운영시간 추가: {} {} ~ {}", hour.day(), hour.startTime(), hour.endTime());
-                    OperatingHour operatingHour = OperatingHour.builder()
-                            .day(hour.day())
-                            .startTime(hour.startTime())
-                            .endTime(hour.endTime())
-                            .store(store)
-                            .build();
-                    store.getOperatingHours().add(operatingHour);
-                }
+            if (request.operatingHours() != null && !request.operatingHours().isEmpty()) {
+                List<OperatingHour> operatingHours = request.operatingHours().stream()
+                        .map(hourRequest -> {
+                            return OperatingHour.builder()
+                                    .day(hourRequest.day())
+                                    .startTime(hourRequest.startTime())
+                                    .endTime(hourRequest.endTime())
+                                    .store(store)
+                                    .build();
+                        })
+                        .toList();
+                store.getOperatingHours().addAll(operatingHours);
             }
-
-            //TODO stream으로 변경
 
             storeRepository.save(store);
 
@@ -183,23 +173,21 @@ public class StoreService {
                         .build();
 
                 List<StoreImage> storeImages = storeImageService.uploadStoreImages(store, storeImageRequest);
+                store.setStoreImages(storeImages);
 
                 int thumbnailIndex = request.thumbnailImage() != null ? request.thumbnailImage() : 0;
                 if (!storeImages.isEmpty() && thumbnailIndex >= 0 && thumbnailIndex < storeImages.size()) {
                     store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
-                    storeRepository.save(store);
                 }
-            }
 
-            //TODO save 두 번 사용하지 않도록 최적화
+                storeRepository.save(store);
+            }
 
             return StoreResponse.from(store);
         } catch (Exception e) {
             log.error("❌ 팝업스토어 생성 중 오류 발생: {}", e.getMessage(), e);
             throw e;
         }
-
-        //TODO 예외처리 분리하기
     }
 
 /*    @Transactional
