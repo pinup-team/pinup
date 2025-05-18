@@ -925,7 +925,7 @@ Expires: 0
 X-Frame-Options: DENY
 Content-Length: 363
 
-{"id":1,"storeId":null,"member":{"id":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"제목","content":"내용","thumbnail":"https://example.com/thumbnail.jpg","createdAt":"2025-05-18T11:45:26.82870989","updatedAt":"2025-05-18T11:45:26.828712104","commentCount":0}</code></pre>
+{"id":1,"storeId":null,"member":{"id":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"제목","content":"내용","thumbnail":"https://example.com/thumbnail.jpg","createdAt":"2025-05-18T12:24:59.761088704","updatedAt":"2025-05-18T12:24:59.76109174","commentCount":0}</code></pre>
 </div>
 </div>
 </div>
@@ -1205,7 +1205,7 @@ Expires: 0
 X-Frame-Options: DENY
 Content-Length: 385
 
-{"id":1,"storeId":null,"member":{"id":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"수정 제목","content":"수정 내용","thumbnail":"https://example.com/updated-thumbnail.jpg","createdAt":"2025-05-17T11:45:26.802679037","updatedAt":"2025-05-18T11:45:26.80269175","commentCount":0}</code></pre>
+{"id":1,"storeId":null,"member":{"id":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"수정 제목","content":"수정 내용","thumbnail":"https://example.com/updated-thumbnail.jpg","createdAt":"2025-05-17T12:24:59.733489281","updatedAt":"2025-05-18T12:24:59.73350505","commentCount":0}</code></pre>
 </div>
 </div>
 </div>
@@ -2726,13 +2726,13 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 141
+Content-Length: 160
 
 {
   "status" : 400,
   "message" : "잘못된 요청입니다.",
   "validation" : {
-    "question" : "질문 내용을 입력하세요."
+    "question" : "질문 내용을 1~100자 이내로 입력하세요."
   }
 }</code></pre>
 </div>
@@ -3220,13 +3220,13 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 141
+Content-Length: 160
 
 {
   "status" : 400,
   "message" : "잘못된 요청입니다.",
   "validation" : {
-    "question" : "질문 내용을 입력하세요."
+    "question" : "질문 내용을 1~100자 이내로 입력하세요."
   }
 }</code></pre>
 </div>
@@ -3392,13 +3392,13 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 139
+Content-Length: 158
 
 {
   "status" : 400,
   "message" : "잘못된 요청입니다.",
   "validation" : {
-    "answer" : "답변 내용을 입력하세요."
+    "answer" : "답변 내용을 1~500자 이내로 입력하세요."
   }
 }</code></pre>
 </div>
@@ -3667,7 +3667,7 @@ Host: localhost:8080</code></pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.0.0<br>
-Last updated 2025-05-18 11:43:35 UTC
+Last updated 2025-05-18 12:23:04 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
