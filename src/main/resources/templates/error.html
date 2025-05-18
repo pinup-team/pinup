@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/member.css}">
+    <title>Profile</title>
+</head>
+<body>
+<div class="member_profile" layout:fragment="content">
+    <div class="page_description">
+        <h1>에러 페이지</h1>
+        <h4>이런! 예상치 못한 일이 발생했어요.</h4>
+    </div>
+    <div class="member_profile_content">
+        <div th:object="${error}">
+            <p><strong>상태 코드:</strong> <span th:text="*{status}"></span></p>
+            <p><strong>메시지:</strong> <span th:text="*{message}"></span></p>
+        </div>
+
+        <p>다시 시도해주세요.</p>
+    </div>
+    <div class="button-container">
+        <div class="home-button">
+            <button th:onclick="redirectToHome()">홈으로 돌아가기</button>
+        </div>
+        <th:block sec:authorize="isAnonymous()">
+            <div class="member-buttons">
+                <button th:onclick="|window.location.href='/members/login'|">로그인</button>
+            </div>
+        </th:block>
+    </div>
+</div>
+</body>
+</html>

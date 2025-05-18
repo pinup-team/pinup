@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<footer id="footer" th:fragment="footerFragment">
+    <div class="footer-links">
+        <ul>
+            <li><a th:href="@{/terms-privacy/terms.html}" th:target="_blank">이용약관</a></li>
+            <li><a th:href="@{/terms-privacy/privacy.html}" th:target="_blank">개인정보처리방침</a></li>
+<!--            <li><a href="/contact">Contact</a></li>-->
+        </ul>
+    </div>
+    <div class="footer-social">
+        <a href="https://github.com/pinup-team/pinup.git" target="_blank">Git</a>
+        <a href="https://www.instagram.com/pinup0106" target="_blank">Instagram</a>
+    </div>
+    <div class="footer-bottom">
+        <p>&copy; 2025 PinUp. All rights reserved.</p>
+    </div>
+</footer>
+</html>

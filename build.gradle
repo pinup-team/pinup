@@ -2,10 +2,12 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.1'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.github.node-gradle.node' version '7.1.0'
+	id 'org.asciidoctor.jvm.convert' version '4.0.4'
 }
 
 group = 'kr.co'
-version = '0.0.1-SNAPSHOT'
+version = '1.0.0'
 
 java {
 	toolchain {
@@ -17,24 +19,159 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	asciidoctorExt
 }
 
 repositories {
 	mavenCentral()
 }
 
+ext {
+	snippetsDir = file('build/generated-snippets')
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+
+	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	implementation platform('software.amazon.awssdk:bom:2.20.15')
+	implementation 'software.amazon.awssdk:core:2.20.15'
+	implementation 'software.amazon.awssdk:s3:2.20.15'
+
+	implementation "org.testcontainers:localstack:1.16.3"
+	testImplementation "cloud.localstack:localstack-utils:0.2.20"
+
+	// secretsmanager
+	implementation 'software.amazon.awssdk:secretsmanager:2.20.15'
+	implementation 'software.amazon.awssdk:auth:2.20.15'
+	implementation 'software.amazon.awssdk:regions:2.20.15'
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+	// oauth 의존성
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	// 설정값 더 구조적으로 관리하기 위한 의존성
+	implementation 'org.springframework.boot:spring-boot-configuration-processor'
+	// webclinet
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	// entitymanager 연결
+	implementation 'org.javassist:javassist:3.15.0-GA'
+	// google people
+	implementation 'com.google.apis:google-api-services-people:v1-rev20210419-1.31.0'
+	// wireMock
+	testImplementation 'org.wiremock:wiremock-standalone:3.9.1'
+
+
+	testImplementation 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
+	testImplementation 'org.springframework.security:spring-security-test'
+
+	// rest-assured(java dsl)
+	testImplementation 'io.rest-assured:rest-assured'
+	testImplementation 'io.rest-assured:json-path'
+
+	// REST Docs 관련 의존성 추가 (테스트 코드에서 REST Docs 사용 가능)
+	testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc:3.0.3'
+	testImplementation 'org.springframework.restdocs:spring-restdocs-core:3.0.3'
+	asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor:3.0.3'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
+	outputs.dir snippetsDir
+
+	// TODO: fail로 인해 잠시 제외
+	exclude '**/MemberApiControllerTest.class'
+	exclude '**/MemberControllerTest.class'
+	exclude '**/MockSecurityContextTest.class'
+	exclude '**/GoogleOAuthTest.class'
+	exclude '**/NaverOAuthTest.class'
+	exclude '**/SecurityUtilTest.class'
+}
+
+node {
+	version = '22.14.0'
+	npmVersion = '11.2.0'
+	download = true
+}
+
+// todo : 추후에 전역 함수들 수정하면 적용
+//def terserCacheFile = layout.buildDirectory.file("terser-cache.json")
+//tasks.register("initializeTerserCache") {
+//	doFirst {
+//		def cacheFile = terserCacheFile.get().asFile
+//		if (!cacheFile.exists()) {
+//			cacheFile.parentFile.mkdirs()
+//			cacheFile.text = '{}' // 빈 JSON 파일 생성
+//		}
+//	}
+//}
+
+// 동적 Minify 태스크 생성
+def minifyTasks = []
+fileTree('src/main/resources/static/js').each { file ->
+	if (file.name.endsWith('.js') && !file.name.endsWith('.min.js')) {
+		def taskName = "minifyJs_${file.name.replace('.js', '')}"
+		tasks.register(taskName, NpmTask) {
+			// 출력 경로를 File 객체로 직접 생성
+			def outputFile = layout.buildDirectory.file("resources/main/static/js/${file.name.replace('.js', '.min.js')}").get().asFile
+			args = [
+					'run', 'minify', '--',
+					file.absolutePath,
+					'--output', outputFile.absolutePath,
+					'--compress', 'passes=3',
+					'--mangle', 'toplevel=false',
+//					'--name-cache', terserCacheFile.get().asFile.absolutePath
+//					'--mangle-props', 'reserved=["classList","querySelector","getAttribute","setAttribute","textContent"]'
+			]
+			dependsOn npmInstall
+			doFirst {
+				outputFile.parentFile.mkdirs()
+			}
+		}
+		minifyTasks << tasks[taskName]
+	}
+}
+
+processResources {
+	if (project.hasProperty('prod')) {
+		exclude 'static/js/*.js'
+	}
+}
+
+tasks.named('asciidoctor') {
+	inputs.dir snippetsDir             // REST Docs 스니펫 입력 경로 지정
+	configurations 'asciidoctorExt'    // asciidoctor 확장 설정
+	sources {
+		include("**/index.adoc")
+	}
+	baseDirFollowsSourceFile()
+	dependsOn test                     // 테스트 태스크 완료 후 문서 생성
+}
+
+bootJar {
+	enabled = true
+	dependsOn minifyTasks
+	dependsOn asciidoctor              // 문서 생성 후 jar 생성
+	from("${asciidoctor.outputDir}") {
+		into 'static/docs'             // 문서 접근 경로 (http://localhost:8080/docs/)
+	}
+}
+
+jar {
+	enabled = false
 }

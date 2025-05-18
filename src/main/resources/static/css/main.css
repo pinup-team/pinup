@@ -1,0 +1,236 @@
+@charset "UTF-8";
+
+html, body {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+
+    justify-content: center;
+    align-items: center;
+}
+
+#header {
+    width: 70%;
+}
+
+.content {
+    height: 100%;
+    width: 70%;
+    overflow: hidden;
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.center_content {
+    height: 100%;
+    width: 70%;
+    overflow: hidden;
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#footer {
+    width: 70%;
+}
+
+/*-------banner--------*/
+.carousel-wrapper {
+    position: relative;
+    width: 100%;
+    height: 150px; /* 원하는 높이 설정, 필요에 맞게 조정 가능 */
+}
+
+.carousel {
+    position: relative;
+    height: fit-content;
+}
+
+.carousel-inner {
+    display: flex;
+    transition: transform 10.0s ease-in-out;
+    width: 100%; /* 슬라이드를 화면에 맞게 가로폭을 100%로 설정 */
+}
+
+.carousel-list {
+    display: flex;
+    width: 100%; /* 슬라이드 목록의 너비를 100%로 설정 */
+    padding: 0;
+    margin: 0;
+    list-style-type: none;
+}
+
+.carousel-item {
+    flex: 0 0 100%; /* 각 아이템의 너비를 100%로 설정하여 슬라이드가 하나씩 보이도록 함 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60%;
+}
+
+.carousel-item img {
+    width: 100%;
+    height: 80%;
+    object-fit: cover; /* 비율을 유지하면서 부모 영역을 채움 */
+    object-position: center;
+    background-color: inherit; /* 부모 배경색과 동일하게 설정 */
+}
+
+.slide-button {
+    position: absolute;
+    top: 25%;
+    transform: translateY(-50%);
+    color: #4F261A;
+    font-size: 30px;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.slide-left {
+    left: 10px;
+}
+
+.slide-right {
+    right: 10px;
+}
+
+/*-------page title--------*/
+
+.info-link {
+    margin-left: 20px;
+    text-decoration: none;
+}
+
+.main_page_description {
+    margin: auto;
+    width: 100%;
+}
+
+.page_description {
+    display: flex;
+    flex-direction: column;
+}
+
+.title-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/*-------store--------*/
+
+#store-list {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+}
+
+#store-list li {
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.store-list-container {
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+}
+
+.store-list-container::-webkit-scrollbar {
+    display: none;
+}
+
+#store-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    max-width: 265px;
+    width: 100%;
+    background: #fff;
+    cursor: pointer;
+}
+
+.store-card img {
+    width: 100%;
+    max-width: 265px;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+#list-store-info {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.list-store-info-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden; /* 텍스트 넘칠 경우 잘리게 함 */
+    max-width: 265px;
+}
+
+.list-store-info-head h3 {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 70%; /* h3가 차지할 최대 너비 */
+}
+
+.list-store-info-head span {
+    text-align: right; /* 오른쪽 정렬 */
+}
+
+.list-store-info-date {
+    display: flex;
+    justify-content: flex-end; /* 양 끝 정렬 */
+    align-items: center;
+    overflow: hidden;
+    max-width: 265px;
+}
+
+#store-info h3 {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 10px;
+    text-overflow: ellipsis;
+}
+
+#store-card p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 8px;
+}
+
+#list-store-pin-icon {
+    width: 5px;
+    height: 5px;
+    vertical-align: middle;
+    margin-right: 5px;
+}

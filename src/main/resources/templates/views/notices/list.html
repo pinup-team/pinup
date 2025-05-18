@@ -1,0 +1,37 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
+<section layout:fragment="support-content">
+    <div class="header_button" sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
+        <button id="create" th:onclick="|location.href='@{/notices/new}'|">등록</button>
+    </div>
+
+    <div class="content_list_wrap">
+        <th:block th:if="${#lists.isEmpty(notices)}">
+            <article class="content_list">
+                <p>공지사항 목록이 없습니다.</p>
+            </article>
+        </th:block>
+
+        <th:block th:if="${!#lists.isEmpty(notices)}">
+            <th:block th:each="notice: ${notices}" th:object="${notice}">
+                <article class="content_list">
+                    <div th:text="*{id}" hidden>id</div>
+
+                    <div class="content_title">
+                        <div class="content_title_area">
+                            <h1 th:text="*{title}" th:onclick="|location.href='@{/notices/{id}(id=*{id})}'|">title</h1>
+                        </div>
+
+                        <div class="content_date_area">
+                            <span class="content_date" th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></span>
+                        </div>
+                    </div>
+                </article>
+            </th:block>
+        </th:block>
+    </div>
+</section>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <title>Pin-up</title>
+</head>
+<body>
+<div class="header" th:replace="~{fragments/header::headerFragment}"></div>
+<div class="content" layout:fragment="content"></div>
+<div class="footer" th:replace="~{fragments/footer::footerFragment}"></div>
+<th:block th:replace="~{fragments/script-loader :: load('header')}"></th:block>
+<th:block th:replace="~{fragments/script-loader :: load('member')}"></th:block>
+</body>
+</html>

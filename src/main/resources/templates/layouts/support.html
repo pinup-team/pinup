@@ -1,0 +1,20 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<th:block layout:fragment="pageStyles">
+  <link rel="stylesheet" th:href="@{/css/support.css}" />
+</th:block>
+
+<th:block layout:fragment="pageScripts">
+  <th:block th:replace="~{fragments/script-loader :: load('support')}"></th:block>
+  <th:block th:replace="~{fragments/script-loader :: load('notice')}"></th:block>
+  <th:block th:replace="~{fragments/script-loader :: load('faq')}"></th:block>
+</th:block>
+
+<main class="home_content_wrap" layout:fragment="content">
+  <div th:replace="~{fragments/support-navigate :: support-navigate}"></div>
+
+  <div layout:fragment="support-content"></div>
+</main>
+</html>

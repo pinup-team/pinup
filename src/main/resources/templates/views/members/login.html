@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}"
+      xmlns:oauth="http://oauth">
+<head>
+    <title>Login</title>
+</head>
+<div class="center_content" layout:fragment="content">
+    <div class="page_description">
+        <h1>Login</h1>
+        <h4>소셜 계정을 사용해 간단하게 로그인/회원가입 하세요</h4>
+    </div>
+    <div>
+        <a oauth:naverLoginUrl="커스텀 uri">
+            <button>NAVER 로그인</button>
+        </a>
+        <a oauth:googleLoginUrl="커스텀 uri">
+            <button>GOOGLE 로그인</button>
+        </a>
+    </div>
+</div>
+</html>

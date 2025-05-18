@@ -1,0 +1,609 @@
+@charset "UTF-8";
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-style: normal;
+    letter-spacing: 1px;
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    background-color: #F6F2E4;
+}
+
+/* ✅ 레이아웃 */
+.wrap {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* 화면을 꽉 채우도록 */
+    width: 70%;
+    max-width: 1500px;
+    margin: 0 auto;
+    position: relative; /* fixed와 함께 사용할 때 필요한 설정 */
+
+    justify-content: center;
+    align-items: center;
+}
+
+header {
+    flex-shrink: 0; /* header가 줄어들지 않도록 */
+    position: sticky; /* 상단에 고정 */
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 10; /* 다른 요소 위에 표시 */
+}
+
+footer {
+    flex-shrink: 0; /* footer가 줄어들지 않도록 */
+    position: sticky; /* 하단에 고정 */
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 10; /* 다른 요소 위에 표시 */
+}
+
+.content {
+    overflow-y: auto; /* 세로 스크롤만 가능하도록 */
+    overflow-x: hidden;
+    flex-grow: 1;
+    width: 100%;
+}
+
+/* 스크롤 디자인을 좀 더 이쁘게 */
+.content::-webkit-scrollbar {
+    width: 8px; /* 스크롤바의 너비 */
+}
+
+.content::-webkit-scrollbar-thumb {
+    background-color: #4F261A; /* 스크롤바의 색상 */
+    border-radius: 10px; /* 스크롤바 둥글게 */
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+    background-color: #CC2F20; /* 호버시 색상 */
+}
+
+.content::-webkit-scrollbar-track {
+    border-radius: 10px; /* 배경도 둥글게 */
+}
+
+.home_content_wrap {
+    /*min-width: 1000px;*/
+    margin: 0 auto;
+    padding: 20px 0;
+}
+
+.content_list_area {
+    transition: 0.3s;
+}
+
+body, input, select, textarea, button, a, p, h1, h2, h3, h4, h5, h6 {
+    color: #4F261A;
+    font-family: "NanumSquare", "나눔스퀘어", "나눔고딕", NanumGothic, -apple-system, BlinkMacSystemFont, helvetica, "Apple SD Gothic Neo", sans-serif;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+input, select, textarea, button, a, p {
+    font-size: 15px;
+    font-weight: 400;
+    color: inherit;
+    text-decoration: none;
+    margin: 10px 10px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 400;
+    color: inherit;
+    text-decoration: none;
+    margin: 10px 10px;
+}
+
+ul, ol, li {
+    list-style: none;
+}
+
+button {
+    background: none;
+    cursor: pointer;
+    text-align: center;
+    border: 1px solid transparent;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    transition: all 0.15s ease-in-out;
+}
+
+@font-face {
+    font-family: "NanumSquare";
+    src: local(NanumSquareLight);
+    src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-aLt.otf") format("opentype");
+    font-weight: 300;
+}
+
+@font-face {
+    font-family: "NanumSquare";
+    src: local(NanumSquare);
+    src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-bRg.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-bRg.otf") format("truetype");
+    font-weight: normal;
+}
+
+@font-face {
+    font-family: "NanumSquare";
+    src: local(NanumSquareBold);
+    src: url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-cBd.woff") format("woff"), url("https://mkt-cdn.pstatic.net/mkt/2024/09/diggingarchive/assets/font/NanumSquareNeo/NanumSquareNeo-cBd.otf") format("opentype");
+    font-weight: bold;
+}
+
+/* 페이지 내용 */
+.page_description h1 {
+    font-weight: 900;
+    font-size: 3rem;
+    color: #CC2F20;
+}
+
+.page_description h4 {
+    color: #4F261A;
+}
+
+/* ✅ Swiper 스타일 */
+.swiper {
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    overflow: hidden;
+    list-style: none;
+    padding: 0;
+    z-index: 1;
+    display: block;
+}
+
+.swiper-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    display: flex;
+    transition-property: transform;
+    box-sizing: content-box;
+}
+
+.swiper-slide {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition-property: transform;
+    display: block;
+}
+
+.swiper-slide-invisible-blank {
+    visibility: hidden;
+}
+
+.swiper-autoheight,
+.swiper-autoheight .swiper-slide {
+    height: auto;
+}
+
+/* ✅ Swiper 3D 스타일 */
+.swiper-3d {
+    perspective: 1200px;
+}
+
+.swiper-3d .swiper-wrapper {
+    transform-style: preserve-3d;
+}
+
+.swiper-3d .swiper-slide {
+    transform-style: preserve-3d;
+}
+
+.swiper-3d .swiper-slide-shadow {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+/* ✅ Swiper Lazy Loader */
+.swiper-lazy-preloader {
+    width: 42px;
+    height: 42px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -21px;
+    margin-top: -21px;
+    z-index: 10;
+    transform-origin: 50%;
+    box-sizing: border-box;
+    border-radius: 50%;
+    border-top: 4px solid transparent;
+    animation: swiper-preloader-spin 1s linear infinite;
+}
+
+@keyframes swiper-preloader-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(1turn);
+    }
+}
+
+/* ✅ Swiper 네비게이션 버튼 */
+.swiper-button-next,
+.swiper-button-prev {
+    position: absolute;
+    top: 50%;
+    /*width: calc(var(--swiper-navigation-size) / 44 * 27);*/
+    /*height: var(--swiper-navigation-size);*/
+    /*margin-top: calc(-1 * var(--swiper-navigation-size) / 2);*/
+    z-index: 10;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /*color: var(--swiper-navigation-color, var(--swiper-theme-color));*/
+}
+
+.swiper-button-next.swiper-button-disabled,
+.swiper-button-prev.swiper-button-disabled {
+    opacity: 0.35;
+    cursor: auto;
+    pointer-events: none;
+}
+
+.swiper-button-prev {
+    left: 10px;
+}
+
+.swiper-button-next {
+    right: 10px;
+}
+
+/* ✅ 이미지 슬라이드 */
+.slide_top {
+    position: relative;
+}
+
+.slide_img {
+    position: relative;
+    padding-top: 133.334%;
+    overflow: hidden;
+    border-radius: 10px;
+    background-color: #eee;
+}
+
+.slide_img img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: auto;
+    min-height: 100%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+}
+
+/* ✅ 게시판 리스트 */
+.content_list {
+    padding: 20px 0;
+}
+
+.content_title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 700;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.content_link {
+    display: block;
+    cursor: pointer;
+}
+
+.slide_bottom {
+    padding: 15px 0;
+}
+
+.slide_bottom p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
+}
+
+.justify-content-center {
+    justify-content: center !important;
+}
+
+/* 제목 입력 input 스타일 */
+.form-control {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+}
+
+/* textarea도 input과 동일한 스타일 적용 */
+textarea.form-control {
+    width: 100%;
+    height: 40px;
+    min-height: 40px;
+    max-height: 300px;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    resize: vertical; /* 사용자 조절 가능 */
+}
+
+/* textarea에 포커스 시 스타일 */
+textarea.form-control:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+}
+
+
+/* 드롭다운 스타일 */
+.form-select {
+    display: block;
+    width: 100%;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    appearance: none;
+}
+
+/* 레이블 스타일 */
+.col-form-label {
+    font-weight: bold;
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+}
+
+/* 행 스타일 */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+/* 컬럼 스타일 */
+.col-2 {
+    flex: 0 0 16.66667%;
+    max-width: 16.66667%;
+}
+
+.col-4 {
+    flex: 0 0 33.33333%;
+    max-width: 33.33333%;
+}
+
+.col-6 {
+    flex: 0 0 50%;
+    max-width: 50%;
+}
+
+.col-9-mob {
+    flex: 0 0 75%;
+    max-width: 75%;
+}
+
+.col-10 {
+    flex: 0 0 83.33333%;
+    max-width: 83.33333%;
+}
+
+.btn_right {
+    text-align: right;
+}
+
+/* 버튼 스타일 */
+.btn {
+    display: inline-block;
+    font-weight: 600;
+}
+
+.btn-dark {
+    color: #fff;
+    background-color: #343a40;
+    border-color: #343a40;
+}
+
+.btn-light {
+    color: #212529;
+    background-color: #f8f9fa;
+    border-color: #f8f9fa;
+}
+
+/* 이미지 업로드 버튼 */
+.btn-upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: white;
+    color: #000;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+
+/* 업로드 버튼 스타일 */
+.btn-upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    background-color: white;
+    color: #000;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+
+/* 파일명 스타일 */
+#fileName {
+    margin-left: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+/* 이미지 미리보기 스타일 (추가됨) */
+.preview-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+/* 개별 이미지 아이템 */
+.image-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 미리보기 이미지 스타일 */
+.preview-img {
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    transition: transform 0.2s ease-in-out;
+}
+
+/* 마우스 올리면 확대 효과 */
+.preview-img:hover {
+    transform: scale(1.05);
+}
+
+/* 삭제 체크박스 스타일 */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    margin-top: 5px;
+    cursor: pointer;
+    background-color: white;
+    color: #000;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background 0.2s ease-in-out;
+}
+
+/* 체크박스 기본 스타일 */
+.checkbox-label input[type="checkbox"] {
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+    border: 2px solid white;
+    border-radius: 3px;
+    background-color: transparent;
+    cursor: pointer;
+    position: relative;
+}
+
+/* 체크박스 체크 시 스타일 */
+.checkbox-label input[type="checkbox"]:checked {
+    background-color: white;
+}
+
+.checkbox-label input[type="checkbox"]::before {
+    content: "✔";
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    position: absolute;
+    top: -2px;
+    left: 2px;
+    display: none;
+}
+
+.checkbox-label input[type="checkbox"]:checked::before {
+    display: block;
+}
+
+/* 추가 설명 */
+textarea.form-control {
+    height: 150px;
+    resize: vertical;
+}
+
+#postForm {
+    width: 1000px; /* 기본 너비 */
+    min-width: 1000px; /* 최소 너비 */
+
+    height: auto; /* 자동 확장 */
+    min-height: 700px; /* 최소 높이 700px */
+
+    margin: 0 auto; /* 가운데 정렬 */
+    padding: 20px;
+
+    max-width: 80%;
+}
+
+#postForm {
+    width: 100vh; /* 기본 너비 */
+
+    height: auto; /* 자동 확장 */
+    min-height: 70vh; /* 최소 높이 700px */
+
+    margin: 0 auto; /* 가운데 정렬 */
+    padding: 2vh;
+
+    max-width: 80%;
+}
+
+#updatePostForm {
+    width: 100vh; /* 기본 너비 */
+
+    height: auto; /* 자동 확장 */
+    min-height: 70vh; /* 최소 높이 700px */
+
+    margin: 0 auto; /* 가운데 정렬 */
+    padding: 2vh;
+
+    max-width: 80%;
+}
+
+.images-file-warning {
+    color: #e11e1e;  /* 강조 색상 */
+    font-weight: bold;  /* 강조를 위해 굵은 글씨 */
+    margin-left: 1vh;
+    font-size: 0.9rem;  /* 글자 크기 조정 */
+}

@@ -36,8 +36,22 @@ out/
 ### VS Code ###
 .vscode/
 
-# Application YAML configuration
-application.yml
+### Application YAML ###
+*.yml
 
-# MAC OS
+### MAC OS ###
 .DS_Store
+
+### http-client ###
+*.env.json
+
+### node ###
+node_modules
+
+### REST Docs 출력 디렉토리 ###
+!src/docs/
+
+### GitAction 출력 디렉토리 ###
+!.github/
+!.github/workflows/
+!.github/workflows/*

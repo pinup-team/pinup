@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<div layout:fragment="content">
+    <div class="container">
+        <div class="d-flex justify-content-center">
+            <form id="postForm" enctype="multipart/form-data">
+                <input type="hidden" id="storeId" name="storeId" th:value="${storeId}">
+
+                <h3>업로드 사진</h3>
+                <div class="row preview-box" id="previewContainer"></div>
+
+                <div class="row">
+                    <label class="col-2 col-form-label">이미지</label>
+                    <div class="col-10 d-flex align-items-center">
+                        <input type="file" id="images" name="images" multiple accept="image/*" style="display: none;"
+                               onchange="fileCheck(event)">
+                        <label class="btn-upload col-6" onclick="fileUpload(false)">파일 첨부</label>
+                        <span id="fileName" th:text="${fileName != null ? fileName : '선택된 파일 없음'}">선택된 파일 없음</span>
+                        <span id="fileCountMessage" class="images-file-warning" style="display: none;"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label for="title" class="col-2 col-form-label">게시판 명</label>
+                    <div class="col-10">
+                        <input type="text" class="form-control" id="title" name="title" th:value="${title}" required
+                               maxlength="100">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label for="content" class="col-2 col-form-label">추가 설명</label>
+                    <div class="col-10">
+                        <textarea id="content" name="content" class="form-control" th:text="${content}"></textarea>
+                    </div>
+                </div>
+                <div class="btn_right">
+                    <button class="btn btn-dark" type="button" onclick="submitPost()">등록 요청</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="pageScripts">
+    <th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
+</th:block>
+</html>

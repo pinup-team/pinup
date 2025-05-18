@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/header.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <th:block layout:fragment="pageStyles"></th:block>
+
+    <!-- Favicon -->
+    <link rel="icon" th:href="@{/favicon.ico}" type="image/x-icon">
+    <!-- SEO: 메타 설명 -->
+    <title>Pin-up | 한정판 팝업스토어 일정, 굿즈 정보, 감성 스팟 커뮤니티</title>
+    <meta name="description" content="한정판 굿즈, 인생샷 스팟, 요즘 가장 핫한 팝업스토어 정보를 Pin-up에서 확인하세요. 팝업 일정과 커뮤니티 기능까지 한눈에!">
+
+    <!-- Canonical -->
+    <th:block th:if="${@seoUtilConfig != null and #httpServletRequest != null}">
+        <link rel="canonical" th:href="@{${@seoUtilConfig.getCanonicalUrl(#httpServletRequest)}}" />
+    </th:block>
+
+    <!-- Robots -->
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph for Facebook & Kakao -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Pin-up - 요즘 핫한 팝업스토어 일정 & 굿즈 정보">
+    <meta property="og:description" content="트렌디한 팝업스토어 소식과 한정판 굿즈 정보, 감성 스팟까지! Pin-up에서 가장 빠르게 확인하세요.">
+    <meta property="og:url" th:content="${@seoUtilConfig.getCanonicalUrl(#httpServletRequest)}">
+    <meta property="og:image" th:content="${@seoUtilConfig.getBaseDomain()} + '/images/og-image.png'">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pin-up - 팝업스토어 일정 & 커뮤니티">
+    <meta name="twitter:description" content="지금 가장 트렌디한 팝업스토어 정보는 Pin-up에서! 굿즈, 일정, 감성 스팟까지 한 번에.">
+    <meta name="twitter:image" th:content="${@seoUtilConfig.getBaseDomain()} + '/images/og-image.png'">
+
+    <!-- Schema.org JSON-LD 구조화 데이터 -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Event",
+            "name": "Pin-up 팝업스토어",
+            "startDate": "2025-04-01T10:00:00",
+            "endDate": "2025-04-03T18:00:00",
+            "location": {
+                "@type": "Place",
+                "name": "Pin-up 팝업스토어 위치",
+                "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": "주소는 아직 제공되지 않음",
+                    "addressLocality": "주소는 아직 제공되지 않음",
+                    "addressRegion": "주소는 아직 제공되지 않음",
+                    "postalCode": "주소는 아직 제공되지 않음",
+                    "addressCountry": "KR"
+                }
+            },
+            "description": "트렌디한 팝업스토어 정보, 한정 굿즈, 체험 이벤트까지! Pin-up 팝업스토어에서 MZ 감성을 만나보세요.",
+            "image": "https://your-s3-bucket-url/path/to/event-image.jpg",
+            "url": "https://www.pin-up.co.kr"
+        }
+    </script>
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-350098071"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-350098071');
+    </script>
+</head>
+<body>
+<div class="wrap type_home">
+    <div th:replace="~{fragments/header::headerFragment}"></div>
+    <div class="content">
+        <div layout:fragment="content"></div>
+    </div>
+    <div th:replace="~{fragments/footer::footerFragment}"></div>
+</div>
+<th:block th:replace="~{fragments/script-loader :: load('header')}"></th:block>
+<th:block th:replace="~{fragments/script-loader :: load('member')}"></th:block>
+<th:block layout:fragment="pageScripts"></th:block>
+
+</body>
+</html>

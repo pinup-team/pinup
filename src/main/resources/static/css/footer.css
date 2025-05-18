@@ -1,0 +1,22 @@
+#footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.footer-links ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links ul li {
+    margin-right: 10px;
+}
+
+/* 푸터 SNS 링크 */
+.footer-social a {
+    margin-left: 10px;
+}

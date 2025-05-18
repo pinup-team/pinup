@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/member.css}">
+    <title>Profile</title>
+</head>
+<div class="member_profile" layout:fragment="content">
+    <div class="page_description">
+        <h1>Profile</h1>
+        <h4>내 정보를 업데이트하세요.</h4>
+    </div>
+    <div class="member_profile_content">
+        <th:block sec:authorize="isAnonymous()">
+            <h1>잘못된 접근입니다.</h1>
+        </th:block>
+        <th:block sec:authorize="isAuthenticated()">
+            <div class="table-container">
+                <table class="table" th:object="${profile}">
+                    <tbody>
+                    <tr>
+                        <td>이름</td>
+                        <td><input type="text" th:field="*{name}" th:placeholder="이름" readonly></td>
+                    </tr>
+                    <tr>
+                        <td>이메일</td>
+                        <td><input type="text" th:field="*{email}" th:placeholder="이메일" readonly></td>
+                    </tr>
+                    <tr>
+                        <td>닉네임</td>
+                        <td><input type="text" th:field="*{nickname}" th:placeholder="닉네임" id="nickname">
+                            <button type="button" th:onclick="generateNickname()">닉네임 추천</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>가입경로</td>
+                        <td><input type="text" th:field="*{providerType}" th:placeholder="가입경로" readonly></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </th:block>
+    </div>
+    <div class="button-container">
+        <div class="home-button">
+            <button th:onclick="redirectToHome()">홈으로 돌아가기</button>
+        </div>
+        <th:block sec:authorize="isAuthenticated()">
+            <div class="member-buttons">
+                <button type="button" th:onclick="updateAccount()">수정</button>
+                <button type="button" th:onclick="deleteAccount()">탈퇴</button>
+            </div>
+        </th:block>
+    </div>
+</div>
+</html>
+<script th:inline="javascript">
+    var profile = /*[[${profile}]]*/'${profile}';
+</script>

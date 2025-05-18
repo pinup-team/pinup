@@ -1,0 +1,16 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<nav th:fragment="support-navigate">
+    <ul role="tablist">
+        <li class="notices" role="tab" aria-selected='false'>
+            <a href="#" th:href="@{/notices}">
+                <span class="tab_text">공지</span>
+            </a>
+        </li>
+        <li class="faqs" role="tab" aria-selected='false'>
+            <a href="#" th:href="@{/faqs}">
+                <span class="tab_text">FAQ</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+</html>

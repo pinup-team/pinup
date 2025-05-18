@@ -1,0 +1,57 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
+<section layout:fragment="support-content">
+    <article class="content_wrap">
+        <div class="main_content_title">
+            <h1>FAQ 정보 등록</h1>
+        </div>
+
+        <div class="content_form_area">
+            <div class="row">
+                <label for="category">카테고리</label>
+                <div class="col">
+                    <select class="form-select" name="category" id="category" required>
+                        <option th:value="${null}">선택</option>
+                        <option th:each="entry : ${category.entrySet()}"
+                                th:value="${entry.key}"
+                                th:text="${entry.value}">이용</option>
+                    </select>
+
+                    <div class="error_wrap">
+                        <span class="category_error" id="category-error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="question">질문 내용</label>
+                <div class="col">
+                    <input type="text" name="question" id="question" maxlength="100" required />
+                    <div class="error_wrap">
+                        <span class="question_error" id="question-error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="answer">답변 내용</label>
+                <div class="col">
+                    <textarea id="answer" name="answer" required></textarea>
+                    <div class="error_wrap">
+                        <span class="answer_error" id="answer-error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row button_area">
+                <div class="col">
+                    <button onclick="createFaq()">등록</button>
+                    <button th:onclick="|location.href='@{/faqs}'|">목록</button>
+                </div>
+            </div>
+        </div>
+    </article>
+</section>
+</html>

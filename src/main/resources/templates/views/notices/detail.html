@@ -1,0 +1,29 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
+<section layout:fragment="support-content">
+  <button class="previous_button" th:onclick="|location.href='@{/notices}'|">
+    <i class="fa-solid fa-angle-left">뒤로</i>
+  </button>
+
+  <article class="content_wrap">
+    <div class="content read" th:object="${notice}">
+      <div class="content_title">
+        <h1 th:text="*{title}">제목</h1>
+        <p th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}">작성날짜</p>
+      </div>
+
+      <div class="content_context">
+        <p th:text="*{content}">내용</p>
+      </div>
+
+      <div class="button_content" sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
+        <button th:onclick="|location.href='@{/notices/{id}/update(id=${notice.id})}'|">수정</button>
+        <button th:onclick="removeNotice([[${notice.id}]])">삭제</button>
+      </div>
+    </div>
+  </article>
+</section>
+</html>

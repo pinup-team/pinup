@@ -1,0 +1,97 @@
+#header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* 네비게이션 메뉴를 가로로 정렬 */
+#header nav ul {
+    display: flex;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#header nav ul li {
+    margin: 0 10px;
+}
+.logo a {
+    display: flex;
+    align-items: center;
+}
+/*-------hamburger--------*/
+
+/* 햄버거 버튼 스타일 */
+.hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.hamburger:hover {
+    background-color: #F6F2E4;
+}
+
+.bar {
+    width: 30px;
+    height: 4px;
+    background-color: #CC2F20;
+    border-radius: 5px;
+    margin: 3px;
+}
+
+/* 메뉴 스타일 */
+.menu {
+    display: none;
+    background-color: #4F261A;
+    position: absolute;
+    right: 1%;
+    border-radius: 5px;
+    box-sizing: border-box;
+    z-index: 9999;
+    overflow: hidden;
+    width: 120px;
+}
+
+.menu.open {
+    display: flex;
+    flex-direction: column;
+}
+
+.menu button {
+    color: white;
+    border: none;
+    padding: 0.375rem 0.5rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.menu button:hover {
+    cursor: pointer;
+    color: white;
+}
+
+.menu button:disabled {
+    cursor: default;
+}
+
+.menu_nickname {
+    font-size: 1rem;
+    line-height: 1.5;
+    padding: 0.375rem 0.5rem;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

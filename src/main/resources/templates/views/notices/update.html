@@ -1,0 +1,41 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
+<section layout:fragment="support-content">
+    <article class="content_wrap">
+        <div class="main_content_title">
+            <h1>공지사항 정보 수정</h1>
+        </div>
+
+        <div class="content_form_area" th:object="${notice}">
+            <div class="row">
+                <label for="title">제목</label>
+                <div class="col">
+                    <input type="text" id="title" name="title" maxlength="100" th:value="*{title}" required />
+                    <div class="error_wrap">
+                        <span class="title-error" id="title-error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <label for="content">내용</label>
+                <div class="col">
+                    <textarea id="content" name="content" th:text="*{content}" required></textarea>
+                    <div class="error_wrap">
+                        <span class="content-error" id="content-error"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row button_area">
+                <div class="col">
+                    <button th:onclick="updateNotice([[${notice.id}]])">수정</button>
+                    <button th:onclick="|location.href='@{/notices}'|">목록</button>
+                </div>
+            </div>
+        </div>
+    </article>
+</section>
+</html>

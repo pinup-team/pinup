@@ -1,0 +1,148 @@
+.member_profile {
+    height: 100%;
+    width: 70%;
+    overflow: hidden;
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.member_profile_content {
+    align-items: center;
+}
+
+/*-------table--------*/
+
+.table-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+table {
+    table-layout: fixed; /* 테이블 레이아웃을 고정하여 각 셀의 너비를 설정 */
+    width: 70%;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #4F261A;
+    border-radius: 2.25rem;
+    border-collapse: collapse;
+}
+
+.table td, .table th {
+    text-align: left;
+    vertical-align: middle;
+}
+
+.table td:first-child {
+    text-align: center;
+    font-weight: bold;
+    width: 20%; /* 첫 번째 열의 너비를 20%로 설정 */
+}
+
+.table td:nth-child(2) {
+    width: 80%; /* 두 번째 열은 나머지 80%의 너비를 차지 */
+    display: flex;
+    align-items: center;
+}
+
+td > input#nickname {
+    flex: 1 1 75%; /* input은 기본적으로 75% 너비를 차지 */
+    height: 40px;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #4F261A;
+    background-color: #fff;
+    border: 1px solid #CC2F20;
+    border-radius: 0.25rem;
+}
+
+table input {
+    width: 100%; /* 테이블 내 input과 button은 전체 너비를 차지 */
+    height: 40px;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #4F261A;
+    background-color: #fff;
+    border: 1px solid #CC2F20;
+    border-radius: 0.25rem;
+}
+
+table input:focus {
+    border-color: #3D795B;
+    outline: 0;
+    box-shadow: 0 0 5px rgba(61, 121, 91, 0.25);
+}
+
+table input[readonly] {
+    resize: vertical;
+
+    background-color: #f0f0f0;
+    color: #777;
+    border: 1px solid #CC2F20;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 10px;
+}
+
+td > button {
+    flex: 0 1 20%; /* 버튼은 기본적으로 20% 너비를 차지 */
+    height: 40px;
+    background-color: #4F261A;
+    color: white;
+    border: none;
+    cursor: pointer;
+    white-space: nowrap; /* 텍스트가 한 줄로 표시되도록 설정 */
+    overflow: hidden; /* 텍스트가 넘칠 경우 숨기기 */
+    text-overflow: ellipsis; /* 텍스트가 넘칠 경우 '...'로 표시 */
+}
+
+td > button:hover {
+    background-color: #CC2F20;
+}
+
+/*-------제출 폼--------*/
+
+.button-container {
+    display: flex;
+    justify-content: space-between; /* 좌우 정렬 */
+}
+
+.member-buttons button {
+    background-color: #4F261A;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.member-buttons button:disabled {
+    background-color: #eeeeee;
+    color: #4F261A;
+    cursor: not-allowed;
+}
+
+.member-buttons button:hover {
+    background-color: #CC2F20;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.home-button button {
+    background-color: #4F261A;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.home-button button:hover {
+    background-color: #CC2F20;
+    color: white;
+    border: none;
+    cursor: pointer;
+}

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Posts List</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/post_list.css}">
+    <link rel="stylesheet" th:href="@{/css/post_modal.css}">
+</head>
+<body>
+<div class="wrap type_home" style="width: 95%;">
+    <div class="content">
+        <div class="post_content_wrap">
+            <div class="content_list">
+                <div class="content_list_area">
+                    <div class="content_title">
+                        <strong>장소와 취향이 발견되는 공간</strong>
+                        <th:block sec:authorize="isAuthenticated()">
+                            <button type="button" class="img_icon_keep"
+                                    th:onclick="|location.href='/post/create?storeId=' + ${storeId}|">작성
+                            </button>
+                        </th:block>
+                        <th:block sec:authorize="!isAuthenticated()">
+                            <button type="button" class="img_icon_keep"
+                                    th:onclick="|location.href='/members/login'|">로그인 후 작성
+                            </button>
+                        </th:block>
+                    </div>
+                    <div class="list_pinup_top">
+                        <div class="pinup_list_wrap">
+                            <div class="pinup_list">
+                                <th:block th:each="post : ${posts}">
+                                    <div class="pinup_list_item">
+                                        <div class="pinup_img_wrap"
+                                             th:attr="onclick='openDetailPopup(' + ${post.id} + ')'">
+                                            <img alt="테스트이미지" class="img_thumb" th:src="@{${post.thumbnail}}"/>
+                                        </div>
+                                        <div class="pinup_content">
+                                            <h4 class="pinup_title" th:text="${post.title}"></h4>
+                                            <div class="post_description_wrapper">
+                                                <p class="post_description_text" th:text="${post.content}"></p>
+                                            </div>
+                                            <div class="post_sub_info">
+                                                <span class="post_date"
+                                                      th:text="*{#temporals.format(post.createdAt, 'yyyy-MM-dd')}"></span>
+                                                <span class="post_separator">·</span>
+                                                <span class="post_comment_count"
+                                                      th:text="${post.commentCount} + '개의 댓글'"></span>
+                                            </div>
+                                        </div>
+                                        <div class="post_action_wrapper">
+                                            <span class="pinup_nickname" th:text="${post.member.nickname}"></span>
+                                            <th:block sec:authorize="isAuthenticated()">
+                                                <button class="post_edit_button"
+                                                        th:onclick="|location.href='@{/post/update/{postId}(postId=${post.id})}'|"
+                                                        th:if="${post.member != null and post.member.nickname != null and #authentication.principal.username == post.member.nickname}">
+                                                    수정
+                                                </button>
+                                                <button class="post_delete_button"
+                                                        th:onclick="disablePost([[${post.id}]], [[${post.storeId}]])"
+                                                        th:if="${post.member != null and post.member.nickname != null and #authentication.principal.username == post.member.nickname
+                                                        or #authentication.authorities.?[authority == 'ROLE_ADMIN'].size() > 0}">
+                                                    삭제
+                                                </button>
+                                            </th:block>
+                                        </div>
+                                    </div>
+                                </th:block>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="detailModal" class="modal">
+            <div class="modal-content">
+                <div id="detailContainer">로딩 중...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
+</body>
+</html>

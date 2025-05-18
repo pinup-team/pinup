@@ -1,0 +1,21 @@
+= PinUp API Document
+PinUp team
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+[[introduction]]
+== 소개
+
+핀업 API 문서 입니다.
+
+include::post.adoc[]
+
+include::comment.adoc[]
+
+include::notice.adoc[]
+
+include::faq.adoc[]

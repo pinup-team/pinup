@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/layout}">
+
+<div layout:fragment="content">
+    <div class="container">
+        <div class="d-flex justify-content-center">
+            <form id="updatePostForm" enctype="multipart/form-data">
+                <input type="hidden" id="postId" name="postId" th:value="${post?.id}"/>
+
+                <div class="row">
+                    <h3>현재 사진</h3>
+                    <input type="hidden" id="imagesToDelete" th:value="${imagesToDelete != null ? imagesToDelete : ''}"/>
+
+                    <div class="preview-box">
+                        <th:block th:each="image : ${images}">
+                            <div class="image-item">
+                                <!-- 기존 사진 -->
+                                <img th:src="${image.s3Url}" alt="Post Image" class="preview-img"/>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="imagesToDelete" th:value="${image.s3Url}"
+                                           th:data-image-url="${image.s3Url}" onclick="toggleImageToDelete(this)"/>
+                                    삭제
+                                </label>
+                            </div>
+                        </th:block>
+                    </div>
+                </div>
+
+                <h3>업로드 사진</h3>
+                <div class="row preview-box" id="previewContainer"></div>
+
+                <div class="row">
+                    <label class="col-2 col-form-label">이미지</label>
+                    <div class="col-10 d-flex align-items-center">
+                        <input type="file" id="images" name="images" multiple accept="image/*" style="display: none;"
+                               onchange="fileCheck(event)">
+                        <label class="btn-upload col-6" onclick="fileUpload(true)">파일 첨부</label>
+                        <span id="fileName" th:text="${fileName != null ? fileName : '선택된 파일 없음'}">선택된 파일 없음</span>
+                        <span id="fileCountMessage" class="images-file-warning" style="display: none;"></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label for="title" class="col-2 col-form-label">게시판 제목</label>
+                    <div class="col-10">
+                        <input class="form-control" type="text" th:field="*{post.title}" id="title" name="title"
+                               required maxlength="100"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label for="content" class="col-2 col-form-label">내용 수정</label>
+                    <div class="col-10">
+                        <textarea class="form-control" th:field="*{post.content}" id="content" name="content"
+                                  required="true"></textarea>
+                    </div>
+                </div>
+                <div class="btn_right">
+                    <button class="btn btn-dark" type="submit">수정 요청</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<th:block layout:fragment="pageScripts">
+    <th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
+</th:block>
+</html>

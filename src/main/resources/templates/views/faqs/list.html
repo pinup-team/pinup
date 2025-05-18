@@ -1,0 +1,55 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/support}">
+
+<section layout:fragment="support-content">
+  <div class="header_button" sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
+    <button th:onclick="|location.href='@{/faqs/new}'|">등록</button>
+  </div>
+
+  <div class="content_list_wrap">
+    <th:block th:if="${#lists.isEmpty(faqs)}">
+      <article class="content_list">
+        <strong>FAQ 목록이 없습니다.</strong>
+      </article>
+    </th:block>
+
+    <th:block th:if="${!#lists.isEmpty(faqs)}">
+      <th:block th:each="faq : ${faqs}" th:object="${faq}">
+        <article class="content_list">
+          <div th:text="*{id}" hidden>id</div>
+
+          <th:block th:each="entry : ${category.entrySet()}">
+            <th:block th:if="${entry.key == faq.category}">
+              <p th:text="${entry.value}">category</p>
+            </th:block>
+          </th:block>
+
+          <div class="content_title content_title_wrap">
+            <div class="content_area">
+              <div class="title_area" aria-expanded="false">
+                <h3 th:text="*{question}">question</h3>
+                <i class="fa-solid fa-angle-down"></i>
+              </div>
+
+              <div class="desc_content_area" sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
+                <button th:onclick="|location.href='@{/faqs/{id}/update(id=*{id})}'|">수정</button>
+                <button th:onclick="removeFaq([[*{id}]])">삭제</button>
+              </div>
+
+              <div class="date_area">
+                <span class="content_date" th:text="*{#temporals.format(createdAt, 'yyyy-MM-dd')}"></span>
+              </div>
+            </div>
+
+            <div class="answer_area">
+              <h3 th:text="*{answer}">answer</h3>
+            </div>
+          </div>
+        </article>
+      </th:block>
+    </th:block>
+  </div>
+</section>
+</html>
