@@ -24,7 +24,7 @@ public class SecretsFetcher {
     private final String secretKey;
 
     public SecretsFetcher(
-            @Value("${cloud.aws.secretsmanager.endpoint}") String endpoint,
+            @Value("${cloud.aws.secretsmanager.endpoint:}") String endpoint,
             @Value("${cloud.aws.secretsmanager.region}") String region,
             @Value("${cloud.aws.secretsmanager.secret-name}") String secretName,
             @Value("${cloud.aws.credentials.accessKey") String accessKey,
