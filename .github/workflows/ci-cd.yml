@@ -339,7 +339,7 @@ jobs:
               docker pull pinup0106/pinup:${{ steps.extract_version.outputs.version }}
               docker stop pinup-container || true
               docker rm pinup-container || true
-              docker run -d --name pinup-container -p 80:8080 pinup0106/pinup:${{ steps.extract_version.outputs.version }}
+              docker run -d --name pinup-container -p 8080:8080 pinup0106/pinup:${{ steps.extract_version.outputs.version }}
 
         - name: Remove IP FROM Security Group
           run: |
