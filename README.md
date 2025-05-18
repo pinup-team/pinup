@@ -54,6 +54,9 @@
 [🔗API 문서](https://docs.google.com/spreadsheets/d/1b24N2W1LtkkmANf4k0S2cyUUmNKDhFQ5dWEvl_6xXKY/edit?usp=sharing)
 ![API Preview](https://github.com/user-attachments/assets/03ba88f6-59a1-4938-8f5d-38c0adee31c4)
 
+**Spring REST Docs 문서**
+[🔗Docs 문서](https://pinup-team.github.io/pinup/)
+
 **ERD**  
 [🔗ERD Cloud](https://www.erdcloud.com/d/ZBjzfrDw49fGojDaC)
 ![ERD Preview](https://github.com/user-attachments/assets/794e4986-2f52-4a66-8751-bff0b504f4c8)
