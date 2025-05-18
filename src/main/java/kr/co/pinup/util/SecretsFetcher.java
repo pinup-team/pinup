@@ -27,8 +27,8 @@ public class SecretsFetcher {
             @Value("${cloud.aws.secretsmanager.endpoint:}") String endpoint,
             @Value("${cloud.aws.secretsmanager.region}") String region,
             @Value("${cloud.aws.secretsmanager.secret-name}") String secretName,
-            @Value("${cloud.aws.credentials.accessKey") String accessKey,
-            @Value("${cloud.aws.credentials.secretKey") String secretKey
+            @Value("${cloud.aws.credentials.accessKey}") String accessKey,
+            @Value("${cloud.aws.credentials.secretKey}") String secretKey
     ) {
 
         this.secretName = secretName;
@@ -43,7 +43,6 @@ public class SecretsFetcher {
 
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
         AwsCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(credentials);
-
 
         if (endpoint != null && !endpoint.isBlank()) {
             client = SecretsManagerClient.builder()
