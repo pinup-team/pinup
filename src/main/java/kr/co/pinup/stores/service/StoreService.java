@@ -51,37 +51,56 @@ public class StoreService {
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
 
-        StoreCategory category = null;
         if (request.getCategoryId() != null) {
-            category = storeCategoryRepository.findById(request.getCategoryId())
+            StoreCategory category = storeCategoryRepository.findById(request.getCategoryId())
                     .orElseThrow(StoreCategoryNotFoundException::new);
+            store.setCategory(category);
         }
 
-        Location location = null;
         if (request.getLocationId() != null) {
-            location = locationRepository.findById(request.getLocationId())
+            Location location = locationRepository.findById(request.getLocationId())
                     .orElseThrow(LocationNotFoundException::new);
+            store.setLocation(location);
         }
 
-        store.updateStore(request, category, location);
+        store.setName(request.getName());
+        store.setDescription(request.getDescription());
+        store.setContactNumber(request.getContactNumber());
+        store.setWebsiteUrl(request.getWebsiteUrl());
+        store.setSnsUrl(request.getSnsUrl());
+        store.setStartDate(request.getStartDate());
+        store.setEndDate(request.getEndDate());
+
+        if (request.getOperatingHours() != null) {
+            store.getOperatingHours().clear();
+            for (OperatingHourRequest hourRequest : request.getOperatingHours()) {
+                OperatingHour operatingHour = OperatingHour.builder()
+                        .day(hourRequest.day())
+                        .startTime(hourRequest.startTime())
+                        .endTime(hourRequest.endTime())
+                        .store(store)
+                        .build();
+                store.getOperatingHours().add(operatingHour);
+            }
+        }
 
         if (imageFiles != null && !imageFiles.isEmpty()) {
-            log.info("기존 이미지 삭제 및 새로운 이미지 업로드 시작 - Store ID: {}", store.getId());
             try {
                 storeImageService.deleteStoreImage(store.getId());
-                log.info("기존 이미지 삭제 완료");
+
+                StoreImageRequest imageRequest = StoreImageRequest.builder()
+                        .images(imageFiles)
+                        .build();
+                List<StoreImage> storeImages = storeImageService.uploadStoreImages(store, imageRequest);
+
+                int thumbnailIndex = request.getThumbnailImage() != null ? request.getThumbnailImage() : 0;
+                if (!storeImages.isEmpty() && thumbnailIndex >= 0 && thumbnailIndex < storeImages.size()) {
+                    store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
+                }
             } catch (StoreImageDeleteFailedException e) {
-                log.error("스토어 이미지 삭제 실패: {}", e.getMessage());
+                log.error("이미지 삭제 실패: {}", e.getMessage());
+                throw e;
             }
-
-
-            StoreImageRequest storeImageRequest = StoreImageRequest.builder()
-                    .images(imageFiles)
-                    .build();
-
-            storeImageService.uploadStoreImages(store, storeImageRequest);
-            log.info("이미지 업데이트 완료 - Store ID: {}", store.getId());
-
         }
 
         return StoreResponse.from(store);
@@ -157,22 +176,18 @@ public class StoreService {
             //TODO stream으로 변경
 
             storeRepository.save(store);
-            log.info("스토어 저장 완료 - ID: {}", store.getId());
 
             if (imageFiles != null && imageFiles.length > 0) {
                 StoreImageRequest storeImageRequest = StoreImageRequest.builder()
                         .images(Arrays.asList(imageFiles))
                         .build();
-                log.info("스토어 이미지 빌드 완료");
 
                 List<StoreImage> storeImages = storeImageService.uploadStoreImages(store, storeImageRequest);
-                log.info("이미지 업로드 완료 - 개수: {}", storeImages.size());
 
                 int thumbnailIndex = request.thumbnailImage() != null ? request.thumbnailImage() : 0;
                 if (!storeImages.isEmpty() && thumbnailIndex >= 0 && thumbnailIndex < storeImages.size()) {
                     store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
                     storeRepository.save(store);
-                    log.info("썸네일 설정 완료: {}", store.getImageUrl());
                 }
             }
 
