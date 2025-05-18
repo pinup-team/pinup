@@ -268,7 +268,7 @@ jobs:
         - name: Upload build artifact
           uses: actions/upload-artifact@v4
           with:
-            name: release-jar
+            name: app-build
             path: build/libs/*.jar
 
     # build 완료 후 Docker 이미지 빌드 & 배포
