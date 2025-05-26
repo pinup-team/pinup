@@ -268,7 +268,7 @@ jobs:
         - name: Upload build artifact
           uses: actions/upload-artifact@v4
           with:
-            name: release-jar
+            name: app-build
             path: build/libs/*.jar
 
     # build 완료 후 Docker 이미지 빌드 & 배포
@@ -313,6 +313,22 @@ jobs:
             tags: pinup0106/pinup:${{ steps.extract_version.outputs.version }}
             labels: version=${{ steps.extract_version.outputs.version }}
 
+        - name: Get GitHub IP
+          id: ip
+          run: |
+            echo "ipv4=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
+
+        - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ secrets.AWS_REGION }}
+
+        - name: Add GitHub IP to AWS Security Group
+          run: |
+            aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
         - name: Deploy to EC2
           uses: appleboy/ssh-action@v1.0.3
           with:
@@ -320,7 +336,11 @@ jobs:
             username: ${{ secrets.EC2_USER }}
             key: ${{ secrets.EC2_SSH_KEY }}
             script: |
-              docker pull pinup0106/pinup:latest
+              docker pull pinup0106/pinup:${{ steps.extract_version.outputs.version }}
               docker stop pinup-container || true
               docker rm pinup-container || true
-              docker run -d --name pinup-container -p 80:8080 pinup0106/pinup:latest
+              docker run -d --name pinup-container -p 8080:8080 pinup0106/pinup:${{ steps.extract_version.outputs.version }}
+
+        - name: Remove IP FROM Security Group
+          run: |
+            aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
