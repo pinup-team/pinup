@@ -1,11 +1,13 @@
 package kr.co.pinup.stores.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import kr.co.pinup.store_operatingHour.model.dto.OperatingHourRequest;
 import kr.co.pinup.stores.model.enums.Status;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Getter
 @Setter
@@ -42,4 +44,8 @@ public class StoreUpdateRequest {
     private String snsUrl;
 
     private String imageUrl;
+
+    private List<OperatingHourRequest> operatingHours;
+
+    private Integer thumbnailImage;
 }

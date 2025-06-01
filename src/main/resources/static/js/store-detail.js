@@ -97,7 +97,7 @@ function loadMap() {
 
     var mapOption = {
         center: new kakao.maps.LatLng(latitude, longitude),
-        level: 8
+        level: 4
     };
 
     var map = new kakao.maps.Map(mapContainer, mapOption);
