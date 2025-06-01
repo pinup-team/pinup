@@ -127,12 +127,27 @@ function submitPost() {
         alert("이미지는 최소 2장 이상 등록해야 합니다.");
         return;
     }
+
+    const title = form.title.value.trim();
+    const content = form.content.value.trim();
+
+    if (!title) {
+        alert("제목을 입력해주세요.");
+        return;
+    }
+
+    if (!content) {
+        alert("내용을 입력해주세요.");
+        return;
+    }
+
     const formData = new FormData();
     const postData = {
         storeId: form.storeId.value,
-        title: form.title.value,
-        content: form.content.value
+        title: title,
+        content: content
     };
+
     formData.append("post", new Blob([JSON.stringify(postData)], { type: "application/json" }));
 
     for (let i = 0; i < images.length; i++) {
@@ -143,13 +158,24 @@ function submitPost() {
         method: "POST",
         body: formData
     })
-        .then(response => response.json())
-        .then(data => {
-            if (data.storeId) {
+        .then(async response => {
+            const isJson = response.headers.get("content-type")?.includes("application/json");
+            const data = isJson ? await response.json() : null;
+
+            if (response.ok) {
                 alert("게시물이 성공적으로 생성되었습니다!");
                 window.location.href = `/stores/${data.storeId}`;
             } else {
-                alert("게시물 생성에 실패했습니다.");
+                if (data?.validation && typeof data.validation === "object") {
+                    const messages = Object.entries(data.validation)
+                        .map(([field, msg]) => `${field}: ${msg}`)
+                        .join("\n");
+                    alert("입력 오류:\n" + messages);
+                } else if (data?.message) {
+                    alert(data.message);
+                } else {
+                    alert("게시물 생성에 실패했습니다.");
+                }
             }
         })
         .catch(error => {
@@ -420,7 +446,10 @@ function initializeCommentHandlers() {
                     body: JSON.stringify({ content }),
                 });
 
-                if (response.ok) {
+                if (response.status === 401) {
+                    alert("로그인 후 댓글을 작성할 수 있습니다.");
+                    window.location.href = "/members/login";
+                } else if (response.ok) {
                     const newComment = await response.json();
                     const newCommentElement = document.createElement("li");
                     newCommentElement.classList.add("comment");
@@ -440,11 +469,10 @@ function initializeCommentHandlers() {
 
                     commentForm.querySelector("input[name='content']").value = "";
                     commentForm.querySelector("input[name='content']").focus();
-                } else if (response.status === 401) {
-                    alert("로그인 후 댓글을 작성할 수 있습니다.");
-                    window.location.href = "/members/login";
                 } else {
-                    throw new Error("댓글 생성 실패");
+                    const errorData = await response.json().catch(() => null);
+                    const message = errorData?.message || "댓글 생성에 실패했습니다.";
+                    alert("❌ " + message);
                 }
             } catch (error) {
                 console.error("❌ 댓글 생성 실패:", error);

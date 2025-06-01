@@ -88,19 +88,18 @@
 
                         </ul>
                     </div>
+                    <footer class="pinup-comment-box">
+                        <form id="comment-form" class="pinup-comment-form">
+                            <input type="text" name="content" placeholder="댓글 달기 ..." required class="pinup-comment-input"/>
+                            <div class="pinup-comment-submit">
+                                <button class="pinup-btn transparent-button pinup-comment-submit-btn" type="submit"
+                                        th:data-post-id="${post.id}" th:disabled="${#authentication == null}">
+                                    게시
+                                </button>
+                            </div>
+                        </form>
+                    </footer>
                 </div>
-                <!-- 댓글 입력 -->
-                <footer class="pinup-comment-box">
-                    <form id="comment-form" class="pinup-comment-form">
-                        <input type="text" name="content" placeholder="댓글 달기 ..." required class="pinup-comment-input"/>
-                        <div class="pinup-comment-submit">
-                            <button class="pinup-btn transparent-button pinup-comment-submit-btn" type="submit"
-                                    th:data-post-id="${post.id}" th:disabled="${#authentication == null}">
-                                게시
-                            </button>
-                        </div>
-                    </form>
-                </footer>
             </div>
         </div>
     </div>
