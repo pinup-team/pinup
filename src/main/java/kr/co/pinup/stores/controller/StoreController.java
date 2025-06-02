@@ -35,6 +35,7 @@ public class StoreController {
 
     @GetMapping
     public String listStores(@RequestParam(required = false) String status, Model model) {
+        log.info("StoreController listStores status={}", status);
         List<StoreSummaryResponse> stores;
         Status selectedStatus = null;
 

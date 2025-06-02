@@ -47,41 +47,60 @@ public class StoreService {
 
     @Transactional
     public StoreResponse updateStore(Long id, StoreUpdateRequest request, List<MultipartFile> imageFiles) {
-        log.info("팝업스토어 수정 요청 - ID: {}", id);
+
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
 
-        StoreCategory category = null;
         if (request.getCategoryId() != null) {
-            category = storeCategoryRepository.findById(request.getCategoryId())
+            StoreCategory category = storeCategoryRepository.findById(request.getCategoryId())
                     .orElseThrow(StoreCategoryNotFoundException::new);
+            store.setCategory(category);
         }
 
-        Location location = null;
         if (request.getLocationId() != null) {
-            location = locationRepository.findById(request.getLocationId())
+            Location location = locationRepository.findById(request.getLocationId())
                     .orElseThrow(LocationNotFoundException::new);
+            store.setLocation(location);
         }
 
-        store.updateStore(request, category, location);
+        store.setName(request.getName());
+        store.setDescription(request.getDescription());
+        store.setContactNumber(request.getContactNumber());
+        store.setWebsiteUrl(request.getWebsiteUrl());
+        store.setSnsUrl(request.getSnsUrl());
+        store.setStartDate(request.getStartDate());
+        store.setEndDate(request.getEndDate());
+
+        if (request.getOperatingHours() != null) {
+            store.getOperatingHours().clear();
+            for (OperatingHourRequest hourRequest : request.getOperatingHours()) {
+                OperatingHour operatingHour = OperatingHour.builder()
+                        .day(hourRequest.day())
+                        .startTime(hourRequest.startTime())
+                        .endTime(hourRequest.endTime())
+                        .store(store)
+                        .build();
+                store.getOperatingHours().add(operatingHour);
+            }
+        }
 
         if (imageFiles != null && !imageFiles.isEmpty()) {
-            log.info("기존 이미지 삭제 및 새로운 이미지 업로드 시작 - Store ID: {}", store.getId());
             try {
                 storeImageService.deleteStoreImage(store.getId());
-                log.info("기존 이미지 삭제 완료");
+
+                StoreImageRequest imageRequest = StoreImageRequest.builder()
+                        .images(imageFiles)
+                        .build();
+                List<StoreImage> storeImages = storeImageService.uploadStoreImages(store, imageRequest);
+
+                int thumbnailIndex = request.getThumbnailImage() != null ? request.getThumbnailImage() : 0;
+                if (!storeImages.isEmpty() && thumbnailIndex >= 0 && thumbnailIndex < storeImages.size()) {
+                    store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
+                }
             } catch (StoreImageDeleteFailedException e) {
-                log.error("스토어 이미지 삭제 실패: {}", e.getMessage());
+                log.error("이미지 삭제 실패: {}", e.getMessage());
+                throw e;
             }
-
-
-            StoreImageRequest storeImageRequest = StoreImageRequest.builder()
-                    .images(imageFiles)
-                    .build();
-
-            storeImageService.uploadStoreImages(store, storeImageRequest);
-            log.info("이미지 업데이트 완료 - Store ID: {}", store.getId());
-
         }
 
         return StoreResponse.from(store);
@@ -141,20 +160,19 @@ public class StoreService {
                     .build();
             log.info("스토어 빌드 완료");
 
-            if (request.operatingHours() != null) {
-                for (OperatingHourRequest hour : request.operatingHours()) {
-                    log.info("운영시간 추가: {} {} ~ {}", hour.day(), hour.startTime(), hour.endTime());
-                    OperatingHour operatingHour = OperatingHour.builder()
-                            .day(hour.day())
-                            .startTime(hour.startTime())
-                            .endTime(hour.endTime())
-                            .store(store)
-                            .build();
-                    store.getOperatingHours().add(operatingHour);
-                }
+            if (request.operatingHours() != null && !request.operatingHours().isEmpty()) {
+                List<OperatingHour> operatingHours = request.operatingHours().stream()
+                        .map(hourRequest -> {
+                            return OperatingHour.builder()
+                                    .day(hourRequest.day())
+                                    .startTime(hourRequest.startTime())
+                                    .endTime(hourRequest.endTime())
+                                    .store(store)
+                                    .build();
+                        })
+                        .toList();
+                store.getOperatingHours().addAll(operatingHours);
             }
-
-            //TODO stream으로 변경
 
             storeRepository.save(store);
             log.info("스토어 저장 완료 - ID: {}", store.getId());
@@ -167,16 +185,15 @@ public class StoreService {
 
                 List<StoreImage> storeImages = storeImageService.uploadStoreImages(store, storeImageRequest);
                 log.info("이미지 업로드 완료 - 개수: {}", storeImages.size());
+                store.setStoreImages(storeImages);
 
                 int thumbnailIndex = request.thumbnailImage() != null ? request.thumbnailImage() : 0;
                 if (!storeImages.isEmpty() && thumbnailIndex >= 0 && thumbnailIndex < storeImages.size()) {
                     store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
-                    storeRepository.save(store);
                     log.info("썸네일 설정 완료: {}", store.getImageUrl());
                 }
+                storeRepository.save(store);
             }
-
-            //TODO save 두 번 사용하지 않도록 최적화
 
             return StoreResponse.from(store);
         } catch (Exception e) {

@@ -122,7 +122,10 @@
                     <div class="map-container">
                         <input type="hidden" id="latitude-hidden" th:value="${location.latitude}">
                         <input type="hidden" id="longitude-hidden" th:value="${location.longitude}">
-                        <div id="map" class="map-box"></div>
+                        <div class="map-wrap">
+                            <div id="map" class="map-box"></div>
+                        </div>
+
                         <div>
                             <p class="map-text-location" th:with="loc=*{location}">
                                 📍
