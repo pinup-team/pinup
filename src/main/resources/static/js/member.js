@@ -90,7 +90,15 @@ function generateNickname() {
 
 // 수정
 function updateAccount() {
+    const nicknameInput = document.getElementById('nickname');
     const nickname = document.getElementById('nickname').value;
+
+    if (nickname.length > 50 || !nickname) {
+        alert("닉네임은 1자 이상 50자 이하로 입력해주세요.");
+        nicknameInput.focus();
+        return;
+    }
+
     const updatedProfile = {
         name: profile.name,
         email: profile.email,
