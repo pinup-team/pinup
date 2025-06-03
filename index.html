@@ -444,7 +444,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h1>PinUp API Document</h1>
 <div class="details">
 <span id="author" class="author">PinUp team</span><br>
-<span id="revnumber">version 1.0.0</span>
+<span id="revnumber">version 1.0.1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -925,7 +925,7 @@ Expires: 0
 X-Frame-Options: DENY
 Content-Length: 364
 
-{"id":1,"storeId":null,"member":{"id":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"제목","content":"내용","thumbnail":"https://example.com/thumbnail.jpg","createdAt":"2025-05-18T13:52:02.465212546","updatedAt":"2025-05-18T13:52:02.465213929","commentCount":0}</code></pre>
+{"id":1,"storeId":null,"member":{"id":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"제목","content":"내용","thumbnail":"https://example.com/thumbnail.jpg","createdAt":"2025-06-03T06:06:49.883970471","updatedAt":"2025-06-03T06:06:49.883972185","commentCount":0}</code></pre>
 </div>
 </div>
 </div>
@@ -1205,7 +1205,7 @@ Expires: 0
 X-Frame-Options: DENY
 Content-Length: 386
 
-{"id":1,"storeId":null,"member":{"id":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"수정 제목","content":"수정 내용","thumbnail":"https://example.com/updated-thumbnail.jpg","createdAt":"2025-05-17T13:52:02.432525639","updatedAt":"2025-05-18T13:52:02.432536209","commentCount":0}</code></pre>
+{"id":1,"storeId":null,"member":{"id":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"수정 제목","content":"수정 내용","thumbnail":"https://example.com/updated-thumbnail.jpg","createdAt":"2025-06-02T06:06:49.854439597","updatedAt":"2025-06-03T06:06:49.854450367","commentCount":0}</code></pre>
 </div>
 </div>
 </div>
@@ -1759,11 +1759,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 131
+Content-Length: 144
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "title" : "제목을 입력하세요."
   }
@@ -1843,11 +1843,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 150
+Content-Length: 163
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "title" : "제목을 1~100자 이내로 입력하세요."
   }
@@ -1927,11 +1927,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 133
+Content-Length: 146
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "content" : "내용을 입력하세요."
   }
@@ -2073,11 +2073,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 131
+Content-Length: 144
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "title" : "제목을 입력하세요."
   }
@@ -2157,11 +2157,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 150
+Content-Length: 163
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "title" : "제목을 1~100자 이내로 입력하세요."
   }
@@ -2241,11 +2241,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 133
+Content-Length: 146
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "content" : "내용을 입력하세요."
   }
@@ -2726,13 +2726,13 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 141
+Content-Length: 173
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
-    "question" : "질문 내용을 입력하세요."
+    "question" : "질문 내용을 1~100자 이내로 입력하세요."
   }
 }</code></pre>
 </div>
@@ -2812,11 +2812,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 160
+Content-Length: 173
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "question" : "질문 내용을 1~100자 이내로 입력하세요."
   }
@@ -2898,11 +2898,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 139
+Content-Length: 152
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "answer" : "답변 내용을 입력하세요."
   }
@@ -2984,11 +2984,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 158
+Content-Length: 171
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "answer" : "답변 내용을 1~500자 이내로 입력하세요."
   }
@@ -3070,11 +3070,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 140
+Content-Length: 153
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "category" : "카테고리는 필수입니다."
   }
@@ -3220,11 +3220,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 160
+Content-Length: 173
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "question" : "질문 내용을 1~100자 이내로 입력하세요."
   }
@@ -3306,11 +3306,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 160
+Content-Length: 173
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "question" : "질문 내용을 1~100자 이내로 입력하세요."
   }
@@ -3392,13 +3392,13 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 139
+Content-Length: 171
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
-    "answer" : "답변 내용을 입력하세요."
+    "answer" : "답변 내용을 1~500자 이내로 입력하세요."
   }
 }</code></pre>
 </div>
@@ -3478,11 +3478,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 158
+Content-Length: 171
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "answer" : "답변 내용을 1~500자 이내로 입력하세요."
   }
@@ -3564,11 +3564,11 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 140
+Content-Length: 153
 
 {
   "status" : 400,
-  "message" : "잘못된 요청입니다.",
+  "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
     "category" : "카테고리는 필수입니다."
   }
@@ -3666,8 +3666,8 @@ Host: localhost:8080</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.0<br>
-Last updated 2025-05-18 13:50:19 UTC
+Version 1.0.1<br>
+Last updated 2025-06-03 06:04:49 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
