@@ -9,10 +9,12 @@ import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
 import kr.co.pinup.stores.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -23,19 +25,14 @@ public class StoreApiController {
 
     private final StoreService storeService;
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<StoreResponse> updateStore(@PathVariable Long id,
-                                                     @Valid @RequestPart StoreUpdateRequest request,
-                                                     @RequestPart(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
-
-        log.info("팝업스토어 수정 요청 - ID: {}", id);
-        return ResponseEntity.ok(storeService.updateStore(id, request, imageFiles));
-    }
-
-    @GetMapping("/summary")
-    public ResponseEntity<List<StoreSummaryResponse>> getStores() {
-        log.info("홈페이지 팝업스토어 목록 요청됨");
-        return ResponseEntity.ok(storeService.getStoreSummaries());
+    @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<StoreResponse> updateStore(
+            @PathVariable Long id,
+            @RequestPart("request") @Valid StoreUpdateRequest request,
+            @RequestPart(value = "imageFiles", required = false) MultipartFile[] imageFiles) {
+        List<MultipartFile> imageFileList = (imageFiles != null) ? Arrays.asList(imageFiles) : List.of();
+        StoreResponse updatedStore = storeService.updateStore(id, request, imageFileList);
+        return ResponseEntity.ok(updatedStore);
     }
 
     @GetMapping

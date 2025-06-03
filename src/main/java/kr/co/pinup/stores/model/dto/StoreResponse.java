@@ -2,6 +2,7 @@ package kr.co.pinup.stores.model.dto;
 
 import kr.co.pinup.locations.model.dto.LocationResponse;
 import kr.co.pinup.store_categories.model.dto.StoreCategoryResponse;
+import kr.co.pinup.store_images.StoreImage;
 import kr.co.pinup.store_operatingHour.model.dto.OperatingHourResponse;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.enums.Status;
@@ -25,7 +26,9 @@ public record StoreResponse(
         String contactNumber,
         String websiteUrl,
         String snsUrl,
-        List<OperatingHourResponse> operatingHours
+        List<OperatingHourResponse> operatingHours,
+        List<String> storeImages,
+        String thumbnailImage
 ) {
     public static StoreResponse from(Store store) {
         return new StoreResponse(
@@ -46,7 +49,11 @@ public record StoreResponse(
                 store.getOperatingHours().stream()
                         .map(o -> new OperatingHourResponse(
                                 o.getDay(), o.getStartTime(), o.getEndTime()
-                        )).toList()
+                        )).toList(),
+                store.getStoreImages().stream()
+                        .map(StoreImage::getImageUrl)
+                        .toList(),
+                store.getImageUrl()
         );
     }
 }

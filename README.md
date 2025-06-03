@@ -10,6 +10,7 @@
 
 </div>
 
+[![CI/CD Workflow](https://github.com/pinup-team/pinup/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/pinup-team/pinup/actions/workflows/ci-cd.yml)
 ## 🎥 프로젝트 소개
 팝업스토어 관련 정보를 공유하고, 사용자들이 자유롭게 소통할 수 있는 공간을 제공하는 사이트입니다.  
 사용자에게 팝업스토어의 다양한 정보를 빠르고 간편하게 볼 수 있도록 제공합니다.  
@@ -37,16 +38,17 @@
 ![fe-skill](https://github.com/user-attachments/assets/40d23d92-3e6d-4ef5-8406-20906ce489d5)
 
 ### 백엔드
-![be-skill.png](https://github.com/user-attachments/assets/d5b07718-6826-4a00-976d-f88305b8291a)
+![be-skill](https://github.com/user-attachments/assets/a4467314-ff42-4b1d-90d6-ebed1e5727d6)
 
 ### 인프라
-![infra-skill](https://github.com/user-attachments/assets/5d444b3f-e112-4514-b845-b511b2a414fe)
+![infra-skill](https://github.com/user-attachments/assets/2a5bfc7a-6102-4c89-8199-6186e9103fe7)
 
 ### 협업
 ![collabo-skill](https://github.com/user-attachments/assets/bfa9b99d-bdbb-448c-90d6-d9edc058e4d4)
 
 ## 💻 인프라 구조
-![infra-structure](https://github.com/user-attachments/assets/baef97f1-f427-4a5e-9a32-cb2a90288068)
+![infra-structure](https://github.com/user-attachments/assets/bc4d5d63-c30e-4b9b-ba89-268563244c6e)
+
 
 ## 📜 프로젝트 문서
 

@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'kr.co'
-version = '1.0.0'
+version = '1.0.1'
 
 java {
 	toolchain {
@@ -31,8 +31,9 @@ ext {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-aop'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
@@ -40,8 +41,9 @@ dependencies {
 	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
 	implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect'
 
-	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.postgresql:postgresql'
+
+	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
 	implementation platform('software.amazon.awssdk:bom:2.20.15')
@@ -55,7 +57,6 @@ dependencies {
 	implementation 'software.amazon.awssdk:secretsmanager:2.20.15'
 	implementation 'software.amazon.awssdk:auth:2.20.15'
 	implementation 'software.amazon.awssdk:regions:2.20.15'
-	implementation 'com.fasterxml.jackson.core:jackson-databind'
 
 	// oauth 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-security'
@@ -71,6 +72,10 @@ dependencies {
 	// wireMock
 	testImplementation 'org.wiremock:wiremock-standalone:3.9.1'
 
+	// logback cloudwatch
+	implementation 'ca.pjer:logback-awslogs-appender:1.6.0'
+	// logback json formatter output
+//	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 
 	testImplementation 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

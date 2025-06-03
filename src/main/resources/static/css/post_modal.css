@@ -48,9 +48,8 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 2vh;
+    padding: 2vh 0 0.5vh 0;
     color: black;
-    /*min-height: 900px;*/
     height: auto;
     position: relative;
 }
@@ -273,6 +272,10 @@ article.card header > div {
 
 /*** CONENT ***/
 .card-container {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: clamp(300px, calc(76vh - 60px), 1000px);
     padding: 0.5vh;
 }
 
@@ -298,13 +301,13 @@ article.card header > div {
 }
 
 .card-content {
+    flex: 1;
     padding: 0.3vh 0.5vh;
     font-size: 1.2vh;
     overflow-y: auto;
     word-break: break-word;
     overflow-wrap: break-word;
-    /*min-height: 380px;*/
-    max-height: 30vh;
+    min-height: 0;
 }
 
 .card-content li > div {
@@ -333,10 +336,8 @@ article.card header > div {
 
 /* 🔥 댓글 입력 박스 */
 .pinup-comment-box {
-    bottom: 0vh;
-    width: 28vw;
-    position: absolute;
-    height: 5vh;
+    flex-shrink: 0;
+    height: 4vh;
     border-top: 1px solid #e0e0e0;
     display: flex;  /* 버튼과 input을 한 줄 정렬 */
     align-items: center;

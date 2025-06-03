@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="esb" class="org.springframework.boot.logging.logback.EnclosedInSquareBracketsConverter"/>
+    <conversionRule conversionWord="wEx" class="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+
+    <property name="USER_HOME" value="${user.home}"/>
+    <property name="CONSOLE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr(%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd'T'HH:mm:ss.SSSXXX}}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}){} %clr(${PID:-}){magenta} %clr(--- %esb(){APPLICATION_NAME}%esb{APPLICATION_GROUP}[%15.15t] ${LOG_CORRELATION_PATTERN:-}){faint} %clr(%replace(%X{requestId}){'.+','[$0]'}){magenta} %clr(%replace(%X{nickname}){'.+','[$0]'}){magenta} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+    <property name="FILE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %clr(%-5level) %replace(%X{requestId}){'.+','[$0]'} %replace(%X{nickname}){'.+','[$0]'} %logger{36} - %msg%n"/>
+
+    <springProperty name="AWS_ACCESS_KEY" source="cloud.aws.credentials.accessKey"/>
+    <springProperty name="AWS_SECRET_KEY" source="cloud.aws.credentials.secretKey"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${USER_HOME}/logs/app.log</file>
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+        <!-- RollingPolicy: 로그가 길어지면 가독성이 떨어지므로 로그를 나눠서 기록하기 위한 규칙 -->
+        <!-- 로그 파일을 크기, 시간 기반으로 관리하기 위한 SizeAndTimeBasedRollingPolicy -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 로그 파일명 패턴 -->
+            <!-- 날짜별로 기록되며 maxFileSize를 넘기면 인덱스(i)를 증가시켜 새로운 이름의 로그 파일에 기록을 이어간다 -->
+            <fileNamePattern>${USER_HOME}/logs/app.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 로그 파일 최대 사이즈 -->
+            <maxFileSize>500MB</maxFileSize>
+            <!-- 생성한 로그 파일 관리 일수 -->
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+<!--      TODO : log json formatter output (추후에 반영) -->
+<!--        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+<!--            <providers>-->
+<!--                <timestamp>-->
+<!--                    <fieldName>timestamp</fieldName>-->
+<!--                </timestamp>-->
+<!--                <logLevel />-->
+<!--                <loggerName />-->
+<!--                <threadName />-->
+<!--                <message />-->
+<!--                <arguments />-->
+<!--                <stackTrace />-->
+<!--            </providers>-->
+<!--        </encoder>-->
+    </appender>
+
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <appender name="AWS_CLOUD_WATCH" class="ca.pjer.logback.AwsLogsAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <logGroupName>pinup-log-group</logGroupName>
+        <logStreamUuidPrefix>pinup-log</logStreamUuidPrefix>
+        <logRegion>ap-northeast-2</logRegion>
+        <maxBatchLogEvents>50</maxBatchLogEvents>
+        <maxFlushTimeMillis>30000</maxFlushTimeMillis>
+        <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+        <retentionTimeDays>0</retentionTimeDays>
+        <accessKeyId>${AWS_ACCESS_KEY}</accessKeyId>
+        <secretAccessKey>${AWS_SECRET_KEY}</secretAccessKey>
+    </appender>
+
+    <springProfile name="local">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+
+        <logger name="kr.co.pinup" level="DEBUG" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+        </logger>
+    </springProfile>
+
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_FILE"/>
+            <appender-ref ref="AWS_CLOUD_WATCH"/>
+        </root>
+    </springProfile>
+
+    <!-- additivity: 부모 로거로 로그를 전파하지 않는다 -->
+    <!-- 이 로거(package)에 지정된 Appender만 사용하고, 루트 로거(root)가 가진 CONSOLE 콘솔 Appender는 절대 사용하지 않는다 -->
+    <logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <logger name="org.hibernate.type" level="TRACE" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <logger name="org.hibernate.type.descriptor.sql" level="TRACE" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+</configuration>
