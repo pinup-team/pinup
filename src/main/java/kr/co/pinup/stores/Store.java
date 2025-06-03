@@ -63,7 +63,7 @@ public class Store extends BaseEntity {
     @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN default false")
     private boolean deleted;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "INTEGER DEFAULT 0")
     @Builder.Default
     private Integer thumbnailIndex = 0;
 
