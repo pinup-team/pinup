@@ -2,6 +2,7 @@ package kr.co.pinup.members.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.pinup.members.custom.WithMockMember;
+import kr.co.pinup.members.model.dto.MemberApiResponse;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.dto.MemberResponse;
@@ -12,7 +13,6 @@ import kr.co.pinup.oauth.OAuthService;
 import kr.co.pinup.security.SecurityUtil;
 import kr.co.pinup.support.RestDocsSupport;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,13 +37,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = MemberApiController.class)
 @ExtendWith(RestDocumentationExtension.class)
@@ -58,6 +56,9 @@ class MemberApiControllerDocsTest {
 
     @Autowired
     MemberService memberService;
+
+    @Autowired
+    SecurityUtil securityUtil;
 
     @Autowired
     RestDocumentationResultHandler restDocs;
@@ -133,7 +134,11 @@ class MemberApiControllerDocsTest {
     @WithMockMember
     @DisplayName("PATCH /api/members - 닉네임 수정 문서화")
     void update_document() throws Exception {
-        when(memberService.update(any(MemberInfo.class), any(MemberRequest.class))).thenReturn(response);
+        when(memberService.update(any(MemberInfo.class), any(MemberRequest.class)))
+                .thenReturn(response);
+
+        MemberApiResponse expectedResponse =
+                MemberApiResponse.builder().code(200).message("닉네임이 변경되었습니다.").build();
 
         mockMvc.perform(patch("/api/members")
                         .header("Authorization", "Bearer testToken")
@@ -142,20 +147,20 @@ class MemberApiControllerDocsTest {
                         .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(content().string("닉네임이 변경되었습니다."))
-                .andDo(document("닉네임이 변경되었습니다."));
-//                .andDo(document("members-update-nickname",
-//                        requestFields(
-//                                fieldWithPath("name").description("이름"),
-//                                fieldWithPath("email").description("이메일"),
-//                                fieldWithPath("nickname").description("변경할 닉네임"),
-//                                fieldWithPath("providerType").description("OAuth 제공자")
-//                        ),
-//                        responseFields(
-//                                fieldWithPath(".")
-//                                        .description("닉네임 변경 결과 메시지 (예: '닉네임이 변경되었습니다.')")
-//                        )
-//                ));
+                .andExpect(jsonPath("$.code").value(expectedResponse.code()))
+                .andExpect(jsonPath("$.message").value(expectedResponse.message()))
+                .andDo(document("members-update-nickname",
+                        requestFields(
+                                fieldWithPath("name").description("이름"),
+                                fieldWithPath("email").description("이메일"),
+                                fieldWithPath("nickname").description("변경할 닉네임"),
+                                fieldWithPath("providerType").description("OAuth 제공자")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").description("응답 코드"),
+                                fieldWithPath("message").description("닉네임 변경 결과 메시지")
+                        )
+                ));
     }
 
     @Test
@@ -164,30 +169,54 @@ class MemberApiControllerDocsTest {
     void disableMember_document() throws Exception {
         when(memberService.disable(any(MemberInfo.class), any(MemberRequest.class))).thenReturn(true);
 
+        MemberApiResponse expectedResponse =
+                MemberApiResponse.builder().code(200).message("탈퇴되었습니다. 이용해주셔서 감사합니다.").build();
+
         mockMvc.perform(delete("/api/members")
                         .header("Authorization", "Bearer testToken")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(request))
+                        .with(csrf()))
                 .andExpect(status().isOk())
-                .andDo(document("탈퇴 성공")
-                );
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(expectedResponse.code()))
+                .andExpect(jsonPath("$.message").value(expectedResponse.message()))
+                .andDo(document("members-disable",
+                        requestFields(
+                                fieldWithPath("name").description("이름"),
+                                fieldWithPath("email").description("이메일"),
+                                fieldWithPath("nickname").description("변경할 닉네임"),
+                                fieldWithPath("providerType").description("OAuth 제공자")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").description("응답 코드"),
+                                fieldWithPath("message").description("탈퇴 결과 메시지")
+                        )
+                ));
     }
 
     @Test
     @WithMockMember
     @DisplayName("POST /api/members/logout - 로그아웃 문서화")
-    @Disabled
     void logoutMember_document() throws Exception {
         when(memberService.logout(any(OAuthProvider.class), any(String.class))).thenReturn(true);
+        when(securityUtil.getAccessTokenFromSecurityContext()).thenReturn("testToken");
+
+        MemberApiResponse expectedResponse =
+                MemberApiResponse.builder().code(200).message("로그아웃에 성공하였습니다.").build();
 
         mockMvc.perform(post("/api/members/logout")
-                        .header("Authorization", "Bearer testToken"))
+                        .header("Authorization", "Bearer testToken")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(content().string("로그아웃 성공"))
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(expectedResponse.code()))
+                .andExpect(jsonPath("$.message").value(expectedResponse.message()))
                 .andDo(document("members-logout",
                         responseFields(
-                                fieldWithPath(".")
-                                        .description("로그아웃 성공 메시지 (예: '로그아웃 성공')")
+                                fieldWithPath("code").description("응답 코드"),
+                                fieldWithPath("message").description("로그아웃 결과 메시지")
                         )
                 ));
     }
