@@ -185,7 +185,7 @@ class MemberApiControllerDocsTest {
                         requestFields(
                                 fieldWithPath("name").description("이름"),
                                 fieldWithPath("email").description("이메일"),
-                                fieldWithPath("nickname").description("변경할 닉네임"),
+                                fieldWithPath("nickname").description("닉네임"),
                                 fieldWithPath("providerType").description("OAuth 제공자")
                         ),
                         responseFields(
