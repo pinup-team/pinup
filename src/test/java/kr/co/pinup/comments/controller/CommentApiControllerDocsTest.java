@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.model.dto.CreateCommentRequest;
 import kr.co.pinup.comments.service.CommentService;
+import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.enums.MemberRole;
@@ -48,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = CommentApiController.class)
 @ExtendWith(RestDocumentationExtension.class)
-@Import({CommentApiControllerDocsTest.MockConfig.class, CommentApiControllerDocsTest.SecurityConfig.class, RestDocsSupport.class})
+@Import({CommentApiControllerDocsTest.MockConfig.class, CommentApiControllerDocsTest.SecurityConfig.class, RestDocsSupport.class, LoggerConfig.class})
 class CommentApiControllerDocsTest {
 
     @Autowired MockMvc mockMvc;
