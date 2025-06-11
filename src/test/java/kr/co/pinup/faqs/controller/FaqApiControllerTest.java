@@ -1,6 +1,7 @@
 package kr.co.pinup.faqs.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.faqs.exception.FaqNotFound;
 import kr.co.pinup.faqs.model.dto.FaqCreateRequest;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
@@ -56,7 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 OAuth2ClientAutoConfiguration.class
         })
 @ExtendWith(RestDocumentationExtension.class)
-@Import(RestDocsSupport.class)
+@Import({RestDocsSupport.class, LoggerConfig.class})
 class FaqApiControllerTest {
 
     @Autowired

@@ -2,8 +2,12 @@ package kr.co.pinup.exception;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
+import kr.co.pinup.custom.logging.AppLogger;
+import kr.co.pinup.custom.logging.model.dto.ErrorLog;
+import kr.co.pinup.custom.logging.model.dto.WarnLog;
 import kr.co.pinup.members.exception.MemberBadRequestException;
 import kr.co.pinup.members.exception.OAuthLoginCanceledException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,13 +28,17 @@ import static org.springframework.http.HttpStatus.*;
 
 @Slf4j
 @ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final AppLogger appLogger;
 
     @ResponseBody
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ErrorResponse> invalidRequestHandler(BindException ex) {
         int status = BAD_REQUEST.value();
+
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(status)
                 .message("잘못된 요청입니다.")
@@ -39,6 +47,14 @@ public class GlobalExceptionHandler {
         for (FieldError fieldError : ex.getFieldErrors()) {
             errorResponse.addValidation(fieldError.getField(), fieldError.getDefaultMessage());
         }
+
+        appLogger.warn(
+                new WarnLog("요청 파라미터 유효성 오류")
+                        .setStatus(String.valueOf(status))
+                        .addDetails("reason", "validation failure","invalidField", ex.getFieldErrors().toString())
+        );
+
+
 
         return ResponseEntity.status(status)
                 .body(errorResponse);
@@ -49,6 +65,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MemberBadRequestException.class)
     public ResponseEntity<ErrorResponse> memberBadRequestHandler(MemberBadRequestException ex) {
         int status = BAD_REQUEST.value();
+
+        appLogger.warn(
+                new WarnLog("멤버 잘못된 요청: " + ex.getMessage())
+                        .setStatus(String.valueOf(status))
+                        .addDetails("reason", ex.getMessage())
+
+        );
+
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .status(status)
                 .message(ex.getMessage())
@@ -61,8 +85,16 @@ public class GlobalExceptionHandler {
     @ResponseStatus(FORBIDDEN)
     @ExceptionHandler(AccessDeniedException.class)
     public String accessDeniedHandler(AccessDeniedException ex, Model model) {
+        int status = FORBIDDEN.value();
+
+        appLogger.error(
+                new ErrorLog("접근 거부", ex)
+                        .setStatus(String.valueOf(status))
+
+        );
+
         model.addAttribute("error", ErrorResponse.builder()
-                .status(FORBIDDEN.value())
+                .status(status)
                 .message("접근 권한이 없습니다.")
                 .build());
 
@@ -72,13 +104,28 @@ public class GlobalExceptionHandler {
     @ResponseStatus(BAD_REQUEST)
     @ExceptionHandler(OAuthLoginCanceledException.class)
     public String loginCanceledHandler(OAuthLoginCanceledException ex) {
-        log.debug("login canceled");
+        int status = BAD_REQUEST.value();
+
+        appLogger.warn(
+                new WarnLog("OAuth 로그인 취소")
+                        .setStatus(String.valueOf(status))
+
+        );
+
         return "index";
     }
 
     @ExceptionHandler(GlobalCustomException.class)
     public String customException(GlobalCustomException ex, HttpServletResponse response, Model model) {
         int status = ex.getHttpStatusCode();
+
+        appLogger.error(
+                new ErrorLog("커스텀 예외 발생", ex)
+                        .setStatus(String.valueOf(status))
+                        .addDetails("validation", ex.getValidation().toString())
+
+        );
+
         model.addAttribute("error", ErrorResponse.builder()
                 .status(status)
                 .message(ex.getMessage())
@@ -93,8 +140,14 @@ public class GlobalExceptionHandler {
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public String exception(Exception ex, HttpServletResponse response, Model model) {
-        log.error("[Exception]", ex);
         int status = INTERNAL_SERVER_ERROR.value();
+
+        appLogger.error(
+                new ErrorLog("서버 내부 오류", ex)
+                        .setStatus(String.valueOf(status))
+
+        );
+
         model.addAttribute("error", ErrorResponse.builder()
                 .status(status)
                 .message(ex.getMessage())
@@ -107,22 +160,38 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex) {
-        log.warn("[ConstraintViolationException] {}", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), null));
+        int status = BAD_REQUEST.value();
+
+        appLogger.warn(
+                new WarnLog("제약조건 위반")
+                        .setStatus(String.valueOf(status))
+                        .addDetails("reason", ex.getMessage())
+        );
+
+        return ResponseEntity.status(status)
+                .body(new ErrorResponse(status, ex.getMessage(), null));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
+        int status = BAD_REQUEST.value();
+
         Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
                         FieldError::getDefaultMessage,
-                        (existing, replacement) -> existing // 중복 필드 처리
+                        (existing, replacement) -> existing
                 ));
 
+        appLogger.warn(
+                new WarnLog("입력값 유효성 오류")
+                        .setStatus(String.valueOf(status))
+                        .addDetails("reason", "invalid input","invalidFields", errors.toString())
+
+        );
+
         ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
+                status,
                 "입력값이 유효하지 않습니다.",
                 errors
         );
