@@ -2,7 +2,7 @@ package kr.co.pinup.postImages.service;
 
 import jakarta.transaction.Transactional;
 import kr.co.pinup.custom.s3.S3Service;
-import kr.co.pinup.custom.s3.exception.s3.ImageDeleteFailedException;
+import kr.co.pinup.custom.s3.exception.ImageDeleteFailedException;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageDeleteFailedException;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;

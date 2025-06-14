@@ -1,4 +1,4 @@
-package kr.co.pinup.custom.s3.exception.s3;
+package kr.co.pinup.custom.s3.exception;
 
 import kr.co.pinup.exception.GlobalCustomException;
 import org.springframework.http.HttpStatus;
