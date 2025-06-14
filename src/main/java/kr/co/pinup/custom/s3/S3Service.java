@@ -1,7 +1,7 @@
 package kr.co.pinup.custom.s3;
 
-import kr.co.pinup.custom.s3.exception.s3.ImageDeleteFailedException;
-import kr.co.pinup.custom.s3.exception.s3.ImageUploadException;
+import kr.co.pinup.custom.s3.exception.ImageDeleteFailedException;
+import kr.co.pinup.custom.s3.exception.ImageUploadException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

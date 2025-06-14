@@ -1,7 +1,8 @@
 package kr.co.pinup.locations.service;
 
 import jakarta.transaction.Transactional;
-import kr.co.pinup.api.kakao.KakaoMapService;
+import kr.co.pinup.api.kakao.KakaoApiService;
+import kr.co.pinup.api.kakao.model.dto.KakaoAddressDocument;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.exception.LocationNotFoundException;
 import kr.co.pinup.locations.model.dto.CreateLocationRequest;
@@ -11,9 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
-
 @Slf4j
 @Service
 @Transactional
@@ -21,45 +19,41 @@ import java.util.Map;
 public class LocationService  {
 
     private final LocationRepository locationRepository;
-    private final KakaoMapService kakaoMapService;
+    private final KakaoApiService kakaoApiService;
 
-    public LocationResponse createLocation(CreateLocationRequest locationRequest) {
+    public LocationResponse createLocation(CreateLocationRequest request) {
 
-        Map<String, String> geo = kakaoMapService.searchLatLng(locationRequest.address());
+        final KakaoAddressDocument kakaoAddressDocument = kakaoApiService.searchAddress(request.address());
+        log.debug("LocationService.createLocation kakaoAddressDocument={}", kakaoAddressDocument);
 
-        log.info("카카오맵 좌표 응답: {}", geo);
-
-        if (!geo.containsKey("lat") || !geo.containsKey("lng")) {
-            throw new IllegalArgumentException("카카오 지도 API로부터 위도/경도 정보를 가져오지 못했습니다.");
-        }
-
-        Double latitude = Double.valueOf(geo.get("lat"));
-        Double longitude = Double.valueOf(geo.get("lng"));
-
-        Location location = Location.builder()
-                .name(locationRequest.name())
-                .zoneCode(locationRequest.zoneCode())
-                .state(locationRequest.state())
-                .district(locationRequest.district())
-                .latitude(latitude)
-                .longitude(longitude)
-                .address(locationRequest.address())
-                .addressDetail(locationRequest.addressDetail())
-                .build();
-
+        Location location = locationBuilder(request, kakaoAddressDocument);
         Location savedLocation = locationRepository.save(location);
 
         return LocationResponse.from(savedLocation);
-
     }
 
     public LocationResponse getLocationId(Long id) {
-
         Location location = locationRepository.findById(id)
                     .orElseThrow(LocationNotFoundException::new);
 
             return LocationResponse.from(location);
 
+    }
+
+    private Location locationBuilder(
+            final CreateLocationRequest request,
+            final KakaoAddressDocument addressDocument
+    ) {
+        return Location.builder()
+                .name(addressDocument.addressName())
+                .zoneCode(request.zoneCode())
+                .state(request.state())
+                .district(request.district())
+                .latitude(addressDocument.latitude())
+                .longitude(addressDocument.longitude())
+                .address(request.address())
+                .addressDetail(request.addressDetail())
+                .build();
     }
 
 }
