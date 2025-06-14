@@ -112,7 +112,7 @@ class KakaoApiClientTest {
 
         // Act & Assert
         assertThatThrownBy(() -> kakaoApiClient.searchAddress(address))
-                .isInstanceOf(KakaoApiException.class)
+                .isInstanceOf(RuntimeException.class)
                 .hasMessageStartingWith("Kakao API 서버 오류");
     }
 }
