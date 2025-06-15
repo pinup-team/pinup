@@ -100,8 +100,7 @@ tasks.named('test') {
 	outputs.dir snippetsDir
 
 	// TODO: fail로 인해 잠시 제외
-	exclude '**/MemberApiControllerTest.class'
-	exclude '**/MemberControllerTest.class'
+	exclude '**/MemberApiControllerIntegrationTest.class'
 	exclude '**/MockSecurityContextTest.class'
 	exclude '**/GoogleOAuthTest.class'
 	exclude '**/NaverOAuthTest.class'

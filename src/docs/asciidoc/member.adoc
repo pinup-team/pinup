@@ -1,0 +1,17 @@
+= Member API
+
+== 닉네임 생성
+
+operation::generatedNickname[snippets='curl-request,http-request,http-response']
+
+== 닉네임 수정
+
+operation::members-update-nickname[snippets='curl-request,request-fields,http-request,http-response,response-fields']
+
+== 회원 탈퇴
+
+operation::members-disable[snippets='curl-request,request-fields,http-request,http-response,response-fields']
+
+== 로그아웃
+
+operation::members-logout[snippets='curl-request,http-request,http-response,response-fields']

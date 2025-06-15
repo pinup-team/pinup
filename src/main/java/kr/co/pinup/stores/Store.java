@@ -6,7 +6,6 @@ import kr.co.pinup.locations.Location;
 import kr.co.pinup.store_categories.StoreCategory;
 import kr.co.pinup.store_images.StoreImage;
 import kr.co.pinup.store_operatingHour.OperatingHour;
-import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
 import kr.co.pinup.stores.model.enums.Status;
 import lombok.*;
 
