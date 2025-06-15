@@ -1,6 +1,7 @@
 package kr.co.pinup.members.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.dto.MemberApiResponse;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -45,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = MemberApiController.class)
 @ExtendWith(RestDocumentationExtension.class)
-@Import({MemberApiControllerDocsTest.MockConfig.class, MemberApiControllerDocsTest.SecurityConfig.class, RestDocsSupport.class})
+@Import({MemberApiControllerDocsTest.MockConfig.class, MemberApiControllerDocsTest.SecurityConfig.class, RestDocsSupport.class, LoggerConfig.class})
 class MemberApiControllerDocsTest {
 
     @Autowired

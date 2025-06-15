@@ -2,6 +2,7 @@ package kr.co.pinup.members.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
+import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
@@ -38,7 +39,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(SecurityConfigTest.class)
+@Import({SecurityConfigTest.class, LoggerConfig.class})
 @WebMvcTest(MemberApiController.class)
 public class MemberApiControllerSliceTest {
 
