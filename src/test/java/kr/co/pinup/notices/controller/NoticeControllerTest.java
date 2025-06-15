@@ -1,5 +1,6 @@
 package kr.co.pinup.notices.controller;
 
+import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.notices.exception.NoticeNotFound;
 import kr.co.pinup.notices.model.dto.NoticeResponse;
@@ -41,6 +42,9 @@ class NoticeControllerTest {
 
     @MockitoBean
     private NoticeService noticeService;
+
+    @MockitoBean
+    private AppLogger appLogger;
 
     @DisplayName("공지사항 list 페이지 뷰를 반환한다.")
     @Test

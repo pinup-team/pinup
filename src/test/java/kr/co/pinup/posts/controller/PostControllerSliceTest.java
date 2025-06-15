@@ -1,6 +1,7 @@
 package kr.co.pinup.posts.controller;
 
 import kr.co.pinup.comments.service.CommentService;
+import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.exception.ErrorResponse;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
@@ -36,7 +37,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = PostController.class, excludeAutoConfiguration = ThymeleafAutoConfiguration.class)
-@Import({PostControllerSliceTest.TestConfig.class, PostControllerSliceTest.TestSecurityConfig.class, PostControllerSliceTest.TestGlobalExceptionHandler.class})
+@Import({PostControllerSliceTest.TestConfig.class, PostControllerSliceTest.TestSecurityConfig.class, PostControllerSliceTest.TestGlobalExceptionHandler.class, LoggerConfig.class})
 @AutoConfigureMockMvc(addFilters = true)
 class PostControllerSliceTest {
 

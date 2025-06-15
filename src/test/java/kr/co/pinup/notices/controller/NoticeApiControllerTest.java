@@ -1,6 +1,7 @@
 package kr.co.pinup.notices.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.notices.exception.NoticeNotFound;
@@ -53,7 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 OAuth2ClientAutoConfiguration.class
         })
 @ExtendWith(RestDocumentationExtension.class)
-@Import(RestDocsSupport.class)
+@Import({RestDocsSupport.class, LoggerConfig.class})
 class NoticeApiControllerTest {
 
     @Autowired
