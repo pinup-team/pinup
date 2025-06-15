@@ -37,21 +37,6 @@ public class SessionExpirationFilter extends OncePerRequestFilter {
 //            return;
 //        }
 
-        // MDC
-        try {
-            MDC.put("requestId", getRequestId(request));
-
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getPrincipal() instanceof final MemberInfo memberInfo) {
-                MDC.put("nickname", memberInfo.nickname());
-            }
-
-            log.info("MDC get requestId: {}", MDC.get("requestId"));
-            log.info("MDC get nickname: {}", MDC.get("nickname"));
-        } finally {
-            MDC.clear();
-        }
-
         if (isExcluded(requestURI)) {
             chain.doFilter(request, response);
             return;
