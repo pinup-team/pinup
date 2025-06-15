@@ -2,7 +2,7 @@ package kr.co.pinup.postImages.service;
 
 import jakarta.transaction.Transactional;
 import kr.co.pinup.custom.s3.S3Service;
-import kr.co.pinup.custom.s3.exception.s3.ImageDeleteFailedException;
+import kr.co.pinup.custom.s3.exception.ImageDeleteFailedException;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
 import kr.co.pinup.members.Member;
