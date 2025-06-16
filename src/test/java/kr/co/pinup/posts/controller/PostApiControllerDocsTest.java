@@ -3,6 +3,7 @@ package kr.co.pinup.posts.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.service.CommentService;
+import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.WithMockMember;
@@ -50,7 +51,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(PostApiController.class)
 @AutoConfigureRestDocs(outputDir = "build/generated-snippets")
-@Import({PostApiControllerDocsTest.MockConfig.class, PostApiControllerDocsTest.SecurityConfig.class})
+@Import({PostApiControllerDocsTest.MockConfig.class, PostApiControllerDocsTest.SecurityConfig.class, LoggerConfig.class})
 class PostApiControllerDocsTest {
 
     @Autowired MockMvc mockMvc;

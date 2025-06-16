@@ -2,9 +2,11 @@ package kr.co.pinup.members.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
+import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
+import kr.co.pinup.members.model.dto.MemberApiResponse;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.dto.MemberResponse;
@@ -32,11 +34,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@Import(SecurityConfigTest.class)
+@Import({SecurityConfigTest.class, LoggerConfig.class})
 @WebMvcTest(MemberApiController.class)
 public class MemberApiControllerSliceTest {
 
@@ -113,12 +116,17 @@ public class MemberApiControllerSliceTest {
 
         when(memberService.update(any(MemberInfo.class), any(MemberRequest.class))).thenReturn(updatedMemberResponse);
 
+        MemberApiResponse expectedResponse =
+                MemberApiResponse.builder().code(200).message("닉네임이 변경되었습니다.").build();
+
         mockMvc.perform(patch("/api/members")
+                        .header("Authorization", "Bearer testToken")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(memberRequest)))
-                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string("닉네임이 변경되었습니다."));
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(expectedResponse.code()))
+                .andExpect(jsonPath("$.message").value(expectedResponse.message()));
     }
 
     @Test
@@ -129,12 +137,17 @@ public class MemberApiControllerSliceTest {
 
         when(memberService.disable(any(MemberInfo.class), any(MemberRequest.class))).thenReturn(true);
 
+        MemberApiResponse expectedResponse =
+                MemberApiResponse.builder().code(200).message("탈퇴되었습니다. 이용해주셔서 감사합니다.").build();
+
         mockMvc.perform(delete("/api/members")
+                        .header("Authorization", "Bearer testToken")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(memberRequest)))
-                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string("탈퇴 성공"));
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(expectedResponse.code()))
+                .andExpect(jsonPath("$.message").value(expectedResponse.message()));
     }
 
     @Test
@@ -143,9 +156,16 @@ public class MemberApiControllerSliceTest {
     void testLogout() throws Exception {
         when(memberService.logout(any(OAuthProvider.class), any(String.class))).thenReturn(true);
 
-        mockMvc.perform(post("/api/members/logout"))
+        MemberApiResponse expectedResponse =
+                MemberApiResponse.builder().code(200).message("로그아웃에 성공하였습니다.").build();
+
+        mockMvc.perform(post("/api/members/logout")
+                        .header("Authorization", "Bearer testToken")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("로그아웃 성공"));
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(expectedResponse.code()))
+                .andExpect(jsonPath("$.message").value(expectedResponse.message()));
     }
 
     @Test
@@ -154,9 +174,16 @@ public class MemberApiControllerSliceTest {
     void testLogoutWithoutLoginInfo() throws Exception {
         when(memberService.logout(any(OAuthProvider.class), any(String.class))).thenReturn(false);
 
-        mockMvc.perform(post("/api/members/logout"))
+        MemberApiResponse expectedResponse =
+                MemberApiResponse.builder().code(400).message("로그아웃에 실패하였습니다.\n관리자에게 문의해주세요.").build();
+
+        mockMvc.perform(post("/api/members/logout")
+                        .header("Authorization", "Bearer testToken")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("로그아웃 실패"));
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(expectedResponse.code()))
+                .andExpect(jsonPath("$.message").value(expectedResponse.message()));
     }
 
     @Test

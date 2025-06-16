@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import kr.co.pinup.custom.loginMember.LoginMember;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
+import kr.co.pinup.members.model.dto.MemberApiResponse;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.dto.MemberResponse;
@@ -93,28 +94,27 @@ public class MemberApiController {
     public ResponseEntity<?> update(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
         MemberResponse updatedMemberResponse = memberService.update(memberInfo, memberRequest);
         if (updatedMemberResponse != null && updatedMemberResponse.getNickname().equals(memberRequest.nickname())) {
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body("닉네임이 변경되었습니다.");
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(MemberApiResponse.builder().code(200).message("닉네임이 변경되었습니다.").build());
         } else {
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body("닉네임 변경 실패");
+            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(MemberApiResponse.builder().code(400).message("닉네임 변경에 실패하였습니다.\n관리자에게 문의해주세요.").build());
         }
     }
 
     @DeleteMapping
     public ResponseEntity<?> disable(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
         if (memberService.disable(memberInfo, memberRequest)) {
-            return ResponseEntity.ok().body("탈퇴 성공");
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(MemberApiResponse.builder().code(200).message("탈퇴되었습니다. 이용해주셔서 감사합니다.").build());
         } else {
-            return ResponseEntity.badRequest().body("사용자 탈퇴 실패");
+            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(MemberApiResponse.builder().code(200).message("탈퇴에 실패하였습니다.\n관리자에게 문의해주세요.").build());
         }
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@LoginMember MemberInfo memberInfo) {
         if (memberService.logout(memberInfo.provider(), securityUtil.getAccessTokenFromSecurityContext())) {
-            return ResponseEntity.ok()
-                    .body("로그아웃 성공");
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(MemberApiResponse.builder().code(200).message("로그아웃에 성공하였습니다.").build());
         } else {
-            return ResponseEntity.badRequest().body("로그아웃 실패");
+            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(MemberApiResponse.builder().code(400).message("로그아웃에 실패하였습니다.\n관리자에게 문의해주세요.").build());
         }
     }
 }
