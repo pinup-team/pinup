@@ -16,10 +16,12 @@ import kr.co.pinup.oauth.OAuthToken;
 import kr.co.pinup.oauth.naver.NaverToken;
 import kr.co.pinup.security.SecurityUtil;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,9 +36,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+//@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class SecurityUtilTest {
-    MockMvc mockMvc;
 
     @Mock
     private OAuthService oAuthService;
@@ -57,7 +59,6 @@ public class SecurityUtilTest {
     @BeforeEach
     public void setUp() {
         MockitoAnnotations.openMocks(this); // Mock 객체 초기화
-        mockMvc = MockMvcBuilders.standaloneSetup(securityUtil).build();
 
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
@@ -67,6 +68,11 @@ public class SecurityUtilTest {
         accessToken = "valid-access-token";
 
         RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request, response));
+    }
+
+    @AfterEach
+    void tearDown() {
+        SecurityContextHolder.clearContext();
     }
 
     @Nested
@@ -105,7 +111,7 @@ public class SecurityUtilTest {
     class AuthenticationTests {
         @Test
         @DisplayName("인증 정보 설정")
-        public void testSetAuthentication() {
+        public void shouldSetAuthenticationToSecurityContext_WhenValidToken() {
             SecurityContextHolder.clearContext();
             OAuthToken oAuthToken = NaverToken.builder()
                     .accessToken(accessToken)
@@ -126,22 +132,6 @@ public class SecurityUtilTest {
             assertNotNull(currentAuth);
             assertEquals(memberInfo, (currentAuth.getPrincipal()));
             assertEquals(oAuthToken.getAccessToken(), currentAuth.getDetails());
-        }
-
-        @Test
-        @WithMockMember
-        @DisplayName("인증 정보 가져오기_성공")
-        public void testGetAuthentication_Authenticated1() {
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(memberInfo, null, memberInfo.getAuthorities());
-
-            authentication.setDetails(accessToken);
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            Authentication auth = securityUtil.getAuthentication();
-            assertNotNull(auth);
-            assertEquals("네이버TestMember", ((MemberInfo) auth.getPrincipal()).nickname());
         }
 
         @Test
