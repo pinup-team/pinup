@@ -1,7 +1,6 @@
 package kr.co.pinup.stores.controller;
 
 import jakarta.validation.Valid;
-import kr.co.pinup.api.kakao.KakaoApiKeyProperties;
 import kr.co.pinup.locations.service.LocationService;
 import kr.co.pinup.store_categories.service.CategoryService;
 import kr.co.pinup.store_images.service.StoreImageService;
@@ -31,7 +30,6 @@ public class StoreController {
     private final CategoryService categoryService;
     private final LocationService locationService;
     private final StoreImageService storeImageService;
-    private final KakaoApiKeyProperties kakaoProps;
 
     @GetMapping
     public String listStores(@RequestParam(required = false) String status, Model model) {

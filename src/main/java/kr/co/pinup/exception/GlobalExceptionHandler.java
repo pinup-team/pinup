@@ -2,6 +2,8 @@ package kr.co.pinup.exception;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
+import kr.co.pinup.api.aws.exception.SecretsManagerFetchException;
+import kr.co.pinup.api.kakao.exception.KakaoApiException;
 import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.custom.logging.model.dto.ErrorLog;
 import kr.co.pinup.custom.logging.model.dto.WarnLog;
@@ -113,6 +115,34 @@ public class GlobalExceptionHandler {
         );
 
         return "index";
+    }
+
+    @ResponseBody
+    @ExceptionHandler(KakaoApiException.class)
+    public ResponseEntity<ErrorResponse> kakaoApiHandler(KakaoApiException ex) {
+        log.warn("[KakaoApiException] ", ex);
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(BAD_REQUEST.value())
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.badRequest()
+                .body(errorResponse);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(SecretsManagerFetchException.class)
+    public ResponseEntity<ErrorResponse> secretsManagerFetchHandler(SecretsManagerFetchException ex) {
+        log.error("[SecretsManagerFetchException] ", ex);
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(INTERNAL_SERVER_ERROR.value())
+                .message(ex.getMessage())
+                .build();
+
+        return ResponseEntity.internalServerError()
+                .body(errorResponse);
     }
 
     @ExceptionHandler(GlobalCustomException.class)

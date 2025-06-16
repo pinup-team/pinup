@@ -1,10 +1,12 @@
 package kr.co.pinup;
 
+import kr.co.pinup.config.KakaoWebClientConfigTest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -14,6 +16,7 @@ import static junit.framework.TestCase.assertNotNull;
 @SpringBootTest
 @DirtiesContext
 @ActiveProfiles("test")
+@Import(KakaoWebClientConfigTest.class)
 public class PinupApplicationTests {
 
 	@Value("${spring.datasource.url}")
