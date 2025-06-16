@@ -19,3 +19,5 @@ include::comment.adoc[]
 include::notice.adoc[]
 
 include::faq.adoc[]
+
+include::member.adoc[]
