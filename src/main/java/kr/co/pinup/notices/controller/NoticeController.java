@@ -35,6 +35,8 @@ public class NoticeController {
 
     @GetMapping("/{noticeId}")
     public String detail(@PathVariable Long noticeId, Model model) {
+        log.debug("detail method noticeId={}", noticeId);
+
         model.addAttribute("notice", noticeService.find(noticeId));
 
         return VIEW_PATH + "/detail";
@@ -43,6 +45,8 @@ public class NoticeController {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @GetMapping("/{noticeId}/update")
     public String update(@PathVariable Long noticeId, Model model) {
+        log.debug("update method noticeId={}", noticeId);
+
         model.addAttribute("notice", noticeService.find(noticeId));
 
         return VIEW_PATH + "/update";

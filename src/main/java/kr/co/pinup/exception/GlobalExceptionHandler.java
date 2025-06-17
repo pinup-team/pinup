@@ -72,7 +72,6 @@ public class GlobalExceptionHandler {
                 new WarnLog("멤버 잘못된 요청: " + ex.getMessage())
                         .setStatus(String.valueOf(status))
                         .addDetails("reason", ex.getMessage())
-
         );
 
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -92,7 +91,6 @@ public class GlobalExceptionHandler {
         appLogger.error(
                 new ErrorLog("접근 거부", ex)
                         .setStatus(String.valueOf(status))
-
         );
 
         model.addAttribute("error", ErrorResponse.builder()
@@ -111,7 +109,6 @@ public class GlobalExceptionHandler {
         appLogger.warn(
                 new WarnLog("OAuth 로그인 취소")
                         .setStatus(String.valueOf(status))
-
         );
 
         return "index";
@@ -120,10 +117,16 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler(KakaoApiException.class)
     public ResponseEntity<ErrorResponse> kakaoApiHandler(KakaoApiException ex) {
-        log.warn("[KakaoApiException] ", ex);
+        final int statusCode = BAD_REQUEST.value();
+
+        appLogger.warn(
+                new WarnLog("Kakao API 예외 발생 " + ex)
+                        .setStatus(String.valueOf(statusCode))
+                        .addDetails("reason", ex.getMessage())
+        );
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(BAD_REQUEST.value())
+                .status(statusCode)
                 .message(ex.getMessage())
                 .build();
 
@@ -134,10 +137,16 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler(SecretsManagerFetchException.class)
     public ResponseEntity<ErrorResponse> secretsManagerFetchHandler(SecretsManagerFetchException ex) {
-        log.error("[SecretsManagerFetchException] ", ex);
+        final int statusCode = INTERNAL_SERVER_ERROR.value();
+
+        appLogger.error(
+                new ErrorLog("SecretsManagerFetch 예외 발생 ", ex)
+                        .setStatus(String.valueOf(statusCode))
+                        .addDetails("validation", ex.getMessage())
+        );
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .status(INTERNAL_SERVER_ERROR.value())
+                .status(statusCode)
                 .message(ex.getMessage())
                 .build();
 
@@ -150,10 +159,9 @@ public class GlobalExceptionHandler {
         int status = ex.getHttpStatusCode();
 
         appLogger.error(
-                new ErrorLog("커스텀 예외 발생", ex)
+                new ErrorLog("커스텀 예외 발생 ", ex)
                         .setStatus(String.valueOf(status))
                         .addDetails("validation", ex.getValidation().toString())
-
         );
 
         model.addAttribute("error", ErrorResponse.builder()
@@ -175,7 +183,6 @@ public class GlobalExceptionHandler {
         appLogger.error(
                 new ErrorLog("서버 내부 오류", ex)
                         .setStatus(String.valueOf(status))
-
         );
 
         model.addAttribute("error", ErrorResponse.builder()
@@ -217,7 +224,6 @@ public class GlobalExceptionHandler {
                 new WarnLog("입력값 유효성 오류")
                         .setStatus(String.valueOf(status))
                         .addDetails("reason", "invalid input","invalidFields", errors.toString())
-
         );
 
         ErrorResponse errorResponse = new ErrorResponse(

@@ -2,6 +2,7 @@ package kr.co.pinup.api.kakao;
 
 import kr.co.pinup.api.kakao.exception.KakaoApiException;
 import kr.co.pinup.api.kakao.model.dto.KakaoAddressDocument;
+import kr.co.pinup.custom.logging.AppLogger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +21,9 @@ class KakaoApiServiceTest {
 
     @Mock
     private KakaoApiClient kakaoApiClient;
+
+    @Mock
+    private AppLogger logger;
 
     @InjectMocks
     private KakaoApiService kakaoApiService;

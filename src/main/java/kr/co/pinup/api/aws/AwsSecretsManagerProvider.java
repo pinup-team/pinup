@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.pinup.api.aws.exception.SecretsManagerFetchException;
 import kr.co.pinup.api.kakao.model.dto.KakaoSecret;
 import kr.co.pinup.config.AwsSecretsProperties;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
@@ -12,6 +13,7 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueReques
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AwsSecretsManagerProvider implements AwsSecretsProvider {
 
     private static final String KAKAO_API_REST_KEY = "kakao.api.key.rest";
@@ -20,16 +22,6 @@ public class AwsSecretsManagerProvider implements AwsSecretsProvider {
     private final ObjectMapper objectMapper;
     private final AwsSecretsProperties secretsProperties;
     private final SecretsManagerClientFactory secretsManagerClientFactory;
-
-    public AwsSecretsManagerProvider(
-            final ObjectMapper objectMapper,
-            final AwsSecretsProperties secretsProperties,
-            final SecretsManagerClientFactory secretsManagerClientFactory
-    ) {
-        this.objectMapper = objectMapper;
-        this.secretsProperties = secretsProperties;
-        this.secretsManagerClientFactory = secretsManagerClientFactory;
-    }
 
     @Override
     public String getSecretValue(final String secretKey) {
@@ -41,7 +33,7 @@ public class AwsSecretsManagerProvider implements AwsSecretsProvider {
             ).secretString();
 
             final KakaoSecret kakaoSecret = objectMapper.readValue(secret, KakaoSecret.class);
-            log.debug("AwsSecretsManagerProvider.getSecretValue kakaoSecret={}", kakaoSecret);
+            log.debug("getSecretValue method kakaoSecret={}", kakaoSecret);
 
             return switch (secretKey) {
                 case KAKAO_API_REST_KEY -> kakaoSecret.restApiKey();
