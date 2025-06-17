@@ -45,6 +45,8 @@ public class FaqController {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @GetMapping("/{faqId}/update")
     public String update(@PathVariable Long faqId, Model model) {
+        log.debug("update method faqId={}", faqId);
+
         model.addAttribute("category", getFaqCategoryToMap());
         model.addAttribute("faq", faqService.find(faqId));
 

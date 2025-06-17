@@ -32,6 +32,8 @@ public class NoticeApiController {
 
     @GetMapping("/{noticeId}")
     public NoticeResponse find(@PathVariable Long noticeId) {
+        log.debug("find method noticeId={}", noticeId);
+
         return noticeService.find(noticeId);
     }
 
@@ -39,6 +41,8 @@ public class NoticeApiController {
     @PostMapping
     public ResponseEntity<Void> save(@AuthenticationPrincipal MemberInfo memberInfo,
                                      @RequestBody @Valid NoticeCreateRequest request) {
+        log.debug("save method NoticeCreateRequest={}", request);
+
         noticeService.save(memberInfo, request);
 
         return ResponseEntity.status(CREATED).build();
@@ -47,6 +51,8 @@ public class NoticeApiController {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @PutMapping("/{noticeId}")
     public ResponseEntity<Void> update(@PathVariable Long noticeId, @RequestBody @Valid NoticeUpdateRequest request) {
+        log.debug("update method noticeId={}, NoticeUpdateRequest={}", noticeId, request);
+
         noticeService.update(noticeId, request);
 
         return ResponseEntity.noContent().build();
@@ -55,6 +61,8 @@ public class NoticeApiController {
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @DeleteMapping("/{noticeId}")
     public ResponseEntity<Void> delete(@PathVariable Long noticeId) {
+        log.debug("delete method noticeId={}", noticeId);
+
         noticeService.remove(noticeId);
 
         return ResponseEntity.noContent().build();
