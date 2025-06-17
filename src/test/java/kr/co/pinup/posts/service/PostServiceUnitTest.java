@@ -1,5 +1,6 @@
 package kr.co.pinup.posts.service;
 
+import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.MemberNotFoundException;
@@ -33,6 +34,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
@@ -47,9 +49,6 @@ import static org.mockito.Mockito.*;
 public class
 PostServiceUnitTest {
 
-    @InjectMocks
-    private PostService postService;
-
     @Mock
     private PostRepository postRepository;
     @Mock
@@ -58,6 +57,11 @@ PostServiceUnitTest {
     private MemberRepository memberRepository;
     @Mock
     private StoreRepository storeRepository;
+    @Mock
+    private AppLogger appLogger;
+
+    @InjectMocks
+    private PostService postService;
 
     private Member member;
     private Store store;
@@ -100,6 +104,7 @@ PostServiceUnitTest {
             );
             CreatePostImageRequest imageReq = CreatePostImageRequest.builder().images(validFiles).build();
             Post post = Post.builder().store(store).member(member).title(req.title()).content(req.content()).build();
+            ReflectionTestUtils.setField(post, "id", 1L);
 
             when(memberRepository.findByNickname("행복한돼지")).thenReturn(Optional.of(member));
             when(storeRepository.findById(1L)).thenReturn(Optional.of(store));
@@ -158,13 +163,17 @@ PostServiceUnitTest {
 
             when(memberRepository.findByNickname("행복한돼지")).thenReturn(Optional.of(member));
             when(storeRepository.findById(1L)).thenReturn(Optional.of(store));
-            when(postRepository.save(any(Post.class))).thenReturn(Post.builder().store(store).member(member).title("제목").content("내용").build());
+
+            Post post = Post.builder().store(store).member(member).title("제목").content("내용").build();
+            ReflectionTestUtils.setField(post, "id", 1L);
+            when(postRepository.save(any(Post.class))).thenReturn(post);
 
             when(postImageService.savePostImages(any(), any())).thenThrow(PostImageUpdateCountException.class);
 
             assertThrows(PostImageUpdateCountException.class, () ->
                     postService.createPost(memberInfo, req, imageReq));
         }
+
 
         @Test
         @DisplayName("게시물 생성 - 이미지 저장 호출 확인")
@@ -178,6 +187,7 @@ PostServiceUnitTest {
             CreatePostImageRequest imageReq = CreatePostImageRequest.builder().images(files).build();
 
             Post post = Post.builder().store(store).member(member).title("제목").content("내용").build();
+            ReflectionTestUtils.setField(post, "id", 1L);
 
             when(memberRepository.findByNickname("행복한돼지")).thenReturn(Optional.of(member));
             when(storeRepository.findById(1L)).thenReturn(Optional.of(store));
@@ -200,6 +210,7 @@ PostServiceUnitTest {
             CreatePostImageRequest imageReq = CreatePostImageRequest.builder().images(files).build();
 
             Post post = Post.builder().store(store).member(member).title("제목").content("내용").build();
+            ReflectionTestUtils.setField(post, "id", 1L);
 
             when(memberRepository.findByNickname("행복한돼지")).thenReturn(Optional.of(member));
             when(storeRepository.findById(1L)).thenReturn(Optional.of(store));
