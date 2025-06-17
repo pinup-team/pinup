@@ -27,6 +27,7 @@ public class CommentApiController {
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @DeleteMapping("/{commentId}")
     public ResponseEntity<Void> deleteComment(@PathVariable @Positive Long commentId) {
+        log.debug("댓글 삭제 API 호출: commentId={}", commentId);
         commentService.deleteComment(commentId);
         return ResponseEntity.noContent().build();
     }
@@ -34,6 +35,7 @@ public class CommentApiController {
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @PostMapping("/{postId}")
     public ResponseEntity<CommentResponse> createComment(@LoginMember MemberInfo memberInfo, @PathVariable @Positive Long postId, @Valid @RequestBody CreateCommentRequest createCommentRequest) {
+        log.debug("댓글 생성 API 호출: postId={}, nickname={}", postId, memberInfo.nickname());
         return new ResponseEntity<>(commentService.createComment(memberInfo, postId, createCommentRequest), HttpStatus.CREATED);
     }
 
