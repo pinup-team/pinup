@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.pinup.custom.logging.AppLogger;
+import kr.co.pinup.custom.logging.model.dto.ErrorLog;
 import kr.co.pinup.custom.logging.model.dto.WarnLog;
 import kr.co.pinup.security.SecurityConstants;
 import kr.co.pinup.security.SecurityUtil;
@@ -34,15 +35,22 @@ public class SessionExpirationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (request.getSession(false) == null) {
-            appLogger.warn(new WarnLog("SessionExpirationFilter: 세션이 만료되었거나 존재하지 않음")
-                    .addDetails("requestURI", requestURI));
-            securityUtil.clearRefreshTokenCookie(response);
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "SessionExpirationFilter : Session expired");
-            return;
-        }
+        try {
+            if (request.getSession(false) == null) {
+                appLogger.warn(new WarnLog("SessionExpirationFilter: 세션이 만료되었거나 존재하지 않음")
+                        .addDetails("requestURI", requestURI));
+                securityUtil.clearRefreshTokenCookie(response);
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "SessionExpirationFilter : Session expired");
+                return;
+            }
 
-        chain.doFilter(request, response);
+            chain.doFilter(request, response);
+
+        } catch (Exception e) {
+            appLogger.error(new ErrorLog("SessionExpirationFilter: 예상치 못한 예외 발생", e)
+                    .addDetails("requestURI", requestURI));
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "SessionExpirationFilter: Unexpected error");
+        }
     }
 
     private boolean isExcluded(String requestURI) {

@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import kr.co.pinup.custom.logging.AppLogger;
+import kr.co.pinup.custom.logging.model.dto.ErrorLog;
 import kr.co.pinup.custom.logging.model.dto.WarnLog;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
@@ -67,14 +68,14 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (UnauthorizedException e) {
-            appLogger.warn(new WarnLog("AccessTokenFilter 사용자 인증 실패")
+            appLogger.error(new ErrorLog("AccessTokenFilter 사용자 인증 실패", e)
                     .addDetails("requestURI", requestURI));
         } catch (OAuthAccessTokenNotFoundException e) {
-            appLogger.warn(new WarnLog("AccessTokenFilter AccessToken 존재 X")
+            appLogger.error(new ErrorLog("AccessTokenFilter AccessToken 존재 X", e)
                     .addDetails("requestURI", requestURI));
             response.sendRedirect("/login");
         } catch (Exception e) {
-            appLogger.warn(new WarnLog("AccessTokenFilter 예상치 못한 오류 발생")
+            appLogger.error(new ErrorLog("AccessTokenFilter 예상치 못한 오류 발생", e)
                     .addDetails("requestURI", requestURI));
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
         }
