@@ -30,6 +30,7 @@ public class PostController {
 
     @GetMapping("/list/{storeId}")
     public String getAllPosts(@PathVariable @Positive Long storeId, Model model) {
+        log.debug("게시글 목록 뷰 진입: storeId={}", storeId);
         model.addAttribute("posts", postService.findByStoreIdWithCommentCount(storeId,false));
         model.addAttribute("storeId", storeId);
         return VIEW_PATH + "/list";
@@ -37,6 +38,7 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public String getPostById(@PathVariable @Positive Long postId, Model model) {
+        log.debug("게시글 상세 뷰 진입: postId={}", postId);
         model.addAttribute("post", postService.getPostById(postId,false));
         model.addAttribute("comments", commentService.findByPostId(postId));
         model.addAttribute("images", postImageService.findImagesByPostId(postId));
@@ -46,6 +48,7 @@ public class PostController {
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @GetMapping("/create")
     public String createPostForm(@RequestParam("storeId") @Positive Long storeId, Model model) {
+        log.debug("게시글 작성 폼 진입: storeId={}", storeId);
         model.addAttribute("storeId", storeId);
         return VIEW_PATH + "/create";
     }
@@ -53,6 +56,7 @@ public class PostController {
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @GetMapping("/update/{postId}")
     public String updatePostForm(@PathVariable @Positive Long postId, Model model) {
+        log.debug("게시글 수정 폼 진입: postId={}", postId);
         model.addAttribute("post", postService.getPostById(postId,false));
         model.addAttribute("images", postImageService.findImagesByPostId(postId));
         return VIEW_PATH + "/update";

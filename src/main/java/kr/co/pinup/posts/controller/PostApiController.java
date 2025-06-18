@@ -39,11 +39,13 @@ public class PostApiController {
 
     @GetMapping("/list/{storeId}")
     public List<PostResponse> getAllPosts(@PathVariable @Positive Long storeId) {
+        log.debug("게시글 목록 API 호출: storeId={}", storeId);
         return postService.findByStoreId(storeId,false);
     }
 
     @GetMapping("/{postId}")
     public PostDetailResponse getPostById(@PathVariable @Positive Long postId) {
+        log.debug("게시글 단건 조회 API 호출: postId={}", postId);
         PostResponse post = postService.getPostById(postId,false);
         List<CommentResponse> comments = commentService.findByPostId(postId);
         List<PostImageResponse> images = postImageService.findImagesByPostId(postId);
@@ -55,7 +57,12 @@ public class PostApiController {
                                                    @RequestPart("post") @Valid CreatePostRequest post,
                                                    @RequestPart(name = "images") List<MultipartFile> images
     ) {
-        if (images == null || images.size() < 2) {throw new PostImageUpdateCountException("이미지는 2장 이상 등록해야 합니다.");}
+        log.info("게시글 생성 요청 수신: writer={}, title={}", memberInfo.nickname(), post.title());
+
+        if (images == null || images.size() < 2) {
+            log.warn("이미지 수 부족: images={}", images != null ? images.size() : 0);
+            throw new PostImageUpdateCountException("이미지는 2장 이상 등록해야 합니다.");
+        }
         CreatePostImageRequest imageRequest = new CreatePostImageRequest(images);
         return ResponseEntity.status(HttpStatus.CREATED).body(postService.createPost(memberInfo, post, imageRequest)
         );
@@ -64,6 +71,7 @@ public class PostApiController {
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_ADMIN'))")
     @DeleteMapping("/{postId}")
     public ResponseEntity<Void> deletePost(@PathVariable Long postId) {
+        log.info("게시글 삭제 요청 수신: postId={}", postId);
         postService.deletePost(postId);
         return ResponseEntity.noContent().build();
     }
@@ -74,12 +82,14 @@ public class PostApiController {
                                                        @RequestPart("updatePostRequest") @Valid UpdatePostRequest updatePostRequest,
                                                        @RequestParam(required = false) List<String> imagesToDelete,
                                                        @RequestPart(name = "images", required = false) MultipartFile[] images) {
+        log.info("게시글 수정 요청 수신: postId={}", postId);
         return ResponseEntity.ok(postService.updatePost(postId, updatePostRequest, images, imagesToDelete));
     }
 
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
     @PatchMapping("/{postId}/disable")
     public ResponseEntity<Void> disablePost(@PathVariable Long postId) {
+        log.info("게시글 비활성화 요청 수신: postId={}", postId);
         postService.disablePost(postId);
         return ResponseEntity.noContent().build();
     }
