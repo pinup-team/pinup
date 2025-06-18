@@ -6,6 +6,9 @@ import kr.co.pinup.comments.exception.comment.CommentNotFoundException;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.model.dto.CreateCommentRequest;
 import kr.co.pinup.comments.repository.CommentRepository;
+import kr.co.pinup.custom.logging.AppLogger;
+import kr.co.pinup.custom.logging.model.dto.InfoLog;
+import kr.co.pinup.custom.logging.model.dto.WarnLog;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.MemberNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -28,18 +31,30 @@ public class CommentService  {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final AppLogger appLogger;
 
 
     public List<CommentResponse> findByPostId(Long postId) {
+        log.debug("댓글 조회 호출: postId={}", postId);
         return commentRepository.findByPostId(postId);
     }
 
 
     public void deleteComment(Long commentId) {
+        log.debug("댓글 삭제 요청: commentId={}", commentId);
+
         if (!commentRepository.existsById(commentId)) {
+            appLogger.warn(new WarnLog("삭제 시도된 댓글이 존재하지 않음")
+                    .setTargetId(commentId.toString())
+                    .setStatus("404"));
             throw new CommentNotFoundException("댓글을 찾을 수 없습니다.");
         }
+
         commentRepository.deleteById(commentId);
+
+        appLogger.info(new InfoLog("댓글 삭제 성공")
+                .setTargetId(commentId.toString())
+                .setStatus("204"));
     }
 
 
@@ -57,6 +72,10 @@ public class CommentService  {
                 .build();
 
         Comment savedComment = commentRepository.save(comment);
+        appLogger.info(new InfoLog("댓글 생성 성공")
+                .setStatus("201")
+                .setTargetId(savedComment.getId().toString())
+                .addDetails("postId", postId.toString(), "member", member.getNickname()));
 
         return CommentResponse.builder()
                 .id(savedComment.getId())
