@@ -2,6 +2,9 @@ package kr.co.pinup.oauth.google;
 
 import jakarta.annotation.PostConstruct;
 import kr.co.pinup.config.OauthConfig;
+import kr.co.pinup.custom.logging.AppLogger;
+import kr.co.pinup.custom.logging.model.dto.ErrorLog;
+import kr.co.pinup.custom.logging.model.dto.WarnLog;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
 import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
@@ -22,6 +25,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class GoogleApiClient implements OAuthApiClient {
     private final OauthConfig oauthConfig;
+    private final AppLogger appLogger;
+
     private OauthConfig.Registration googleRegistration;
     private OauthConfig.Provider googleProvider;
     private WebClient googleWebClient;
@@ -48,30 +53,32 @@ public class GoogleApiClient implements OAuthApiClient {
             GoogleToken tokenResponse = googleWebClient.post()
                     .uri(googleProvider.getTokenUri())
                     .body(BodyInserters.fromFormData("grant_type", googleRegistration.getAuthorizationGrantType())
-                                    .with("client_id", googleRegistration.getClientId())
-                                    .with("client_secret", googleRegistration.getClientSecret())
-                                    .with("code", Objects.requireNonNull(params.makeParams().getFirst("code")))
-                                    .with("redirect_uri", googleRegistration.getRedirectUri())
+                            .with("client_id", googleRegistration.getClientId())
+                            .with("client_secret", googleRegistration.getClientSecret())
+                            .with("code", Objects.requireNonNull(params.makeParams().getFirst("code")))
+                            .with("redirect_uri", googleRegistration.getRedirectUri())
                     )
                     .retrieve()
                     .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
-                            clientResponse -> Mono.error(new OAuthTokenRequestException("구글에서 토큰을 가져오는 중 오류가 발생했습니다: " + clientResponse.statusCode())))
+                            clientResponse -> Mono.error(new OAuthTokenRequestException("Google에서 토큰을 가져오는 중 오류가 발생했습니다: " + clientResponse.statusCode())))
                     .bodyToMono(GoogleToken.class)
                     .block();
 
             if (tokenResponse == null || tokenResponse.getAccessToken() == null) {
                 securityUtil.clearContextAndDeleteCookie();
+                appLogger.warn(new WarnLog("구글에서 액세스 토큰을 가져오지 못했습니다."));
                 throw new OAuthTokenRequestException("구글에서 액세스 토큰을 가져오지 못했습니다.");
             }
             return tokenResponse;
         } catch (Exception e) {
+            appLogger.error(new ErrorLog("Google 액세스 토큰 요청 중 예상치 못한 오류 발생", e));
             securityUtil.clearContextAndDeleteCookie();
-            throw new OAuthTokenRequestException("Google 액세스 토큰 요청 중 오류 발생: " + e.getMessage());
+            throw new OAuthTokenRequestException("Google 액세스 토큰 요청 중 예상치 못한 오류 발생: " + e.getMessage());
         }
     }
 
     @Override
-    public Pair<OAuthResponse, OAuthToken> requestOauth(OAuthToken token) {
+    public Pair<OAuthResponse, OAuthToken> requestUserInfo(OAuthToken token) {
         try {
             GoogleResponse userDto = googleWebClient.get()
                     .uri(googleProvider.getUserInfoUri())
@@ -84,12 +91,14 @@ public class GoogleApiClient implements OAuthApiClient {
 
             if (userDto == null) {
                 securityUtil.clearContextAndDeleteCookie();
-                throw new OAuth2AuthenticationException("구글에서 사용자 정보를 가져오지 못했습니다");
+                appLogger.warn(new WarnLog("구글에서 사용자 정보를 가져오지 못했습니다."));
+                throw new OAuth2AuthenticationException("구글에서 사용자 정보를 가져오지 못했습니다.");
             }
             return Pair.of(userDto, token);
         } catch (Exception e) {
+            appLogger.error(new ErrorLog("Google 사용자 정보 요청 중 예상치 못한 오류 발생", e));
             securityUtil.clearContextAndDeleteCookie();
-            throw new OAuth2AuthenticationException("Google 사용자 정보 요청 중 오류 발생: " + e.getMessage());
+            throw new OAuth2AuthenticationException("Google 사용자 정보 요청 중 예상치 못한 오류 발생: " + e.getMessage());
         }
     }
 
@@ -111,8 +120,10 @@ public class GoogleApiClient implements OAuthApiClient {
 
             return userDto;
         } catch (OAuthAccessTokenNotFoundException e) {
+            appLogger.warn(new WarnLog("구글에 요청할 액세스 토큰을 찾지 못했습니다."));
             return null;
         } catch (Exception e) {
+            appLogger.error(new ErrorLog("Google 액세스 토큰 유효성 검증 중 예상치 못한 오류 발생", e));
             throw e;
         }
     }
@@ -133,13 +144,14 @@ public class GoogleApiClient implements OAuthApiClient {
 
             if (tokenResponse == null || tokenResponse.getAccessToken() == null) {
                 securityUtil.clearContextAndDeleteCookie();
+                appLogger.warn(new WarnLog("구글에서 액세스 토큰을 다시 가져오지 못했습니다."));
                 throw new OAuthTokenRequestException("구글에서 액세스 토큰을 다시 가져오지 못했습니다.");
             }
             return tokenResponse;
         } catch (Exception e) {
-            log.error("Google Access Token Refresh Fail : {}", e.getMessage());
+            appLogger.error(new ErrorLog("Google 액세스 토큰 재요청 중 예상치 못한 오류 발생", e));
             securityUtil.clearContextAndDeleteCookie();
-            throw new OAuthTokenRequestException("Google 액세스 토큰 재요청 중 오류 발생: " + e.getMessage());
+            throw new OAuthTokenRequestException("Google 액세스 토큰 재요청 중 예상치 못한 오류 발생: " + e.getMessage());
         }
     }
 
@@ -158,16 +170,17 @@ public class GoogleApiClient implements OAuthApiClient {
                     .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(),
                             clientResponse -> clientResponse.bodyToMono(String.class)
                                     .flatMap(errorBody -> {
-                                        log.error("Google Access Token Revoke Failed: {}, Response: {}", clientResponse.statusCode(), errorBody);
-                                        return Mono.error(new OAuthTokenRequestException("Google에서 액세스 토큰을 취소하는 중 오류가 발생했습니다: " + clientResponse.statusCode()));
+                                        appLogger.warn(new WarnLog("구글에서 액세스 토큰을 취소하는 중 오류가 발생했습니다."));
+                                        return Mono.error(new OAuthTokenRequestException("구글에서 액세스 토큰을 취소하는 중 오류가 발생했습니다: " + clientResponse.statusCode()));
                                     }))
                     .toBodilessEntity()
                     .block();
 
             return responseEntity != null && responseEntity.getStatusCode().is2xxSuccessful();
         } catch (Exception e) {
-            log.error("Google Access Token Revoke Fail : {}", e.getMessage());
-            throw new OAuthTokenRequestException("Google 액세스 토큰 취소 중 오류 발생: " + e.getMessage());
+            ErrorLog errorLog = new ErrorLog("Google 액세스 토큰 취소 중 예상치 못한 오류 발생", e);
+            appLogger.error(errorLog);
+            throw new OAuthTokenRequestException("Google 액세스 토큰 취소 중 예상치 못한 오류 발생: " + e.getMessage());
         }
     }
 }

@@ -40,34 +40,35 @@ public class MemberApiController {
 
     @GetMapping("/oauth/naver")
     public ResponseEntity<?> loginNaver(@Valid @ModelAttribute NaverLoginParams params, HttpServletRequest request, HttpServletResponse response) {
+        log.debug("Login with Naver");
         return loginProcess(params, request, response);
     }
 
     @GetMapping("/oauth/google")
     public ResponseEntity<?> loginGoogle(@Valid @ModelAttribute GoogleLoginParams params, HttpServletRequest request, HttpServletResponse response) {
+        log.info("Login with Google");
         return loginProcess(params, request, response);
     }
 
     private ResponseEntity<?> loginProcess(OAuthLoginParams params, HttpServletRequest request, HttpServletResponse response) {
+        log.info("Login with OAuth Start");
         HttpSession session = request.getSession(true);
 
-        Triple<OAuthResponse, OAuthToken, String> triple = memberService.login(params, session);
+        Triple<OAuthResponse, OAuthToken, String> triple = null;
+        try {
+            triple = memberService.login(params, session);
+            log.info("OAuth 로그인 성공: provider={}, email={}", params.oAuthProvider(), triple.getLeft().getEmail());
+        } catch (Exception e) {
+            log.warn("OAuth 로그인 실패 - provider: {}", params.oAuthProvider(), e);
+            throw new OAuthTokenRequestException("OAuth 로그인 실패");
+        }
 
         OAuthToken oAuthToken = triple.getMiddle();
 
-        if (oAuthToken == null) {
-            throw new OAuthTokenRequestException("OAuth token is empty");
-        }
-
         HttpHeaders headers = new HttpHeaders();
         headers.setLocation(URI.create("/"));
-
-        if (oAuthToken.getRefreshToken() == null) {
-            throw new OAuthTokenRequestException("Refresh token is empty");
-        }
         securityUtil.setRefreshTokenToCookie(response, oAuthToken.getRefreshToken());
 
-        // 한글 URL 인코딩 처리해 쿠키에 메시지를 저장
         String encodedMessage = URLEncoder.encode(triple.getRight(), StandardCharsets.UTF_8);
         ResponseCookie messageCookie = ResponseCookie.from("loginMessage", encodedMessage)
                 .path("/")
@@ -83,6 +84,8 @@ public class MemberApiController {
 
     @GetMapping(value = "/nickname", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> makeNickname(@LoginMember MemberInfo memberInfo) {
+        log.info("Make Random Nickname");
+
         return Optional.ofNullable(memberInfo).map(user -> {
             String nickname = memberService.makeNickname();
             return ResponseEntity.ok(nickname);
@@ -92,29 +95,44 @@ public class MemberApiController {
 
     @PatchMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> update(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
+        log.info("사용자 닉네임 변경 요청 - 기존 닉네임={}, 변경할 닉네임={}", memberInfo.getUsername(), memberRequest.nickname());
+
         MemberResponse updatedMemberResponse = memberService.update(memberInfo, memberRequest);
         if (updatedMemberResponse != null && updatedMemberResponse.getNickname().equals(memberRequest.nickname())) {
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(MemberApiResponse.builder().code(200).message("닉네임이 변경되었습니다.").build());
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+                    .body(MemberApiResponse.builder().code(200).message("닉네임이 변경되었습니다.").build());
         } else {
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(MemberApiResponse.builder().code(400).message("닉네임 변경에 실패하였습니다.\n관리자에게 문의해주세요.").build());
+            log.warn("닉네임 변경 실패 - 기존 닉네임: {}, 요청 닉네임: {}", memberInfo.getUsername(), memberRequest.nickname());
+            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON)
+                    .body(MemberApiResponse.builder().code(400).message("닉네임 변경에 실패하였습니다.\n관리자에게 문의해주세요.").build());
         }
     }
 
     @DeleteMapping
     public ResponseEntity<?> disable(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
+        log.info("사용자 탈퇴 요청 - 닉네임={}, 이메일={}", memberInfo.getUsername(), memberRequest.email());
+
         if (memberService.disable(memberInfo, memberRequest)) {
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(MemberApiResponse.builder().code(200).message("탈퇴되었습니다. 이용해주셔서 감사합니다.").build());
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+                    .body(MemberApiResponse.builder().code(200).message("탈퇴되었습니다. 이용해주셔서 감사합니다.").build());
         } else {
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(MemberApiResponse.builder().code(200).message("탈퇴에 실패하였습니다.\n관리자에게 문의해주세요.").build());
+            log.warn("회원 탈퇴 실패 - nickname: {}", memberInfo.getUsername());
+            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON)
+                    .body(MemberApiResponse.builder().code(400).message("탈퇴에 실패하였습니다.\n관리자에게 문의해주세요.").build());
         }
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@LoginMember MemberInfo memberInfo) {
+        log.info("로그아웃 요청 - nickname={}", memberInfo.getUsername());
+
         if (memberService.logout(memberInfo.provider(), securityUtil.getAccessTokenFromSecurityContext())) {
-            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON).body(MemberApiResponse.builder().code(200).message("로그아웃에 성공하였습니다.").build());
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+                    .body(MemberApiResponse.builder().code(200).message("로그아웃에 성공하였습니다.").build());
         } else {
-            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON).body(MemberApiResponse.builder().code(400).message("로그아웃에 실패하였습니다.\n관리자에게 문의해주세요.").build());
+            log.warn("로그아웃 실패 - nickname: {}", memberInfo.getUsername());
+            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON)
+                    .body(MemberApiResponse.builder().code(400).message("로그아웃에 실패하였습니다.\n관리자에게 문의해주세요.").build());
         }
     }
 }

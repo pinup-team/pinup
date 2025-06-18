@@ -38,7 +38,7 @@ public class OAuthService {
         OAuthToken token = Optional.ofNullable(client.requestAccessToken(params))
                 .orElseThrow(() -> new OAuthTokenRequestException("엑세스 토큰 요청에 실패했습니다."));
 
-        return client.requestOauth(token);
+        return client.requestUserInfo(token);
     }
 
     public OAuthResponse isAccessTokenExpired(OAuthProvider oAuthProvider, String accessToken) {
