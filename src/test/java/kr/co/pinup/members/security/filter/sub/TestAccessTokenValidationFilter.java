@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.security.SecurityUtil;
 import kr.co.pinup.security.filter.AccessTokenValidationFilter;
@@ -12,8 +13,8 @@ import java.io.IOException;
 
 public class TestAccessTokenValidationFilter extends AccessTokenValidationFilter {
 
-    public TestAccessTokenValidationFilter(MemberService memberService, SecurityUtil securityUtil) {
-        super(memberService, securityUtil);
+    public TestAccessTokenValidationFilter(MemberService memberService, SecurityUtil securityUtil, AppLogger appLogger) {
+        super(memberService, securityUtil, appLogger);
     }
 
     @Override

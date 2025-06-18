@@ -11,7 +11,6 @@ import kr.co.pinup.security.SecurityConstants;
 import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -21,9 +20,7 @@ import java.io.IOException;
 public class SessionExpirationFilter extends OncePerRequestFilter {
 
     private final SecurityUtil securityUtil;
-
-    @Autowired
-    private AppLogger appLogger;
+    private final AppLogger appLogger;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)

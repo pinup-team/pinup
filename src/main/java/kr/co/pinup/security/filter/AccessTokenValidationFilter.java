@@ -17,7 +17,6 @@ import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -28,9 +27,7 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
 
     private final MemberService memberService;
     private final SecurityUtil securityUtil;
-
-    @Autowired
-    private AppLogger appLogger;
+    private final AppLogger appLogger;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)

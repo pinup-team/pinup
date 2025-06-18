@@ -66,7 +66,7 @@ class CommentApiControllerSliceTest {
         }
 
         @Bean public AccessTokenValidationFilter accessTokenValidationFilter() {
-            return new AccessTokenValidationFilter(null, null) {
+            return new AccessTokenValidationFilter(null, null, null) {
                 @Override protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
                     chain.doFilter(req, res);
                 }
@@ -74,7 +74,7 @@ class CommentApiControllerSliceTest {
         }
 
         @Bean public SessionExpirationFilter sessionExpirationFilter() {
-            return new SessionExpirationFilter(null) {
+            return new SessionExpirationFilter(null, null) {
                 @Override protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
                     chain.doFilter(req, res);
                 }

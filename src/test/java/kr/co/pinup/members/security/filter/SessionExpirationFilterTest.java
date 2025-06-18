@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.members.security.filter.sub.TestSessionExpirationFilter;
 import kr.co.pinup.security.SecurityUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,11 +20,14 @@ class SessionExpirationFilterTest {
     private HttpServletResponse response;
     private FilterChain chain;
     private SecurityUtil securityUtil;
+    private AppLogger appLogger;
 
     @BeforeEach
     void setUp() {
         securityUtil = Mockito.mock(SecurityUtil.class);
-        filter = new TestSessionExpirationFilter(securityUtil);
+        appLogger = Mockito.mock(AppLogger.class);
+        filter = new TestSessionExpirationFilter(securityUtil, appLogger);
+
         request = Mockito.mock(HttpServletRequest.class);
         response = Mockito.mock(HttpServletResponse.class);
         chain = Mockito.mock(FilterChain.class);

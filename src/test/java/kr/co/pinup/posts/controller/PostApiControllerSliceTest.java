@@ -171,7 +171,7 @@ class PostApiControllerSliceTest {
 
         @Bean
         public AccessTokenValidationFilter accessTokenValidationFilter() {
-            return new AccessTokenValidationFilter(null, null) {
+            return new AccessTokenValidationFilter(null, null, null) {
                 @Override
                 protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
                         throws ServletException, IOException {
@@ -182,7 +182,7 @@ class PostApiControllerSliceTest {
 
         @Bean
         public SessionExpirationFilter sessionExpirationFilter() {
-            return new SessionExpirationFilter(null) {
+            return new SessionExpirationFilter(null, null) {
                 @Override
                 protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
                         throws ServletException, IOException {
