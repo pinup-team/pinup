@@ -1,5 +1,8 @@
 package kr.co.pinup.custom.s3;
 
+import kr.co.pinup.custom.logging.AppLogger;
+import kr.co.pinup.custom.logging.model.dto.ErrorLog;
+import kr.co.pinup.custom.logging.model.dto.InfoLog;
 import kr.co.pinup.custom.s3.exception.ImageDeleteFailedException;
 import kr.co.pinup.custom.s3.exception.ImageUploadException;
 import lombok.RequiredArgsConstructor;
@@ -23,13 +26,15 @@ import java.util.UUID;
 public class S3Service {
 
     private final S3Client s3Client;
+    private final AppLogger appLogger;
+
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
 
     public String uploadFile(MultipartFile file, String pathPrefix) {
+        String fileName = pathPrefix + "/" + UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
         try {
-            String fileName = pathPrefix + "/" + UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
 
             try (InputStream inputStream = file.getInputStream()) {
                 PutObjectRequest putObjectRequest = PutObjectRequest.builder()
@@ -43,13 +48,25 @@ public class S3Service {
                         RequestBody.fromInputStream(inputStream, file.getSize())
                 );
 
-                return s3Client.utilities()
+                String url = s3Client.utilities()
                         .getUrl(builder -> builder.bucket(bucketName).key(fileName))
                         .toString();
+
+                appLogger.info(new InfoLog("이미지 업로드 성공")
+                        .setTargetId(fileName)
+                        .addDetails("url", url));
+
+                return url;
             }
         } catch (IOException e) {
+            appLogger.error(new ErrorLog("파일 업로드 실패 (IO)", e)
+                    .setStatus("500")
+                    .addDetails("file", fileName));
             throw new ImageUploadException("파일 업로드 실패", e);
         } catch (Exception e) {
+            appLogger.error(new ErrorLog("파일 업로드 실패 (기타)", e)
+                    .setStatus("500")
+                    .addDetails("file", fileName));
             throw new ImageUploadException("파일 업로드 중 예기치 않은 오류 발생", e);
         }
     }
@@ -60,9 +77,17 @@ public class S3Service {
                     .bucket(bucketName)
                     .key(fileName)
                     .build());
+            appLogger.info(new InfoLog("이미지 삭제 성공").setTargetId(fileName));
         } catch (SdkClientException e) {
+            appLogger.error(new ErrorLog("S3 클라이언트 오류 발생", e)
+                    .setTargetId(fileName)
+                    .setStatus("500"));
             throw new ImageDeleteFailedException("S3 클라이언트 오류 발생: " + fileName, e);
+
         } catch (Exception e) {
+            appLogger.error(new ErrorLog("S3에서 파일 삭제 실패", e)
+                    .setTargetId(fileName)
+                    .setStatus("500"));
             throw new ImageDeleteFailedException("S3에서 파일 삭제 실패: " + fileName, e);
         }
     }
