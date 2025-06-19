@@ -1,7 +1,8 @@
 package kr.co.pinup.postImages.service;
 
+import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.custom.s3.S3Service;
-import kr.co.pinup.custom.s3.exception.s3.ImageDeleteFailedException;
+import kr.co.pinup.custom.s3.exception.ImageDeleteFailedException;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageDeleteFailedException;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +40,9 @@ class PostImageServiceUnitTest {
     @Mock
     private S3Service s3Service;
 
+    @Mock
+    private AppLogger appLogger;
+
     private Post mockPost;
 
     @BeforeEach
@@ -51,6 +56,7 @@ class PostImageServiceUnitTest {
                 .title("title")
                 .content("content")
                 .build();
+        ReflectionTestUtils.setField(mockPost, "id", 1L);
     }
 
     @Test

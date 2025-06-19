@@ -5,6 +5,7 @@ import kr.co.pinup.comments.exception.comment.CommentNotFoundException;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.model.dto.CreateCommentRequest;
 import kr.co.pinup.comments.repository.CommentRepository;
+import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,6 +44,9 @@ public class CommentServiceUnitTest {
 
     @Mock
     private MemberRepository memberRepository;
+
+    @Mock
+    private AppLogger appLogger;
 
     @Test
     @DisplayName("게시글 ID로 댓글 조회 - 성공")
@@ -129,6 +134,7 @@ public class CommentServiceUnitTest {
                 .member(mockMember)
                 .content(commentContent)
                 .build();
+        ReflectionTestUtils.setField(savedComment, "id", 1L);
 
         CommentResponse expectedResponse = CommentResponse.builder()
                 .id(savedComment.getId())

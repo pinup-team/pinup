@@ -1,6 +1,5 @@
 package kr.co.pinup.stores.service;
 
-import kr.co.pinup.api.kakao.KakaoMapService;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.exception.LocationNotFoundException;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
@@ -41,7 +40,6 @@ public class StoreService {
     private final LocationRepository locationRepository;
     private final StoreCategoryRepository storeCategoryRepository;
     private final StoreImageService storeImageService;
-    private final KakaoMapService kakaoMapService;
 
     private final String PATH_PREFIX = "store";
 

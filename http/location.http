@@ -1,0 +1,13 @@
+### Location 등록 API
+POST {{base_url}}/api/locations
+Content-Type: application/json
+Cookie: JSESSIONID={{cookie}}
+
+{
+  "name": "롯데월드몰",
+  "zoneCode":  "05551",
+  "state":  "서울",
+  "district": "송파구",
+  "address": "서울 송파구 올림픽로 300",
+  "addressDetail": "1층 아트리움"
+}

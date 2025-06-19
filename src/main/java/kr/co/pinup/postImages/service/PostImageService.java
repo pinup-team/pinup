@@ -1,8 +1,12 @@
 package kr.co.pinup.postImages.service;
 
 import jakarta.transaction.Transactional;
+import kr.co.pinup.custom.logging.AppLogger;
+import kr.co.pinup.custom.logging.model.dto.ErrorLog;
+import kr.co.pinup.custom.logging.model.dto.InfoLog;
+import kr.co.pinup.custom.logging.model.dto.WarnLog;
 import kr.co.pinup.custom.s3.S3Service;
-import kr.co.pinup.custom.s3.exception.s3.ImageDeleteFailedException;
+import kr.co.pinup.custom.s3.exception.ImageDeleteFailedException;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageDeleteFailedException;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
@@ -27,6 +31,7 @@ public class PostImageService  {
 
     private final S3Service s3Service;
     private final PostImageRepository postImageRepository;
+    private final AppLogger appLogger;
 
     private static final String PATH_PREFIX = "post";
 
@@ -44,7 +49,15 @@ public class PostImageService  {
 
         try {
             postImageRepository.saveAll(postImages);
+            appLogger.info(new InfoLog("이미지 저장 완료")
+                    .setStatus("201")
+                    .setTargetId(post.getId().toString())
+                    .addDetails("count", String.valueOf(postImages.size())));
         } catch (Exception e) {
+            appLogger.error(new ErrorLog("이미지 저장 실패", e)
+                    .setStatus("500")
+                    .setTargetId(post.getId().toString())
+                    .addDetails("reason", e.getMessage()));
             throw new PostImageSaveFailedException("이미지 저장 중 문제가 발생했습니다.", e);
         }
 
@@ -58,14 +71,16 @@ public class PostImageService  {
             return;
         }
         try {
-        postImages.forEach(postImage -> {
-            String fileUrl = postImage.getS3Url();
-            String fileName = PATH_PREFIX+ "/" + s3Service.extractFileName(fileUrl);
+            postImages.forEach(postImage -> {
+                String fileUrl = postImage.getS3Url();
+                String fileName = PATH_PREFIX+ "/" + s3Service.extractFileName(fileUrl);
 
                 s3Service.deleteFromS3(fileName);
-        });
+            });
             postImageRepository.deleteAllByPostId(postId);
+            appLogger.info(new InfoLog("전체 이미지 삭제 완료").setTargetId(postId.toString()));
         } catch (Exception e) {
+            appLogger.error(new ErrorLog("전체 이미지 삭제 실패", e).setStatus("500").setTargetId(postId.toString()).addDetails("reason", e.getMessage()));
             throw new PostImageDeleteFailedException("이미지 삭제 중 문제가 발생했습니다.", e);
         }
     }
@@ -82,16 +97,30 @@ public class PostImageService  {
                 try {
                     s3Service.deleteFromS3(fileName);
                 } catch (ImageDeleteFailedException e) {
+                    appLogger.error(new ErrorLog("S3 이미지 삭제 실패", e)
+                            .setTargetId(postId.toString())
+                            .setStatus("500")
+                            .addDetails("file", fileName));
                     throw new ImageDeleteFailedException("이미지 삭제 중 문제가 발생했습니다.", e);
                 }
             });
 
             try {
                 postImageRepository.deleteAll(postImages);
+                appLogger.info(new InfoLog("선택 이미지 삭제 완료")
+                        .setTargetId(postId.toString())
+                        .addDetails("count", String.valueOf(postImages.size())));
             } catch (Exception e) {
+                appLogger.error(new ErrorLog("DB 이미지 삭제 실패", e)
+                        .setTargetId(postId.toString())
+                        .setStatus("500")
+                        .addDetails("reason", e.getMessage()));
                 throw new PostImageDeleteFailedException("이미지 삭제 중 문제가 발생했습니다.", e);
             }
         } else {
+            appLogger.warn(new WarnLog("삭제 요청 이미지 없음")
+                    .setTargetId(postId.toString())
+                    .setStatus("400"));
             throw new PostImageNotFoundException("삭제할 이미지 URL이 없습니다.");
         }
     }
@@ -103,6 +132,7 @@ public class PostImageService  {
 
 
     public List<PostImageResponse> findImagesByPostId(Long postId) {
+        log.debug("이미지 목록 조회: postId={}", postId);
         List<PostImage> postImages = postImageRepository.findByPostId(postId);
         return postImages.stream()
                 .map(PostImageResponse::from)
@@ -116,4 +146,3 @@ public class PostImageService  {
     }
 
 }
-

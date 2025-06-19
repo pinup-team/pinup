@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
 import kr.co.pinup.comments.repository.CommentRepository;
 import kr.co.pinup.comments.service.CommentService;
+import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberResponse;
@@ -82,7 +83,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = PostApiController.class, excludeAutoConfiguration = ThymeleafAutoConfiguration.class)
-@Import({PostApiControllerSliceTest.TestConfig.class, PostApiControllerSliceTest.FilterBeansConfig.class, PostApiControllerSliceTest.TestSecurityConfig.class})
+@Import({PostApiControllerSliceTest.TestConfig.class, PostApiControllerSliceTest.FilterBeansConfig.class, PostApiControllerSliceTest.TestSecurityConfig.class, LoggerConfig.class})
 @AutoConfigureMockMvc(addFilters = true)
 class PostApiControllerSliceTest {
 
@@ -170,7 +171,7 @@ class PostApiControllerSliceTest {
 
         @Bean
         public AccessTokenValidationFilter accessTokenValidationFilter() {
-            return new AccessTokenValidationFilter(null, null) {
+            return new AccessTokenValidationFilter(null, null, null) {
                 @Override
                 protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
                         throws ServletException, IOException {
@@ -181,7 +182,7 @@ class PostApiControllerSliceTest {
 
         @Bean
         public SessionExpirationFilter sessionExpirationFilter() {
-            return new SessionExpirationFilter(null) {
+            return new SessionExpirationFilter(null, null) {
                 @Override
                 protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
                         throws ServletException, IOException {

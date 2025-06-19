@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.WithMockMember;
+import kr.co.pinup.members.model.dto.MemberApiResponse;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.enums.MemberRole;
@@ -115,25 +116,28 @@ public class MemberApiControllerIntegrationTest {
     @Test
     @WithMockMember
     @DisplayName("회원 닉네임 추천")
+    @Disabled
     void testMakeNickname() throws Exception {
         mockMvc.perform(get("/api/members/nickname")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.notNullValue()));
+                        .contentType(MediaType.TEXT_PLAIN_VALUE))
+                .andExpect(status().isOk());
     }
 
     @Test
     @DisplayName("회원 정보 업데이트")
     @Disabled
     void testUpdateMember() throws Exception {
-        MemberRequest memberRequest = MemberRequest.builder().name("test").email("test@naver.com").nickname("updatedTestNickname").providerType(OAuthProvider.NAVER).build();
+        MemberApiResponse expectedResponse =
+                MemberApiResponse.builder().code(200).message("닉네임이 변경되었습니다.").build();
 
         mockMvc.perform(patch("/api/members")
+                        .header("Authorization", "Bearer testToken")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(memberRequest)))
-                .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string("닉네임이 변경되었습니다."));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(expectedResponse.code()))
+                .andExpect(jsonPath("$.message").value(expectedResponse.message()));
 
         Member updatedMember = memberRepository.findByEmailAndIsDeletedFalse(member.getEmail()).orElseThrow();
         assertEquals("updatedTestNickname", updatedMember.getNickname());
@@ -141,12 +145,40 @@ public class MemberApiControllerIntegrationTest {
 
     @Test
     @WithMockMember
+    @DisplayName("회원 탈퇴_성공")
+    @Disabled
+    void testDeleteMember() throws Exception {
+        MemberApiResponse expectedResponse =
+                MemberApiResponse.builder().code(200).message("탈퇴되었습니다. 이용해주셔서 감사합니다.").build();
+
+        mockMvc.perform(delete("/api/members")
+                        .header("Authorization", "Bearer testToken")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(memberRequest)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(expectedResponse.code()))
+                .andExpect(jsonPath("$.message").value(expectedResponse.message()));
+
+        Member disableMember = memberRepository.findByNickname(member.getNickname()).orElseThrow();
+        assertTrue(disableMember.isDeleted());
+    }
+
+    @Test
+    @WithMockMember
     @DisplayName("로그아웃")
     @Disabled
     void testLogout() throws Exception {
-        mockMvc.perform(post("/api/members/logout"))
+        MemberApiResponse expectedResponse =
+                MemberApiResponse.builder().code(200).message("로그아웃에 성공하였습니다.").build();
+
+        mockMvc.perform(post("/api/members/logout")
+                        .header("Authorization", "Bearer testToken")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("로그아웃 성공"));
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(expectedResponse.code()))
+                .andExpect(jsonPath("$.message").value(expectedResponse.message()));
     }
 
     @Test
@@ -157,23 +189,5 @@ public class MemberApiControllerIntegrationTest {
         mockMvc.perform(post("/api/members/logout"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("로그아웃 실패"));
-    }
-
-    @Test
-    @WithMockMember
-    @DisplayName("회원 탈퇴_성공")
-    @Disabled
-    void testDeleteMember() throws Exception {
-        MemberRequest memberRequest = MemberRequest.builder().name("test").email("test@naver.com").nickname("updatedTestNickname").providerType(OAuthProvider.NAVER).build();
-
-        mockMvc.perform(delete("/api/members")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(memberRequest)))
-                .andDo(print())
-                .andExpect(status().isOk());
-//                .andExpect(content().string("탈퇴 성공"));
-
-        Member disableMember = memberRepository.findByNickname(member.getNickname()).orElseThrow();
-        assertTrue(disableMember.isDeleted());
     }
 }

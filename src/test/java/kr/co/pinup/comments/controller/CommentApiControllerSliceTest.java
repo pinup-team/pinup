@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import kr.co.pinup.comments.model.dto.CommentResponse;
 import kr.co.pinup.comments.model.dto.CreateCommentRequest;
 import kr.co.pinup.comments.service.CommentService;
+import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.exception.GlobalExceptionHandler;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -41,7 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Import({
         GlobalExceptionHandler.class,
         CommentApiControllerSliceTest.TestConfig.class,
-        CommentApiControllerSliceTest.TestSecurityConfig.class
+        CommentApiControllerSliceTest.TestSecurityConfig.class,
+        LoggerConfig.class
 })
 @AutoConfigureMockMvc(addFilters = true)
 class CommentApiControllerSliceTest {
@@ -64,7 +66,7 @@ class CommentApiControllerSliceTest {
         }
 
         @Bean public AccessTokenValidationFilter accessTokenValidationFilter() {
-            return new AccessTokenValidationFilter(null, null) {
+            return new AccessTokenValidationFilter(null, null, null) {
                 @Override protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
                     chain.doFilter(req, res);
                 }
@@ -72,7 +74,7 @@ class CommentApiControllerSliceTest {
         }
 
         @Bean public SessionExpirationFilter sessionExpirationFilter() {
-            return new SessionExpirationFilter(null) {
+            return new SessionExpirationFilter(null, null) {
                 @Override protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain) throws ServletException, IOException {
                     chain.doFilter(req, res);
                 }

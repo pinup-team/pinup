@@ -1,5 +1,6 @@
 package kr.co.pinup.faqs.controller;
 
+import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.faqs.exception.FaqNotFound;
 import kr.co.pinup.faqs.model.dto.FaqResponse;
 import kr.co.pinup.faqs.service.FaqService;
@@ -40,6 +41,9 @@ class FaqControllerTest {
 
     @MockitoBean
     private FaqService faqService;
+
+    @MockitoBean
+    private AppLogger appLogger;
 
     @DisplayName("FAQ list 페이지를 반환한다.")
     @Test
