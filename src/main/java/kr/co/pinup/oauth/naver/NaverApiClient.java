@@ -46,7 +46,6 @@ public class NaverApiClient implements OAuthApiClient {
     @Override
     public NaverToken requestAccessToken(OAuthLoginParams params) {
         try {
-
             NaverToken tokenResponse = naverWebClient.get()
                     .uri(uriBuilder -> URI.create(UriComponentsBuilder.fromUriString(naverProvider.getTokenUri())
                             .queryParam("grant_type", naverRegistration.getAuthorizationGrantType())
@@ -63,14 +62,18 @@ public class NaverApiClient implements OAuthApiClient {
 
             if (tokenResponse == null || tokenResponse.getAccessToken() == null) {
                 securityUtil.clearContextAndDeleteCookie();
-                appLogger.warn(new WarnLog("네이버에서 액세스 토큰을 가져오지 못했습니다."));
+                appLogger.warn(new WarnLog("네이버에서 액세스 토큰을 가져오지 못했습니다.")
+                        .setStatus(params.catchErrors().getFirst("error"))
+                        .addDetails("reason", params.catchErrors().getFirst("errorDescription")));
                 throw new OAuthTokenRequestException("네이버에서 액세스 토큰을 가져오지 못했습니다.");
             }
             return tokenResponse;
         } catch (Exception e) {
-            appLogger.error(new ErrorLog("Naver 액세스 토큰 요청 중 예상치 못한 오류 발생", e));
+            appLogger.error(new ErrorLog("네이버 액세스 토큰 요청 중 예상치 못한 오류 발생", e)
+                    .setStatus(params.catchErrors().getFirst("error"))
+                    .addDetails("reason", params.catchErrors().getFirst("errorDescription")));
             securityUtil.clearContextAndDeleteCookie();
-            throw new OAuthTokenRequestException("Naver 액세스 토큰 요청 중 예상치 못한 오류 발생: " + e.getMessage());
+            throw new OAuthTokenRequestException("네이버 액세스 토큰 요청 중 예상치 못한 오류 발생: " + e.getMessage());
         }
     }
 
@@ -93,9 +96,9 @@ public class NaverApiClient implements OAuthApiClient {
             }
             return Pair.of(userDto, token);
         } catch (Exception e) {
-            appLogger.error(new ErrorLog("Naver 사용자 정보 요청 중 예상치 못한 오류 발생", e));
+            appLogger.error(new ErrorLog("네이버 사용자 정보 요청 중 예상치 못한 오류 발생", e));
             securityUtil.clearContextAndDeleteCookie();
-            throw new OAuth2AuthenticationException("Naver 사용자 정보 요청 중 예상치 못한 오류 발생: " + e.getMessage());
+            throw new OAuth2AuthenticationException("네이버 사용자 정보 요청 중 예상치 못한 오류 발생: " + e.getMessage());
         }
     }
 
@@ -120,7 +123,7 @@ public class NaverApiClient implements OAuthApiClient {
             appLogger.warn(new WarnLog("네이버에 요청할 액세스 토큰을 찾지 못했습니다."));
             return null;
         } catch (Exception e) {
-            appLogger.error(new ErrorLog("Naver 액세스 토큰 유효성 검증 중 예상치 못한 오류 발생", e));
+            appLogger.error(new ErrorLog("네이버 액세스 토큰 유효성 검증 중 예상치 못한 오류 발생", e));
             throw e;
         }
     }
@@ -148,9 +151,9 @@ public class NaverApiClient implements OAuthApiClient {
             }
             return tokenResponse;
         } catch (Exception e) {
-            appLogger.error(new ErrorLog("Naver 액세스 토큰 재요청 중 예상치 못한 오류 발생", e));
+            appLogger.error(new ErrorLog("네이버 액세스 토큰 재요청 중 예상치 못한 오류 발생", e));
             securityUtil.clearContextAndDeleteCookie();
-            throw new OAuthTokenRequestException("Naver 액세스 토큰 재요청 중 예상치 못한 오류 발생: " + e.getMessage());
+            throw new OAuthTokenRequestException("네이버 액세스 토큰 재요청 중 예상치 못한 오류 발생: " + e.getMessage());
         }
     }
 
@@ -173,8 +176,8 @@ public class NaverApiClient implements OAuthApiClient {
 
             return tokenResponse != null && "success".equals(tokenResponse.getResult());
         } catch (Exception e) {
-            appLogger.error(new ErrorLog("Naver 액세스 토큰 취소 중 예상치 못한 오류 발생", e));
-            throw new OAuthTokenRequestException("Naver 액세스 토큰 취소 중 예상치 못한 오류 발생: " + e.getMessage());
+            appLogger.error(new ErrorLog("네이버 액세스 토큰 취소 중 예상치 못한 오류 발생", e));
+            throw new OAuthTokenRequestException("네이버 액세스 토큰 취소 중 예상치 못한 오류 발생: " + e.getMessage());
         }
     }
 }

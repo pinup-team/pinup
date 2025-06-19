@@ -11,7 +11,6 @@ import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.oauth.*;
 import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -20,7 +19,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Objects;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class GoogleApiClient implements OAuthApiClient {
@@ -66,12 +64,16 @@ public class GoogleApiClient implements OAuthApiClient {
 
             if (tokenResponse == null || tokenResponse.getAccessToken() == null) {
                 securityUtil.clearContextAndDeleteCookie();
-                appLogger.warn(new WarnLog("구글에서 액세스 토큰을 가져오지 못했습니다."));
+                appLogger.warn(new WarnLog("구글에서 액세스 토큰을 가져오지 못했습니다.")
+                        .setStatus(params.catchErrors().getFirst("state"))
+                        .addDetails("reason", params.catchErrors().getFirst("error")));
                 throw new OAuthTokenRequestException("구글에서 액세스 토큰을 가져오지 못했습니다.");
             }
             return tokenResponse;
         } catch (Exception e) {
-            appLogger.error(new ErrorLog("Google 액세스 토큰 요청 중 예상치 못한 오류 발생", e));
+            appLogger.error(new ErrorLog("Google 액세스 토큰 요청 중 예상치 못한 오류 발생", e)
+                    .setStatus(params.catchErrors().getFirst("state"))
+                    .addDetails("reason", params.catchErrors().getFirst("error")));
             securityUtil.clearContextAndDeleteCookie();
             throw new OAuthTokenRequestException("Google 액세스 토큰 요청 중 예상치 못한 오류 발생: " + e.getMessage());
         }

@@ -15,13 +15,11 @@ import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.security.SecurityConstants;
 import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Slf4j
 @RequiredArgsConstructor
 public class AccessTokenValidationFilter extends OncePerRequestFilter {
 

@@ -3,6 +3,8 @@ package kr.co.pinup.members.service;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.custom.logging.AppLogger;
+import kr.co.pinup.custom.logging.model.dto.ErrorLog;
+import kr.co.pinup.custom.logging.model.dto.InfoLog;
 import kr.co.pinup.custom.logging.model.dto.WarnLog;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
@@ -14,7 +16,6 @@ import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.*;
 import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -27,7 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
-@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -38,7 +38,7 @@ public class MemberService {
     private final AppLogger appLogger;
 
     public Triple<OAuthResponse, OAuthToken, String> login(OAuthLoginParams params, HttpSession session) {
-        log.info("login 시작 - provider: {}", params.oAuthProvider());
+        appLogger.info(new InfoLog("OAuth Login 시작 - provider: " + params.oAuthProvider()));
 
         Pair<OAuthResponse, OAuthToken> oAuthResponseOAuthTokenPair = oAuthService.request(params);
         OAuthToken oAuthToken = oAuthResponseOAuthTokenPair.getRight();
@@ -46,28 +46,27 @@ public class MemberService {
 
         if (oAuthToken == null) {
             appLogger.warn(new WarnLog("OAuth 서버로부터 access token을 받지 못함").setStatus("401"));
-            log.warn("login 실패 - access token 없음");
             throw new UnauthorizedException("MemberService : OAuth token is null");
         }
 
         if (oAuthResponse == null) {
             appLogger.warn(new WarnLog("OAuth 서버로부터 사용자 정보를 받지 못함").setStatus("401"));
-            log.warn("login 실패 - 사용자 정보 없음");
             throw new UnauthorizedException("MemberService : OAuth response is null");
         }
 
-        log.debug("OAuth 인증 성공 - email: {}, name: {}", oAuthResponse.getEmail(), oAuthResponse.getName());
+        appLogger.info(new InfoLog("OAuth 인증 성공 - provider: " + params.oAuthProvider()));
+
+        appLogger.info(new InfoLog("OAuth 인증 성공 - email: " + oAuthResponse.getEmail() + ", name: " + oAuthResponse.getName()));
 
         Pair<Member, String> memberStringPair = findOrCreateMember(oAuthResponse);
         Member member = memberStringPair.getLeft();
 
         if (member == null) {
             appLogger.warn(new WarnLog("OAuth로 사용자 정보를 받아왔으나 DB에 저장/조회 실패").setStatus("500"));
-            log.error("login 실패 - 회원 생성 또는 조회 실패");
             throw new MemberServiceException("회원 조회 실패");
         }
 
-        log.info("login 성공 - nickname: {}, role: {}", member.getNickname(), member.getRole());
+        appLogger.info(new InfoLog("OAuth Login 성공 - nickname: " + member.getNickname() + ", role: " + member.getRole()));
 
         MemberInfo memberInfo = MemberInfo.builder()
                 .nickname(member.getNickname())
@@ -86,10 +85,10 @@ public class MemberService {
 
         if (optionalMember.isPresent()) {
             Member member = optionalMember.get();
-            log.debug("Existing member login: email='{}', name='{}'", member.getEmail(), member.getName());
+            appLogger.info(new InfoLog("기존 회원 로그인: email='" + member.getEmail() + "', nickname='" + member.getNickname() + "'"));
             return Pair.ofNonNull(member, "다시 돌아오신 걸 환영합니다 \"" + member.getName() + "\"님");
         } else {
-            log.debug("New member registration: email='{}', name='{}'", oAuthResponse.getEmail(), oAuthResponse.getName());
+            appLogger.info(new InfoLog("신규 회원 등록: email='" + oAuthResponse.getEmail()));
             return newMember(oAuthResponse);
         }
     }
@@ -103,7 +102,7 @@ public class MemberService {
                 .providerId(oAuthResponse.getId())
                 .build();
 
-        return Pair.ofNonNull(memberRepository.save(member), "환영합니다 \""+member.getName()+"\"님");
+        return Pair.ofNonNull(memberRepository.save(member), "환영합니다 \"" + member.getNickname() + "\"님");
     }
 
     public String makeNickname() {
@@ -115,7 +114,7 @@ public class MemberService {
             tryCount++;
         } while (memberRepository.existsByNickname(nickname));
 
-        log.debug("닉네임 생성 - nickname: {}, 시도 횟수: {}", nickname, tryCount);
+        appLogger.info(new InfoLog("닉네임 생성 - nickname: " + nickname + ", 시도 횟수: " + tryCount));
         return nickname;
     }
 
@@ -126,7 +125,7 @@ public class MemberService {
     }
 
     public MemberResponse update(MemberInfo memberInfo, MemberRequest memberRequest) {
-        log.info("회원 정보 수정 요청 - nickname: {}", memberInfo.nickname());
+        appLogger.info(new InfoLog("회원 정보 수정 요청 - nickname: " + memberInfo.nickname()));
 
         Member member = memberRepository.findByNickname(memberInfo.nickname())
                 .orElseThrow(() -> {
@@ -136,7 +135,7 @@ public class MemberService {
                 });
 
         if (!memberRequest.email().equals(member.getEmail())) {
-            log.warn("회원 정보 수정 실패 - 이메일 불일치: 요청={}, DB={}", memberRequest.email(), member.getEmail());
+            appLogger.warn(new WarnLog("회원 정보 수정 실패 - 이메일 불일치: 요청=" + memberRequest.email() + ", DB=" + member.getEmail()).setStatus("400"));
             throw new MemberBadRequestException("이메일이 일치하지 않습니다.");
         }
 
@@ -147,7 +146,7 @@ public class MemberService {
         }
 
         if (memberRequest.nickname().length() > 50) {
-            log.warn("회원 정보 수정 실패 - 닉네임 길이 초과: {}", memberRequest.nickname());
+            appLogger.warn(new WarnLog("회원 정보 수정 실패 - 닉네임 길이 초과: " + memberRequest.nickname()).setStatus("400"));
             throw new MemberBadRequestException("닉네임은 최대 50자입니다.");
         }
 
@@ -155,7 +154,7 @@ public class MemberService {
             member.setNickname(memberRequest.nickname());
             Member savedMember = memberRepository.save(member);
 
-            log.info("회원 정보 수정 성공 - newNickname: {}", savedMember.getNickname());
+            appLogger.info(new InfoLog("회원 정보 수정 성공 - newNickname: " + savedMember.getNickname()));
 
             MemberInfo updatedMemberInfo = MemberInfo.builder()
                     .nickname(savedMember.getNickname())
@@ -168,46 +167,44 @@ public class MemberService {
             return MemberResponse.fromMember(savedMember);
         } catch (DataIntegrityViolationException e) {
             appLogger.warn(new WarnLog("회원 정보 수정 실패 - 제약 조건 위반").setStatus("500"));
-            log.warn("회원 정보 저장 실패 - DataIntegrityViolationException: {}", e.getMessage());
             throw new MemberServiceException("회원 정보 저장 중 제약 조건 위반이 발생했습니다.");
         } catch (Exception e) {
-            appLogger.warn(new WarnLog("회원 정보 수정 실패 - 알 수 없는 오류").setStatus("500"));
-            log.warn("회원 정보 저장 실패 - Exception: {}", e.getMessage());
+            appLogger.error(new ErrorLog("회원 정보 수정 실패 - 알 수 없는 오류", e).setStatus("500"));
             throw new MemberServiceException("회원 정보 저장 중 오류가 발생했습니다.");
         }
     }
 
     public boolean disable(MemberInfo memberInfo, MemberRequest memberRequest) {
         String nickname = memberInfo.nickname();
-        log.info("회원 탈퇴 요청: nickname = {}", nickname);
+        appLogger.info(new InfoLog("회원 탈퇴 요청: nickname = " + nickname));
 
         Member member = memberRepository.findByNickname(nickname)
                 .orElseThrow(() -> {
-                    log.warn("회원 닉네임 '{}' 을(를) 찾을 수 없음", nickname);
+                    appLogger.warn(new WarnLog("회원 닉네임 '" + nickname + "' 을(를) 찾을 수 없음").setStatus("404"));
                     return new MemberNotFoundException();
                 });
 
         if (!memberRequest.email().equals(member.getEmail())) {
-            log.warn("이메일 불일치: 요청 이메일 = {}, 실제 이메일 = {}", memberRequest.email(), member.getEmail());
+            appLogger.warn(new WarnLog("이메일 불일치: 요청 이메일 = " + memberRequest.email() + ", 실제 이메일 = " + member.getEmail()).setStatus("401"));
             throw new UnauthorizedException("권한이 없습니다.");
         }
 
         try {
             memberRepository.updateIsDeletedTrue(member.getId());
-            log.info("회원 탈퇴 처리 완료: id = {}", member.getId());
+            appLogger.info(new InfoLog("회원 탈퇴 처리 완료: id = " + member.getId()));
 
             securityUtil.clearContextAndDeleteCookie();
-            log.info("시큐리티 컨텍스트 및 쿠키 삭제 완료");
+            appLogger.info(new InfoLog("시큐리티 컨텍스트 및 쿠키 삭제 완료"));
 
             return true;
         } catch (Exception e) {
-            log.error("회원 삭제 중 예외 발생: {}", e.getMessage(), e);
-            throw new MemberServiceException("회원 삭제 중 오류가 발생했습니다.");
+            appLogger.error(new ErrorLog("회원 탈퇴 실패 - 알 수 없는 오류", e).setStatus("500"));
+            throw new MemberServiceException("회원 탈퇴 중 오류가 발생했습니다.");
         }
     }
 
     public boolean logout(OAuthProvider oAuthProvider, String accessToken) {
-        log.info("로그아웃 요청 - provider: {}, accessToken: {}", oAuthProvider, accessToken != null ? "존재함" : "없음");
+        appLogger.info(new InfoLog("로그아웃 요청 - provider: " + oAuthProvider + ", accessToken 존재 여부: " + (accessToken != null)));
 
         if (oAuthProvider == null) {
             appLogger.warn(new WarnLog("로그아웃 실패 - OAuth 제공자 누락").setStatus("400"));
@@ -221,24 +218,26 @@ public class MemberService {
 
         try {
             securityUtil.clearContextAndDeleteCookie();
-            log.info("로그아웃 성공 - provider: {}", oAuthProvider);
+            appLogger.info(new InfoLog("로그아웃 성공 - provider: " + oAuthProvider));
         } catch (OAuthTokenRequestException e) {
-            appLogger.warn(new WarnLog("로그아웃 실패 - OAuth 처리 중 예외 발생").setStatus("500"));
-            log.error("OAuth 로그아웃 중 예외 발생: {}", e.getMessage());
-            throw new OAuth2AuthenticationException("OAuth 로그아웃 중 오류가 발생했습니다.");
+            appLogger.warn(new WarnLog("로그아웃 실패 - OAuth 토큰 요청 오류").setStatus("500"));
+            throw new OAuth2AuthenticationException();
+        } catch (Exception e) {
+            appLogger.error(new ErrorLog("로그아웃 실패 - 알 수 없는 오류", e).setStatus("500"));
+            throw new MemberServiceException("로그아웃 중 오류가 발생했습니다.");
         }
 
         return true;
     }
 
     public boolean isAccessTokenExpired(MemberInfo memberInfo, String accessToken) {
-        log.info("AccessToken 만료 여부 확인 시작: provider = {}, nickname = {}", memberInfo.provider(), memberInfo.nickname());
+        appLogger.info(new InfoLog("AccessToken 만료 여부 확인 시작: provider = " + memberInfo.provider() + ", nickname = " + memberInfo.nickname()));
 
         try {
             OAuthResponse oAuthResponse = oAuthService.isAccessTokenExpired(memberInfo.provider(), accessToken);
 
             if (oAuthResponse != null) {
-                log.debug("OAuth 응답 수신: email = {}", oAuthResponse.getEmail());
+                appLogger.info(new InfoLog("OAuth 응답 수신: email = " + oAuthResponse.getEmail()));
 
                 Optional<Member> memberOpt = memberRepository.findByEmailAndIsDeletedFalse(oAuthResponse.getEmail());
 
@@ -251,49 +250,47 @@ public class MemberService {
                             .build();
 
                     if (!foundInfo.equals(memberInfo)) {
-                        log.warn("AccessToken은 유효하나, 사용자 정보 불일치: 요청 = {}, 실제 = {}", memberInfo, foundInfo);
+                        appLogger.warn(new WarnLog("AccessToken은 유효하나, 사용자 정보 불일치: 요청 = " + memberInfo + ", 실제 = " + foundInfo));
                         return true;
                     }
 
-                    log.info("AccessToken 유효 및 사용자 일치 확인 완료");
+                    appLogger.info(new InfoLog("AccessToken 유효 및 사용자 일치 확인 완료"));
                 } else {
-                    log.warn("해당 이메일로 활성화된 회원 없음: email = {}", oAuthResponse.getEmail());
+                    appLogger.warn(new WarnLog("해당 이메일로 활성화된 회원 없음: email = " + oAuthResponse.getEmail()));
                 }
             } else {
-                log.warn("OAuth 응답이 null입니다. AccessToken: {}", accessToken);
+                appLogger.warn(new WarnLog("OAuth 응답이 없습니다"));
             }
 
             return false;
         } catch (OAuthAccessTokenNotFoundException e) {
-            log.error("AccessToken 만료(OAuthAccessTokenNotFoundException): {}", e.getMessage(), e);
+            appLogger.error(new ErrorLog("AccessToken를 찾을 수 없습니다.", e));
             return true;
         } catch (Exception e) {
-            log.error("AccessToken 만료 확인 중 예외 발생: {}", e.getMessage(), e);
+            appLogger.error(new ErrorLog("AccessToken 만료 확인 실패 - 알 수 없는 오류", e));
             return true;
         }
     }
 
     public String refreshAccessToken(HttpServletRequest request) {
         MemberInfo memberInfo = securityUtil.getMemberInfo();
-        log.info("AccessToken 재발급 요청: provider = {}, nickname = {}", memberInfo.getProvider(), memberInfo.nickname());
+        appLogger.info(new InfoLog("AccessToken 재발급 요청: provider = " + memberInfo.getProvider() + ", nickname = " + memberInfo.nickname()));
 
         String refreshToken = securityUtil.getOptionalRefreshToken(request);
 
         if (refreshToken == null) {
-            appLogger.warn(new WarnLog("AccessToken 재발급 실패 - RefreshToken 누락")
-                    .setStatus("401"));
-            log.error("AccessToken 재발급 실패: refreshToken is null");
+            appLogger.warn(new WarnLog("AccessToken 재발급 실패 - Refresh token이 존재하지 않습니다.").setStatus("401"));
             throw new OAuthTokenNotFoundException("Refresh token이 존재하지 않습니다.");
         }
 
         try {
             OAuthToken token = oAuthService.refresh(memberInfo.getProvider(), refreshToken);
-            log.info("AccessToken 재발급 성공: provider = {}", memberInfo.getProvider());
+            appLogger.info(new InfoLog("AccessToken 재발급 성공: provider = " + memberInfo.getProvider()));
 
             securityUtil.refreshAccessTokenInSecurityContext(token.getAccessToken());
             return token.getAccessToken();
         } catch (Exception e) {
-            log.error("AccessToken 재발급 중 예외 발생: {}", e.getMessage(), e);
+            appLogger.error(new ErrorLog("AccessToken 재발급 실패 - 알 수 없는 오류", e));
             throw new UnauthorizedException("AccessToken 재발급에 실패했습니다.");
         }
     }

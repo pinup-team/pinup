@@ -30,8 +30,8 @@ public class SecurityConfigTest {
     }
 
     @Bean
-    public OAuthService oAuthService(List<OAuthApiClient> clients) {
-        return new OAuthService(clients);
+    public OAuthService oAuthService(List<OAuthApiClient> clients, AppLogger appLogger) {
+        return new OAuthService(clients, appLogger);
     }
 
     @Bean(name = "testSessionExpirationFilter")
