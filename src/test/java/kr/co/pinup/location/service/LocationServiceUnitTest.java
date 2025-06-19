@@ -5,7 +5,6 @@ import kr.co.pinup.locations.model.dto.CreateLocationRequest;
 import kr.co.pinup.locations.model.dto.LocationResponse;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
 import kr.co.pinup.locations.service.LocationService;
-import org.junit.Ignore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +19,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith({SpringExtension.class})

@@ -4,6 +4,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.pinup.custom.logging.AppLogger;
+import kr.co.pinup.custom.logging.model.dto.ErrorLog;
+import kr.co.pinup.custom.logging.model.dto.WarnLog;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.exception.OAuthAccessTokenNotFoundException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
@@ -12,18 +15,17 @@ import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.security.SecurityConstants;
 import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Slf4j
 @RequiredArgsConstructor
 public class AccessTokenValidationFilter extends OncePerRequestFilter {
 
     private final MemberService memberService;
     private final SecurityUtil securityUtil;
+    private final AppLogger appLogger;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull FilterChain filterChain)
@@ -46,10 +48,13 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
             MemberInfo memberInfo = securityUtil.getMemberInfo();
 
             if (memberService.isAccessTokenExpired(memberInfo, accessToken) || accessToken == null) {
-                log.warn("AccessTokenValidationFilter : Access Token is expired or null");
+                appLogger.warn(new WarnLog("AccessTokenFilter AccessToken 만료되었거나 존재 X")
+                        .addDetails("requestURI", requestURI));
+
                 accessToken = memberService.refreshAccessToken(request);
-                if(accessToken == null){
-                    log.error("AccessTokenValidationFilter : Access Token Refresh Fail");
+                if (accessToken == null) {
+                    appLogger.warn(new WarnLog("AccessTokenFilter AccessToken 재발급 실패")
+                            .addDetails("requestURI", requestURI));
                     throw new OAuthTokenRequestException("Access Token Refresh Fail");
                 } else {
                     securityUtil.refreshAccessTokenInSecurityContext(accessToken);
@@ -58,12 +63,15 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
 
             filterChain.doFilter(request, response);
         } catch (UnauthorizedException e) {
-            log.error("AccessTokenValidationFilter {} || UnauthorizedException: {}", requestURI, e.getMessage());
+            appLogger.error(new ErrorLog("AccessTokenFilter 사용자 인증 실패", e)
+                    .addDetails("requestURI", requestURI));
         } catch (OAuthAccessTokenNotFoundException e) {
-            log.error("AccessTokenValidationFilter {} || Access token not found: {}", requestURI, e.getMessage());
-            response.sendRedirect("/login"); // 로그인 페이지로 리다이렉트
+            appLogger.error(new ErrorLog("AccessTokenFilter AccessToken 존재 X", e)
+                    .addDetails("requestURI", requestURI));
+            response.sendRedirect("/login");
         } catch (Exception e) {
-            log.error("AccessTokenValidationFilter {} || Unexpected error: {}",  requestURI, e.getMessage());
+            appLogger.error(new ErrorLog("AccessTokenFilter 예상치 못한 오류 발생", e)
+                    .addDetails("requestURI", requestURI));
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "An unexpected error occurred.");
         }
     }

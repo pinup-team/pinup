@@ -1,5 +1,6 @@
 package kr.co.pinup.config;
 
+import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthApiClient;
 import kr.co.pinup.oauth.OAuthService;
@@ -29,18 +30,18 @@ public class SecurityConfigTest {
     }
 
     @Bean
-    public OAuthService oAuthService(List<OAuthApiClient> clients) {
-        return new OAuthService(clients);
+    public OAuthService oAuthService(List<OAuthApiClient> clients, AppLogger appLogger) {
+        return new OAuthService(clients, appLogger);
     }
 
     @Bean(name = "testSessionExpirationFilter")
-    public SessionExpirationFilter sessionExpirationFilter(SecurityUtil securityUtil) {
-        return new SessionExpirationFilter(securityUtil);
+    public SessionExpirationFilter sessionExpirationFilter(SecurityUtil securityUtil, AppLogger appLogger) {
+        return new SessionExpirationFilter(securityUtil, appLogger);
     }
 
     @Bean(name = "testAccessTokenValidationFilter")
-    public AccessTokenValidationFilter accessTokenValidationFilter(MemberService memberService, SecurityUtil securityUtil) {
-        return new AccessTokenValidationFilter(memberService, securityUtil);
+    public AccessTokenValidationFilter accessTokenValidationFilter(MemberService memberService, SecurityUtil securityUtil, AppLogger appLogger) {
+        return new AccessTokenValidationFilter(memberService, securityUtil, appLogger);
     }
 
     @Bean
