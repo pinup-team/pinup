@@ -37,8 +37,6 @@ public class StoreUpdateRequest {
 //    @NotNull(message = "스토어 상태는 필수 입력값입니다.")
     private Status status;
 
-    private String contactNumber;
-
     private String websiteUrl;
 
     private String snsUrl;
