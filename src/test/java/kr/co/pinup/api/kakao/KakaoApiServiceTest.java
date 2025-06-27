@@ -36,7 +36,11 @@ class KakaoApiServiceTest {
         final double longitude = 127.104302;
         final double latitude = 37.513713;
 
-        final KakaoAddressDocument kakaoAddressDocument = new KakaoAddressDocument(address, longitude, latitude);
+        final KakaoAddressDocument kakaoAddressDocument = KakaoAddressDocument.builder()
+                .addressName(address)
+                .longitude(longitude)
+                .latitude(latitude)
+                .build();
 
         given(kakaoApiClient.searchAddress(address)).willReturn(kakaoAddressDocument);
 

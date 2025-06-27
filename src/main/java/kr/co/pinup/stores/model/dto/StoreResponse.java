@@ -23,7 +23,6 @@ public record StoreResponse(
         String imageUrl,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        String contactNumber,
         String websiteUrl,
         String snsUrl,
         List<OperatingHourResponse> operatingHours,
@@ -43,7 +42,6 @@ public record StoreResponse(
                 store.getImageUrl(),
                 store.getCreatedAt(),
                 store.getUpdatedAt(),
-                store.getContactNumber(),
                 store.getWebsiteUrl(),
                 store.getSnsUrl(),
                 store.getOperatingHours().stream()

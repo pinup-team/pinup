@@ -1,7 +1,9 @@
 package kr.co.pinup.api.kakao.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 
+@Builder
 public record KakaoAddressDocument(
         @JsonProperty("address_name")
         String addressName,

@@ -19,7 +19,7 @@ public record StoreSummaryResponse(
         return new StoreSummaryResponse(
                 store.getId(),
                 store.getName(),
-                store.getLocation().getDistrict(),
+                store.getLocation().getSigungu(),
                 store.getCategory().getName(),
                 store.getStartDate(),
                 store.getEndDate(),

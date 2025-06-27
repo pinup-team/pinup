@@ -79,7 +79,7 @@
                         th:text="*{endDate()}"></span>
                     <p class="title-text-location" th:with="loc=*{location}">
                         📍 <span
-                            th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address} +' ' +  ${loc.addressDetail}"></span>
+                            th:text="${loc.address} +' ' +  ${loc.addressDetail}"></span>
                     </p>
                 </div>
                 <br>
@@ -106,15 +106,14 @@
 
                     <!-- 컨택트 -->
                     <div class="contact-container"
-                         th:unless="${#strings.isEmpty(contactNumber) and #strings.isEmpty(snsUrl) and #strings.isEmpty(websiteUrl)}">
+                         th:unless="${#strings.isEmpty(snsUrl) and #strings.isEmpty(websiteUrl)}">
                         <p class="info-subtitle"> 찾아보기 </p>
 
                         <a class="contact-textbox" th:if="${!#strings.isEmpty(snsUrl)}" th:href="*{snsUrl}">SNS</a>
                         <a class="contact-textbox" th:if="${!#strings.isEmpty(websiteUrl)}" th:href="*{websiteUrl}">웹사이트</a>
-                        <span>📞 </span> <span class="contact-textbox" th:if="${!#strings.isEmpty(contactNumber)}" th:text="*{contactNumber}"></span>
                     </div>
 
-                    <p class="info-subtitle" th:if="*{contactNumber == null and snsUrl == null and websiteUrl == null}">
+                    <p class="info-subtitle" th:if="*{snsUrl == null and websiteUrl == null}">
                         연락처 정보가 준비 중입니다.
                     </p>
 
@@ -122,17 +121,17 @@
                     <div class="map-container">
                         <input type="hidden" id="latitude-hidden" th:value="${location.latitude}">
                         <input type="hidden" id="longitude-hidden" th:value="${location.longitude}">
-                        <div class="map-wrap">
-                            <div id="map" class="map-box"></div>
-                        </div>
-
                         <div>
                             <p class="map-text-location" th:with="loc=*{location}">
                                 📍
-                                <span th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address}"></span>
+                                <span th:text="${loc.address}"></span>
                                 <span th:if="${loc.addressDetail != null and !#strings.isEmpty(loc.addressDetail)}"
                                       th:text="' ' + ${loc.addressDetail}"></span>
                             </p>
+                        </div>
+
+                        <div class="map-wrap">
+                            <div id="map" class="map-box"></div>
                         </div>
                     </div>
                 </div>

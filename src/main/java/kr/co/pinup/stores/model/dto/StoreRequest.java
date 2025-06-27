@@ -15,7 +15,6 @@ public record StoreRequest(
         @NotNull LocalDate startDate,
         @NotNull LocalDate endDate,
         Integer thumbnailImage,
-        String contactNumber,
         String websiteUrl,
         String snsUrl,
         List<OperatingHourRequest> operatingHours

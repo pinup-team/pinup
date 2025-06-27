@@ -17,7 +17,7 @@ operation::faq-api-controller-test/find-by-id[snippets='curl-request,http-reques
 
 === 저장
 
-operation::faq-api-controller-test/save[snippets='curl-request,http-request,http-response']
+operation::faq-api-controller-test/save[snippets='curl-request,http-request,request-fields,http-response']
 
 === 저장 시 질문 누락 예외
 
@@ -41,7 +41,7 @@ operation::faq-api-controller-test/invalid-category-to-save[snippets='curl-reque
 
 === 수정
 
-operation::faq-api-controller-test/update[snippets='curl-request,http-request,http-response']
+operation::faq-api-controller-test/update[snippets='curl-request,http-request,path-parameters,request-fields,http-response']
 
 === 존재하지 않는 ID로 수정
 
@@ -73,7 +73,7 @@ operation::faq-api-controller-test/invalid-category-to-update[snippets='curl-req
 
 === 삭제
 
-operation::faq-api-controller-test/remove[snippets='curl-request,http-request,http-response']
+operation::faq-api-controller-test/remove[snippets='curl-request,http-request,path-parameters,http-response']
 
 === 존재하지 않는 ID로 삭제
 

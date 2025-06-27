@@ -57,7 +57,7 @@ public class StoreServiceUnitTest {
         lenient().when(category.getName()).thenReturn("뷰티");
 
         Location location = mock(Location.class);
-        lenient().when(location.getDistrict()).thenReturn("강서구");
+        lenient().when(location.getSigungu()).thenReturn("강서구");
 
 
         sampleStore = mock(Store.class);
@@ -103,7 +103,7 @@ public class StoreServiceUnitTest {
         assertEquals(1, summaries.size());
         assertEquals(sampleStore.getId(), summaries.get(0).id());
         assertEquals(sampleStore.getName(), summaries.get(0).name());
-        assertEquals(sampleStore.getLocation().getDistrict(), summaries.get(0).district());
+        assertEquals(sampleStore.getLocation().getSigungu(), summaries.get(0).district());
         assertEquals(sampleStore.getCategory().getName(), summaries.get(0).categoryName());
         assertEquals(sampleStore.getStartDate(), summaries.get(0).startDate());
         assertEquals(sampleStore.getEndDate(), summaries.get(0).endDate());
@@ -126,7 +126,6 @@ public class StoreServiceUnitTest {
                 LocalDate.of(2025, 6, 9),
                 LocalDate.of(2025, 6, 11),
                 0,
-                "010-0000-0000",
                 "https://example.com",
                 "https://www.instagram.com/baemin_official/",
                 List.of(new OperatingHourRequest("월~금", LocalTime.of(10, 30), LocalTime.of(20, 0))));
@@ -145,7 +144,6 @@ public class StoreServiceUnitTest {
                 .startDate(request.startDate())
                 .endDate(request.endDate())
                 .status(Status.PENDING)
-                .contactNumber(request.contactNumber())
                 .websiteUrl(request.websiteUrl())
                 .snsUrl(request.snsUrl())
                 .build();
