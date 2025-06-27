@@ -3,6 +3,7 @@ package kr.co.pinup.members.security.filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.security.filter.sub.TestAccessTokenValidationFilter;
 import kr.co.pinup.members.service.MemberService;
@@ -21,12 +22,15 @@ class AccessTokenValidationFilterTest {
     private FilterChain chain;
     private MemberService memberService;
     private SecurityUtil securityUtil;
+    private AppLogger appLogger;
 
     @BeforeEach
     void setUp() {
         memberService = Mockito.mock(MemberService.class);
         securityUtil = Mockito.mock(SecurityUtil.class);
-        filter = new TestAccessTokenValidationFilter(memberService, securityUtil);
+        appLogger = Mockito.mock(AppLogger.class);
+        filter = new TestAccessTokenValidationFilter(memberService, securityUtil, appLogger);
+
         request = Mockito.mock(HttpServletRequest.class);
         response = Mockito.mock(HttpServletResponse.class);
         chain = Mockito.mock(FilterChain.class);
