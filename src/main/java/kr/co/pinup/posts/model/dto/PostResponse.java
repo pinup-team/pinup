@@ -8,18 +8,19 @@ import java.time.LocalDateTime;
 
 @Builder
 public record PostResponse(Long id, Long storeId, MemberResponse member, String title, String content,
-                           String thumbnail, LocalDateTime createdAt, LocalDateTime updatedAt,  int commentCount) {
+                           String thumbnail, LocalDateTime createdAt, LocalDateTime updatedAt,  int commentCount
+                          , boolean likedByCurrentUser ) {
 
     public static PostResponse from(Post post) {
         return new PostResponse(post.getId(), post.getStore().getId(), new MemberResponse(post.getMember()),
                 post.getTitle(), post.getContent(), post.getThumbnail(),
-                post.getCreatedAt(), post.getUpdatedAt(), 0);
+                post.getCreatedAt(), post.getUpdatedAt(), 0, false);
     }
 
-    public static PostResponse fromPostWithComments(Post post, int commentCount) {
+    public static PostResponse fromPostWithComments(Post post, int commentCount, boolean likedByCurrentUser) {
         return new PostResponse(post.getId(), post.getStore().getId(), new MemberResponse(post.getMember()),
                 post.getTitle(), post.getContent(), post.getThumbnail(),
-                post.getCreatedAt(), post.getUpdatedAt(), commentCount);
+                post.getCreatedAt(), post.getUpdatedAt(), commentCount, likedByCurrentUser);
     }
 }
 

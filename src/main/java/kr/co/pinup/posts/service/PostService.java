@@ -17,6 +17,7 @@ import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.model.dto.UpdatePostImageRequest;
 import kr.co.pinup.postImages.service.PostImageService;
+import kr.co.pinup.postLike.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostDeleteFailedException;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
@@ -47,6 +48,7 @@ public class PostService {
     private final MemberRepository memberRepository;
     private final StoreRepository  storeRepository;
     private final CommentRepository commentRepository;
+    private final PostLikeRepository postLikeRepository;
     private final AppLogger appLogger ;
 
     @Transactional
@@ -92,17 +94,37 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    public List<PostResponse> findByStoreIdWithCommentCount(Long storeId, boolean isDeleted) {
+    public List<PostResponse> findByStoreIdWithCommentsAndLikes(Long storeId, boolean isDeleted, MemberInfo memberInfo) {
         log.debug("댓글 포함 게시글 요청: storeId={}, isDeleted={}", storeId, isDeleted);
+
         List<Post> posts = postRepository.findByStoreIdAndIsDeleted(storeId, isDeleted);
 
+        if (memberInfo == null) {
+            return posts.stream()
+                    .map(post -> PostResponse.fromPostWithComments(
+                            post,
+                            commentRepository.countByPostId(post.getId()),
+                            false
+                    ))
+                    .collect(Collectors.toList());
+        }
+
+        Member member = memberRepository.findByNickname(memberInfo.nickname())
+                .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
+
         return posts.stream()
-                .map(post -> PostResponse.fromPostWithComments(post, commentRepository.countByPostId(post.getId())))
+                .map(post -> PostResponse.fromPostWithComments(
+                        post,
+                        commentRepository.countByPostId(post.getId()),
+                        postLikeRepository.existsByPostIdAndMemberId(post.getId(), member.getId())
+                ))
                 .collect(Collectors.toList());
     }
 
+
     public PostResponse getPostById(Long id, boolean isDeleted) {
         log.debug("게시글 단건 요청: postId={}, isDeleted={}", id, isDeleted);
+
         return postRepository.findByIdAndIsDeleted(id, isDeleted)
                 .map(PostResponse::from)
                 .orElseThrow(PostNotFoundException::new);
