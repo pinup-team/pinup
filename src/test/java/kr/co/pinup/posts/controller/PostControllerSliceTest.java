@@ -3,7 +3,13 @@ package kr.co.pinup.posts.controller;
 import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.exception.ErrorResponse;
+import kr.co.pinup.members.custom.WithMockMember;
+import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.service.PostImageService;
+import kr.co.pinup.postLike.model.dto.PostLikeResponse;
+import kr.co.pinup.postLike.service.PostLikeService;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.service.PostService;
@@ -30,6 +36,8 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -55,12 +63,16 @@ class PostControllerSliceTest {
     @Autowired
     private PostImageService postImageService;
 
+    @Autowired
+    private PostLikeService postLikeService;
+
 
     @TestConfiguration
     static class TestConfig {
         @Bean PostService postService() { return mock(PostService.class); }
         @Bean CommentService commentService() { return mock(CommentService.class); }
         @Bean PostImageService postImageService() { return mock(PostImageService.class); }
+        @Bean PostLikeService postLikeService() { return mock(PostLikeService.class); }
     }
 
     @TestConfiguration
@@ -102,7 +114,6 @@ class PostControllerSliceTest {
         }
     }
 
-
     @Nested
     @DisplayName("게시물 뷰 페이지 테스트")
     class ViewPageTests {
@@ -111,7 +122,8 @@ class PostControllerSliceTest {
         @DisplayName("게시물 리스트 페이지 이동 - 성공")
         void listPage_whenCalled_thenReturnsPostListView() throws Exception {
             Long storeId = 1L;
-            when(postService.findByStoreIdWithCommentCount(storeId, false)).thenReturn(List.of());
+            MemberInfo memberInfo = mock(MemberInfo.class);
+            when(postService.findByStoreIdWithCommentsAndLikes(storeId, false,memberInfo)).thenReturn(List.of());
 
             mockMvc.perform(get("/post/list/{storeId}", storeId))
                     .andExpect(status().isOk())
@@ -120,18 +132,23 @@ class PostControllerSliceTest {
         }
 
         @Test
+        @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
         @DisplayName("게시물 상세 페이지 이동 - 성공")
         void detailPage_whenExistingPost_thenReturnsPostDetailView() throws Exception {
             Long postId = 1L;
+
             PostResponse postResponse = mock(PostResponse.class);
+            PostLikeResponse likeResponse = new PostLikeResponse(10, true);
+
             when(postService.getPostById(postId, false)).thenReturn(postResponse);
             when(commentService.findByPostId(postId)).thenReturn(List.of());
             when(postImageService.findImagesByPostId(postId)).thenReturn(List.of());
+            when(postLikeService.getLikeInfo(eq(postId), any(MemberInfo.class))).thenReturn(likeResponse);
 
             mockMvc.perform(get("/post/{postId}", postId))
                     .andExpect(status().isOk())
                     .andExpect(view().name(VIEW_PREFIX + "detail"))
-                    .andExpect(model().attributeExists("post", "comments", "images"));
+                    .andExpect(model().attributeExists("post", "comments", "images", "likeInfo"));
         }
 
         @Test

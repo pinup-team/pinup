@@ -94,8 +94,8 @@ class PostApiControllerDocsTest {
                 .build();
 
         List<PostResponse> posts = List.of(
-                new PostResponse(1L, storeId, writer, "제목1", "내용1", "thumb1.jpg", now, now, 3),
-                new PostResponse(2L, storeId, writer, "제목2", "내용2", "thumb2.jpg", now, now, 1)
+                new PostResponse(1L, storeId, writer, "제목1", "내용1", "thumb1.jpg", now, now, 3,false),
+                new PostResponse(2L, storeId, writer, "제목2", "내용2", "thumb2.jpg", now, now, 1,false)
         );
 
         given(postService.findByStoreId(eq(storeId), eq(false))).willReturn(posts);
@@ -122,7 +122,8 @@ class PostApiControllerDocsTest {
                                 fieldWithPath("[].thumbnail").description("썸네일 이미지 URL"),
                                 fieldWithPath("[].createdAt").description("작성일시"),
                                 fieldWithPath("[].updatedAt").description("수정일시"),
-                                fieldWithPath("[].commentCount").description("댓글 수")
+                                fieldWithPath("[].commentCount").description("댓글 수"),
+                                fieldWithPath("[].likedByCurrentUser").description("현재 로그인한 사용자가 좋아요 눌렀는지 여부").optional()
                         )
 
                 ));
@@ -148,7 +149,7 @@ class PostApiControllerDocsTest {
         PostResponse postResponse = new PostResponse(
                 postId, 10L, writer,
                 "문서화 제목", "문서화 내용", "https://s3.bucket/thumb.jpg",
-                now, now, 1
+                now, now, 1,false
         );
 
         Member commentWriter = Member.builder()
@@ -309,7 +310,8 @@ class PostApiControllerDocsTest {
                                 fieldWithPath("thumbnail").description("썸네일 이미지 URL"),
                                 fieldWithPath("createdAt").description("생성 일시"),
                                 fieldWithPath("updatedAt").description("수정 일시"),
-                                fieldWithPath("commentCount").description("댓글 수")
+                                fieldWithPath("commentCount").description("댓글 수"),
+                                fieldWithPath("likedByCurrentUser").description("현재 로그인한 사용자가 좋아요 눌렀는지 여부").optional()
                         )
                 ));
 
@@ -444,7 +446,8 @@ class PostApiControllerDocsTest {
                                 fieldWithPath("thumbnail").description("썸네일 이미지 URL"),
                                 fieldWithPath("createdAt").description("생성 일시"),
                                 fieldWithPath("updatedAt").description("수정 일시"),
-                                fieldWithPath("commentCount").description("댓글 수")
+                                fieldWithPath("commentCount").description("댓글 수"),
+                                fieldWithPath("likedByCurrentUser").description("현재 로그인한 사용자가 좋아요 눌렀는지 여부").optional()
                         )
 
                 ));
