@@ -1,11 +1,9 @@
 package kr.co.pinup.postLikes.repository;
 
-import kr.co.pinup.postLike.PostLike;
-import kr.co.pinup.posts.Post;
+import kr.co.pinup.postLikes.PostLike;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository

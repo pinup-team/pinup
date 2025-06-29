@@ -3,14 +3,13 @@ package kr.co.pinup.postLikes;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import kr.co.pinup.members.Member;
-import kr.co.pinup.oauth.OAuthProvider;
-import kr.co.pinup.members.model.enums.MemberRole;
-import kr.co.pinup.posts.Post;
-import kr.co.pinup.postLike.PostLike;
-import kr.co.pinup.stores.Store;
-import kr.co.pinup.store_categories.StoreCategory;
 import kr.co.pinup.locations.Location;
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.model.enums.MemberRole;
+import kr.co.pinup.oauth.OAuthProvider;
+import kr.co.pinup.posts.Post;
+import kr.co.pinup.store_categories.StoreCategory;
+import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.enums.Status;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,7 +17,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDate;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
 @Transactional

@@ -1,4 +1,4 @@
-package kr.co.pinup.postLike;
+package kr.co.pinup.postLikes;
 
 import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;

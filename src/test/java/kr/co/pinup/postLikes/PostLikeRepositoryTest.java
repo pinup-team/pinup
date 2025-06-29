@@ -1,16 +1,16 @@
 package kr.co.pinup.postLikes;
 
+import kr.co.pinup.locations.Location;
+import kr.co.pinup.locations.reposiotry.LocationRepository;
 import kr.co.pinup.members.Member;
+import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.OAuthProvider;
-import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.repository.PostRepository;
 import kr.co.pinup.store_categories.StoreCategory;
 import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
-import kr.co.pinup.locations.Location;
-import kr.co.pinup.locations.reposiotry.LocationRepository;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.enums.Status;
 import kr.co.pinup.stores.repository.StoreRepository;
@@ -19,12 +19,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import kr.co.pinup.postLike.PostLike;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 class PostLikeRepositoryTest {

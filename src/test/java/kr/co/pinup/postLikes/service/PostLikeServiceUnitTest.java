@@ -6,7 +6,7 @@ import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.OAuthProvider;
-import kr.co.pinup.postLike.PostLike;
+import kr.co.pinup.postLikes.PostLike;
 import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
@@ -73,10 +73,11 @@ class PostLikeServiceUnitTest {
         Post post = createMockPost(postId);
         MemberInfo memberInfo = new MemberInfo(member.getNickname(), member.getProviderType(), member.getRole());
 
+        // When
         when(memberRepository.findByNickname(member.getNickname())).thenReturn(Optional.of(member));
         when(postRepository.findByIdWithOptimisticLock(postId)).thenReturn(Optional.of(post));
+        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
-        // When
         var response = postLikeService.toggleLike(postId, memberInfo);
 
         // Then
@@ -95,12 +96,13 @@ class PostLikeServiceUnitTest {
         Post post = createMockPost(postId);
         MemberInfo memberInfo = new MemberInfo(member.getNickname(), member.getProviderType(), member.getRole());
 
+        // When
         when(memberRepository.findByNickname(member.getNickname())).thenReturn(Optional.of(member));
         when(postRepository.findByIdWithOptimisticLock(postId)).thenReturn(Optional.of(post));
         when(postLikeRepository.findByPostIdAndMemberId(postId, member.getId()))
                 .thenReturn(Optional.of(new PostLike(post, member)));
+        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
-        // When
         var response = postLikeService.toggleLike(postId, memberInfo);
 
         // Then

@@ -16,7 +16,7 @@ import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.postImages.service.PostImageService;
-import kr.co.pinup.postLike.PostLike;
+import kr.co.pinup.postLikes.PostLike;
 import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;

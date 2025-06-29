@@ -6,7 +6,7 @@ import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.MemberNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.repository.MemberRepository;
-import kr.co.pinup.postLike.PostLike;
+import kr.co.pinup.postLikes.PostLike;
 import kr.co.pinup.postLikes.model.dto.PostLikeResponse;
 import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
@@ -78,7 +78,8 @@ public class PostLikeService {
                 }
             }
         }
-        return PostLikeResponse.of(post.getLikeCount(), liked);
+        Post updated = postRepository.findById(postId).orElseThrow();
+        return PostLikeResponse.of(updated.getLikeCount(), liked);
     }
 
 }

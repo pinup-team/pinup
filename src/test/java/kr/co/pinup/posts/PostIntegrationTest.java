@@ -12,7 +12,7 @@ import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.repository.PostImageRepository;
-import kr.co.pinup.postLike.PostLike;
+import kr.co.pinup.postLikes.PostLike;
 import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
