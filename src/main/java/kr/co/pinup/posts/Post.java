@@ -70,8 +70,5 @@ public class Post extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
-    public void increaseLikeCount() { this.likeCount++; }
-    public void decreaseLikeCount() { this.likeCount--; }
-
 }
 

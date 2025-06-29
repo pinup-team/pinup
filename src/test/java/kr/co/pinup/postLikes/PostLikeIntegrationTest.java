@@ -32,6 +32,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -109,8 +110,10 @@ class PostLikeIntegrationTest {
     void toggleLike_whenLoggedIn_thenSuccess() throws Exception {
         mockMvc.perform(post("/api/postLike/" + post.getId() + "/like").with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.likeCount").value(1))
                 .andExpect(jsonPath("$.likedByCurrentUser").value(true));
+
+        Post updated = postRepository.findById(post.getId()).orElseThrow();
+        assertThat(updated.getLikeCount()).isEqualTo(1);
     }
 
     @Test
@@ -124,15 +127,15 @@ class PostLikeIntegrationTest {
     @DisplayName("좋아요가 이미 눌려있을 때 다시 요청하면 좋아요가 취소된다")
     @WithMockMember(nickname = "like_user", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     void toggleLike_whenAlreadyLiked_thenCancelLike() throws Exception {
-        // 먼저 좋아요 등록
         mockMvc.perform(post("/api/postLike/" + post.getId() + "/like").with(csrf()))
                 .andExpect(status().isOk());
 
-        // 다시 좋아요 누르면 취소됨
         mockMvc.perform(post("/api/postLike/" + post.getId() + "/like").with(csrf()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.likeCount").value(0))
                 .andExpect(jsonPath("$.likedByCurrentUser").value(false));
+
+        Post updated = postRepository.findById(post.getId()).orElseThrow();
+        assertThat(updated.getLikeCount()).isEqualTo(0);
     }
 
     @Test

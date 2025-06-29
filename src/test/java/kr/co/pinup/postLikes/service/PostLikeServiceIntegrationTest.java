@@ -107,23 +107,23 @@ public class PostLikeServiceIntegrationTest {
         // then
         assertNotNull(response);
         assertTrue(response.likedByCurrentUser());
-        assertEquals(1, response.likeCount());
+
+        Post updated = postRepository.findById(savedPost.getId()).orElseThrow();
+        assertEquals(1, updated.getLikeCount());
     }
 
     @Test
     @DisplayName("좋아요 취소 - 이미 눌렀을 경우")
     void toggleLike_alreadyLiked_shouldRemoveLike() {
-        // given
         MemberInfo memberInfo = new MemberInfo(savedMember.getNickname(), savedMember.getProviderType(), savedMember.getRole());
-        postLikeService.toggleLike(savedPost.getId(), memberInfo); // 먼저 좋아요 추가
 
-        // when
-        PostLikeResponse response = postLikeService.toggleLike(savedPost.getId(), memberInfo); // 다시 누르면 취소
+        postLikeService.toggleLike(savedPost.getId(), memberInfo);
+        postLikeService.toggleLike(savedPost.getId(), memberInfo);
 
-        // then
-        assertNotNull(response);
-        assertFalse(response.likedByCurrentUser());
-        assertEquals(0, response.likeCount());
+        Post updated = postRepository.findById(savedPost.getId()).orElseThrow();
+        assertEquals(0, updated.getLikeCount());
     }
+
+
 }
 

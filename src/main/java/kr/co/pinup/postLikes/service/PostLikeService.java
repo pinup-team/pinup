@@ -61,12 +61,12 @@ public class PostLikeService {
         if (existingLike.isPresent()) {
 
             postLikeRepository.deleteByPostIdAndMemberId(post.getId(), member.getId());
-            post.decreaseLikeCount();
+            postRepository.decrementLikeCount(postId);
             liked = false;
         } else {
             try {
                 postLikeRepository.save(new PostLike(post, member));
-                post.increaseLikeCount();
+                postRepository.incrementLikeCount(postId);
                 liked = true;
             } catch (Exception e) {
                 Throwable rootCause = ExceptionUtils.getRootCause(e);
