@@ -1,4 +1,4 @@
-package kr.co.pinup.postLike.service;
+package kr.co.pinup.postLikes.service;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
@@ -7,8 +7,8 @@ import kr.co.pinup.members.exception.MemberNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.postLike.PostLike;
-import kr.co.pinup.postLike.model.dto.PostLikeResponse;
-import kr.co.pinup.postLike.repository.PostLikeRepository;
+import kr.co.pinup.postLikes.model.dto.PostLikeResponse;
+import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.repository.PostRepository;
@@ -78,11 +78,7 @@ public class PostLikeService {
                 }
             }
         }
-
-        System.out.println("toggleLike : "+post.getLikeCount());
-        System.out.println("toggleLike : "+liked);
         return PostLikeResponse.of(post.getLikeCount(), liked);
     }
-
 
 }

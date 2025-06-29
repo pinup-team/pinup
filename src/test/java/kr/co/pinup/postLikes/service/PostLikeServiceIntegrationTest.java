@@ -8,20 +8,15 @@ import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.OAuthProvider;
-import kr.co.pinup.postLike.model.dto.PostLikeResponse;
-import kr.co.pinup.postLike.repository.PostLikeRepository;
+import kr.co.pinup.postLikes.model.dto.PostLikeResponse;
+import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.repository.PostRepository;
-
 import kr.co.pinup.store_categories.StoreCategory;
 import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
 import kr.co.pinup.stores.Store;
-
-
 import kr.co.pinup.stores.model.enums.Status;
 import kr.co.pinup.stores.repository.StoreRepository;
-import kr.co.pinup.postLike.service.PostLikeService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

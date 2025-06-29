@@ -1,4 +1,4 @@
-package kr.co.pinup.postLike.repository;
+package kr.co.pinup.postLikes.repository;
 
 import kr.co.pinup.postLike.PostLike;
 import kr.co.pinup.posts.Post;

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Positive;
 import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.postImages.service.PostImageService;
-import kr.co.pinup.postLike.service.PostLikeService;
+import kr.co.pinup.postLikes.service.PostLikeService;
 import kr.co.pinup.posts.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

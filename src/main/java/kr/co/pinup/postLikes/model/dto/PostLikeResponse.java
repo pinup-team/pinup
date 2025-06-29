@@ -1,4 +1,4 @@
-package kr.co.pinup.postLike.model.dto;
+package kr.co.pinup.postLikes.model.dto;
 
 public record PostLikeResponse(
         int likeCount,

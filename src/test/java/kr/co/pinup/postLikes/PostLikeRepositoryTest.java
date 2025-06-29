@@ -4,7 +4,7 @@ import kr.co.pinup.members.Member;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.members.model.enums.MemberRole;
-import kr.co.pinup.postLike.repository.PostLikeRepository;
+import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.repository.PostRepository;
 import kr.co.pinup.store_categories.StoreCategory;

@@ -1,9 +1,8 @@
-package kr.co.pinup.postLike.controller;
+package kr.co.pinup.postLikes.controller;
 
 import kr.co.pinup.members.model.dto.MemberInfo;
-import kr.co.pinup.postLike.model.dto.PostLikeResponse;
-import kr.co.pinup.postLike.service.PostLikeService;
-import kr.co.pinup.posts.service.PostService;
+import kr.co.pinup.postLikes.service.PostLikeService;
+import kr.co.pinup.postLikes.model.dto.PostLikeResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
