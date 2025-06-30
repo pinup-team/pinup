@@ -108,7 +108,8 @@ class PostLikeServiceUnitTest {
         // Then
         assertNotNull(response);
         assertFalse(response.likedByCurrentUser());
-        verify(postLikeRepository).deleteByPostIdAndMemberId(postId, member.getId());
+        verify(postLikeRepository).delete(any(PostLike.class));
+
     }
 
 
