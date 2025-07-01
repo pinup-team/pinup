@@ -7,11 +7,13 @@ import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postLikes.PostLike;
+import kr.co.pinup.postLikes.PostLikeRetryExecutor;
 import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.repository.PostRepository;
 import kr.co.pinup.stores.Store;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +44,19 @@ class PostLikeServiceUnitTest {
     private MemberRepository memberRepository;
 
     @Mock
+    private PostLikeRetryExecutor postLikeRetryExecutor;
+
+    @Mock
     private AppLogger appLogger;
+
+    @BeforeEach
+    void setupRetryMock() {
+        lenient().doAnswer(invocation -> {
+            Runnable action = invocation.getArgument(0);
+            action.run();
+            return null;
+        }).when(postLikeRetryExecutor).likeWithRetry(any(Runnable.class));
+    }
 
     private Member createMockMember() {
         Member member = new Member("행복한 돼지", "test@example.com", "happyPig",
@@ -64,39 +78,34 @@ class PostLikeServiceUnitTest {
         return post;
     }
 
+
     @Test
     @DisplayName("좋아요 - 처음 누를 때는 좋아요 추가")
     void toggleLike_whenNotLiked_thenAddLike() {
-        // Given
         Long postId = 1L;
         Member member = createMockMember();
         Post post = createMockPost(postId);
         MemberInfo memberInfo = new MemberInfo(member.getNickname(), member.getProviderType(), member.getRole());
 
-        // When
         when(memberRepository.findByNickname(member.getNickname())).thenReturn(Optional.of(member));
         when(postRepository.findByIdWithOptimisticLock(postId)).thenReturn(Optional.of(post));
         when(postRepository.findById(postId)).thenReturn(Optional.of(post));
 
         var response = postLikeService.toggleLike(postId, memberInfo);
 
-        // Then
         assertNotNull(response);
         assertTrue(response.likedByCurrentUser());
         verify(postLikeRepository).save(any(PostLike.class));
     }
 
-
     @Test
     @DisplayName("좋아요 - 이미 좋아요한 상태에서 누르면 좋아요 취소")
     void toggleLike_whenAlreadyLiked_thenRemoveLike() {
-        // Given
         Long postId = 1L;
         Member member = createMockMember();
         Post post = createMockPost(postId);
         MemberInfo memberInfo = new MemberInfo(member.getNickname(), member.getProviderType(), member.getRole());
 
-        // When
         when(memberRepository.findByNickname(member.getNickname())).thenReturn(Optional.of(member));
         when(postRepository.findByIdWithOptimisticLock(postId)).thenReturn(Optional.of(post));
         when(postLikeRepository.findByPostIdAndMemberId(postId, member.getId()))
@@ -105,30 +114,25 @@ class PostLikeServiceUnitTest {
 
         var response = postLikeService.toggleLike(postId, memberInfo);
 
-        // Then
         assertNotNull(response);
         assertFalse(response.likedByCurrentUser());
         verify(postLikeRepository).delete(any(PostLike.class));
-
     }
-
 
     @Test
     @DisplayName("좋아요 실패 - 존재하지 않는 게시글")
     void toggleLike_whenPostNotFound_thenThrowException() {
-        // Given
         Long postId = 999L;
         Member member = createMockMember();
         MemberInfo memberInfo = new MemberInfo(member.getNickname(), member.getProviderType(), member.getRole());
 
         when(memberRepository.findByNickname(member.getNickname())).thenReturn(Optional.of(member));
-        when(postRepository.findByIdWithOptimisticLock(postId)).thenReturn(Optional.empty()); // 변경
+        when(postRepository.findByIdWithOptimisticLock(postId)).thenReturn(Optional.empty());
 
-        // When & Then
         assertThrows(PostNotFoundException.class, () ->
                 postLikeService.toggleLike(postId, memberInfo));
 
-        verify(postRepository).findByIdWithOptimisticLock(postId); // 검증도 이걸로
+        verify(postRepository).findByIdWithOptimisticLock(postId);
         verify(postLikeRepository, never()).save(any());
     }
 
