@@ -1,5 +1,9 @@
 package kr.co.pinup.postLikes.service;
 
+import kr.co.pinup.custom.logging.AppLogger;
+import kr.co.pinup.custom.logging.model.dto.ErrorLog;
+import kr.co.pinup.custom.logging.model.dto.InfoLog;
+import kr.co.pinup.custom.logging.model.dto.WarnLog;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.MemberNotFoundException;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -14,6 +18,7 @@ import kr.co.pinup.posts.repository.PostRepository;
 import kr.co.pinup.posts.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -28,6 +33,7 @@ public class PostLikeService {
     private final MemberRepository memberRepository;
     private final PostService postService;
     private final PostLikeRetryExecutor postLikeRetryExecutor;
+    private final AppLogger appLogger;
 
     public PostLikeResponse getLikeInfo(Long postId, MemberInfo memberInfo) {
 
@@ -51,24 +57,42 @@ public class PostLikeService {
 
         AtomicReference<Boolean> liked = new AtomicReference<>(false);
 
-        postLikeRetryExecutor.likeWithRetry(() -> {
-            Post post = postRepository.findByIdWithOptimisticLock(postId)
-                    .orElseThrow(PostNotFoundException::new);
+        try {
+            postLikeRetryExecutor.likeWithRetry(() -> {
+                Post post = postRepository.findByIdWithOptimisticLock(postId)
+                        .orElseThrow(PostNotFoundException::new);
 
-            Optional<PostLike> existingLike = postLikeRepository.findByPostIdAndMemberId(postId, member.getId());
+                Optional<PostLike> existingLike = postLikeRepository.findByPostIdAndMemberId(postId, member.getId());
 
-            if (existingLike.isPresent()) {
-                postLikeRepository.delete(existingLike.get());
-                post.decreaseLikeCount();
-                liked.set(false);
-            } else {
-                postLikeRepository.save(new PostLike(post, member));
-                post.increaseLikeCount();
-                liked.set(true);
-            }
-        });
+                if (existingLike.isPresent()) {
+                    postLikeRepository.delete(existingLike.get());
+                    post.decreaseLikeCount();
+                    liked.set(false);
+
+                    appLogger.info(new InfoLog("좋아요 취소")
+                            .setTargetId(postId.toString())
+                            .addDetails("memberId", member.getId().toString()));
+                } else {
+                    postLikeRepository.save(new PostLike(post, member));
+                    post.increaseLikeCount();
+                    liked.set(true);
+
+                    appLogger.info(new InfoLog("좋아요 등록")
+                            .setTargetId(postId.toString())
+                            .addDetails("memberId", member.getId().toString()));
+                }
+            });
+
+        } catch (ObjectOptimisticLockingFailureException e) {
+            appLogger.warn(new WarnLog("낙관적 락 충돌")
+                    .setTargetId(postId.toString())
+                    .addDetails("memberId", member.getId().toString()));
+            throw e;
+
+        }
 
         Post updated = postRepository.findById(postId).orElseThrow();
         return PostLikeResponse.of(updated.getLikeCount(), liked.get());
     }
+
 }

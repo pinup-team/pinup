@@ -11,6 +11,7 @@ import kr.co.pinup.members.exception.MemberBadRequestException;
 import kr.co.pinup.members.exception.OAuthLoginCanceledException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -233,6 +234,20 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        int status = HttpStatus.CONFLICT.value();
+
+        appLogger.warn(
+                new WarnLog("중복 좋아요 요청 또는 무결성 제약 오류")
+                        .setStatus(String.valueOf(status))
+                        .addDetails("reason", ex.getMessage())
+        );
+
+        return ResponseEntity.status(status)
+                .body(new ErrorResponse(status, "이미 좋아요를 눌렀거나 무결성 제약 조건을 위반했습니다.", null));
     }
 
 }

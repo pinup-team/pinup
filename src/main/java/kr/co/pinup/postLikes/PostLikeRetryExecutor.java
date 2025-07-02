@@ -12,8 +12,8 @@ public class PostLikeRetryExecutor  {
     @Transactional
     @Retryable(
             value = ObjectOptimisticLockingFailureException.class,
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 50)
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 10)
     )
     public void likeWithRetry(Runnable likeLogic) {
         likeLogic.run();
