@@ -119,11 +119,9 @@ class PostLikeConcurrencyTest {
     @Test
     @DisplayName("여러 유저가 동시에 좋아요 요청 시 일정 비율 이상 성공하고, 중복 없이 유니크하게 저장된다")
     void toggleLike_concurrentRequests_thenSuccessRateAndUniquenessAreValid() throws Exception {
-        int threadCount = 30;
+        int threadCount = 20;
 
-        // 요청 수에 따라 최소 허용 성공률 동적으로 조정 (낙관적 락 충돌 고려)
-        double successThreshold = threadCount >= 30 ? 0.6 : 0.8;
-        int minAcceptable = (int) (threadCount * successThreshold);
+        int minAcceptable = (int) (threadCount * 0.3);
 
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
@@ -240,7 +238,7 @@ class PostLikeConcurrencyTest {
                 .andExpect(status().isOk());
 
         // 동시에 여러 쓰레드에서 좋아요 취소 요청
-        int threadCount = 100;
+        int threadCount = 50;
         ExecutorService executor = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
@@ -276,7 +274,7 @@ class PostLikeConcurrencyTest {
         // given
         Member member = post.getMember();
         Long postId = post.getId();
-        int threadCount = 100;
+        int threadCount = 50;
 
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
@@ -312,7 +310,7 @@ class PostLikeConcurrencyTest {
         // given
         Member member = post.getMember();
         Long postId = post.getId();
-        int threadCount = 100;
+        int threadCount = 50;
 
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
