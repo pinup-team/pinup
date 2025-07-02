@@ -4,6 +4,7 @@ import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.WithMockMember;
+import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.members.service.MemberService;
@@ -27,6 +28,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,13 +44,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@Import(PostLikeApiControllerIntegrationTest.TestMockConfig.class)
+@ActiveProfiles("test") 
+@Import(PostLikeApiControllerIntegrationTest.MockServiceTestConfig.class)
 class PostLikeApiControllerIntegrationTest {
 
     @TestConfiguration
-    static class TestMockConfig {
+    public static class MockServiceTestConfig {
         @Bean
-        @Primary
         public MemberService memberService() {
             MemberService mock = mock(MemberService.class);
             when(mock.isAccessTokenExpired(any(), any())).thenReturn(false);
@@ -65,6 +67,7 @@ class PostLikeApiControllerIntegrationTest {
     @Autowired private StoreRepository storeRepository;
     @Autowired private StoreCategoryRepository storeCategoryRepository;
     @Autowired private LocationRepository locationRepository;
+    @Autowired private MemberService memberService;
 
     private Member member;
     private Post post;
@@ -106,7 +109,7 @@ class PostLikeApiControllerIntegrationTest {
     }
 
     @Test
-    @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.GOOGLE, role = MemberRole.ROLE_USER)
+    @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     @DisplayName("좋아요 API는 실제 DB에 반영되어야 한다")
     void toggleLike_shouldReflectInDatabase() throws Exception {
         mockMvc.perform(post("/api/postLike/{postId}/like", post.getId()))
