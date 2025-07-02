@@ -21,3 +21,5 @@ include::notice.adoc[]
 include::faq.adoc[]
 
 include::member.adoc[]
+
+include::postLike.adoc[]

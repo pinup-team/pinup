@@ -4,4 +4,4 @@
 operation::comment-create[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
 
 === 댓글 삭제
-operation::comment-delete[snippets='http-request,path-parameters,http-response']
+operation::comment-delete[snippets='http-request,path-parameters,request-fields,http-response,response-fields']
