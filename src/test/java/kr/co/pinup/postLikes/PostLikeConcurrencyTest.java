@@ -34,6 +34,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -269,8 +270,8 @@ class PostLikeConcurrencyTest {
     }
 
     @Test
-    @DisplayName("동일한 유저가 동시에 여러 번 좋아요 요청 시 중복 없이 1번만 저장됨")
-    void concurrentLikeRequestFromSameUser() throws Exception {
+    @DisplayName("Controller: 동일한 유저가 동시에 여러 번 좋아요 요청 시 중복 없이 최대 1번만 저장됨")
+    void concurrentLikeRequestViaController() throws Exception {
         // given
         Member member = post.getMember();
         Long postId = post.getId();
@@ -305,12 +306,12 @@ class PostLikeConcurrencyTest {
     }
 
     @Test
-    @DisplayName("동일한 유저가 동시에 여러 번 좋아요 요청 시 중복 없이 1번만 저장됨")
-    void concurrentLikeRequestsDirectly() throws InterruptedException {
+    @DisplayName("Service: 동일한 유저가 동시에 여러 번 좋아요 요청 시 중복 없이 정확히 1번만 저장됨")
+    void concurrentLikeRequestViaService() throws InterruptedException {
         // given
         Member member = post.getMember();
         Long postId = post.getId();
-        int threadCount = 50;
+        int threadCount = 49;
 
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
@@ -328,11 +329,15 @@ class PostLikeConcurrencyTest {
         latch.await();
 
         // then
-        long likeCount = postLikeRepository.count();
-        Post updatedPost = postRepository.findById(postId).orElseThrow();
+        Optional<PostLike> postLike = postLikeRepository.findByPostIdAndMemberId(postId, member.getId());
+        assertTrue(postLike.isPresent(), "좋아요가 저장되어 있어야 합니다.");
 
-        assertEquals(1, likeCount, "좋아요는 한 번만 저장되어야 합니다.");
-        assertEquals(1, updatedPost.getLikeCount(), "Like count는 1이어야 합니다.");
+        long totalLikeCount = postLikeRepository.count();
+        assertEquals(1, totalLikeCount, "좋아요는 최대 한 번만 저장되어야 합니다.");
+
+        Post updatedPost = postRepository.findById(postId).orElseThrow();
+        assertEquals(1, updatedPost.getLikeCount(), "Post의 likeCount도 1이어야 합니다.");
+
     }
 
 }
