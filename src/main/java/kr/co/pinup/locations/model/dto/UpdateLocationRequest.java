@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 
 @Builder
-public record CreateLocationRequest(
+public record UpdateLocationRequest(
 
         @NotBlank(message = "우편번호는 필수 입력값입니다.")
         String zonecode,

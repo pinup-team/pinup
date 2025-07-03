@@ -41,7 +41,6 @@ public class StoreRequestValidationTest {
                 LocalDate.of(2025, 6, 9),
                 LocalDate.of(2025, 6, 11),
                 0,
-                "010-0000-0000",
                 "https://example.com",
                 "https://www.instagram.com/baemin_official/",
                 List.of(new OperatingHourRequest("월~금", LocalTime.of(10, 30), LocalTime.of(20, 0))));
@@ -62,7 +61,6 @@ public class StoreRequestValidationTest {
                 null,
                 null,
                 null,
-                "010-0000-0000",
                 "https://example.com",
                 "https://www.instagram.com/baemin_official/",
                 null
@@ -85,7 +83,6 @@ public class StoreRequestValidationTest {
                 LocalDate.of(2025, 6, 9),
                 LocalDate.of(2025, 6, 11),
                 0,
-                "010-0000-0000",
                 "https://example.com",
                 "https://www.instagram.com/baemin_official/",
                 List.of(new OperatingHourRequest("월~금", LocalTime.of(10, 30), LocalTime.of(20, 0))));

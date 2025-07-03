@@ -63,7 +63,6 @@ public class StoreService {
 
         store.setName(request.getName());
         store.setDescription(request.getDescription());
-        store.setContactNumber(request.getContactNumber());
         store.setWebsiteUrl(request.getWebsiteUrl());
         store.setSnsUrl(request.getSnsUrl());
         store.setStartDate(request.getStartDate());
@@ -152,7 +151,6 @@ public class StoreService {
                     .startDate(request.startDate())
                     .endDate(request.endDate())
                     .status(storeStatus)
-                    .contactNumber(request.contactNumber())
                     .websiteUrl(request.websiteUrl())
                     .snsUrl(request.snsUrl())
                     .build();

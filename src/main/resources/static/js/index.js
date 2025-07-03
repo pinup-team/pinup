@@ -60,7 +60,7 @@ async function fetchStoreSummaries() {
                                     <div class="list-store-info">
                                         <div class="list-store-info-head">
                                             <h3>${store.name}</h3>
-                                            <span>📍${store.location.district}</span>
+                                            <span>📍${store.location.sigungu}</span>
                                         </div>
                                         <span class="list-store-info-date">~ ${store.endDate}</span>
                                     </div>
