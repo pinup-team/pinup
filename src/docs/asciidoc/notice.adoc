@@ -17,7 +17,7 @@ operation::notice-api-controller-test/find-by-id[snippets='curl-request,http-req
 
 === 저장
 
-operation::notice-api-controller-test/save[snippets='curl-request,http-request,http-response']
+operation::notice-api-controller-test/save[snippets='curl-request,http-request,request-fields,http-response']
 
 === 저장 시 제목 누락 예외
 
@@ -33,7 +33,7 @@ operation::notice-api-controller-test/invalid-content-to-save[snippets='curl-req
 
 === 수정
 
-operation::notice-api-controller-test/update[snippets='curl-request,http-request,http-response']
+operation::notice-api-controller-test/update[snippets='curl-request,http-request,path-parameters,request-fields,http-response']
 
 === 존재하지 않는 ID로 수정
 
@@ -57,7 +57,7 @@ operation::notice-api-controller-test/invalid-content-to-update[snippets='curl-r
 
 === 삭제
 
-operation::notice-api-controller-test/remove[snippets='curl-request,http-request,http-response']
+operation::notice-api-controller-test/remove[snippets='curl-request,http-request,path-parameters,http-response']
 
 === 존재하지 않는 ID로 삭제
 
