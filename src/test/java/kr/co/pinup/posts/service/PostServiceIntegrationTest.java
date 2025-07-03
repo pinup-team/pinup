@@ -16,6 +16,8 @@ import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.postImages.service.PostImageService;
+import kr.co.pinup.postLikes.PostLike;
+import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
@@ -41,12 +43,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:post_like_test_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE")
 @ActiveProfiles("test")
 @Transactional
 @Import(PostServiceIntegrationTest.TestMockConfig.class)
@@ -57,6 +60,7 @@ public class PostServiceIntegrationTest {
     @Autowired private MemberRepository memberRepository;
     @Autowired private StoreRepository storeRepository;
     @Autowired private PostImageRepository postImageRepository;
+    @Autowired private PostLikeRepository postLikeRepository;
     @Autowired private LocationRepository locationRepository;
     @Autowired private StoreCategoryRepository storeCategoryRepository;
 
@@ -260,6 +264,40 @@ public class PostServiceIntegrationTest {
         assertThrows(PostImageUpdateCountException.class, () -> {
             postService.updatePost(mockPost.getId(), req, new MultipartFile[0], List.of("img1"));
         });
+    }
+
+    @Test
+    @DisplayName("게시글 목록 조회 - 로그인 여부와 좋아요 여부에 따른 likedByCurrentUser 필드 검증")
+    void findByStoreIdWithCommentsAndLikes_allScenarios() {
+        // given
+        // 1. 게시글 2개 생성
+        Post post1 = postRepository.save(Post.builder().title("post1").content("c1").member(mockMember).store(mockPost.getStore()).build());
+        Post post2 = postRepository.save(Post.builder().title("post2").content("c2").member(mockMember).store(mockPost.getStore()).build());
+
+        // 2. post1에는 좋아요 저장
+        postLikeRepository.save(PostLike.builder().post(post1).member(mockMember).build());
+
+        MemberInfo memberInfo = new MemberInfo(mockMember.getNickname(), mockMember.getProviderType(), mockMember.getRole());
+
+        // when
+        List<PostResponse> loggedInResult = postService.findByStoreIdWithCommentsAndLikes(mockPost.getStore().getId(), false, memberInfo);
+        List<PostResponse> anonymousResult = postService.findByStoreIdWithCommentsAndLikes(mockPost.getStore().getId(), false, null);
+
+        // then
+        assertThat(loggedInResult).hasSize(3); // 기존 mockPost + 위에서 만든 post1, post2
+        assertThat(anonymousResult).hasSize(3);
+
+        // 로그인한 사용자는 post1만 좋아요 누름
+        for (PostResponse response : loggedInResult) {
+            if (response.title().equals("post1")) {
+                assertThat(response.likedByCurrentUser()).isTrue();
+            } else {
+                assertThat(response.likedByCurrentUser()).isFalse();
+            }
+        }
+
+        // 비로그인 사용자는 모두 false
+        assertThat(anonymousResult).allSatisfy(resp -> assertThat(resp.likedByCurrentUser()).isFalse());
     }
 
 }

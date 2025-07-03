@@ -144,7 +144,7 @@ class PostApiControllerSliceTest {
                                     .isDeleted(false)
                                     .build(),
                             "dummy title", "dummy content", null,
-                            LocalDateTime.now(), LocalDateTime.now(), 0
+                            LocalDateTime.now(), LocalDateTime.now(), 0,false
                     ));
 
             doAnswer(invocation -> {

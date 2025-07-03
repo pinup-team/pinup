@@ -55,3 +55,6 @@ node_modules
 !.github/
 !.github/workflows/
 !.github/workflows/*
+
+### k6 성능 테스트 디렉토리 ###
+k6-load-test/

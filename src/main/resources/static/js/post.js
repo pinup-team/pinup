@@ -275,6 +275,7 @@ function openDetailPopup(postId) {
             initializeCarousel();        // 🔥 특히 캐러셀 관련 바인딩
             initializeCommentButton();   // 💬 댓글 버튼 이벤트 바인딩
             initializeCommentHandlers(); // 💬 댓글 생성&삭제  바인딩
+            initializeLikeButtons(); // ❤️좋아요 버튼 바인딩
         })
         .catch(error => {
             detailContainer.innerHTML = "데이터를 불러올 수 없습니다.";
@@ -481,4 +482,45 @@ function initializeCommentHandlers() {
         });
     }
 
+}
+
+function initializeLikeButtons() {
+    const likeButtons = document.querySelectorAll(".like-button");
+
+    likeButtons.forEach(button => {
+        button.addEventListener("click", async () => {
+            const postId = button.getAttribute("data-post-id");
+
+            try {
+                const response = await fetch(`/api/postLike/${postId}/like`, {
+                    method: "POST"
+                });
+
+                if (response.status === 401) {
+                    alert("로그인 후 좋아요를 눌 수 있습니다.");
+                    window.location.href = "/members/login";
+                    return;
+                }
+
+                const result = await response.json();
+
+                const heartSpan = button.querySelector("span");
+                const likeCountElem = button.closest(".card-buttons").parentElement.querySelector("#like-count");
+
+                if (result.likedByCurrentUser) {
+                    heartSpan.textContent = "❤️";
+                    button.classList.add("liked");
+                } else {
+                    heartSpan.textContent = "🤍";
+                    button.classList.remove("liked");
+                }
+
+                if (likeCountElem) {
+                    likeCountElem.textContent = `좋아요 ${result.likeCount}`;
+                }
+            } catch (error) {
+                console.error("좋아요 처리 중 오류:", error);
+            }
+        });
+    });
 }

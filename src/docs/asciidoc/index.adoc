@@ -18,6 +18,8 @@ include::location.adoc[]
 
 include::post.adoc[]
 
+include::postLike.adoc[]
+
 include::comment.adoc[]
 
 include::notice.adoc[]
