@@ -4,7 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import kr.co.pinup.store_operatingHour.model.dto.OperatingHourRequest;
+import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourRequest;
 import kr.co.pinup.stores.model.dto.StoreRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -43,7 +43,7 @@ public class StoreRequestValidationTest {
                 0,
                 "https://example.com",
                 "https://www.instagram.com/baemin_official/",
-                List.of(new OperatingHourRequest("월~금", LocalTime.of(10, 30), LocalTime.of(20, 0))));
+                List.of(new StoreOperatingHourRequest("월~금", LocalTime.of(10, 30), LocalTime.of(20, 0))));
 
         Set<ConstraintViolation<StoreRequest>> violations = validator.validate(request);
         assertTrue(violations.isEmpty(), "유효한 StoreRequest");
@@ -60,7 +60,7 @@ public class StoreRequestValidationTest {
                 null,
                 null,
                 null,
-                null,
+                0,
                 "https://example.com",
                 "https://www.instagram.com/baemin_official/",
                 null
@@ -85,7 +85,7 @@ public class StoreRequestValidationTest {
                 0,
                 "https://example.com",
                 "https://www.instagram.com/baemin_official/",
-                List.of(new OperatingHourRequest("월~금", LocalTime.of(10, 30), LocalTime.of(20, 0))));
+                List.of(new StoreOperatingHourRequest("월~금", LocalTime.of(10, 30), LocalTime.of(20, 0))));
 
         Set<ConstraintViolation<StoreRequest>> violations = validator.validate(request);
         assertFalse(violations.isEmpty(), "필수 필드 blank");

@@ -31,11 +31,9 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-
     public String uploadFile(MultipartFile file, String pathPrefix) {
-        String fileName = pathPrefix + "/" + UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        String fileName = pathPrefix + "/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
         try {
-
             try (InputStream inputStream = file.getInputStream()) {
                 PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                         .bucket(bucketName)

@@ -2,6 +2,7 @@ package kr.co.pinup.stores.controller;
 
 
 import jakarta.validation.Valid;
+import kr.co.pinup.annotation.ValidImageFile;
 import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
@@ -28,7 +29,8 @@ public class StoreApiController {
     public ResponseEntity<StoreResponse> updateStore(
             @PathVariable Long id,
             @RequestPart("request") @Valid StoreUpdateRequest request,
-            @RequestPart(value = "imageFiles", required = false) MultipartFile[] imageFiles) {
+            @RequestPart(value = "imageFiles", required = false) MultipartFile[] imageFiles
+    ) {
         List<MultipartFile> imageFileList = (imageFiles != null) ? Arrays.asList(imageFiles) : List.of();
         StoreResponse updatedStore = storeService.updateStore(id, request, imageFileList);
         return ResponseEntity.ok(updatedStore);
@@ -47,10 +49,13 @@ public class StoreApiController {
     }
 
     @PostMapping
-    public ResponseEntity<StoreResponse> createStore(@Valid @ModelAttribute StoreRequest request,
-                                                     @RequestParam(value = "imageFiles", required = false) MultipartFile[] imageFiles) {
-        log.info("팝업스토어 생성 요청 - 이름: {}", request.name());
-        return ResponseEntity.ok(storeService.createStore(request, imageFiles));
+    public ResponseEntity<StoreResponse> createStore(
+            @Valid @ModelAttribute StoreRequest request,
+            @ValidImageFile @RequestParam(value = "images") List<MultipartFile> images
+    ) {
+        log.debug("createStore StoreRequest={}, images size={}", request, images.size());
+
+        return ResponseEntity.ok(storeService.createStore(request, images));
     }
 
     @DeleteMapping("/{id}")

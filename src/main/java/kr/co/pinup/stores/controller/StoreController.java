@@ -2,8 +2,8 @@ package kr.co.pinup.stores.controller;
 
 import jakarta.validation.Valid;
 import kr.co.pinup.locations.service.LocationService;
-import kr.co.pinup.store_categories.service.CategoryService;
-import kr.co.pinup.store_images.service.StoreImageService;
+import kr.co.pinup.storecategories.service.StoreCategoryService;
+import kr.co.pinup.storeimages.service.StoreImageService;
 import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
 import kr.co.pinup.stores.model.dto.StoreSummaryResponse;
@@ -27,7 +27,7 @@ import java.util.List;
 public class StoreController {
 
     private final StoreService storeService;
-    private final CategoryService categoryService;
+    private final StoreCategoryService storeCategoryService;
     private final LocationService locationService;
     private final StoreImageService storeImageService;
 
@@ -52,6 +52,7 @@ public class StoreController {
         model.addAttribute("selectedStatus", selectedStatus);
         return "views/stores/list";
     }
+
     @GetMapping("/{id}")
     public String storeDetail(@PathVariable Long id, Model model) {
         StoreResponse storeResponse = storeService.getStoreById(id);
@@ -63,7 +64,7 @@ public class StoreController {
 
     @GetMapping("/create")
     public String createStoreForm(Model model) {
-        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("categories", storeCategoryService.getCategories());
         return "views/stores/create";
     }
 
@@ -75,7 +76,7 @@ public class StoreController {
     @GetMapping("/{id}/update")
     public String editStoreForm(@PathVariable Long id, Model model) {
         model.addAttribute("store", storeService.getStoreById(id));
-        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("categories", storeCategoryService.getCategories());
         return "views/stores/update";
     }
 

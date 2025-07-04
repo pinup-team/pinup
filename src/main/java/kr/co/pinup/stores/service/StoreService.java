@@ -3,15 +3,16 @@ package kr.co.pinup.stores.service;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.exception.LocationNotFoundException;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
-import kr.co.pinup.store_categories.StoreCategory;
-import kr.co.pinup.store_categories.exception.StoreCategoryNotFoundException;
-import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
-import kr.co.pinup.store_images.StoreImage;
-import kr.co.pinup.store_images.exception.StoreImageDeleteFailedException;
-import kr.co.pinup.store_images.model.dto.StoreImageRequest;
-import kr.co.pinup.store_images.service.StoreImageService;
-import kr.co.pinup.store_operatingHour.OperatingHour;
-import kr.co.pinup.store_operatingHour.model.dto.OperatingHourRequest;
+import kr.co.pinup.storecategories.StoreCategory;
+import kr.co.pinup.storecategories.exception.StoreCategoryNotFoundException;
+import kr.co.pinup.storecategories.repository.StoreCategoryRepository;
+import kr.co.pinup.storeimages.StoreImage;
+import kr.co.pinup.storeimages.exception.StoreImageDeleteFailedException;
+import kr.co.pinup.storeimages.model.dto.StoreImageRequest;
+import kr.co.pinup.storeimages.service.StoreImageService;
+import kr.co.pinup.storeoperatinghour.StoreOperatingHour;
+import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourRequest;
+import kr.co.pinup.storeoperatinghour.service.StoreOperatingHourService;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.exception.StoreNotFoundException;
 import kr.co.pinup.stores.model.dto.StoreRequest;
@@ -40,11 +41,12 @@ public class StoreService {
     private final LocationRepository locationRepository;
     private final StoreCategoryRepository storeCategoryRepository;
     private final StoreImageService storeImageService;
+    private final StoreOperatingHourService operatingHourService;
 
     private final String PATH_PREFIX = "store";
 
     @Transactional
-    public StoreResponse updateStore(Long id, StoreUpdateRequest request, List<MultipartFile> imageFiles) {
+    public StoreResponse updateStore(Long id, StoreUpdateRequest request, List<MultipartFile> images) {
 
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
@@ -70,27 +72,27 @@ public class StoreService {
 
         if (request.getOperatingHours() != null) {
             store.getOperatingHours().clear();
-            for (OperatingHourRequest hourRequest : request.getOperatingHours()) {
-                OperatingHour operatingHour = OperatingHour.builder()
+            for (StoreOperatingHourRequest hourRequest : request.getOperatingHours()) {
+                StoreOperatingHour storeOperatingHour = StoreOperatingHour.builder()
                         .day(hourRequest.day())
                         .startTime(hourRequest.startTime())
                         .endTime(hourRequest.endTime())
                         .store(store)
                         .build();
-                store.getOperatingHours().add(operatingHour);
+                store.getOperatingHours().add(storeOperatingHour);
             }
         }
 
-        if (imageFiles != null && !imageFiles.isEmpty()) {
+        if (images != null && !images.isEmpty()) {
             try {
                 storeImageService.deleteStoreImage(store.getId());
 
                 StoreImageRequest imageRequest = StoreImageRequest.builder()
-                        .images(imageFiles)
+                        .images(images)
                         .build();
-                List<StoreImage> storeImages = storeImageService.uploadStoreImages(store, imageRequest);
+                List<StoreImage> storeImages = storeImageService.uploadImages(store, images, request.getThumbnailIndex());
 
-                int thumbnailIndex = request.getThumbnailImage() != null ? request.getThumbnailImage() : 0;
+                int thumbnailIndex = request.getThumbnailIndex();
                 if (!storeImages.isEmpty() && thumbnailIndex >= 0 && thumbnailIndex < storeImages.size()) {
                     store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
                 }
@@ -128,9 +130,7 @@ public class StoreService {
     }
 
     @Transactional
-    public StoreResponse createStore(StoreRequest request, MultipartFile[] imageFiles) {
-        log.info("팝업스토어 생성 요청 - 이름: {}", request.name());
-
+    public StoreResponse createStore(StoreRequest request, List<MultipartFile> images) {
         try {
             StoreCategory category = storeCategoryRepository.findById(request.categoryId())
                     .orElseThrow(StoreNotFoundException::new);
@@ -154,42 +154,43 @@ public class StoreService {
                     .websiteUrl(request.websiteUrl())
                     .snsUrl(request.snsUrl())
                     .build();
-            log.info("스토어 빌드 완료");
 
-            if (request.operatingHours() != null && !request.operatingHours().isEmpty()) {
-                List<OperatingHour> operatingHours = request.operatingHours().stream()
-                        .map(hourRequest -> {
-                            return OperatingHour.builder()
-                                    .day(hourRequest.day())
-                                    .startTime(hourRequest.startTime())
-                                    .endTime(hourRequest.endTime())
-                                    .store(store)
-                                    .build();
-                        })
-                        .toList();
-                store.getOperatingHours().addAll(operatingHours);
-            }
+            final List<StoreOperatingHour> operatingHours = operatingHourService.createOperatingHours(store, request.operatingHours());
+            log.debug("createStore operatingHours: {}", operatingHours);
+            store.addOperatingHours(operatingHours);
 
             storeRepository.save(store);
             log.info("스토어 저장 완료 - ID: {}", store.getId());
 
-            if (imageFiles != null && imageFiles.length > 0) {
-                StoreImageRequest storeImageRequest = StoreImageRequest.builder()
-                        .images(Arrays.asList(imageFiles))
-                        .build();
-                log.info("스토어 이미지 빌드 완료");
+            final List<StoreImage> storeImages = storeImageService.uploadImages(store, images, request.thumbnailIndex());
+            store.addImages(storeImages);
 
-                List<StoreImage> storeImages = storeImageService.uploadStoreImages(store, storeImageRequest);
-                log.info("이미지 업로드 완료 - 개수: {}", storeImages.size());
-                store.setStoreImages(storeImages);
-
-                int thumbnailIndex = request.thumbnailImage() != null ? request.thumbnailImage() : 0;
-                if (!storeImages.isEmpty() && thumbnailIndex >= 0 && thumbnailIndex < storeImages.size()) {
-                    store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
-                    log.info("썸네일 설정 완료: {}", store.getImageUrl());
-                }
-                storeRepository.save(store);
+            int thumbnailIndex = request.thumbnailIndex();
+            if (!storeImages.isEmpty() && thumbnailIndex < storeImages.size()) {
+                store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
+                log.info("썸네일 설정 완료: {}", store.getImageUrl());
             }
+            storeRepository.save(store);
+            // TODO : 2025/07/01 createStore에 isThumbnail 지정까지 완료
+            // TODO : get, update 등 전체 확인 및 테스트 코드 작성
+
+//            if (images != null && !images.isEmpty()) {
+//                StoreImageRequest storeImageRequest = StoreImageRequest.builder()
+//                        .images(images)
+//                        .build();
+//                log.info("스토어 이미지 빌드 완료");
+//
+//                List<StoreImage> storeImages = storeImageService.uploadStoreImages(store, storeImageRequest);
+//                log.info("이미지 업로드 완료 - 개수: {}", storeImages.size());
+//                store.setStoreImages(storeImages);
+//
+//                int thumbnailIndex = request.thumbnailIndex();
+//                if (!storeImages.isEmpty() && thumbnailIndex < storeImages.size()) {
+//                    store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
+//                    log.info("썸네일 설정 완료: {}", store.getImageUrl());
+//                }
+//                storeRepository.save(store);
+//            }
 
             return StoreResponse.from(store);
         } catch (Exception e) {

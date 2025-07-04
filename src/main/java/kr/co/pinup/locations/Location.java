@@ -37,7 +37,7 @@ public class Location extends BaseEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String address;
 
-    @Column(name = "address_detail", nullable = false)
+    @Column(name = "address_detail")
     private String addressDetail;
 
     public void update(final UpdateLocationRequest request, final KakaoAddressDocument addressDocument) {

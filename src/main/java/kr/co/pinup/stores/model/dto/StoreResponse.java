@@ -1,9 +1,9 @@
 package kr.co.pinup.stores.model.dto;
 
 import kr.co.pinup.locations.model.dto.LocationResponse;
-import kr.co.pinup.store_categories.model.dto.StoreCategoryResponse;
-import kr.co.pinup.store_images.StoreImage;
-import kr.co.pinup.store_operatingHour.model.dto.OperatingHourResponse;
+import kr.co.pinup.storecategories.model.dto.StoreCategoryResponse;
+import kr.co.pinup.storeimages.StoreImage;
+import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourResponse;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.enums.Status;
 
@@ -25,7 +25,7 @@ public record StoreResponse(
         LocalDateTime updatedAt,
         String websiteUrl,
         String snsUrl,
-        List<OperatingHourResponse> operatingHours,
+        List<StoreOperatingHourResponse> operatingHours,
         List<String> storeImages,
         String thumbnailImage
 ) {
@@ -45,7 +45,7 @@ public record StoreResponse(
                 store.getWebsiteUrl(),
                 store.getSnsUrl(),
                 store.getOperatingHours().stream()
-                        .map(o -> new OperatingHourResponse(
+                        .map(o -> new StoreOperatingHourResponse(
                                 o.getDay(), o.getStartTime(), o.getEndTime()
                         )).toList(),
                 store.getStoreImages().stream()
