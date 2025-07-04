@@ -16,7 +16,7 @@ import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.service.PostService;
-import kr.co.pinup.store_categories.StoreCategory;
+import kr.co.pinup.storecategories.StoreCategory;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.enums.Status;
 import org.junit.jupiter.api.DisplayName;

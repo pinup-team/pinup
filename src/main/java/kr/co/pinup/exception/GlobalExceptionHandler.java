@@ -11,19 +11,24 @@ import kr.co.pinup.members.exception.MemberBadRequestException;
 import kr.co.pinup.members.exception.OAuthLoginCanceledException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
@@ -55,8 +60,6 @@ public class GlobalExceptionHandler {
                         .setStatus(String.valueOf(status))
                         .addDetails("reason", "validation failure","invalidField", ex.getFieldErrors().toString())
         );
-
-
 
         return ResponseEntity.status(status)
                 .body(errorResponse);
@@ -235,4 +238,33 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    @ResponseBody
+    @ResponseStatus(BAD_REQUEST)
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorResponse> handlerMethodValidationHandler(HandlerMethodValidationException ex) {
+        final String message = ex.getParameterValidationResults().stream()
+                .flatMap(result -> result.getResolvableErrors().stream())
+                .map(MessageSourceResolvable::getDefaultMessage)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse("유효성 검증 실패");
+
+        final int status = BAD_REQUEST.value();
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(status)
+                .message("잘못된 요청입니다.")
+                .build();
+
+        errorResponse.addValidation("images", message);
+
+        appLogger.warn(
+                new WarnLog(message)
+                        .setStatus(String.valueOf(status))
+                        .addDetails("reason", "Invalid field images")
+        );
+
+        return ResponseEntity.status(status)
+                .body(errorResponse);
+    }
 }

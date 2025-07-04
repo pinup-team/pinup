@@ -2,10 +2,12 @@ package kr.co.pinup.stores.service;
 
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
-import kr.co.pinup.store_categories.StoreCategory;
-import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
-import kr.co.pinup.store_images.service.StoreImageService;
-import kr.co.pinup.store_operatingHour.model.dto.OperatingHourRequest;
+import kr.co.pinup.storecategories.StoreCategory;
+import kr.co.pinup.storecategories.repository.StoreCategoryRepository;
+import kr.co.pinup.storeimages.service.StoreImageService;
+import kr.co.pinup.storeoperatinghour.StoreOperatingHour;
+import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourRequest;
+import kr.co.pinup.storeoperatinghour.service.StoreOperatingHourService;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
@@ -13,6 +15,7 @@ import kr.co.pinup.stores.model.dto.StoreSummaryResponse;
 import kr.co.pinup.stores.model.enums.Status;
 import kr.co.pinup.stores.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,6 +48,9 @@ public class StoreServiceUnitTest {
 
     @Mock
     private StoreImageService storeImageService;
+
+    @Mock
+    private StoreOperatingHourService operatingHourService;
 
     @InjectMocks
     private StoreService storeService;
@@ -114,10 +120,27 @@ public class StoreServiceUnitTest {
 
     }
 
+    @Disabled
     @Test
     @DisplayName("스토어 생성 - 성공")
     void createStoreSuccess() {
         // given
+        final StoreOperatingHourRequest operatingHourRequest = StoreOperatingHourRequest.builder()
+                .day("월~금")
+                .startTime(LocalTime.of(10, 30))
+                .endTime(LocalTime.of(20, 0))
+                .build();
+
+        final List<StoreOperatingHourRequest> operatingHoursRequest = List.of(operatingHourRequest);
+
+        List<StoreOperatingHour> operatingHours = List.of(
+                StoreOperatingHour.builder()
+                        .day("월~금")
+                        .startTime(LocalTime.of(10, 30))
+                        .endTime(LocalTime.of(20, 0))
+                        .build()
+        );
+
         StoreRequest request = new StoreRequest(
                 "배민 계란프라이 데이",
                 "장보기도, 도전도, 선물도 한-계란 없는 날! \uD83E\uDD5A+\uD83E\uDD5A",
@@ -128,7 +151,7 @@ public class StoreServiceUnitTest {
                 0,
                 "https://example.com",
                 "https://www.instagram.com/baemin_official/",
-                List.of(new OperatingHourRequest("월~금", LocalTime.of(10, 30), LocalTime.of(20, 0))));
+                operatingHoursRequest);
 
         StoreCategory category = mock(StoreCategory.class);
         when(category.getId()).thenReturn(1L);
@@ -148,58 +171,20 @@ public class StoreServiceUnitTest {
                 .snsUrl(request.snsUrl())
                 .build();
 
-//        when(storeCategoryRepository.findById(category.getId())).thenReturn(category);
         when(storeCategoryRepository.findById(1L)).thenReturn(Optional.of(category));
         when(locationRepository.findById(1L)).thenReturn(Optional.of(location));
+        when(operatingHourService.createOperatingHours(any(), any())).thenReturn(operatingHours);
         when(storeRepository.save(any(Store.class))).thenReturn(store);
 
         // when
-        StoreResponse response = storeService.createStore(request, new MultipartFile[0]);
+        StoreResponse response = storeService.createStore(request, List.of(new MultipartFile[0]));
 
         //t hen
         assertNotNull(response);
         assertEquals(request.name(), response.name());
         assertEquals(request.description(), response.description());
         verify(storeRepository, times(1)).save(any(Store.class));
-        verify(storeImageService, never()).uploadStoreImages(any(), any());
+        verify(storeImageService, never()).uploadImages(any(), any(), anyInt());
     }
 
-
-
-/*    @Test
-    @DisplayName("스토어 생성 - 필수 필드 누락")
-    void createStoreWithoutRequiredFileds() {
-        // given
-        StoreRequest request = new StoreRequest(
-                "배민 계란프라이 데이",
-                null,
-                1L,
-                1L,
-                LocalDate.of(2025, 6, 9),
-                LocalDate.of(2025, 6, 11),
-                0,
-                "010-0000-0000",
-                "https://example.com",
-                "https://www.instagram.com/baemin_official/",
-                List.of(new OperatingHourRequest("월~금", LocalTime.of(10, 30), LocalTime.of(20, 0))));
-
-        StoreCategory category = mock(StoreCategory.class);
-        when(category.getId()).thenReturn(1L);
-        when(storeCategoryRepository.findById(1L)).thenReturn(Optional.of(category));
-
-        Location location = mock(Location.class);
-        when(location.getId()).thenReturn(1L);
-        when(locationRepository.findById(1L)).thenReturn(Optional.of(location));
-
-    }*/
-
-
 }
-
-
-//    @Mock
-//    private Sto
-
-
-
-

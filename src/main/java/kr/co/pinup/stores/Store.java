@@ -3,9 +3,9 @@ package kr.co.pinup.stores;
 import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
 import kr.co.pinup.locations.Location;
-import kr.co.pinup.store_categories.StoreCategory;
-import kr.co.pinup.store_images.StoreImage;
-import kr.co.pinup.store_operatingHour.OperatingHour;
+import kr.co.pinup.storeimages.StoreImage;
+import kr.co.pinup.storecategories.StoreCategory;
+import kr.co.pinup.storeoperatinghour.StoreOperatingHour;
 import kr.co.pinup.stores.model.enums.Status;
 import lombok.*;
 
@@ -68,7 +68,7 @@ public class Store extends BaseEntity {
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<OperatingHour> operatingHours = new ArrayList<>();
+    private List<StoreOperatingHour> operatingHours = new ArrayList<>();
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -94,6 +94,14 @@ public class Store extends BaseEntity {
             return storeImages.get(thumbnailIndex).getImageUrl();
         }
         return null;
+    }
+
+    public void addOperatingHours(final List<StoreOperatingHour> operatingHours) {
+        this.operatingHours.addAll(operatingHours);
+    }
+
+    public void addImages(final List<StoreImage> storeImages) {
+        this.storeImages.addAll(storeImages);
     }
 }
 
