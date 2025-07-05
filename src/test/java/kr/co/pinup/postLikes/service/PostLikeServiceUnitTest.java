@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
+import java.util.concurrent.Callable;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,10 +53,9 @@ class PostLikeServiceUnitTest {
     @BeforeEach
     void setupRetryMock() {
         lenient().doAnswer(invocation -> {
-            Runnable action = invocation.getArgument(0);
-            action.run();
-            return null;
-        }).when(postLikeRetryExecutor).likeWithRetry(any(Runnable.class));
+            Callable<?> action = invocation.getArgument(0);
+            return action.call();  // call() 호출하고 return
+        }).when(postLikeRetryExecutor).likeWithRetry(any(Callable.class));
     }
 
     private Member createMockMember() {

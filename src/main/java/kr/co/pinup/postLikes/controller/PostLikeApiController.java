@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/postLike")
+@RequestMapping("/api/post-like")
 @Validated
 public class PostLikeApiController {
 
     private final PostLikeService postLikeService;
 
     @PreAuthorize("isAuthenticated() and (hasRole('ROLE_USER') or hasRole('ROLE_ADMIN'))")
-    @PostMapping("/{postId}/like")
+    @PostMapping("/{postId}")
     @ResponseBody
     public PostLikeResponse toggleLike(@PathVariable Long postId,
                                        @AuthenticationPrincipal MemberInfo memberInfo) {

@@ -85,7 +85,7 @@ class PostLikeApiControllerDocsTest {
 
     @Test
     @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
-    @DisplayName("POST /api/postLike/{postId}/like - 게시글 좋아요 토글 문서화")
+    @DisplayName("POST /api/post-like/{postId} - 게시글 좋아요 토글 문서화")
     void toggleLike_document() throws Exception {
         Long postId = 1L;
 
@@ -93,7 +93,7 @@ class PostLikeApiControllerDocsTest {
                 new PostLikeResponse(15, true)
         );
 
-        mockMvc.perform(post("/api/postLike/{postId}/like", postId)
+        mockMvc.perform(post("/api/post-like/{postId}", postId)
                         .with(csrf())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

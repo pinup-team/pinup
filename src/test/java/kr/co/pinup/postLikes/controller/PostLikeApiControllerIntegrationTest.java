@@ -112,7 +112,7 @@ class PostLikeApiControllerIntegrationTest {
     @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     @DisplayName("좋아요 API는 실제 DB에 반영되어야 한다")
     void toggleLike_shouldReflectInDatabase() throws Exception {
-        mockMvc.perform(post("/api/postLike/{postId}/like", post.getId()))
+        mockMvc.perform(post("/api/post-like/{postId}", post.getId()))
                 .andExpect(status().isOk());
 
         assertThat(postLikeRepository.existsByPostIdAndMemberId(post.getId(), member.getId())).isTrue();

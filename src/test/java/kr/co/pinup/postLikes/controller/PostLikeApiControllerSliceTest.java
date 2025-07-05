@@ -102,7 +102,7 @@ class PostLikeApiControllerSliceTest {
                 .thenReturn(new PostLikeResponse(42, true));
 
         // when & then
-        mockMvc.perform(post("/api/postLike/{postId}/like", 100L)
+        mockMvc.perform(post("/api/post-like/{postId}", 100L)
                         .with(SecurityMockMvcRequestPostProcessors.authentication(auth)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.likedByCurrentUser").value(true))

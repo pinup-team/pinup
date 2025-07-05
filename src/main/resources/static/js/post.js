@@ -492,7 +492,7 @@ function initializeLikeButtons() {
             const postId = button.getAttribute("data-post-id");
 
             try {
-                const response = await fetch(`/api/postLike/${postId}/like`, {
+                const response = await fetch(`/api/post-like/${postId}`, {
                     method: "POST"
                 });
 

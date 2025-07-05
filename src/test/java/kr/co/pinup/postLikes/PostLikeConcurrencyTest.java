@@ -233,7 +233,7 @@ class PostLikeConcurrencyTest {
                 .build());
 
         // 먼저 좋아요 등록
-        mockMvc.perform(post("/api/postLike/" + post.getId() + "/like")
+        mockMvc.perform(post("/api/post-like/" + post.getId() )
                         .with(csrf())
                         .with(user(new MemberInfo("cancel_user", OAuthProvider.NAVER, MemberRole.ROLE_USER))))
                 .andExpect(status().isOk());
@@ -247,7 +247,7 @@ class PostLikeConcurrencyTest {
             executor.submit(() -> {
                 try {
                     try {
-                        mockMvc.perform(post("/api/postLike/" + post.getId() + "/like")
+                        mockMvc.perform(post("/api/post-like/" + post.getId() )
                                         .with(csrf())
                                         .with(user(new MemberInfo("cancel_user", OAuthProvider.NAVER, MemberRole.ROLE_USER))))
                                 .andExpect(status().isOk());
@@ -283,7 +283,7 @@ class PostLikeConcurrencyTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    mockMvc.perform(post("/api/postLike/{postId}/like", postId)
+                    mockMvc.perform(post("/api/post-like/{postId}", postId)
                                     .with(user(new MemberInfo(member.getNickname(), member.getProviderType(), member.getRole())))
                                     .contentType(MediaType.APPLICATION_JSON))
                             .andExpect(status().isOk());

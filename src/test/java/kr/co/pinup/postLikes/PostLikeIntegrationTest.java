@@ -108,7 +108,7 @@ class PostLikeIntegrationTest {
     @DisplayName("로그인 유저 - 좋아요 요청 시 성공적으로 등록됨")
     @WithMockMember(nickname = "like_user", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     void toggleLike_whenLoggedIn_thenSuccess() throws Exception {
-        mockMvc.perform(post("/api/postLike/" + post.getId() + "/like").with(csrf()))
+        mockMvc.perform(post("/api/post-like/" + post.getId()).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.likedByCurrentUser").value(true));
 
@@ -119,7 +119,7 @@ class PostLikeIntegrationTest {
     @Test
     @DisplayName("비로그인 유저 - 좋아요 요청 시 401 에러")
     void toggleLike_whenAnonymous_thenUnauthorized() throws Exception {
-        mockMvc.perform(post("/api/postLike/" + post.getId() + "/like").with(csrf()))
+        mockMvc.perform(post("/api/post-like/" + post.getId() ).with(csrf()))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -127,10 +127,10 @@ class PostLikeIntegrationTest {
     @DisplayName("좋아요가 이미 눌려있을 때 다시 요청하면 좋아요가 취소된다")
     @WithMockMember(nickname = "like_user", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     void toggleLike_whenAlreadyLiked_thenCancelLike() throws Exception {
-        mockMvc.perform(post("/api/postLike/" + post.getId() + "/like").with(csrf()))
+        mockMvc.perform(post("/api/post-like/" + post.getId() ).with(csrf()))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(post("/api/postLike/" + post.getId() + "/like").with(csrf()))
+        mockMvc.perform(post("/api/post-like/" + post.getId() ).with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.likedByCurrentUser").value(false));
 
@@ -143,7 +143,7 @@ class PostLikeIntegrationTest {
     @WithMockMember(nickname = "like_user", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
     void toggleLike_whenPostNotFound_then404() throws Exception {
         Long invalidId = 9999L;
-        mockMvc.perform(post("/api/postLike/" + invalidId + "/like").with(csrf()))
+        mockMvc.perform(post("/api/post-like/" + invalidId ).with(csrf()))
                 .andExpect(status().isNotFound());
     }
 }
