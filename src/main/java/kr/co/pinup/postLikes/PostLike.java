@@ -22,8 +22,4 @@ public class PostLike extends BaseEntity {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
-    @PrePersist
-    public void onPrePersist() {
-        System.out.println(">>> [PrePersist] createdAt = " + createdAt);
-    }
 }
