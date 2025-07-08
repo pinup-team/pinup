@@ -16,6 +16,7 @@ import kr.co.pinup.posts.repository.PostRepository;
 import kr.co.pinup.posts.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -52,36 +53,32 @@ public class PostLikeService {
         Member member = memberRepository.findByNickname(memberInfo.nickname())
                 .orElseThrow(() -> new MemberNotFoundException("회원을 찾을 수 없습니다."));
 
-        AtomicReference<Boolean> liked = new AtomicReference<>(false);
+        postService.findByIdOrThrow(postId);
 
-        postLikeRetryExecutor.likeWithRetry(() -> {
+        return postLikeRetryExecutor.likeWithRetry(() -> {
             Post post = postRepository.findByIdWithOptimisticLock(postId)
                     .orElseThrow(PostNotFoundException::new);
 
-            Optional<PostLike> existingLike = postLikeRepository.findByPostIdAndMemberId(postId, member.getId());
-
-            if (existingLike.isPresent()) {
-                postLikeRepository.delete(existingLike.get());
-                post.decreaseLikeCount();
-                liked.set(false);
-
-                appLogger.info(new InfoLog("좋아요 취소")
-                        .setTargetId(postId.toString())
-                        .addDetails("memberId", member.getId().toString()));
-            } else {
+            try {
                 postLikeRepository.save(new PostLike(post, member));
                 post.increaseLikeCount();
-                liked.set(true);
 
                 appLogger.info(new InfoLog("좋아요 등록")
                         .setTargetId(postId.toString())
                         .addDetails("memberId", member.getId().toString()));
+
+                return PostLikeResponse.of(post.getLikeCount() +1, true);
+
+            } catch (DataIntegrityViolationException e) {
+                postLikeRepository.deleteByPostIdAndMemberId(postId, member.getId());
+                post.decreaseLikeCount();
+
+                appLogger.info(new InfoLog("좋아요 취소")
+                        .setTargetId(postId.toString())
+                        .addDetails("memberId", member.getId().toString()));
+
+                return PostLikeResponse.of(post.getLikeCount() -1, false);
             }
-
-            return null;
         });
-
-        Post updated = postRepository.findById(postId).orElseThrow();
-        return PostLikeResponse.of(updated.getLikeCount(), liked.get());
     }
 }
