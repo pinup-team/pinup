@@ -1,5 +1,6 @@
 package kr.co.pinup.postLikes.service;
 
+import jakarta.persistence.EntityManager;
 import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -12,6 +13,7 @@ import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.repository.PostRepository;
+import kr.co.pinup.posts.service.PostService;
 import kr.co.pinup.stores.Store;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
@@ -49,6 +52,11 @@ class PostLikeServiceUnitTest {
 
     @Mock
     private AppLogger appLogger;
+
+    @Mock
+    private PostService postService;
+    @Mock
+    private EntityManager entityManager;
 
     @BeforeEach
     void setupRetryMock() {
@@ -88,8 +96,9 @@ class PostLikeServiceUnitTest {
         MemberInfo memberInfo = new MemberInfo(member.getNickname(), member.getProviderType(), member.getRole());
 
         when(memberRepository.findByNickname(member.getNickname())).thenReturn(Optional.of(member));
+        when(postService.findByIdOrThrow(postId)).thenReturn(null);
         when(postRepository.findByIdWithOptimisticLock(postId)).thenReturn(Optional.of(post));
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+
 
         var response = postLikeService.toggleLike(postId, memberInfo);
 
@@ -107,16 +116,21 @@ class PostLikeServiceUnitTest {
         MemberInfo memberInfo = new MemberInfo(member.getNickname(), member.getProviderType(), member.getRole());
 
         when(memberRepository.findByNickname(member.getNickname())).thenReturn(Optional.of(member));
+        when(postService.findByIdOrThrow(postId)).thenReturn(null);
         when(postRepository.findByIdWithOptimisticLock(postId)).thenReturn(Optional.of(post));
-        when(postLikeRepository.findByPostIdAndMemberId(postId, member.getId()))
-                .thenReturn(Optional.of(new PostLike(post, member)));
-        when(postRepository.findById(postId)).thenReturn(Optional.of(post));
+
+        when(postLikeRepository.save(any(PostLike.class)))
+                .thenThrow(new DataIntegrityViolationException("Duplicate like"));
+
+        doNothing().when(postLikeRepository).deleteByPostIdAndMemberId(postId, member.getId());
+
+        when(entityManager.merge(any(Post.class))).thenReturn(post);
 
         var response = postLikeService.toggleLike(postId, memberInfo);
 
         assertNotNull(response);
         assertFalse(response.likedByCurrentUser());
-        verify(postLikeRepository).delete(any(PostLike.class));
+        verify(postLikeRepository).deleteByPostIdAndMemberId(postId, member.getId());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package kr.co.pinup.postLikes.service;
 
+import jakarta.persistence.EntityManager;
 import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.custom.logging.model.dto.InfoLog;
 import kr.co.pinup.members.Member;
@@ -19,9 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -32,6 +30,7 @@ public class PostLikeService {
     private final PostService postService;
     private final PostLikeRetryExecutor postLikeRetryExecutor;
     private final AppLogger appLogger;
+    private final EntityManager entityManager;
 
     public PostLikeResponse getLikeInfo(Long postId, MemberInfo memberInfo) {
 
@@ -62,23 +61,30 @@ public class PostLikeService {
             try {
                 postLikeRepository.save(new PostLike(post, member));
                 post.increaseLikeCount();
-
+                System.out.println("좋아요 등록 : "+post.getLikeCount());
                 appLogger.info(new InfoLog("좋아요 등록")
                         .setTargetId(postId.toString())
                         .addDetails("memberId", member.getId().toString()));
 
-                return PostLikeResponse.of(post.getLikeCount() +1, true);
+                return PostLikeResponse.of(post.getLikeCount(), true);
 
             } catch (DataIntegrityViolationException e) {
+                entityManager.clear();
                 postLikeRepository.deleteByPostIdAndMemberId(postId, member.getId());
+
+                Post managedPost = entityManager.merge(post);
+                managedPost.decreaseLikeCount();
+
                 post.decreaseLikeCount();
+                System.out.println("좋아요 취소 : "+post.getLikeCount());
 
                 appLogger.info(new InfoLog("좋아요 취소")
                         .setTargetId(postId.toString())
                         .addDetails("memberId", member.getId().toString()));
 
-                return PostLikeResponse.of(post.getLikeCount() -1, false);
+                return PostLikeResponse.of(post.getLikeCount() , false);
             }
         });
     }
+
 }

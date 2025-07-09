@@ -1,5 +1,6 @@
 package kr.co.pinup.postLikes.service;
 
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
@@ -33,26 +34,20 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 public class PostLikeServiceIntegrationTest {
 
-    @Autowired
-    private PostLikeService postLikeService;
+    @Autowired private PostLikeService postLikeService;
 
-    @Autowired
-    private PostRepository postRepository;
+    @Autowired private PostRepository postRepository;
 
-    @Autowired
-    private PostLikeRepository postLikeRepository;
+    @Autowired private PostLikeRepository postLikeRepository;
 
-    @Autowired
-    private MemberRepository memberRepository;
+    @Autowired private MemberRepository memberRepository;
 
-    @Autowired
-    private StoreRepository storeRepository;
+    @Autowired private StoreRepository storeRepository;
 
-    @Autowired
-    private StoreCategoryRepository storeCategoryRepository;
+    @Autowired private StoreCategoryRepository storeCategoryRepository;
 
-    @Autowired
-    private LocationRepository locationRepository;
+    @Autowired private LocationRepository locationRepository;
+    @Autowired private EntityManager entityManager;
 
     private Member savedMember;
     private Post savedPost;
