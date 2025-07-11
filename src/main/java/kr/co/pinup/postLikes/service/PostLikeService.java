@@ -61,7 +61,6 @@ public class PostLikeService {
             try {
                 postLikeRepository.save(new PostLike(post, member));
                 post.increaseLikeCount();
-                System.out.println("좋아요 등록 : "+post.getLikeCount());
                 appLogger.info(new InfoLog("좋아요 등록")
                         .setTargetId(postId.toString())
                         .addDetails("memberId", member.getId().toString()));
@@ -76,11 +75,10 @@ public class PostLikeService {
                 managedPost.decreaseLikeCount();
 
                 post.decreaseLikeCount();
-                System.out.println("좋아요 취소 : "+post.getLikeCount());
 
-                appLogger.info(new InfoLog("좋아요 취소")
+                appLogger.warn(new InfoLog("중복 좋아요 감지 - 취소 처리로 전환")
                         .setTargetId(postId.toString())
-                        .addDetails("memberId", member.getId().toString()));
+                        .addDetails("reason", "UNIQUE 제약 위반 → 토글 처리"));
 
                 return PostLikeResponse.of(post.getLikeCount() , false);
             }
