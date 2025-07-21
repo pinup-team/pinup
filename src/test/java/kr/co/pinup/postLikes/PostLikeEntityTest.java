@@ -8,7 +8,7 @@ import kr.co.pinup.members.Member;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.posts.Post;
-import kr.co.pinup.store_categories.StoreCategory;
+import kr.co.pinup.storecategories.StoreCategory;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.enums.Status;
 import org.junit.jupiter.api.DisplayName;
