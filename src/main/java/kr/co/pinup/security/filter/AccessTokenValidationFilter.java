@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.constraints.NotNull;
 import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.custom.logging.model.dto.ErrorLog;
 import kr.co.pinup.custom.logging.model.dto.WarnLog;
@@ -15,7 +16,6 @@ import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.security.SecurityConstants;
 import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;

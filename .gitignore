@@ -38,6 +38,7 @@ out/
 
 ### Application YAML ###
 *.yml
+*.yaml
 
 ### MAC OS ###
 .DS_Store
@@ -58,3 +59,9 @@ node_modules
 
 ### k6 성능 테스트 디렉토리 ###
 k6-load-test/
+
+### log 디렉토리 ###
+logs/
+
+### spy.properties 파일 ###
+src/main/resources/spy.properties

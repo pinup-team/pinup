@@ -1,7 +1,8 @@
 package kr.co.pinup.stores.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import kr.co.pinup.store_operatingHour.model.dto.OperatingHourRequest;
+import jakarta.validation.constraints.Min;
+import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourRequest;
 import kr.co.pinup.stores.model.enums.Status;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,13 +38,14 @@ public class StoreUpdateRequest {
 //    @NotNull(message = "스토어 상태는 필수 입력값입니다.")
     private Status status;
 
+    @Min(0)
+    int thumbnailIndex;
+
     private String websiteUrl;
 
     private String snsUrl;
 
     private String imageUrl;
 
-    private List<OperatingHourRequest> operatingHours;
-
-    private Integer thumbnailImage;
+    private List<StoreOperatingHourRequest> operatingHours;
 }

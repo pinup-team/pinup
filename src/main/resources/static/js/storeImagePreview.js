@@ -4,9 +4,9 @@ const ImagePreview = (() => {
     let thumbnailElement;
 
     function init() {
-        const imageElement = document.getElementById('imageFiles');
+        const imageElement = document.getElementById('images');
         previewContainer = document.getElementById('previewContainer');
-        thumbnailElement = document.getElementById('thumbnailImage');
+        thumbnailElement = document.getElementById('thumbnailIndex');
 
         if (imageElement) {
             imageElement.addEventListener('change', handleImageChange);
@@ -49,8 +49,8 @@ const ImagePreview = (() => {
         img.classList.add("selected-thumbnail");
         img.style.cssText = `
             width: 150px;
-            cursor: pointer;           
-            border-radius: 8px;            
+            cursor: pointer;
+            border-radius: 8px;
         `;
         img.addEventListener('click', () => setThumbnail(index));
 
