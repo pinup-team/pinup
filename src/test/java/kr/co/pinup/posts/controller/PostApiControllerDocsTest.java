@@ -18,7 +18,7 @@ import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.service.PostService;
 import kr.co.pinup.storecategories.StoreCategory;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -242,8 +242,7 @@ class PostApiControllerDocsTest {
                 .description("테스트 설명")
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(30))
-                .status(Status.RESOLVED)
-                .imageUrl("https://example.com/store-image.jpg")
+                .storeStatus(StoreStatus.RESOLVED)
                 .category(category)
                 .location(location)
                 .build();
@@ -370,8 +369,7 @@ class PostApiControllerDocsTest {
                 .description("테스트 설명")
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(30))
-                .status(Status.RESOLVED)
-                .imageUrl("https://example.com/store-image.jpg")
+                .storeStatus(StoreStatus.RESOLVED)
                 .category(category)
                 .location(location)
                 .build();

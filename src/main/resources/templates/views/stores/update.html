@@ -2,13 +2,40 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout}">
-<head>
-    <meta charset="UTF-8">
-    <title>팝업스토어 수정</title>
-</head>
+
+<th:block layout:fragment="pageStyles">
+    <link rel="stylesheet" th:href="@{/css/store-update.css}" />
+</th:block>
+
 <div layout:fragment="content" th:object="${store}">
 <h1>팝업스토어 수정</h1>
 <form id="updateForm" th:data-store-id="*{id}">
+    <th:block>
+        <h3>현재 사진</h3>
+        <div id="previewContainer" style="display: flex; flex-wrap: wrap">
+            <div th:each="image : ${store.storeImages}" th:attr="data-id=${image.id}, data-type='existing'" class="image-wrapper">
+                <img th:src="@{${image.imageUrl}}" alt="이미지" style="width: 150px; margin: 5px;"
+                     class="image-preview"
+                     th:attr="data-id=${image.id}"
+                     th:classappend="${image.isThumbnail} ? 'selected-thumbnail' : ''"
+                />
+                <button type="button" class="delete-image-btn">삭제</button>
+            </div>
+        </div>
+
+        <input type="hidden" id="deletedImageIds" name="deletedImageIds" />
+        <input type="hidden" id="thumbnailIndex" name="thumbnailIndex" />
+        <input type="hidden" id="thumbnailId" name="thumbnailId"
+               th:value="${store.storeImages.?[isThumbnail == true][0].id ?: ''}"
+        />
+
+        <h3>추가 사진</h3>
+        <div id="newPreviewContainer" style="display: flex; flex-wrap: wrap;"></div>
+
+        <label>이미지 : <input type="file" name="images" id="updateImages" accept="image/*" multiple></label>
+        <br />
+    </th:block>
+
     <label>이름: <input type="text" name="name" th:value="*{name}" required></label><br>
     <label>설명:</label>
     <textarea name="description" th:text="*{description}" rows="4" required></textarea><br>
@@ -17,12 +44,39 @@
     <label>종료 날짜: <input type="date" name="endDate" th:value="*{endDate}" required></label><br>
 
     <input type="hidden" id="locationId" name="locationId" th:value="*{location.id}"/>
-    <label>우편번호: <input type="text" id="zonecode" name="zonecode" th:value="*{location.zonecode}" readonly required/></label>
+    <label for="zonecode">우편번호: </label>
+    <input type="text" id="zonecode" name="zonecode"
+           th:value="*{location.zonecode}"
+           th:attr="data-original-value=*{location.zonecode}"
+           readonly
+           required
+    />
+
     <button type="button" id="searchAddress">주소 검색</button>
     <br/>
-    <label>주소: <input type="text" id="address" name="address" th:value="*{location.address}" readonly required/></label>
-    <label>상세주소: <input type="text" id="addressDetail" name="addressDetail" th:value="*{location.addressDetail}" required/></label>
+    <input type="hidden" id="sido" name="sido"
+           th:value="*{location.sido}"
+           th:attr="data-original-value=*{location.sido}"
+    />
+    <input type="hidden" id="sigungu" name="sigungu"
+           th:value="*{location.sigungu}"
+           th:attr="data-original-value=*{location.sigungu}"
+    />
 
+    <label for="address">주소: </label>
+    <input type="text" id="address" name="address"
+           th:value="*{location.address}"
+           th:attr="data-original-value=*{location.address}"
+           readonly
+           required
+    />
+    <label for="addressDetail">상세주소: </label>
+    <input type="text" id="addressDetail" name="addressDetail"
+           th:value="*{location.addressDetail}"
+           th:attr="data-original-value=*{location.addressDetail}"
+    />
+
+    <br />
     <label>카테고리:
         <select name="categoryId" required>
             <option th:value="${store.category.id}" th:text="${store.category.name}" selected></option>
@@ -38,7 +92,7 @@
         <label>운영 시간</label>
         <div th:each="hour, iterStat : ${store.operatingHours}">
             <div class="operating-hour">
-                <input type="text" name="days" th:value="${hour.day}" placeholder="요일 (예: 월, 월~목)" required>
+                <input type="text" name="days" th:value="${hour.days}" placeholder="요일 (예: 월, 월~목)" required>
                 <input type="time" name="startTimes" th:value="${hour.startTime}" required>
                 <input type="time" name="endTimes" th:value="${hour.endTime}" required>
                 <button type="button" class="addOperatingHour">+</button>
@@ -49,15 +103,15 @@
         </div>
     </div>
 
-    <label>스토어 이미지 업로드 : <input type="file" name="imageFiles" id="imageFiles" accept="image/*" multiple></label><br>
-
-    <div id="previewContainer" style="display: flex; flex-wrap: wrap">
-        <div th:each="imageUrl : ${store.storeImages}">
-            <img th:src="@{${imageUrl}}" alt="이미지" style="width: 150px; margin: 5px;">
-        </div>
+    <div id="contactContainer">
+        <span>상세 정보</span>
+        <label for="snsUrl">
+            <input type="text" id="snsUrl" name="snsUrl" th:value="*{snsUrl}" placeholder="snsUrl" />
+        </label>
+        <label for="websiteUrl">
+            <input type="text" id="websiteUrl" name="websiteUrl" th:value="*{websiteUrl}" placeholder="websiteUrl" />
+        </label>
     </div>
-
-    <input type="hidden" id="thumbnailImage" name="thumbnailImage" />
 
     <button type="button" id="updateSubmitButton">수정</button>
 </form>

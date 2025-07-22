@@ -1,6 +1,7 @@
 package kr.co.pinup.storecategories.service;
 
 import kr.co.pinup.storecategories.StoreCategory;
+import kr.co.pinup.storecategories.model.dto.StoreCategoryResponse;
 import kr.co.pinup.storecategories.repository.StoreCategoryRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ class StoreCategoryServiceTest {
         given(storeCategoryRepository.findAll()).willReturn(storeCategories);
 
         // Act
-        final List<StoreCategory> result = storeCategoryService.getCategories();
+        final List<StoreCategoryResponse> result = storeCategoryService.getCategories();
 
         // Assert
         assertThat(result).hasSize(8)
@@ -84,11 +85,11 @@ class StoreCategoryServiceTest {
         given(storeCategoryRepository.findById(categoryId)).willReturn(Optional.ofNullable(category));
 
         // Act
-        final StoreCategory result = storeCategoryService.getCategory(categoryId);
+        final StoreCategoryResponse result = storeCategoryService.getCategory(categoryId);
 
         // Assert
         assertThat(result).isNotNull();
-        assertThat(result.getName()).isEqualTo(categoryItem);
+        assertThat(result.name()).isEqualTo(categoryItem);
 
         then(storeCategoryRepository).should(times(1))
                 .findById(categoryId);

@@ -2,7 +2,7 @@
 
 .title-area {
     color: #4F261A;
-    padding: 20px;
+    padding: 20px 20px 0 20px;
     border-radius: 8px;
     width: 100%;
 }
@@ -177,10 +177,10 @@
 /*상세정보*/
 
 .info-container {
-    padding: 20px;
+    padding: 0 20px;
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: 20px;
     width: 100%;
     margin: 0 auto;
 }
@@ -208,11 +208,11 @@
     background-color: rgba(247, 247, 247, 0.8);
     padding: 15px;
     border-radius: 8px;
-    margin-bottom: 20px;
     line-height: 1.6;
 }
 
 .map-container {
+    margin-top: 20px;
     width: 100%;
     text-align: center;
     display: flex;
@@ -222,7 +222,7 @@
     height: 80vh;
 }
 .map-wrap {
-    width: 80%;
+    width: 85%;
 }
 
 #map {
@@ -252,4 +252,29 @@
 .back-icon-button:hover {
     background-color: #e2e2e2;
     transform: scale(1.05);
+}
+
+.map-text-location {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+.location-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.address-clipboard-button {
+    color: #fff;
+    background-color: #4F261A;
+    height: 32px;
+    padding: 0 12px;
+    font-size: 13px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .3s;
 }

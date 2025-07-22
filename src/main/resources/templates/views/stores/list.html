@@ -16,10 +16,10 @@
     <form method="get" action="/stores">
         <label for="statusFilter">진행 상태 : </label>
         <select name="status" id="statusFilter" onchange="this.form.submit()">
-            <option th:value="ALL" th:selected="${selectedStatus == null}">전체</option>
-            <option th:each="statusOption : ${T(kr.co.pinup.stores.model.enums.Status).values()}"
-                    th:value="${statusOption.name()}"
-                    th:text="${statusOption.description}"
+            <option th:value="all" th:selected="${selectedStatus == null}">전체</option>
+            <option th:each="statusOption : ${T(kr.co.pinup.stores.model.enums.StoreStatus).values()}"
+                    th:value="${statusOption.name().toLowerCase()}"
+                    th:text="${statusOption.value}"
                     th:selected="${selectedStatus?.name() == statusOption.name()}">
             </option>
         </select>
@@ -30,7 +30,7 @@
             <div class="store-card-link"
                  th:onclick="|location.href='@{/stores/{id}(id=${store.id})}'|">
                 <!-- 이미지 -->
-                <img th:src="${store.imageUrl}" alt="스토어 이미지" class="store-image" />
+                <img th:src="${store.thumbnailImage}" alt="스토어 이미지" class="store-image" />
 
                 <!-- 스토어 정보 -->
                 <div class="list-store-info">
@@ -39,9 +39,9 @@
                     <div class="list-store-duration">
                         <span th:text="${store.startDate}"></span> ~ <span th:text="${store.endDate}"></span>
                     </div>
-                    <p class="list-store-location">🚩 <span th:text="${store.district}"></span>
+                    <p class="list-store-location">🚩 <span th:text="${store.sigungu}"></span>
                     </p>
-                    <p class="list-store-status" th:text="${store.status.description}"></p>
+                    <p class="list-store-status" th:text="${store.status.value}"></p>
                 </div>
             </div>
         </div>

@@ -1,13 +1,17 @@
 package kr.co.pinup.stores.repository;
 
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public interface StoreRepository extends JpaRepository<Store, Long> {
-    List<Store> findByStatusAndDeletedFalse(Status status);
 
-    List<Store> findByDeletedFalse();
+    List<Store> findAllByIsDeletedFalse();
+
+    List<Store> findAllByStoreStatusAndIsDeletedFalse(StoreStatus status);
+
 }

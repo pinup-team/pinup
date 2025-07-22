@@ -1,25 +1,20 @@
 package kr.co.pinup.stores.service;
 
 import kr.co.pinup.locations.Location;
-import kr.co.pinup.locations.exception.LocationNotFoundException;
-import kr.co.pinup.locations.reposiotry.LocationRepository;
+import kr.co.pinup.locations.service.LocationService;
 import kr.co.pinup.storecategories.StoreCategory;
-import kr.co.pinup.storecategories.exception.StoreCategoryNotFoundException;
-import kr.co.pinup.storecategories.repository.StoreCategoryRepository;
+import kr.co.pinup.storecategories.service.StoreCategoryService;
 import kr.co.pinup.storeimages.StoreImage;
-import kr.co.pinup.storeimages.exception.StoreImageDeleteFailedException;
-import kr.co.pinup.storeimages.model.dto.StoreImageRequest;
 import kr.co.pinup.storeimages.service.StoreImageService;
 import kr.co.pinup.storeoperatinghour.StoreOperatingHour;
-import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourRequest;
 import kr.co.pinup.storeoperatinghour.service.StoreOperatingHourService;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.exception.StoreNotFoundException;
 import kr.co.pinup.stores.model.dto.StoreRequest;
 import kr.co.pinup.stores.model.dto.StoreResponse;
-import kr.co.pinup.stores.model.dto.StoreSummaryResponse;
+import kr.co.pinup.stores.model.dto.StoreThumbnailResponse;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -38,203 +33,130 @@ import java.util.List;
 public class StoreService {
 
     private final StoreRepository storeRepository;
-    private final LocationRepository locationRepository;
-    private final StoreCategoryRepository storeCategoryRepository;
+    private final StoreCategoryService categoryService;
+    private final LocationService locationService;
     private final StoreImageService storeImageService;
     private final StoreOperatingHourService operatingHourService;
 
-    private final String PATH_PREFIX = "store";
-
-    @Transactional
-    public StoreResponse updateStore(Long id, StoreUpdateRequest request, List<MultipartFile> images) {
-
-        Store store = storeRepository.findById(id)
-                .orElseThrow(StoreNotFoundException::new);
-
-        if (request.getCategoryId() != null) {
-            StoreCategory category = storeCategoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(StoreCategoryNotFoundException::new);
-            store.setCategory(category);
-        }
-
-        if (request.getLocationId() != null) {
-            Location location = locationRepository.findById(request.getLocationId())
-                    .orElseThrow(LocationNotFoundException::new);
-            store.setLocation(location);
-        }
-
-        store.setName(request.getName());
-        store.setDescription(request.getDescription());
-        store.setWebsiteUrl(request.getWebsiteUrl());
-        store.setSnsUrl(request.getSnsUrl());
-        store.setStartDate(request.getStartDate());
-        store.setEndDate(request.getEndDate());
-
-        if (request.getOperatingHours() != null) {
-            store.getOperatingHours().clear();
-            for (StoreOperatingHourRequest hourRequest : request.getOperatingHours()) {
-                StoreOperatingHour storeOperatingHour = StoreOperatingHour.builder()
-                        .day(hourRequest.day())
-                        .startTime(hourRequest.startTime())
-                        .endTime(hourRequest.endTime())
-                        .store(store)
-                        .build();
-                store.getOperatingHours().add(storeOperatingHour);
-            }
-        }
-
-        if (images != null && !images.isEmpty()) {
-            try {
-                storeImageService.deleteStoreImage(store.getId());
-
-                StoreImageRequest imageRequest = StoreImageRequest.builder()
-                        .images(images)
-                        .build();
-                List<StoreImage> storeImages = storeImageService.uploadImages(store, images, request.getThumbnailIndex());
-
-                int thumbnailIndex = request.getThumbnailIndex();
-                if (!storeImages.isEmpty() && thumbnailIndex >= 0 && thumbnailIndex < storeImages.size()) {
-                    store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
-                }
-            } catch (StoreImageDeleteFailedException e) {
-                log.error("이미지 삭제 실패: {}", e.getMessage());
-                throw e;
-            }
-        }
-
-        return StoreResponse.from(store);
-    }
-
-    public List<StoreSummaryResponse> getStoreSummaries() {
-        log.info("홈페이지 목록 조회 요청됨");
-        return storeRepository.findAll().stream()
-                .map(StoreSummaryResponse::from)
-                .toList();
-    }
-
-    public List<StoreResponse> getAllStores() {
-        log.info("모든 팝업스토어 조회 요청");
-        return storeRepository.findAll().stream()
+    public List<StoreResponse> getStores() {
+        return storeRepository.findAllByIsDeletedFalse().stream()
                 .map(StoreResponse::from)
                 .toList();
     }
 
-    public StoreResponse getStoreById(Long id) {
-        log.info("특정 팝업스토어 조회 요청 - ID: {}", id);
+    public List<StoreThumbnailResponse> getStoresThumbnailWithLimit(final int limit) {
+        return storeRepository.findAllByIsDeletedFalse().stream()
+                .sorted(Comparator.comparingInt(store -> getStoreStatusOrder(store.getStoreStatus())))
+                .limit(limit)
+                .map(StoreThumbnailResponse::from)
+                .toList();
+    }
 
+    public List<StoreThumbnailResponse> getStoresSortedByStatusPriority() {
+        return storeRepository.findAllByIsDeletedFalse().stream()
+                .sorted(Comparator.comparingInt(store -> getStoreStatusOrder(store.getStoreStatus())))
+                .map(StoreThumbnailResponse::from)
+                .toList();
+    }
+
+    public List<StoreThumbnailResponse> getStoresByStatus(StoreStatus status) {
+        return storeRepository.findAllByStoreStatusAndIsDeletedFalse(status).stream()
+                .map(StoreThumbnailResponse::from)
+                .toList();
+    }
+
+    public StoreResponse getStoreById(Long id) {
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
-
 
         return StoreResponse.from(store);
     }
 
     @Transactional
     public StoreResponse createStore(StoreRequest request, List<MultipartFile> images) {
-        try {
-            StoreCategory category = storeCategoryRepository.findById(request.categoryId())
-                    .orElseThrow(StoreNotFoundException::new);
-            log.info("카테고리 불러오기 완료");
+        final StoreCategory category = categoryService.findCategoryById(request.categoryId());
+        final Location location = locationService.getLocation(request.locationId());
 
-            Location location = locationRepository.findById(request.locationId())
-                    .orElseThrow(LocationNotFoundException::new);
-            log.info("위치 불러오기 완료");
+        StoreStatus storeStatus = request.startDate().isAfter(LocalDate.now())
+                ? StoreStatus.PENDING
+                : StoreStatus.RESOLVED;
+        log.info("createStore storeStatus={}", storeStatus);
 
-            Status storeStatus = request.startDate().isAfter(LocalDate.now()) ? Status.PENDING : Status.RESOLVED;
-            log.info("상태 설정 완료: {}", storeStatus);
+        Store store = Store.builder()
+                .name(request.name())
+                .description(request.description())
+                .storeStatus(storeStatus)
+                .startDate(request.startDate())
+                .endDate(request.endDate())
+                .websiteUrl(request.websiteUrl())
+                .snsUrl(request.snsUrl())
+                .category(category)
+                .location(location)
+                .build();
+        storeRepository.save(store);
 
-            Store store = Store.builder()
-                    .name(request.name())
-                    .description(request.description())
-                    .category(category)
-                    .location(location)
-                    .startDate(request.startDate())
-                    .endDate(request.endDate())
-                    .status(storeStatus)
-                    .websiteUrl(request.websiteUrl())
-                    .snsUrl(request.snsUrl())
-                    .build();
+        final List<StoreOperatingHour> operatingHours =
+                operatingHourService.createOperatingHours(store, request.operatingHours());
+        log.debug("createStore operatingHours={}", operatingHours);
+        store.addOperatingHours(operatingHours);
 
-            final List<StoreOperatingHour> operatingHours = operatingHourService.createOperatingHours(store, request.operatingHours());
-            log.debug("createStore operatingHours: {}", operatingHours);
-            store.addOperatingHours(operatingHours);
+        final List<StoreImage> storeImages =
+                storeImageService.createUploadImages(store, images, request.thumbnailIndex());
+        log.debug("createStore storeImages={}", storeImages);
+        store.addImages(storeImages);
 
-            storeRepository.save(store);
-            log.info("스토어 저장 완료 - ID: {}", store.getId());
-
-            final List<StoreImage> storeImages = storeImageService.uploadImages(store, images, request.thumbnailIndex());
-            store.addImages(storeImages);
-
-            int thumbnailIndex = request.thumbnailIndex();
-            if (!storeImages.isEmpty() && thumbnailIndex < storeImages.size()) {
-                store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
-                log.info("썸네일 설정 완료: {}", store.getImageUrl());
-            }
-            storeRepository.save(store);
-            // TODO : 2025/07/01 createStore에 isThumbnail 지정까지 완료
-            // TODO : get, update 등 전체 확인 및 테스트 코드 작성
-
-//            if (images != null && !images.isEmpty()) {
-//                StoreImageRequest storeImageRequest = StoreImageRequest.builder()
-//                        .images(images)
-//                        .build();
-//                log.info("스토어 이미지 빌드 완료");
-//
-//                List<StoreImage> storeImages = storeImageService.uploadStoreImages(store, storeImageRequest);
-//                log.info("이미지 업로드 완료 - 개수: {}", storeImages.size());
-//                store.setStoreImages(storeImages);
-//
-//                int thumbnailIndex = request.thumbnailIndex();
-//                if (!storeImages.isEmpty() && thumbnailIndex < storeImages.size()) {
-//                    store.setImageUrl(storeImages.get(thumbnailIndex).getImageUrl());
-//                    log.info("썸네일 설정 완료: {}", store.getImageUrl());
-//                }
-//                storeRepository.save(store);
-//            }
-
-            return StoreResponse.from(store);
-        } catch (Exception e) {
-            log.error("❌ 팝업스토어 생성 중 오류 발생: {}", e.getMessage(), e);
-            throw e;
-        }
-
-        //TODO 예외처리 분리하기
+        return StoreResponse.from(store);
     }
 
-/*    @Transactional
-    public void deleteStore(Long id) {
-        log.info("팝업스토어 삭제 요청 - ID: {}", id);
-
+    @Transactional
+    public StoreResponse updateStore(Long id, StoreUpdateRequest request, List<MultipartFile> images) {
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
 
-        try {
-            storeImageService.deleteStoreImage(id);
-            log.info("스토어 이미지 삭제 완료");
-        } catch (StoreImageDeleteFailedException e) {
-            log.error("스토어 이미지 삭제 실패: {}", e.getMessage());
-        }
+        final StoreCategory category = categoryService.findCategoryById(request.categoryId());
+        final Location location = locationService.getLocation(request.locationId());
 
-        storeRepository.delete(store);
-        log.info("팝업스토어 삭제 완료 - ID: {}", id);
-    }*/
+        store.update(request, category, location);
+
+        store.operatingHoursClear();
+
+        final List<StoreOperatingHour> operatingHours =
+                operatingHourService.createOperatingHours(store, request.operatingHours());
+        log.debug("createStore operatingHours: {}", operatingHours);
+        store.addOperatingHours(operatingHours);
+
+        storeImageService.removeStoreImage(id, request.deletedImageIds());
+
+        List<StoreImage> storeImages;
+        if (images.isEmpty()) {
+            log.debug("updateStore not add images");
+            storeImages = storeImageService.updateThumbnailImage(id, request.thumbnailId());
+        } else {
+            log.debug("updateStore not add images or add images");
+            storeImages = storeImageService.updateUploadImages(
+                    store, images, request.thumbnailId(), request.thumbnailIndex()
+            );
+        }
+        log.debug("createStore storeImages={}", storeImages);
+        store.addImages(storeImages);
+
+        return StoreResponse.from(store);
+    }
 
     @Transactional
     public void deleteStore(Long id) {
-
         Store store = storeRepository.findById(id)
                 .orElseThrow(StoreNotFoundException::new);
-
-        try {
-            store.deleteStore();
-        } catch (RuntimeException e) {
-            log.error("스토어 isDeleted 상태 변환 중 에러 발생", e);
-        }
+        
+        store.deleteStore(true);
     }
 
-    public List<StoreSummaryResponse> getStoreSummariesByStatus(Status status) {
-        return storeRepository.findByStatusAndDeletedFalse(status).stream()
-                .map(StoreSummaryResponse::from)
-                .toList();
+    private int getStoreStatusOrder(final StoreStatus status) {
+        return switch (status) {
+            case RESOLVED -> 0;
+            case PENDING -> 1;
+            case DISMISSED -> 2;
+        };
     }
+
 }

@@ -7,7 +7,6 @@ import lombok.*;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @Table(name = "store_images")
 public class StoreImage extends BaseEntity {
@@ -18,6 +17,10 @@ public class StoreImage extends BaseEntity {
     @Column(name = "is_thumbnail", nullable = false)
     private boolean isThumbnail;
 
+    @Column(name = "is_deleted", nullable = false)
+    private boolean isDeleted;
+
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
@@ -27,5 +30,14 @@ public class StoreImage extends BaseEntity {
         this.imageUrl = imageUrl;
         this.isThumbnail = isThumbnail;
         this.store = store;
+        this.isDeleted = false;
+    }
+
+    public void changeThumbnail(final boolean isThumbnail) {
+        this.isThumbnail = isThumbnail;
+    }
+
+    public void changeDeleted(final boolean isDeleted) {
+        this.isDeleted = isDeleted;
     }
 }

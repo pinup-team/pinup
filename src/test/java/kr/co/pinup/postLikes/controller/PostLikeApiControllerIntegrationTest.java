@@ -4,7 +4,6 @@ import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.WithMockMember;
-import kr.co.pinup.members.model.dto.MemberInfo;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.members.service.MemberService;
@@ -16,7 +15,7 @@ import kr.co.pinup.posts.repository.PostRepository;
 import kr.co.pinup.storecategories.StoreCategory;
 import kr.co.pinup.storecategories.repository.StoreCategoryRepository;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,8 +84,7 @@ class PostLikeApiControllerIntegrationTest {
                 .description("테스트 설명")
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(30))
-                .status(Status.RESOLVED)
-                .imageUrl("이미지주소")
+                .storeStatus(StoreStatus.RESOLVED)
                 .build());
 
         member = memberRepository.save(Member.builder()

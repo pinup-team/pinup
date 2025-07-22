@@ -9,7 +9,7 @@ import kr.co.pinup.storeimages.exception.StoreThumbnaiImagelNotFoundException;
 import kr.co.pinup.storeimages.model.dto.StoreImageResponse;
 import kr.co.pinup.storeimages.repository.StoreImageRepository;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +50,7 @@ class StoreImageServiceTest {
         final Long storeId = 1L;
         final StoreImage storeImage = getStoreImage("http://127.0.0.1:4566/pinup/store/image.png", true);
 
-        given(storeImageRepository.findByStoreId(storeId)).willReturn(List.of(storeImage));
+        given(storeImageRepository.findByStoreIdAndIsDeletedFalse(storeId)).willReturn(List.of(storeImage));
 
 
         // Act
@@ -62,7 +62,7 @@ class StoreImageServiceTest {
                 .containsExactlyInAnyOrder(storeImage.getImageUrl());
 
         then(storeImageRepository).should(times(1))
-                .findByStoreId(storeId);
+                .findByStoreIdAndIsDeletedFalse(storeId);
     }
 
     @DisplayName("존재하지 않는 Store 아이디로 스토어 이미지를 조회하면 예외가 발생한다.")
@@ -71,7 +71,7 @@ class StoreImageServiceTest {
         // Arrange
         final long storeId = Long.MAX_VALUE;
 
-        given(storeImageRepository.findByStoreId(storeId)).willReturn(List.of());
+        given(storeImageRepository.findByStoreIdAndIsDeletedFalse(storeId)).willReturn(List.of());
 
         // Act Assert
         assertThatThrownBy(() -> storeImageService.getStoreImages(storeId))
@@ -86,7 +86,7 @@ class StoreImageServiceTest {
         final long storeId = 1L;
         final StoreImage storeImage = getStoreImage("http://127.0.0.1:4566/pinup/store/image.png", true);
 
-        given(storeImageRepository.findByStoreIdAndIsThumbnailTrue(storeId))
+        given(storeImageRepository.findByStoreIdAndIsThumbnailTrueAndIsDeletedFalse(storeId))
                 .willReturn(Optional.ofNullable(storeImage));
 
         // Act
@@ -97,7 +97,7 @@ class StoreImageServiceTest {
         assertThat(result.imageUrl()).isEqualTo(storeImage.getImageUrl());
 
         then(storeImageRepository).should(times(1))
-                .findByStoreIdAndIsThumbnailTrue(storeId);
+                .findByStoreIdAndIsThumbnailTrueAndIsDeletedFalse(storeId);
     }
 
     @DisplayName("존재하지 않는 Store 아이디로 썸네일 이미지를 조회하면 예외가 발생한다.")
@@ -106,7 +106,7 @@ class StoreImageServiceTest {
         // Arrange
         final long storeId = Long.MAX_VALUE;
 
-        given(storeImageRepository.findByStoreIdAndIsThumbnailTrue(storeId))
+        given(storeImageRepository.findByStoreIdAndIsThumbnailTrueAndIsDeletedFalse(storeId))
                 .willThrow(new StoreThumbnaiImagelNotFoundException());
 
         // Act Assert
@@ -117,7 +117,7 @@ class StoreImageServiceTest {
 
     @DisplayName("S3에 이미지를 업로드하고 스토어 이미지들을 저장한다.")
     @Test
-    void uploadImages() {
+    void createUploadImages() {
         // Arrange
         final Store store = getStore(getStoreCategory(), getLocation());
         final List<MultipartFile> images = List.of(mock(MultipartFile.class));
@@ -126,12 +126,40 @@ class StoreImageServiceTest {
         given(s3Service.uploadFile(any(MultipartFile.class), anyString())).willReturn(uploadUrl);
 
         // Act
-        final List<StoreImage> result = storeImageService.uploadImages(store, images, 0);
+        final List<StoreImage> result = storeImageService.createUploadImages(store, images, 0L);
 
         // Assert
         assertThat(result).isNotNull();
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getImageUrl()).isEqualTo(uploadUrl);
+    }
+
+    @DisplayName("썸네일을 변경한다")
+    @Test
+    void updateThumbnailImage() {
+        // Arrange
+        final long storeId = 1L;
+        final long thumbnailId = 2L;
+
+        final StoreImage mockStoreImage1 = mock(StoreImage.class);
+        final StoreImage mockStoreImage2 = mock(StoreImage.class);
+
+        given(storeImageRepository.findByStoreIdAndIsDeletedFalse(storeId))
+                .willReturn(List.of(mockStoreImage1, mockStoreImage2));
+
+        given(mockStoreImage1.getId()).willReturn(1L);
+        given(mockStoreImage2.getId()).willReturn(2L);
+
+        // Act
+        final List<StoreImage> result = storeImageService.updateThumbnailImage(storeId, thumbnailId);
+
+        // Assert
+        assertThat(result).hasSize(2);
+
+        then(mockStoreImage2).should(times(1))
+                .changeThumbnail(true);
+        then(mockStoreImage1).should(times(1))
+                .changeThumbnail(false);
     }
 
     @DisplayName("Store 아이디에 해당하는 이미지들을 삭제한다.")
@@ -148,7 +176,7 @@ class StoreImageServiceTest {
         final StoreImage storeImage2 = getStoreImage(uploadUrl2, false);
         final List<StoreImage> storeImages = List.of(storeImage1, storeImage2);
 
-        given(storeImageRepository.findByStoreId(storeId)).willReturn(storeImages);
+        given(storeImageRepository.findByStoreIdAndIsDeletedFalse(storeId)).willReturn(storeImages);
         given(s3Service.extractFileName(uploadUrl1)).willReturn(filename1);
         given(s3Service.extractFileName(uploadUrl2)).willReturn(filename2);
 
@@ -170,7 +198,7 @@ class StoreImageServiceTest {
         // Arrange
         final long storeId = Long.MAX_VALUE;
 
-        given(storeImageRepository.findByStoreId(storeId)).willReturn(List.of());
+        given(storeImageRepository.findByStoreIdAndIsDeletedFalse(storeId)).willReturn(List.of());
 
         // Act Assert
         assertThatThrownBy(() -> storeImageService.deleteStoreImage(storeId))
@@ -204,7 +232,7 @@ class StoreImageServiceTest {
                 .location(location)
                 .startDate(LocalDate.of(2025, 7, 1))
                 .endDate(LocalDate.of(2025, 7, 7))
-                .status(Status.PENDING)
+                .storeStatus(StoreStatus.PENDING)
                 .build();
     }
 

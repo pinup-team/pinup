@@ -20,7 +20,8 @@ import kr.co.pinup.posts.repository.PostRepository;
 import kr.co.pinup.storecategories.StoreCategory;
 import kr.co.pinup.storecategories.repository.StoreCategoryRepository;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -113,8 +114,7 @@ class CommentApiControllerIntegrationTest {
                 .description("Description of the store")
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusMonths(1))
-                .status(Status.RESOLVED)
-                .imageUrl("image_url")
+                .storeStatus(StoreStatus.RESOLVED)
                 .category(savedCategory)
                 .location(savedLocation)
                 .build();
