@@ -40,6 +40,12 @@ public class Post extends BaseEntity {
     @Column(name = "is_deleted", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     private boolean isDeleted;
 
+    @Column(columnDefinition = "integer default 0", nullable = false)
+    private int likeCount;
+
+    @Version
+    private Long version;
+
     @Builder.Default
     @JsonManagedReference
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL)
@@ -64,5 +70,10 @@ public class Post extends BaseEntity {
         this.isDeleted = isDeleted;
     }
 
+    public void increaseLikeCount() {
+        this.likeCount ++;
+    }
+
+    public void decreaseLikeCount() {if (this.likeCount > 0) {this.likeCount --;}}
 }
 

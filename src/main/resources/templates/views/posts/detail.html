@@ -50,7 +50,11 @@
                 <div class="card-container">
                     <div class="card-buttons">
                         <div>
-                            <button class="transparent-button"><img src=""/>❤️</button>
+                            <button class="like-button transparent-button"
+                                    th:classappend="${likeInfo.likedByCurrentUser} ? 'liked' : ''"
+                                    th:data-post-id="${post.id}">
+                                <span th:text="${likeInfo.likedByCurrentUser} ? '❤️' : '🤍'"></span>
+                            </button>
                         </div>
                         <div>
                             <button class="transparent-button pinup-comment-btn"><img src=""/>💬</button>
@@ -60,9 +64,7 @@
                         </div>
                     </div>
                     <hr>
-                    <div class="card-likes">
-                        좋아요 999,999
-                    </div>
+                    <div id="like-count" class="card-likes" th:text="'좋아요 ' + ${likeInfo.likeCount}"></div>
                     <hr>
                     <div class="card-content">
                         <ul>
