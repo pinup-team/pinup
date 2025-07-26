@@ -52,35 +52,33 @@ public class PostLikeService {
         Member member = memberRepository.findByNickname(memberInfo.nickname())
                 .orElseThrow(() -> new MemberNotFoundException("회원을 찾을 수 없습니다."));
 
-        postService.findByIdOrThrow(postId);
-
         return postLikeRetryExecutor.likeWithRetry(() -> {
-            Post post = postRepository.findByIdWithOptimisticLock(postId)
-                    .orElseThrow(PostNotFoundException::new);
+            boolean alreadyLiked = postLikeRepository.existsByPostIdAndMemberId(postId, member.getId());
 
-            try {
+            if (alreadyLiked) {
+                postLikeRepository.deleteByPostIdAndMemberId(postId, member.getId());
+
+                Post post = postRepository.findByIdWithOptimisticLock(postId)
+                        .orElseThrow(PostNotFoundException::new);
+                post.decreaseLikeCount();
+
+                appLogger.info(new InfoLog("좋아요 취소")
+                        .setTargetId(postId.toString())
+                        .addDetails("memberId", member.getId().toString()));
+
+                return PostLikeResponse.of(post.getLikeCount(), false);
+            } else {
+                Post post = postRepository.findByIdWithOptimisticLock(postId)
+                        .orElseThrow(PostNotFoundException::new);
+
                 postLikeRepository.save(new PostLike(post, member));
                 post.increaseLikeCount();
+
                 appLogger.info(new InfoLog("좋아요 등록")
                         .setTargetId(postId.toString())
                         .addDetails("memberId", member.getId().toString()));
 
                 return PostLikeResponse.of(post.getLikeCount(), true);
-
-            } catch (DataIntegrityViolationException e) {
-                entityManager.clear();
-                postLikeRepository.deleteByPostIdAndMemberId(postId, member.getId());
-
-                Post managedPost = entityManager.merge(post);
-                managedPost.decreaseLikeCount();
-
-                post.decreaseLikeCount();
-
-                appLogger.warn(new InfoLog("중복 좋아요 감지 - 취소 처리로 전환")
-                        .setTargetId(postId.toString())
-                        .addDetails("reason", "UNIQUE 제약 위반 → 토글 처리"));
-
-                return PostLikeResponse.of(post.getLikeCount() , false);
             }
         });
     }
