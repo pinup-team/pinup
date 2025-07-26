@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function() {
 // 스토어 리스트 가져오기
 async function fetchStoreSummaries() {
     try {
-        const response = await fetch('/api/stores');
+        const response = await fetch('/api/stores/summary?limit=5');
 
         if (!response.ok) {
             throw new Error('네트워크 응답이 올바르지 않습니다.');
@@ -49,18 +49,16 @@ async function fetchStoreSummaries() {
         const stores = await response.json();
         const storeListElement = document.getElementById('store-list');
 
-        const topStores = stores.slice(0, 5);
-
         // 리스트에 팝업스토어 추가
-        topStores.forEach(store => {
+        stores.forEach(store => {
             const listItem = document.createElement('li');
             listItem.innerHTML = `<div class="store-card">
-                                    <img src="${store.imageUrl}" alt="Loading Image"
+                                    <img src="${store.thumbnailImage}" alt="Loading Image"
                                         onerror="this.onerror=null; this.src='/images/loading.png';">
                                     <div class="list-store-info">
                                         <div class="list-store-info-head">
                                             <h3>${store.name}</h3>
-                                            <span>📍${store.location.sigungu}</span>
+                                            <span>📍${store.sigungu}</span>
                                         </div>
                                         <span class="list-store-info-date">~ ${store.endDate}</span>
                                     </div>

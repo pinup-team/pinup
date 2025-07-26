@@ -72,11 +72,12 @@
         <br/>
 
         <label for="images">스토어 이미지 업로드 : </label>
-        <input type="file" name="images" id="images" accept="image/*" multiple required>
+        <input type="file" name="images" id="images" accept="image/*" multiple required />
         <br>
 
         <div id="previewContainer" style="display: flex; flex-wrap: wrap"></div>
         <input type="hidden" id="thumbnailIndex" name="thumbnailIndex" />
+        <input type="hidden" id="thumbnailId" name="thumbnailId" />
 
         <button type="button" id="createSubmitButton">생성</button>
     </form>

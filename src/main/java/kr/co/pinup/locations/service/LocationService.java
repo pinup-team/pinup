@@ -32,9 +32,13 @@ public class LocationService  {
         return LocationResponse.from(savedLocation);
     }
 
+    public Location getLocation(Long id) {
+        return locationRepository.findById(id)
+                .orElseThrow(LocationNotFoundException::new);
+    }
+
     public LocationResponse getLocationId(Long id) {
-        Location location = locationRepository.findById(id)
-                    .orElseThrow(LocationNotFoundException::new);
+        Location location = getLocation(id);
 
         return LocationResponse.from(location);
     }

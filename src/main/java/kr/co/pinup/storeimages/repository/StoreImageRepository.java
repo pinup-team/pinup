@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface StoreImageRepository extends JpaRepository<StoreImage, Long> {
 
-    List<StoreImage> findByStoreId(Long storeId);
+    List<StoreImage> findByStoreIdAndIsDeletedFalse(Long storeId);
 
-    Optional<StoreImage> findByStoreIdAndIsThumbnailTrue(Long storeId);
+    Optional<StoreImage> findByStoreIdAndIsThumbnailTrueAndIsDeletedFalse(Long storeId);
 }

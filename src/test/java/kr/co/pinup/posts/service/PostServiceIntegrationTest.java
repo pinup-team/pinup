@@ -26,7 +26,7 @@ import kr.co.pinup.posts.repository.PostRepository;
 import kr.co.pinup.storecategories.StoreCategory;
 import kr.co.pinup.storecategories.repository.StoreCategoryRepository;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -81,9 +81,26 @@ public class PostServiceIntegrationTest {
     @BeforeEach
     void setUp() {
         StoreCategory category = storeCategoryRepository.save(new StoreCategory("Category"));
-        Location location = locationRepository.save(new Location("Loc", "123", "State", "District", 0.0, 0.0, "Addr", "Detail"));
+        Location location = locationRepository.save(new Location(
+                "Loc",
+                "123",
+                "State",
+                "District",
+                0.0,
+                0.0,
+                "Addr",
+                "Detail")
+        );
 
-        Store store = Store.builder().name("Store").description("desc").category(category).location(location).startDate(LocalDate.now()).endDate(LocalDate.now().plusDays(10)).status(Status.RESOLVED).build();
+        Store store = Store.builder()
+                .name("Store")
+                .description("desc")
+                .category(category)
+                .location(location)
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusDays(10))
+                .storeStatus(StoreStatus.RESOLVED)
+                .build();
         store = storeRepository.save(store);
 
         mockMember = Member.builder().email("test@naver.com").nickname("행복한돼지").name("test").providerId("pid").providerType(OAuthProvider.NAVER).role(MemberRole.ROLE_USER).build();

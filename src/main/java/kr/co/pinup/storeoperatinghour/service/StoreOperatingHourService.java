@@ -18,7 +18,7 @@ public class StoreOperatingHourService {
     ) {
         return operatingHourRequest.stream()
                 .map(operatingHour -> StoreOperatingHour.builder()
-                        .day(operatingHour.day())
+                        .days(operatingHour.days())
                         .startTime(operatingHour.startTime())
                         .endTime(operatingHour.endTime())
                         .store(store)

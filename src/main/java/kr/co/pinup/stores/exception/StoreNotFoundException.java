@@ -7,12 +7,12 @@ public class StoreNotFoundException extends GlobalCustomException {
 
   private static final String DEFAULT_MESSAGE = "해당 스토어가 존재하지 않습니다.";
 
-  public StoreNotFoundException(String message) {
-    super(message);
+  public StoreNotFoundException() {
+    this(DEFAULT_MESSAGE);
   }
 
-  public StoreNotFoundException() {
-    super(DEFAULT_MESSAGE);
+  public StoreNotFoundException(String message) {
+    super(message);
   }
 
   @Override

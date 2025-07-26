@@ -10,7 +10,7 @@ import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.storecategories.StoreCategory;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -40,8 +40,7 @@ public class PostLikeEntityTest {
                 .description("설명")
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(10))
-                .status(Status.RESOLVED)
-                .imageUrl("image")
+                .storeStatus(StoreStatus.RESOLVED)
                 .category(category)
                 .location(location)
                 .build();

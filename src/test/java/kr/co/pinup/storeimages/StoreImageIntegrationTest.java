@@ -9,7 +9,8 @@ import kr.co.pinup.storecategories.repository.StoreCategoryRepository;
 import kr.co.pinup.storeimages.repository.StoreImageRepository;
 import kr.co.pinup.storeimages.service.StoreImageService;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -83,7 +84,7 @@ public class StoreImageIntegrationTest {
 
     @DisplayName("S3에 업로드된 이미지들의 url을 받아 스토어 이미지들을 저장한다.")
     @Test
-    void uploadImages() {
+    void createUploadImages() {
         // Arrange
         final S3Client s3Client = S3Client.builder()
                 .endpointOverride(localstack.getEndpointOverride(Service.S3))
@@ -104,14 +105,14 @@ public class StoreImageIntegrationTest {
                 new MockMultipartFile("file", "test1.jpg", "image/jpeg", "image1".getBytes()),
                 new MockMultipartFile("file", "test2.jpg", "image/jpeg", "image2".getBytes())
         );
-        final int thumbnailIndex = 1;
+        final long thumbnailIndex = 1L;
 
         // Act
-        final List<StoreImage> result = storeImageService.uploadImages(store, images, thumbnailIndex);
+        final List<StoreImage> result = storeImageService.createUploadImages(store, images, thumbnailIndex);
 
         // Assert
         assertThat(result).hasSize(2);
-        assertThat(result.get(thumbnailIndex).isThumbnail()).isTrue();
+        assertThat(result.get((int) thumbnailIndex).isThumbnail()).isTrue();
         assertThat(result.get(0).getImageUrl()).contains("test1.jpg");
 
         final ListObjectsV2Response list = s3Client.listObjectsV2(ListObjectsV2Request.builder()
@@ -147,7 +148,7 @@ public class StoreImageIntegrationTest {
                 .location(location)
                 .startDate(LocalDate.of(2025, 7, 1))
                 .endDate(LocalDate.of(2025, 7, 7))
-                .status(Status.PENDING)
+                .storeStatus(StoreStatus.PENDING)
                 .build();
     }
 }

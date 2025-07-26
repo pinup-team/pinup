@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", function () {
     const statusFilter = document.getElementById("statusFilter");
     if (statusFilter) {
@@ -6,4 +5,4 @@ document.addEventListener("DOMContentLoaded", function () {
             this.form.submit();
         });
     }
-})
+});

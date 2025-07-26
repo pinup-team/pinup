@@ -5,7 +5,8 @@ import kr.co.pinup.storecategories.StoreCategory;
 import kr.co.pinup.storeoperatinghour.StoreOperatingHour;
 import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourRequest;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,7 +48,7 @@ class StoreOperatingHourServiceTest {
 
         // Assert
         assertThat(result).hasSize(1)
-                .extracting("day", "startTime", "endTime")
+                .extracting("days", "startTime", "endTime")
                 .contains(
                         tuple(day, startTime, endTime)
                 );
@@ -79,17 +80,17 @@ class StoreOperatingHourServiceTest {
                 .location(location)
                 .startDate(LocalDate.of(2025, 7, 1))
                 .endDate(LocalDate.of(2025, 7, 7))
-                .status(Status.PENDING)
+                .storeStatus(StoreStatus.PENDING)
                 .build();
     }
 
     private StoreOperatingHourRequest getOperatingHourRequest(
-            final String day,
+            final String days,
             final LocalTime startTime,
             final LocalTime endTime
     ) {
         return StoreOperatingHourRequest.builder()
-                .day(day)
+                .days(days)
                 .startTime(startTime)
                 .endTime(endTime)
                 .build();

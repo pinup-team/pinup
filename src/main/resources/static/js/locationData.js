@@ -19,6 +19,23 @@ export function searchAddress() {
 
 export function getLocationData() {
     if (!locationData) {
+        const zonecode = document.getElementById('zonecode')?.value;
+        const sido = document.getElementById('sido')?.value; // sido 필드가 있다면
+        const sigungu = document.getElementById('sigungu')?.value; // sigungu 필드가 있다면
+        const address = document.getElementById('address')?.value;
+        const addressDetail = document.getElementById('addressDetail')?.value;
+
+        if (zonecode && address) {
+            locationData = {
+                zonecode,
+                sido,
+                sigungu,
+                address,
+            };
+        }
+    }
+
+    if (!locationData) {
         return null;
     }
 
@@ -29,6 +46,21 @@ export function getLocationData() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    const zonecode = document.getElementById('zonecode')?.value;
+    const sido = document.getElementById('sido')?.value;
+    const sigungu = document.getElementById('sigungu')?.value;
+    const address = document.getElementById('address')?.value;
+    const addressDetail = document.getElementById('addressDetail')?.value;
+
+    if (zonecode && address) {
+        locationData = {
+            zonecode,
+            sido,
+            sigungu,
+            address,
+        };
+    }
+
     document.getElementById('searchAddress')
         .addEventListener('click', searchAddress);
 });
