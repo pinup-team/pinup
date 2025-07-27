@@ -444,68 +444,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h1>PinUp API Document</h1>
 <div class="details">
 <span id="author" class="author">PinUp team</span><br>
-<span id="revnumber">version 1.0.2</span>
+<span id="revnumber">version 1.1.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
 <li><a href="#introduction">소개</a></li>
-<li><a href="#_게시글_api">게시글 API</a>
-<ul class="sectlevel2">
-<li><a href="#_게시글_목록_조회">게시글 목록 조회</a></li>
-<li><a href="#_게시글_상세_조회">게시글 상세 조회</a></li>
-<li><a href="#_게시글_생성">게시글 생성</a></li>
-<li><a href="#_게시글_삭제">게시글 삭제</a></li>
-<li><a href="#_게시글_수정">게시글 수정</a></li>
-<li><a href="#_게시글_비활성화">게시글 비활성화</a></li>
-</ul>
-</li>
-<li><a href="#_댓글_api">댓글 API</a>
-<ul class="sectlevel2">
-<li><a href="#_댓글_생성">댓글 생성</a></li>
-<li><a href="#_댓글_삭제">댓글 삭제</a></li>
-</ul>
-</li>
-<li><a href="#_공지사항_api">공지사항 API</a>
-<ul class="sectlevel2">
-<li><a href="#_전체_조회">전체 조회</a></li>
-<li><a href="#_단건_조회">단건 조회</a></li>
-<li><a href="#_존재하지_않는_id로_조회">존재하지 않는 ID로 조회</a></li>
-<li><a href="#_저장">저장</a></li>
-<li><a href="#_저장_시_제목_누락_예외">저장 시 제목 누락 예외</a></li>
-<li><a href="#_저장_시_제목_길이_제한_예외">저장 시 제목 길이 제한 예외</a></li>
-<li><a href="#_저장_시_내용_누락_예외">저장 시 내용 누락 예외</a></li>
-<li><a href="#_수정">수정</a></li>
-<li><a href="#_존재하지_않는_id로_수정">존재하지 않는 ID로 수정</a></li>
-<li><a href="#_수정_시_제목_누락_예외">수정 시 제목 누락 예외</a></li>
-<li><a href="#_수정_시_제목_길이_제한_예외">수정 시 제목 길이 제한 예외</a></li>
-<li><a href="#_수정_시_내용_누락_예외">수정 시 내용 누락 예외</a></li>
-<li><a href="#_삭제">삭제</a></li>
-<li><a href="#_존재하지_않는_id로_삭제">존재하지 않는 ID로 삭제</a></li>
-</ul>
-</li>
-<li><a href="#_faq_api">FAQ API</a>
-<ul class="sectlevel2">
-<li><a href="#_전체_조회_2">전체 조회</a></li>
-<li><a href="#_단건_조회_2">단건 조회</a></li>
-<li><a href="#_존재하지_않는_id로_조회_2">존재하지 않는 ID로 조회</a></li>
-<li><a href="#_저장_2">저장</a></li>
-<li><a href="#_저장_시_질문_누락_예외">저장 시 질문 누락 예외</a></li>
-<li><a href="#_저장_시_질문_길이_제한_예외">저장 시 질문 길이 제한 예외</a></li>
-<li><a href="#_저장_시_답변_누락_예외">저장 시 답변 누락 예외</a></li>
-<li><a href="#_저장_시_답변_길이_제한_예외">저장 시 답변 길이 제한 예외</a></li>
-<li><a href="#_저장_시_카테고리_누락_예외">저장 시 카테고리 누락 예외</a></li>
-<li><a href="#_수정_2">수정</a></li>
-<li><a href="#_존재하지_않는_id로_수정_2">존재하지 않는 ID로 수정</a></li>
-<li><a href="#_수정_시_질문_누락_예외">수정 시 질문 누락 예외</a></li>
-<li><a href="#_수정_시_질문_길이_제한_예외">수정 시 질문 길이 제한 예외</a></li>
-<li><a href="#_수정_시_답변_누락_예외">수정 시 답변 누락 예외</a></li>
-<li><a href="#_수정_시_답변_길이_제한_예외">수정 시 답변 길이 제한 예외</a></li>
-<li><a href="#_수정_시_카테고리_누락_예외">수정 시 카테고리 누락 예외</a></li>
-<li><a href="#_삭제_2">삭제</a></li>
-<li><a href="#_존재하지_않는_id로_삭제_2">존재하지 않는 ID로 삭제</a></li>
-</ul>
-</li>
 <li><a href="#_member_api">Member API</a>
 <ul class="sectlevel1">
 <li><a href="#_닉네임_생성">닉네임 생성</a>
@@ -541,6 +485,83 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_로그아웃_response_fields">Response fields</a></li>
 </ul>
 </li>
+<li><a href="#_팝업스토어_api">팝업스토어 API</a>
+<ul class="sectlevel2">
+<li><a href="#_전체_조회">전체 조회</a></li>
+<li><a href="#_요약_썸네일_조회">요약 썸네일 조회</a></li>
+<li><a href="#_단건_조회">단건 조회</a></li>
+<li><a href="#_저장">저장</a></li>
+<li><a href="#_수정">수정</a></li>
+<li><a href="#_삭제">삭제</a></li>
+</ul>
+</li>
+<li><a href="#_location_api">Location API</a>
+<ul class="sectlevel2">
+<li><a href="#_저장_2">저장</a></li>
+<li><a href="#_수정_2">수정</a></li>
+</ul>
+</li>
+<li><a href="#_게시글_api">게시글 API</a>
+<ul class="sectlevel2">
+<li><a href="#_게시글_목록_조회">게시글 목록 조회</a></li>
+<li><a href="#_게시글_상세_조회">게시글 상세 조회</a></li>
+<li><a href="#_게시글_생성">게시글 생성</a></li>
+<li><a href="#_게시글_삭제">게시글 삭제</a></li>
+<li><a href="#_게시글_수정">게시글 수정</a></li>
+<li><a href="#_게시글_비활성화">게시글 비활성화</a></li>
+</ul>
+</li>
+<li><a href="#_postlike_api">PostLike API</a>
+<ul class="sectlevel2">
+<li><a href="#_게시글_목록_조회_2">게시글 목록 조회</a></li>
+</ul>
+</li>
+<li><a href="#_댓글_api">댓글 API</a>
+<ul class="sectlevel2">
+<li><a href="#_댓글_생성">댓글 생성</a></li>
+<li><a href="#_댓글_삭제">댓글 삭제</a></li>
+</ul>
+</li>
+<li><a href="#_공지사항_api">공지사항 API</a>
+<ul class="sectlevel2">
+<li><a href="#_전체_조회_2">전체 조회</a></li>
+<li><a href="#_단건_조회_2">단건 조회</a></li>
+<li><a href="#_존재하지_않는_id로_조회">존재하지 않는 ID로 조회</a></li>
+<li><a href="#_저장_3">저장</a></li>
+<li><a href="#_저장_시_제목_누락_예외">저장 시 제목 누락 예외</a></li>
+<li><a href="#_저장_시_제목_길이_제한_예외">저장 시 제목 길이 제한 예외</a></li>
+<li><a href="#_저장_시_내용_누락_예외">저장 시 내용 누락 예외</a></li>
+<li><a href="#_수정_3">수정</a></li>
+<li><a href="#_존재하지_않는_id로_수정">존재하지 않는 ID로 수정</a></li>
+<li><a href="#_수정_시_제목_누락_예외">수정 시 제목 누락 예외</a></li>
+<li><a href="#_수정_시_제목_길이_제한_예외">수정 시 제목 길이 제한 예외</a></li>
+<li><a href="#_수정_시_내용_누락_예외">수정 시 내용 누락 예외</a></li>
+<li><a href="#_삭제_2">삭제</a></li>
+<li><a href="#_존재하지_않는_id로_삭제">존재하지 않는 ID로 삭제</a></li>
+</ul>
+</li>
+<li><a href="#_faq_api">FAQ API</a>
+<ul class="sectlevel2">
+<li><a href="#_전체_조회_3">전체 조회</a></li>
+<li><a href="#_단건_조회_3">단건 조회</a></li>
+<li><a href="#_존재하지_않는_id로_조회_2">존재하지 않는 ID로 조회</a></li>
+<li><a href="#_저장_4">저장</a></li>
+<li><a href="#_저장_시_질문_누락_예외">저장 시 질문 누락 예외</a></li>
+<li><a href="#_저장_시_질문_길이_제한_예외">저장 시 질문 길이 제한 예외</a></li>
+<li><a href="#_저장_시_답변_누락_예외">저장 시 답변 누락 예외</a></li>
+<li><a href="#_저장_시_답변_길이_제한_예외">저장 시 답변 길이 제한 예외</a></li>
+<li><a href="#_저장_시_카테고리_누락_예외">저장 시 카테고리 누락 예외</a></li>
+<li><a href="#_수정_4">수정</a></li>
+<li><a href="#_존재하지_않는_id로_수정_2">존재하지 않는 ID로 수정</a></li>
+<li><a href="#_수정_시_질문_누락_예외">수정 시 질문 누락 예외</a></li>
+<li><a href="#_수정_시_질문_길이_제한_예외">수정 시 질문 길이 제한 예외</a></li>
+<li><a href="#_수정_시_답변_누락_예외">수정 시 답변 누락 예외</a></li>
+<li><a href="#_수정_시_답변_길이_제한_예외">수정 시 답변 길이 제한 예외</a></li>
+<li><a href="#_수정_시_카테고리_누락_예외">수정 시 카테고리 누락 예외</a></li>
+<li><a href="#_삭제_3">삭제</a></li>
+<li><a href="#_존재하지_않는_id로_삭제_2">존재하지 않는 ID로 삭제</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -555,11 +576,2167 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </div>
 </div>
 </div>
+<h1 id="_member_api" class="sect0"><a class="link" href="#_member_api">Member API</a></h1>
+<div class="sect1">
+<h2 id="_닉네임_생성"><a class="link" href="#_닉네임_생성">닉네임 생성</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_닉네임_생성_curl_request"><a class="link" href="#_닉네임_생성_curl_request">Curl request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/members/nickname' -i -X GET \
+    -H 'Content-Type: text/plain'</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_닉네임_생성_http_request"><a class="link" href="#_닉네임_생성_http_request">HTTP request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/members/nickname HTTP/1.1
+Content-Type: text/plain
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_닉네임_생성_http_response"><a class="link" href="#_닉네임_생성_http_response">HTTP response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: text/plain;charset=UTF-8
+Content-Length: 17
+
+generatedNickname</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_닉네임_수정"><a class="link" href="#_닉네임_수정">닉네임 수정</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_닉네임_수정_curl_request"><a class="link" href="#_닉네임_수정_curl_request">Curl request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/members' -i -X PATCH \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer testToken' \
+    -d '{"name":"test","email":"test@naver.com","nickname":"updatedTestNickname","providerType":"NAVER"}'</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_닉네임_수정_request_fields"><a class="link" href="#_닉네임_수정_request_fields">Request fields</a></h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>nickname</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">변경할 닉네임</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>providerType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth 제공자</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_닉네임_수정_http_request"><a class="link" href="#_닉네임_수정_http_request">HTTP request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PATCH /api/members HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer testToken
+Content-Length: 96
+Host: localhost:8080
+
+{"name":"test","email":"test@naver.com","nickname":"updatedTestNickname","providerType":"NAVER"}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_닉네임_수정_http_response"><a class="link" href="#_닉네임_수정_http_response">HTTP response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 60
+
+{"code":200,"message":"닉네임이 변경되었습니다."}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_닉네임_수정_response_fields"><a class="link" href="#_닉네임_수정_response_fields">Response fields</a></h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">닉네임 변경 결과 메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_회원_탈퇴"><a class="link" href="#_회원_탈퇴">회원 탈퇴</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_회원_탈퇴_curl_request"><a class="link" href="#_회원_탈퇴_curl_request">Curl request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/members' -i -X DELETE \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer testToken' \
+    -d '{"name":"test","email":"test@naver.com","nickname":"updatedTestNickname","providerType":"NAVER"}'</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_회원_탈퇴_request_fields"><a class="link" href="#_회원_탈퇴_request_fields">Request fields</a></h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>nickname</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">닉네임</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>providerType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth 제공자</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_회원_탈퇴_http_request"><a class="link" href="#_회원_탈퇴_http_request">HTTP request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /api/members HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer testToken
+Content-Length: 96
+Host: localhost:8080
+
+{"name":"test","email":"test@naver.com","nickname":"updatedTestNickname","providerType":"NAVER"}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_회원_탈퇴_http_response"><a class="link" href="#_회원_탈퇴_http_response">HTTP response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 83
+
+{"code":200,"message":"탈퇴되었습니다. 이용해주셔서 감사합니다."}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_회원_탈퇴_response_fields"><a class="link" href="#_회원_탈퇴_response_fields">Response fields</a></h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">탈퇴 결과 메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_로그아웃"><a class="link" href="#_로그아웃">로그아웃</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_로그아웃_curl_request"><a class="link" href="#_로그아웃_curl_request">Curl request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/members/logout' -i -X POST \
+    -H 'Content-Type: application/json' \
+    -H 'Authorization: Bearer testToken'</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_로그아웃_http_request"><a class="link" href="#_로그아웃_http_request">HTTP request</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/members/logout HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer testToken
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_로그아웃_http_response"><a class="link" href="#_로그아웃_http_response">HTTP response</a></h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 63
+
+{"code":200,"message":"로그아웃에 성공하였습니다."}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_로그아웃_response_fields"><a class="link" href="#_로그아웃_response_fields">Response fields</a></h3>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">로그아웃 결과 메시지</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_팝업스토어_api"><a class="link" href="#_팝업스토어_api">팝업스토어 API</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_전체_조회"><a class="link" href="#_전체_조회">전체 조회</a></h3>
+<div class="sect3">
+<h4 id="_전체_조회_curl_request"><a class="link" href="#_전체_조회_curl_request">Curl request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/stores' -i -X GET</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_전체_조회_http_request"><a class="link" href="#_전체_조회_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/stores HTTP/1.1
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_전체_조회_http_response"><a class="link" href="#_전체_조회_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 2048
+
+[ {
+  "id" : 1,
+  "name" : "store",
+  "description" : "description",
+  "status" : "RESOLVED",
+  "startDate" : "2025-07-27",
+  "endDate" : "2025-08-06",
+  "websiteUrl" : "",
+  "snsUrl" : "https://instgram.com/test",
+  "viewCount" : 0,
+  "category" : {
+    "id" : 1,
+    "name" : "뷰티",
+    "createdAt" : "2025-07-27T03:38:30.011138563",
+    "updatedAt" : null
+  },
+  "location" : {
+    "id" : 1,
+    "name" : "서울 송파구 올림픽로 300",
+    "zonecode" : "05551",
+    "sido" : "서울",
+    "sigungu" : "송파구",
+    "latitude" : 37.513713,
+    "longitude" : 127.104302,
+    "address" : "서울 송파구 올림픽로 300",
+    "addressDetail" : ""
+  },
+  "operatingHours" : [ {
+    "days" : "월~금",
+    "startTime" : "03:38:30.011148351",
+    "endTime" : "13:38:30.011150555"
+  } ],
+  "storeImages" : [ {
+    "id" : 1,
+    "storeId" : 1,
+    "imageUrl" : "http://127.0.0.1:4566/pinup/store/image1.png",
+    "isThumbnail" : true
+  } ],
+  "createdAt" : "2025-07-27T03:38:30.011157047",
+  "updatedAt" : null
+}, {
+  "id" : 1,
+  "name" : "store",
+  "description" : "description",
+  "status" : "RESOLVED",
+  "startDate" : "2025-07-27",
+  "endDate" : "2025-08-06",
+  "websiteUrl" : "",
+  "snsUrl" : "https://instgram.com/test",
+  "viewCount" : 0,
+  "category" : {
+    "id" : 1,
+    "name" : "뷰티",
+    "createdAt" : "2025-07-27T03:38:30.011160403",
+    "updatedAt" : null
+  },
+  "location" : {
+    "id" : 1,
+    "name" : "서울 송파구 올림픽로 300",
+    "zonecode" : "05551",
+    "sido" : "서울",
+    "sigungu" : "송파구",
+    "latitude" : 37.513713,
+    "longitude" : 127.104302,
+    "address" : "서울 송파구 올림픽로 300",
+    "addressDetail" : ""
+  },
+  "operatingHours" : [ {
+    "days" : "월~금",
+    "startTime" : "03:38:30.011162607",
+    "endTime" : "13:38:30.011163649"
+  } ],
+  "storeImages" : [ {
+    "id" : 1,
+    "storeId" : 1,
+    "imageUrl" : "http://127.0.0.1:4566/pinup/store/image1.png",
+    "isThumbnail" : true
+  } ],
+  "createdAt" : "2025-07-27T03:38:30.011165583",
+  "updatedAt" : null
+} ]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_전체_조회_response_fields"><a class="link" href="#_전체_조회_response_fields">Response fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].startDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 시작날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].endDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 종료날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].websiteUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 참고 홈페이지 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].snsUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 참고 SNS 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].viewCount</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 조회수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].category.id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].category.name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].category.createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 등록날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].category.updatedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 수정날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].location.id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].location.name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].location.zonecode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 우편번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].location.sido</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 시/도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].location.sigungu</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 시/군/구</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].location.latitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 위도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].location.longitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 경도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].location.address</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].location.addressDetail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 상세주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].operatingHours[].days</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].operatingHours[].startTime</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 오픈시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].operatingHours[].endTime</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 마감시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].storeImages[].id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 이미지 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].storeImages[].storeId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].storeImages[].imageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 이미지 URL</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].storeImages[].isThumbnail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 썸네일 이미지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 등록날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].updatedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 수정날짜</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_요약_썸네일_조회"><a class="link" href="#_요약_썸네일_조회">요약 썸네일 조회</a></h3>
+<div class="sect3">
+<h4 id="_요약_썸네일_조회_curl_request"><a class="link" href="#_요약_썸네일_조회_curl_request">Curl request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/stores/summary?limit=2' -i -X GET</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_요약_썸네일_조회_http_request"><a class="link" href="#_요약_썸네일_조회_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/stores/summary?limit=2 HTTP/1.1
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_요약_썸네일_조회_http_response"><a class="link" href="#_요약_썸네일_조회_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 490
+
+[ {
+  "id" : 1,
+  "name" : "store",
+  "status" : "RESOLVED",
+  "startDate" : "2025-07-27",
+  "endDate" : "2025-08-06",
+  "categoryName" : "뷰티",
+  "sigungu" : "송파구",
+  "thumbnailImage" : "http://127.0.0.1:4566/pinup/store/image1.png"
+}, {
+  "id" : 1,
+  "name" : "store",
+  "status" : "RESOLVED",
+  "startDate" : "2025-07-27",
+  "endDate" : "2025-08-06",
+  "categoryName" : "뷰티",
+  "sigungu" : "송파구",
+  "thumbnailImage" : "http://127.0.0.1:4566/pinup/store/image1.png"
+} ]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_요약_썸네일_조회_response_fields"><a class="link" href="#_요약_썸네일_조회_response_fields">Response fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].startDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 시작날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].endDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 종료날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].categoryName</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].sigungu</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 위치 시/군/구</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].thumbnailImage</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 썸네일 이미지 URL</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_단건_조회"><a class="link" href="#_단건_조회">단건 조회</a></h3>
+<div class="sect3">
+<h4 id="_단건_조회_curl_request"><a class="link" href="#_단건_조회_curl_request">Curl request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/stores/1' -i -X GET</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_단건_조회_http_request"><a class="link" href="#_단건_조회_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/stores/1 HTTP/1.1
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_단건_조회_http_response"><a class="link" href="#_단건_조회_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 1021
+
+{
+  "id" : 1,
+  "name" : "store",
+  "description" : "description",
+  "status" : "RESOLVED",
+  "startDate" : "2025-07-27",
+  "endDate" : "2025-08-06",
+  "websiteUrl" : "",
+  "snsUrl" : "https://instgram.com/test",
+  "viewCount" : 0,
+  "category" : {
+    "id" : 1,
+    "name" : "뷰티",
+    "createdAt" : "2025-07-27T03:38:30.077445928",
+    "updatedAt" : null
+  },
+  "location" : {
+    "id" : 1,
+    "name" : "서울 송파구 올림픽로 300",
+    "zonecode" : "05551",
+    "sido" : "서울",
+    "sigungu" : "송파구",
+    "latitude" : 37.513713,
+    "longitude" : 127.104302,
+    "address" : "서울 송파구 올림픽로 300",
+    "addressDetail" : ""
+  },
+  "operatingHours" : [ {
+    "days" : "월~금",
+    "startTime" : "03:38:30.077454954",
+    "endTime" : "13:38:30.077457379"
+  } ],
+  "storeImages" : [ {
+    "id" : 1,
+    "storeId" : 1,
+    "imageUrl" : "http://127.0.0.1:4566/pinup/store/image1.png",
+    "isThumbnail" : true
+  } ],
+  "createdAt" : "2025-07-27T03:38:30.077463801",
+  "updatedAt" : null
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_단건_조회_response_fields"><a class="link" href="#_단건_조회_response_fields">Response fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>startDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 시작날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>endDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 종료날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>websiteUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 참고 홈페이지 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>snsUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 참고 SNS 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>viewCount</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 조회수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category.id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category.name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category.createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 등록날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category.updatedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 수정날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.zonecode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 우편번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.sido</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 시/도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.sigungu</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 시/군/구</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.latitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 위도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.longitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 경도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.address</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.addressDetail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 상세주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[].days</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[].startTime</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 오픈시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[].endTime</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 마감시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeImages[].id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 이미지 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeImages[].storeId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeImages[].imageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 이미지 URL</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeImages[].isThumbnail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 썸네일 이미지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 등록날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>updatedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 수정날짜</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_저장"><a class="link" href="#_저장">저장</a></h3>
+<div class="sect3">
+<h4 id="_저장_curl_request"><a class="link" href="#_저장_curl_request">Curl request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/stores' -i -X POST \
+    -H 'Content-Type: multipart/form-data' \
+    -F 'images=@image.jpeg;type=image/jpeg' \
+    -F 'storeRequest=@storeRequest.json;type=application/json'</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_저장_http_request"><a class="link" href="#_저장_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/stores HTTP/1.1
+Content-Type: multipart/form-data; boundary=6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm
+Host: localhost:8080
+
+--6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm
+Content-Disposition: form-data; name=images; filename=image.jpeg
+Content-Type: image/jpeg
+
+data
+--6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm
+Content-Disposition: form-data; name=storeRequest; filename=storeRequest.json
+Content-Type: application/json
+
+{"name":"store","description":"description","startDate":"2025-07-27","endDate":"2025-08-06","websiteUrl":"","snsUrl":"","thumbnailIndex":0,"categoryId":1,"locationId":1,"operatingHours":[{"days":"월~금","startTime":"03:38:29.919677101","endTime":"13:38:29.919680828"}]}
+--6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm--</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_저장_request_parts"><a class="link" href="#_저장_request_parts">Request parts</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Part</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>images</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이미지들</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeRequest</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 등록 정보</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_저장_request_part-storeRequest-fields"><a class="link" href="#_저장_request_part-storeRequest-fields">Request part-storerequest-fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 상세설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>startDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 시작날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>endDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 종료날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>websiteUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 참고 홈페이지 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>snsUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 참고 SNS 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>thumbnailIndex</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">썸네일 선택 인덱스</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>categoryId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>locationId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[0].days</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 요일</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[0].startTime</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 오픈 시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[0].endTime</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 마감 시간</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_저장_http_response"><a class="link" href="#_저장_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 201 Created
+Content-Type: application/json
+Content-Length: 1021
+
+{
+  "id" : 1,
+  "name" : "store",
+  "description" : "description",
+  "status" : "RESOLVED",
+  "startDate" : "2025-07-27",
+  "endDate" : "2025-08-06",
+  "websiteUrl" : "",
+  "snsUrl" : "https://instgram.com/test",
+  "viewCount" : 0,
+  "category" : {
+    "id" : 1,
+    "name" : "뷰티",
+    "createdAt" : "2025-07-27T03:38:29.919890918",
+    "updatedAt" : null
+  },
+  "location" : {
+    "id" : 1,
+    "name" : "서울 송파구 올림픽로 300",
+    "zonecode" : "05551",
+    "sido" : "서울",
+    "sigungu" : "송파구",
+    "latitude" : 37.513713,
+    "longitude" : 127.104302,
+    "address" : "서울 송파구 올림픽로 300",
+    "addressDetail" : ""
+  },
+  "operatingHours" : [ {
+    "days" : "월~금",
+    "startTime" : "03:38:29.919901688",
+    "endTime" : "13:38:29.919903973"
+  } ],
+  "storeImages" : [ {
+    "id" : 1,
+    "storeId" : 1,
+    "imageUrl" : "http://127.0.0.1:4566/pinup/store/image1.png",
+    "isThumbnail" : true
+  } ],
+  "createdAt" : "2025-07-27T03:38:29.919911827",
+  "updatedAt" : null
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_저장_response_fields"><a class="link" href="#_저장_response_fields">Response fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>startDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 시작날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>endDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 종료날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>websiteUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 참고 홈페이지 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>snsUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 참고 SNS 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>viewCount</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 조회수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category.id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category.name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category.createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 등록날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category.updatedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 수정날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.zonecode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 우편번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.sido</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 시/도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.sigungu</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 시/군/구</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.latitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 위도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.longitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 경도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.address</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.addressDetail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 상세주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[].days</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[].startTime</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 오픈시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[].endTime</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 마감시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeImages[].id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 이미지 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeImages[].storeId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeImages[].imageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 이미지 URL</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeImages[].isThumbnail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 썸네일 이미지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 등록날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>updatedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 수정날짜</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_수정"><a class="link" href="#_수정">수정</a></h3>
+<div class="sect3">
+<h4 id="_수정_curl_request"><a class="link" href="#_수정_curl_request">Curl request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/stores/1' -i -X PATCH \
+    -H 'Content-Type: multipart/form-data' \
+    -F 'images=@image.jpeg;type=image/jpeg' \
+    -F 'request=@request.json;type=application/json'</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_수정_http_request"><a class="link" href="#_수정_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PATCH /api/stores/1 HTTP/1.1
+Content-Type: multipart/form-data; boundary=6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm
+Host: localhost:8080
+
+--6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm
+Content-Disposition: form-data; name=images; filename=image.jpeg
+Content-Type: image/jpeg
+
+data
+--6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm
+Content-Disposition: form-data; name=request; filename=request.json
+Content-Type: application/json
+
+{"name":"store","description":"description","startDate":"2025-07-27","endDate":"2025-08-06","websiteUrl":"","snsUrl":"","thumbnailId":1,"thumbnailIndex":null,"categoryId":1,"locationId":1,"operatingHours":[{"days":"월~금","startTime":"03:38:29.878520657","endTime":"13:38:29.878524284"}],"deletedImageIds":[1]}
+--6o2knFse3p53ty9dmcQvWAIx1zInP11uCfbm--</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_수정_path_parameters"><a class="link" href="#_수정_path_parameters">Path parameters</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/stores/{id}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 ID</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_수정_request_parts"><a class="link" href="#_수정_request_parts">Request parts</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Part</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>images</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이미지들</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>request</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 수정 정보</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_수정_request_part-request-fields"><a class="link" href="#_수정_request_part-request-fields">Request part-request-fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 상세설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>startDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 시작날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>endDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 종료날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>websiteUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 참고 홈페이지 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>snsUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 참고 SNS 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>thumbnailId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 기존 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>thumbnailIndex</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">썸네일 선택 인덱스</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>categoryId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>locationId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[0].days</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 요일</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[0].startTime</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 오픈 시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[0].endTime</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 마감 시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>deletedImageIds</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Array</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 기존 이미지 삭제</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_수정_http_response"><a class="link" href="#_수정_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 1019
+
+{
+  "id" : 1,
+  "name" : "store",
+  "description" : "description",
+  "status" : "RESOLVED",
+  "startDate" : "2025-07-27",
+  "endDate" : "2025-08-06",
+  "websiteUrl" : "",
+  "snsUrl" : "https://instgram.com/test",
+  "viewCount" : 0,
+  "category" : {
+    "id" : 1,
+    "name" : "뷰티",
+    "createdAt" : "2025-07-27T03:38:29.87903414",
+    "updatedAt" : null
+  },
+  "location" : {
+    "id" : 1,
+    "name" : "서울 송파구 올림픽로 300",
+    "zonecode" : "05551",
+    "sido" : "서울",
+    "sigungu" : "송파구",
+    "latitude" : 37.513713,
+    "longitude" : 127.104302,
+    "address" : "서울 송파구 올림픽로 300",
+    "addressDetail" : ""
+  },
+  "operatingHours" : [ {
+    "days" : "월~금",
+    "startTime" : "03:38:29.87906674",
+    "endTime" : "13:38:29.879068524"
+  } ],
+  "storeImages" : [ {
+    "id" : 1,
+    "storeId" : 1,
+    "imageUrl" : "http://127.0.0.1:4566/pinup/store/image1.png",
+    "isThumbnail" : true
+  } ],
+  "createdAt" : "2025-07-27T03:38:29.879121893",
+  "updatedAt" : null
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_수정_response_fields"><a class="link" href="#_수정_response_fields">Response fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>description</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 설명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>status</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 상태</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>startDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 시작날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>endDate</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 종료날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>websiteUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 참고 홈페이지 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>snsUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 참고 SNS 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>viewCount</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 조회수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category.id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category.name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category.createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 등록날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category.updatedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 카테고리 수정날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치명</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.zonecode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 우편번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.sido</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 시/도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.sigungu</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 시/군/구</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.latitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 위도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.longitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 경도</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.address</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>location.addressDetail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 상세주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[].days</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[].startTime</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 오픈시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>operatingHours[].endTime</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 운영 마감시간</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeImages[].id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 이미지 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeImages[].storeId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeImages[].imageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 이미지 URL</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>storeImages[].isThumbnail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 썸네일 이미지 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 등록날짜</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>updatedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 수정날짜</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_삭제"><a class="link" href="#_삭제">삭제</a></h3>
+<div class="sect3">
+<h4 id="_삭제_curl_request"><a class="link" href="#_삭제_curl_request">Curl request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/stores/1' -i -X DELETE</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_삭제_http_request"><a class="link" href="#_삭제_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /api/stores/1 HTTP/1.1
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_삭제_path_parameters"><a class="link" href="#_삭제_path_parameters">Path parameters</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/stores/{id}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">팝업스토어 ID</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_삭제_http_response"><a class="link" href="#_삭제_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 204 No Content</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_location_api"><a class="link" href="#_location_api">Location API</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_저장_2"><a class="link" href="#_저장_2">저장</a></h3>
+<div class="sect3">
+<h4 id="_저장_2_curl_request"><a class="link" href="#_저장_2_curl_request">Curl request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/locations' -i -X POST \
+    -H 'Content-Type: application/json' \
+    -d '{
+  "zonecode" : "05554",
+  "sido" : "서울",
+  "sigungu" : "송파구",
+  "address" : "서울 송파구 올림픽로 240",
+  "addressDetail" : "롯데백화점 잠실점 10F 웨이브 행사장 (LG전자 콜라보 행사)"
+}'</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_저장_2_http_request"><a class="link" href="#_저장_2_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/locations HTTP/1.1
+Content-Type: application/json
+Content-Length: 226
+Host: localhost:8080
+
+{
+  "zonecode" : "05554",
+  "sido" : "서울",
+  "sigungu" : "송파구",
+  "address" : "서울 송파구 올림픽로 240",
+  "addressDetail" : "롯데백화점 잠실점 10F 웨이브 행사장 (LG전자 콜라보 행사)"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_저장_2_request_fields"><a class="link" href="#_저장_2_request_fields">Request fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>zonecode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">우편번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sido</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">도/특별시/광역시</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sigungu</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">시/군/구</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>address</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>addressDetail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">상세 주소</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_저장_2_http_response"><a class="link" href="#_저장_2_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 201 Created
+Content-Type: application/json
+Content-Length: 339
+
+{
+  "id" : 1,
+  "name" : "서울 송파구 올림픽로 240",
+  "zonecode" : "05554",
+  "sido" : "서울",
+  "sigungu" : "송파구",
+  "latitude" : 37.51131,
+  "longitude" : 127.098142,
+  "address" : "서울 송파구 올림픽로 240",
+  "addressDetail" : "롯데백화점 잠실점 10F 웨이브 행사장 (LG전자 콜라보 행사)"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_저장_2_response_fields"><a class="link" href="#_저장_2_response_fields">Response fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>zonecode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">우편번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sido</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">도/특별시/광역시</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sigungu</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">시/군/구</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>address</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>addressDetail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">상세 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>longitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">x 좌표</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>latitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">y 좌표</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_수정_2"><a class="link" href="#_수정_2">수정</a></h3>
+<div class="sect3">
+<h4 id="_수정_2_curl_request"><a class="link" href="#_수정_2_curl_request">Curl request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/locations/1' -i -X PUT \
+    -H 'Content-Type: application/json' \
+    -d '{
+  "zonecode" : "05551",
+  "sido" : "서울",
+  "sigungu" : "송파구",
+  "address" : "서울 송파구 올림픽로 300",
+  "addressDetail" : "잠실 롯데월드몰 1층 아트리움"
+}'</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_수정_2_http_request"><a class="link" href="#_수정_2_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/locations/1 HTTP/1.1
+Content-Type: application/json
+Content-Length: 189
+Host: localhost:8080
+
+{
+  "zonecode" : "05551",
+  "sido" : "서울",
+  "sigungu" : "송파구",
+  "address" : "서울 송파구 올림픽로 300",
+  "addressDetail" : "잠실 롯데월드몰 1층 아트리움"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_수정_2_path_parameters"><a class="link" href="#_수정_2_path_parameters">Path parameters</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/locations/{locationId}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>locationId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">위치 ID</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_수정_2_request_fields"><a class="link" href="#_수정_2_request_fields">Request fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>zonecode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">우편번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sido</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">도/특별시/광역시</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sigungu</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">시/군/구</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>address</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>addressDetail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">상세 주소</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_수정_2_http_response"><a class="link" href="#_수정_2_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 339
+
+{
+  "id" : 1,
+  "name" : "서울 송파구 올림픽로 300",
+  "zonecode" : "05554",
+  "sido" : "서울",
+  "sigungu" : "송파구",
+  "latitude" : 37.51131,
+  "longitude" : 127.098142,
+  "address" : "서울 송파구 올림픽로 240",
+  "addressDetail" : "롯데백화점 잠실점 10F 웨이브 행사장 (LG전자 콜라보 행사)"
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_수정_2_response_fields"><a class="link" href="#_수정_2_response_fields">Response fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>zonecode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">우편번호</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sido</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">도/특별시/광역시</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>sigungu</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">시/군/구</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>address</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>addressDetail</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">상세 주소</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>longitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">x 좌표</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>latitude</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">y 좌표</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="_게시글_api"><a class="link" href="#_게시글_api">게시글 API</a></h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_게시글_목록_조회"><a class="link" href="#_게시글_목록_조회">게시글 목록 조회</a></h3>
+<div class="sect3">
+<h4 id="_게시글_목록_조회_http_request"><a class="link" href="#_게시글_목록_조회_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/post/list/10 HTTP/1.1
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
 <div class="sect3">
 <h4 id="_게시글_목록_조회_path_parameters"><a class="link" href="#_게시글_목록_조회_path_parameters">Path parameters</a></h4>
 <table class="tableblock frame-all grid-all stretch">
@@ -581,6 +2758,30 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 </tbody>
 </table>
+</div>
+<div class="sect3">
+<h4 id="_게시글_목록_조회_request_fields"><a class="link" href="#_게시글_목록_조회_request_fields">Request fields</a></h4>
+<div class="paragraph">
+<p>Snippet request-fields not found for operation::post-get-list</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_게시글_목록_조회_http_response"><a class="link" href="#_게시글_목록_조회_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 723
+
+[{"id":1,"storeId":10,"member":{"id":1,"name":null,"email":"test@example.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"제목1","content":"내용1","thumbnail":"thumb1.jpg","createdAt":"2025-07-27T03:38:15.775598893","updatedAt":"2025-07-27T03:38:15.775598893","commentCount":3,"likedByCurrentUser":false},{"id":2,"storeId":10,"member":{"id":1,"name":null,"email":"test@example.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"제목2","content":"내용2","thumbnail":"thumb2.jpg","createdAt":"2025-07-27T03:38:15.775598893","updatedAt":"2025-07-27T03:38:15.775598893","commentCount":1,"likedByCurrentUser":false}]</code></pre>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_게시글_목록_조회_response_fields"><a class="link" href="#_게시글_목록_조회_response_fields">Response fields</a></h4>
@@ -673,12 +2874,26 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">댓글 수</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>[].likedByCurrentUser</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 로그인한 사용자가 좋아요 눌렀는지 여부</p></td>
+</tr>
 </tbody>
 </table>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_게시글_상세_조회"><a class="link" href="#_게시글_상세_조회">게시글 상세 조회</a></h3>
+<div class="sect3">
+<h4 id="_게시글_상세_조회_http_request"><a class="link" href="#_게시글_상세_조회_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/post/1 HTTP/1.1
+Host: localhost:8080</code></pre>
+</div>
+</div>
+</div>
 <div class="sect3">
 <h4 id="_게시글_상세_조회_path_parameters"><a class="link" href="#_게시글_상세_조회_path_parameters">Path parameters</a></h4>
 <table class="tableblock frame-all grid-all stretch">
@@ -700,6 +2915,30 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </tr>
 </tbody>
 </table>
+</div>
+<div class="sect3">
+<h4 id="_게시글_상세_조회_request_fields"><a class="link" href="#_게시글_상세_조회_request_fields">Request fields</a></h4>
+<div class="paragraph">
+<p>Snippet request-fields not found for operation::post-get-by-id</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_게시글_상세_조회_http_response"><a class="link" href="#_게시글_상세_조회_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY
+Content-Length: 842
+
+{"post":{"id":1,"storeId":10,"member":{"id":1,"name":null,"email":"test@example.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"문서화 제목","content":"문서화 내용","thumbnail":"https://s3.bucket/thumb.jpg","createdAt":"2025-07-27T03:38:15.79578953","updatedAt":"2025-07-27T03:38:15.79578953","commentCount":1,"likedByCurrentUser":false},"comments":[{"id":100,"postId":1,"member":{"id":null,"createdAt":null,"updatedAt":null,"name":null,"email":"comment@example.com","nickname":"댓글유저","providerType":"NAVER","providerId":null,"role":"ROLE_USER","deleted":false},"content":"댓글 내용","createdAt":"2025-07-27T03:38:15.79578953"}],"postImages":[{"id":201,"postId":1,"s3Url":"https://s3.bucket/image1.jpg"},{"id":202,"postId":1,"s3Url":"https://s3.bucket/image2.jpg"}]}</code></pre>
+</div>
+</div>
 </div>
 <div class="sect3">
 <h4 id="_게시글_상세_조회_response_fields"><a class="link" href="#_게시글_상세_조회_response_fields">Response fields</a></h4>
@@ -960,9 +3199,9 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 364
+Content-Length: 390
 
-{"id":1,"storeId":null,"member":{"id":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"제목","content":"내용","thumbnail":"https://example.com/thumbnail.jpg","createdAt":"2025-06-19T14:30:40.919998404","updatedAt":"2025-06-19T14:30:40.920000968","commentCount":0}</code></pre>
+{"id":1,"storeId":null,"member":{"id":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"제목","content":"내용","thumbnail":"https://example.com/thumbnail.jpg","createdAt":"2025-07-27T03:38:15.86783043","updatedAt":"2025-07-27T03:38:15.867833014","commentCount":0,"likedByCurrentUser":false}</code></pre>
 </div>
 </div>
 </div>
@@ -1056,6 +3295,11 @@ Content-Length: 364
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>commentCount</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">댓글 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>likedByCurrentUser</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 로그인한 사용자가 좋아요 눌렀는지 여부</p></td>
 </tr>
 </tbody>
 </table>
@@ -1240,9 +3484,9 @@ Cache-Control: no-cache, no-store, max-age=0, must-revalidate
 Pragma: no-cache
 Expires: 0
 X-Frame-Options: DENY
-Content-Length: 386
+Content-Length: 413
 
-{"id":1,"storeId":null,"member":{"id":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"수정 제목","content":"수정 내용","thumbnail":"https://example.com/updated-thumbnail.jpg","createdAt":"2025-06-18T14:30:40.896372441","updatedAt":"2025-06-19T14:30:40.896383222","commentCount":0}</code></pre>
+{"id":1,"storeId":null,"member":{"id":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","role":"ROLE_USER","deleted":false},"title":"수정 제목","content":"수정 내용","thumbnail":"https://example.com/updated-thumbnail.jpg","createdAt":"2025-07-26T03:38:15.829282809","updatedAt":"2025-07-27T03:38:15.829298187","commentCount":0,"likedByCurrentUser":false}</code></pre>
 </div>
 </div>
 </div>
@@ -1337,12 +3581,30 @@ Content-Length: 386
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">댓글 수</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>likedByCurrentUser</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 로그인한 사용자가 좋아요 눌렀는지 여부</p></td>
+</tr>
 </tbody>
 </table>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_게시글_비활성화"><a class="link" href="#_게시글_비활성화">게시글 비활성화</a></h3>
+<div class="sect3">
+<h4 id="_게시글_비활성화_http_request"><a class="link" href="#_게시글_비활성화_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PATCH /api/post/1/disable HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8080
+Content-Length: 102
+
+_csrf=QTeMzQrn_Q5HPWgcS4LQD6SbQKwcu0t6ofqtZLjGpOoxMnioIgfq9T7QyD5qDVp4fq_kPpb5bZQrgntXwpubVtvwndsIVkmZ</code></pre>
+</div>
+</div>
+</div>
 <div class="sect3">
 <h4 id="_게시글_비활성화_path_parameters"><a class="link" href="#_게시글_비활성화_path_parameters">Path parameters</a></h4>
 <table class="tableblock frame-all grid-all stretch">
@@ -1365,6 +3627,123 @@ Content-Length: 386
 </tbody>
 </table>
 </div>
+<div class="sect3">
+<h4 id="_게시글_비활성화_request_fields"><a class="link" href="#_게시글_비활성화_request_fields">Request fields</a></h4>
+<div class="paragraph">
+<p>Snippet request-fields not found for operation::post-disable</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_게시글_비활성화_http_response"><a class="link" href="#_게시글_비활성화_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 204 No Content
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 0
+Cache-Control: no-cache, no-store, max-age=0, must-revalidate
+Pragma: no-cache
+Expires: 0
+X-Frame-Options: DENY</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_게시글_비활성화_response_fields"><a class="link" href="#_게시글_비활성화_response_fields">Response fields</a></h4>
+<div class="paragraph">
+<p>Snippet response-fields not found for operation::post-disable</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_postlike_api"><a class="link" href="#_postlike_api">PostLike API</a></h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_게시글_목록_조회_2"><a class="link" href="#_게시글_목록_조회_2">게시글 목록 조회</a></h3>
+<div class="sect3">
+<h4 id="_게시글_목록_조회_2_http_request"><a class="link" href="#_게시글_목록_조회_2_http_request">HTTP request</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/post-like/1 HTTP/1.1
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8080
+Content-Length: 102
+
+_csrf=11V2nGqQmOc37edPB6YL4rURBDiXuDQDymWhQ9XsMB6D-JpLs2FBqF-jr4YajIIrYYs_04J0KQChgAIu8gHAJ-SKVii6yPkp</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_게시글_목록_조회_2_path_parameters"><a class="link" href="#_게시글_목록_조회_2_path_parameters">Path parameters</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/post-like/{postId}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>postId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">좋아요를 누를 게시글 ID</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_게시글_목록_조회_2_request_fields"><a class="link" href="#_게시글_목록_조회_2_request_fields">Request fields</a></h4>
+<div class="paragraph">
+<p>Snippet request-fields not found for operation::post-like-toggle</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_게시글_목록_조회_2_http_response"><a class="link" href="#_게시글_목록_조회_2_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 42
+
+{"likeCount":15,"likedByCurrentUser":true}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_게시글_목록_조회_2_response_fields"><a class="link" href="#_게시글_목록_조회_2_response_fields">Response fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>likeCount</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">총 좋아요 수</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>likedByCurrentUser</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">현재 사용자가 좋아요 눌렀는지 여부</p></td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 </div>
 </div>
@@ -1375,53 +3754,221 @@ Content-Length: 386
 <h3 id="_댓글_생성"><a class="link" href="#_댓글_생성">댓글 생성</a></h3>
 <div class="sect3">
 <h4 id="_댓글_생성_http_request"><a class="link" href="#_댓글_생성_http_request">HTTP request</a></h4>
-<div class="paragraph">
-<p>Snippet http-request not found for operation::comment-create</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/comment/1?_csrf=6e1NqeVacKJFEl840KvIIGI7q5VNFfIusXDVXuAafXUrNl84iI4vkIc8FMZod2xb6Yb8QVRZhq1-JcoDhEPhZtYqG0MZAW8O HTTP/1.1
+Content-Type: application/json
+Accept: application/json
+Content-Length: 27
+Host: localhost:8080
+
+{"content":"댓글 내용"}</code></pre>
+</div>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_댓글_생성_path_parameters"><a class="link" href="#_댓글_생성_path_parameters">Path parameters</a></h4>
-<div class="paragraph">
-<p>Snippet path-parameters not found for operation::comment-create</p>
-</div>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/comment/{postId}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>postId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">댓글을 작성할 게시글 ID</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect3">
 <h4 id="_댓글_생성_request_fields"><a class="link" href="#_댓글_생성_request_fields">Request fields</a></h4>
-<div class="paragraph">
-<p>Snippet request-fields not found for operation::comment-create</p>
-</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">댓글 내용</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect3">
 <h4 id="_댓글_생성_http_response"><a class="link" href="#_댓글_생성_http_response">HTTP response</a></h4>
-<div class="paragraph">
-<p>Snippet http-response not found for operation::comment-create</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 201 Created
+Content-Type: application/json
+Content-Length: 299
+
+{"id":1,"postId":1,"member":{"id":null,"createdAt":null,"updatedAt":null,"name":"테스터","email":"test@naver.com","nickname":"행복한돼지","providerType":"NAVER","providerId":"naver123","role":"ROLE_USER","deleted":false},"content":"댓글 내용","createdAt":"2025-07-27T03:37:29.615492877"}</code></pre>
+</div>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_댓글_생성_response_fields"><a class="link" href="#_댓글_생성_response_fields">Response fields</a></h4>
-<div class="paragraph">
-<p>Snippet response-fields not found for operation::comment-create</p>
-</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">댓글 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>postId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">게시글 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">댓글 내용</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">작성 시각</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>member.id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">작성자 ID</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>member.nickname</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">작성자 닉네임</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>member.name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">작성자 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>member.email</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">작성자 이메일</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>member.providerType</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">소셜 로그인 제공자</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>member.providerId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">소셜 제공자 식별자</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>member.role</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">작성자 권한</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>member.deleted</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Boolean</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">삭제 여부</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>member.createdAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">작성자 생성 시각</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>member.updatedAt</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Null</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">작성자 수정 시각</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_댓글_삭제"><a class="link" href="#_댓글_삭제">댓글 삭제</a></h3>
 <div class="sect3">
 <h4 id="_댓글_삭제_http_request"><a class="link" href="#_댓글_삭제_http_request">HTTP request</a></h4>
-<div class="paragraph">
-<p>Snippet http-request not found for operation::comment-delete</p>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /api/comment/1 HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8080
+Content-Length: 102
+
+_csrf=R7ZQChyeFirO0xp1fh2B_TLCzJAHMKNU5-6C5Fn2tUNgZ4pvdI41OimvIEjj5ywUHzC1nlH04akxVZd51djk3GDP1nVQAb1b</code></pre>
+</div>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_댓글_삭제_path_parameters"><a class="link" href="#_댓글_삭제_path_parameters">Path parameters</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/comment/{commentId}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>commentId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">삭제할 댓글 ID</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_댓글_삭제_request_fields"><a class="link" href="#_댓글_삭제_request_fields">Request fields</a></h4>
 <div class="paragraph">
-<p>Snippet path-parameters not found for operation::comment-delete</p>
+<p>Snippet request-fields not found for operation::comment-delete</p>
 </div>
 </div>
 <div class="sect3">
 <h4 id="_댓글_삭제_http_response"><a class="link" href="#_댓글_삭제_http_response">HTTP response</a></h4>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 204 No Content</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_댓글_삭제_response_fields"><a class="link" href="#_댓글_삭제_response_fields">Response fields</a></h4>
 <div class="paragraph">
-<p>Snippet http-response not found for operation::comment-delete</p>
+<p>Snippet response-fields not found for operation::comment-delete</p>
 </div>
 </div>
 </div>
@@ -1431,9 +3978,9 @@ Content-Length: 386
 <h2 id="_공지사항_api"><a class="link" href="#_공지사항_api">공지사항 API</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_전체_조회"><a class="link" href="#_전체_조회">전체 조회</a></h3>
+<h3 id="_전체_조회_2"><a class="link" href="#_전체_조회_2">전체 조회</a></h3>
 <div class="sect3">
-<h4 id="_전체_조회_curl_request"><a class="link" href="#_전체_조회_curl_request">Curl request</a></h4>
+<h4 id="_전체_조회_2_curl_request"><a class="link" href="#_전체_조회_2_curl_request">Curl request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/notices' -i -X GET</code></pre>
@@ -1441,7 +3988,7 @@ Content-Length: 386
 </div>
 </div>
 <div class="sect3">
-<h4 id="_전체_조회_http_request"><a class="link" href="#_전체_조회_http_request">HTTP request</a></h4>
+<h4 id="_전체_조회_2_http_request"><a class="link" href="#_전체_조회_2_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/notices HTTP/1.1
@@ -1450,7 +3997,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_전체_조회_http_response"><a class="link" href="#_전체_조회_http_response">HTTP response</a></h4>
+<h4 id="_전체_조회_2_http_response"><a class="link" href="#_전체_조회_2_http_response">HTTP response</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -1492,7 +4039,7 @@ Content-Length: 656
 </div>
 </div>
 <div class="sect3">
-<h4 id="_전체_조회_response_fields"><a class="link" href="#_전체_조회_response_fields">Response fields</a></h4>
+<h4 id="_전체_조회_2_response_fields"><a class="link" href="#_전체_조회_2_response_fields">Response fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1572,9 +4119,9 @@ Content-Length: 656
 </div>
 </div>
 <div class="sect2">
-<h3 id="_단건_조회"><a class="link" href="#_단건_조회">단건 조회</a></h3>
+<h3 id="_단건_조회_2"><a class="link" href="#_단건_조회_2">단건 조회</a></h3>
 <div class="sect3">
-<h4 id="_단건_조회_curl_request"><a class="link" href="#_단건_조회_curl_request">Curl request</a></h4>
+<h4 id="_단건_조회_2_curl_request"><a class="link" href="#_단건_조회_2_curl_request">Curl request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/notices/1' -i -X GET</code></pre>
@@ -1582,7 +4129,7 @@ Content-Length: 656
 </div>
 </div>
 <div class="sect3">
-<h4 id="_단건_조회_http_request"><a class="link" href="#_단건_조회_http_request">HTTP request</a></h4>
+<h4 id="_단건_조회_2_http_request"><a class="link" href="#_단건_조회_2_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/notices/1 HTTP/1.1
@@ -1591,7 +4138,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_단건_조회_http_response"><a class="link" href="#_단건_조회_http_response">HTTP response</a></h4>
+<h4 id="_단건_조회_2_http_response"><a class="link" href="#_단건_조회_2_http_response">HTTP response</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -1618,7 +4165,7 @@ Content-Length: 321
 </div>
 </div>
 <div class="sect3">
-<h4 id="_단건_조회_response_fields"><a class="link" href="#_단건_조회_response_fields">Response fields</a></h4>
+<h4 id="_단건_조회_2_response_fields"><a class="link" href="#_단건_조회_2_response_fields">Response fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -1720,9 +4267,9 @@ Content-Length: 321
 </div>
 </div>
 <div class="sect2">
-<h3 id="_저장"><a class="link" href="#_저장">저장</a></h3>
+<h3 id="_저장_3"><a class="link" href="#_저장_3">저장</a></h3>
 <div class="sect3">
-<h4 id="_저장_curl_request"><a class="link" href="#_저장_curl_request">Curl request</a></h4>
+<h4 id="_저장_3_curl_request"><a class="link" href="#_저장_3_curl_request">Curl request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/notices' -i -X POST \
@@ -1735,7 +4282,7 @@ Content-Length: 321
 </div>
 </div>
 <div class="sect3">
-<h4 id="_저장_http_request"><a class="link" href="#_저장_http_request">HTTP request</a></h4>
+<h4 id="_저장_3_http_request"><a class="link" href="#_저장_3_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/notices HTTP/1.1
@@ -1751,7 +4298,36 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_저장_http_response"><a class="link" href="#_저장_http_response">HTTP response</a></h4>
+<h4 id="_저장_3_request_fields"><a class="link" href="#_저장_3_request_fields">Request fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>title</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">공지사항 제목</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">공지사항 내용</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_저장_3_http_response"><a class="link" href="#_저장_3_http_response">HTTP response</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 201 Created</code></pre>
@@ -2012,9 +4588,9 @@ Content-Length: 146
 </div>
 </div>
 <div class="sect2">
-<h3 id="_수정"><a class="link" href="#_수정">수정</a></h3>
+<h3 id="_수정_3"><a class="link" href="#_수정_3">수정</a></h3>
 <div class="sect3">
-<h4 id="_수정_curl_request"><a class="link" href="#_수정_curl_request">Curl request</a></h4>
+<h4 id="_수정_3_curl_request"><a class="link" href="#_수정_3_curl_request">Curl request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/notices/1' -i -X PUT \
@@ -2027,7 +4603,7 @@ Content-Length: 146
 </div>
 </div>
 <div class="sect3">
-<h4 id="_수정_http_request"><a class="link" href="#_수정_http_request">HTTP request</a></h4>
+<h4 id="_수정_3_http_request"><a class="link" href="#_수정_3_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/notices/1 HTTP/1.1
@@ -2043,7 +4619,58 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_수정_http_response"><a class="link" href="#_수정_http_response">HTTP response</a></h4>
+<h4 id="_수정_3_path_parameters"><a class="link" href="#_수정_3_path_parameters">Path parameters</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/notices/{noticeId}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>noticeId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">공지사항 아이디</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_수정_3_request_fields"><a class="link" href="#_수정_3_request_fields">Request fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>title</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">공지사항 제목</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>content</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">공지사항 내용</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_수정_3_http_response"><a class="link" href="#_수정_3_http_response">HTTP response</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 204 No Content</code></pre>
@@ -2326,9 +4953,9 @@ Content-Length: 146
 </div>
 </div>
 <div class="sect2">
-<h3 id="_삭제"><a class="link" href="#_삭제">삭제</a></h3>
+<h3 id="_삭제_2"><a class="link" href="#_삭제_2">삭제</a></h3>
 <div class="sect3">
-<h4 id="_삭제_curl_request"><a class="link" href="#_삭제_curl_request">Curl request</a></h4>
+<h4 id="_삭제_2_curl_request"><a class="link" href="#_삭제_2_curl_request">Curl request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/notices/1' -i -X DELETE</code></pre>
@@ -2336,7 +4963,7 @@ Content-Length: 146
 </div>
 </div>
 <div class="sect3">
-<h4 id="_삭제_http_request"><a class="link" href="#_삭제_http_request">HTTP request</a></h4>
+<h4 id="_삭제_2_http_request"><a class="link" href="#_삭제_2_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /api/notices/1 HTTP/1.1
@@ -2345,7 +4972,29 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_삭제_http_response"><a class="link" href="#_삭제_http_response">HTTP response</a></h4>
+<h4 id="_삭제_2_path_parameters"><a class="link" href="#_삭제_2_path_parameters">Path parameters</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/notices/{noticeId}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>noticeId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">공지사항 아이디</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_삭제_2_http_response"><a class="link" href="#_삭제_2_http_response">HTTP response</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 204 No Content</code></pre>
@@ -2381,9 +5030,9 @@ Host: localhost:8080</code></pre>
 <h2 id="_faq_api"><a class="link" href="#_faq_api">FAQ API</a></h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_전체_조회_2"><a class="link" href="#_전체_조회_2">전체 조회</a></h3>
+<h3 id="_전체_조회_3"><a class="link" href="#_전체_조회_3">전체 조회</a></h3>
 <div class="sect3">
-<h4 id="_전체_조회_2_curl_request"><a class="link" href="#_전체_조회_2_curl_request">Curl request</a></h4>
+<h4 id="_전체_조회_3_curl_request"><a class="link" href="#_전체_조회_3_curl_request">Curl request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/faqs' -i -X GET</code></pre>
@@ -2391,7 +5040,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_전체_조회_2_http_request"><a class="link" href="#_전체_조회_2_http_request">HTTP request</a></h4>
+<h4 id="_전체_조회_3_http_request"><a class="link" href="#_전체_조회_3_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/faqs HTTP/1.1
@@ -2400,7 +5049,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_전체_조회_2_http_response"><a class="link" href="#_전체_조회_2_http_response">HTTP response</a></h4>
+<h4 id="_전체_조회_3_http_response"><a class="link" href="#_전체_조회_3_http_response">HTTP response</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -2444,7 +5093,7 @@ Content-Length: 708
 </div>
 </div>
 <div class="sect3">
-<h4 id="_전체_조회_2_response_fields"><a class="link" href="#_전체_조회_2_response_fields">Response fields</a></h4>
+<h4 id="_전체_조회_3_response_fields"><a class="link" href="#_전체_조회_3_response_fields">Response fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -2529,9 +5178,9 @@ Content-Length: 708
 </div>
 </div>
 <div class="sect2">
-<h3 id="_단건_조회_2"><a class="link" href="#_단건_조회_2">단건 조회</a></h3>
+<h3 id="_단건_조회_3"><a class="link" href="#_단건_조회_3">단건 조회</a></h3>
 <div class="sect3">
-<h4 id="_단건_조회_2_curl_request"><a class="link" href="#_단건_조회_2_curl_request">Curl request</a></h4>
+<h4 id="_단건_조회_3_curl_request"><a class="link" href="#_단건_조회_3_curl_request">Curl request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/faqs/1' -i -X GET</code></pre>
@@ -2539,7 +5188,7 @@ Content-Length: 708
 </div>
 </div>
 <div class="sect3">
-<h4 id="_단건_조회_2_http_request"><a class="link" href="#_단건_조회_2_http_request">HTTP request</a></h4>
+<h4 id="_단건_조회_3_http_request"><a class="link" href="#_단건_조회_3_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/faqs/1 HTTP/1.1
@@ -2548,7 +5197,7 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_단건_조회_2_http_response"><a class="link" href="#_단건_조회_2_http_response">HTTP response</a></h4>
+<h4 id="_단건_조회_3_http_response"><a class="link" href="#_단건_조회_3_http_response">HTTP response</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
@@ -2576,7 +5225,7 @@ Content-Length: 347
 </div>
 </div>
 <div class="sect3">
-<h4 id="_단건_조회_2_response_fields"><a class="link" href="#_단건_조회_2_response_fields">Response fields</a></h4>
+<h4 id="_단건_조회_3_response_fields"><a class="link" href="#_단건_조회_3_response_fields">Response fields</a></h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;">
@@ -2683,9 +5332,9 @@ Content-Length: 347
 </div>
 </div>
 <div class="sect2">
-<h3 id="_저장_2"><a class="link" href="#_저장_2">저장</a></h3>
+<h3 id="_저장_4"><a class="link" href="#_저장_4">저장</a></h3>
 <div class="sect3">
-<h4 id="_저장_2_curl_request"><a class="link" href="#_저장_2_curl_request">Curl request</a></h4>
+<h4 id="_저장_4_curl_request"><a class="link" href="#_저장_4_curl_request">Curl request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/faqs' -i -X POST \
@@ -2699,7 +5348,7 @@ Content-Length: 347
 </div>
 </div>
 <div class="sect3">
-<h4 id="_저장_2_http_request"><a class="link" href="#_저장_2_http_request">HTTP request</a></h4>
+<h4 id="_저장_4_http_request"><a class="link" href="#_저장_4_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/faqs HTTP/1.1
@@ -2716,7 +5365,41 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_저장_2_http_response"><a class="link" href="#_저장_2_http_response">HTTP response</a></h4>
+<h4 id="_저장_4_request_fields"><a class="link" href="#_저장_4_request_fields">Request fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>question</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FAQ 질문</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>answer</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FAQ 답변</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FAQ 카테고리</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_저장_4_http_response"><a class="link" href="#_저장_4_http_response">HTTP response</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 201 Created</code></pre>
@@ -2763,13 +5446,13 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 154
+Content-Length: 173
 
 {
   "status" : 400,
   "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
-    "question" : "질문 내용을 입력하세요."
+    "question" : "질문 내용을 1~100자 이내로 입력하세요."
   }
 }</code></pre>
 </div>
@@ -2935,13 +5618,13 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 152
+Content-Length: 171
 
 {
   "status" : 400,
   "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
-    "answer" : "답변 내용을 입력하세요."
+    "answer" : "답변 내용을 1~500자 이내로 입력하세요."
   }
 }</code></pre>
 </div>
@@ -3155,9 +5838,9 @@ Content-Length: 153
 </div>
 </div>
 <div class="sect2">
-<h3 id="_수정_2"><a class="link" href="#_수정_2">수정</a></h3>
+<h3 id="_수정_4"><a class="link" href="#_수정_4">수정</a></h3>
 <div class="sect3">
-<h4 id="_수정_2_curl_request"><a class="link" href="#_수정_2_curl_request">Curl request</a></h4>
+<h4 id="_수정_4_curl_request"><a class="link" href="#_수정_4_curl_request">Curl request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/faqs/1' -i -X PUT \
@@ -3171,7 +5854,7 @@ Content-Length: 153
 </div>
 </div>
 <div class="sect3">
-<h4 id="_수정_2_http_request"><a class="link" href="#_수정_2_http_request">HTTP request</a></h4>
+<h4 id="_수정_4_http_request"><a class="link" href="#_수정_4_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PUT /api/faqs/1 HTTP/1.1
@@ -3188,7 +5871,63 @@ Host: localhost:8080
 </div>
 </div>
 <div class="sect3">
-<h4 id="_수정_2_http_response"><a class="link" href="#_수정_2_http_response">HTTP response</a></h4>
+<h4 id="_수정_4_path_parameters"><a class="link" href="#_수정_4_path_parameters">Path parameters</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/faqs/{faqId}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>faqId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FAQ ID</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_수정_4_request_fields"><a class="link" href="#_수정_4_request_fields">Request fields</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>question</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FAQ 질문</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>answer</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FAQ 답변</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>category</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FAQ 카테고리</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_수정_4_http_response"><a class="link" href="#_수정_4_http_response">HTTP response</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 204 No Content</code></pre>
@@ -3257,13 +5996,13 @@ Host: localhost:8080
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 400 Bad Request
 Content-Type: application/json
-Content-Length: 173
+Content-Length: 154
 
 {
   "status" : 400,
   "message" : "입력값이 유효하지 않습니다.",
   "validation" : {
-    "question" : "질문 내용을 1~100자 이내로 입력하세요."
+    "question" : "질문 내용을 입력하세요."
   }
 }</code></pre>
 </div>
@@ -3649,9 +6388,9 @@ Content-Length: 153
 </div>
 </div>
 <div class="sect2">
-<h3 id="_삭제_2"><a class="link" href="#_삭제_2">삭제</a></h3>
+<h3 id="_삭제_3"><a class="link" href="#_삭제_3">삭제</a></h3>
 <div class="sect3">
-<h4 id="_삭제_2_curl_request"><a class="link" href="#_삭제_2_curl_request">Curl request</a></h4>
+<h4 id="_삭제_3_curl_request"><a class="link" href="#_삭제_3_curl_request">Curl request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/faqs/1' -i -X DELETE</code></pre>
@@ -3659,7 +6398,7 @@ Content-Length: 153
 </div>
 </div>
 <div class="sect3">
-<h4 id="_삭제_2_http_request"><a class="link" href="#_삭제_2_http_request">HTTP request</a></h4>
+<h4 id="_삭제_3_http_request"><a class="link" href="#_삭제_3_http_request">HTTP request</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /api/faqs/1 HTTP/1.1
@@ -3668,7 +6407,29 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 <div class="sect3">
-<h4 id="_삭제_2_http_response"><a class="link" href="#_삭제_2_http_response">HTTP response</a></h4>
+<h4 id="_삭제_3_path_parameters"><a class="link" href="#_삭제_3_path_parameters">Path parameters</a></h4>
+<table class="tableblock frame-all grid-all stretch">
+<caption class="title">Table 1. /api/faqs/{faqId}</caption>
+<colgroup>
+<col style="width: 50%;">
+<col style="width: 50%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>faqId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">FAQ ID</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_삭제_3_http_response"><a class="link" href="#_삭제_3_http_response">HTTP response</a></h4>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 204 No Content</code></pre>
@@ -3700,335 +6461,11 @@ Host: localhost:8080</code></pre>
 </div>
 </div>
 </div>
-<h1 id="_member_api" class="sect0"><a class="link" href="#_member_api">Member API</a></h1>
-<div class="sect1">
-<h2 id="_닉네임_생성"><a class="link" href="#_닉네임_생성">닉네임 생성</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_닉네임_생성_curl_request"><a class="link" href="#_닉네임_생성_curl_request">Curl request</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/members/nickname' -i -X GET \
-    -H 'Content-Type: text/plain'</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_닉네임_생성_http_request"><a class="link" href="#_닉네임_생성_http_request">HTTP request</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">GET /api/members/nickname HTTP/1.1
-Content-Type: text/plain
-Host: localhost:8080</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_닉네임_생성_http_response"><a class="link" href="#_닉네임_생성_http_response">HTTP response</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
-Content-Type: text/plain;charset=UTF-8
-Content-Length: 17
-
-generatedNickname</code></pre>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_닉네임_수정"><a class="link" href="#_닉네임_수정">닉네임 수정</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_닉네임_수정_curl_request"><a class="link" href="#_닉네임_수정_curl_request">Curl request</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/members' -i -X PATCH \
-    -H 'Content-Type: application/json' \
-    -H 'Authorization: Bearer testToken' \
-    -d '{"name":"test","email":"test@naver.com","nickname":"updatedTestNickname","providerType":"NAVER"}'</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_닉네임_수정_request_fields"><a class="link" href="#_닉네임_수정_request_fields">Request fields</a></h3>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">이름</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>nickname</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">변경할 닉네임</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>providerType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth 제공자</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect2">
-<h3 id="_닉네임_수정_http_request"><a class="link" href="#_닉네임_수정_http_request">HTTP request</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">PATCH /api/members HTTP/1.1
-Content-Type: application/json
-Authorization: Bearer testToken
-Content-Length: 96
-Host: localhost:8080
-
-{"name":"test","email":"test@naver.com","nickname":"updatedTestNickname","providerType":"NAVER"}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_닉네임_수정_http_response"><a class="link" href="#_닉네임_수정_http_response">HTTP response</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 60
-
-{"code":200,"message":"닉네임이 변경되었습니다."}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_닉네임_수정_response_fields"><a class="link" href="#_닉네임_수정_response_fields">Response fields</a></h3>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">닉네임 변경 결과 메시지</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_회원_탈퇴"><a class="link" href="#_회원_탈퇴">회원 탈퇴</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_회원_탈퇴_curl_request"><a class="link" href="#_회원_탈퇴_curl_request">Curl request</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/members' -i -X DELETE \
-    -H 'Content-Type: application/json' \
-    -H 'Authorization: Bearer testToken' \
-    -d '{"name":"test","email":"test@naver.com","nickname":"updatedTestNickname","providerType":"NAVER"}'</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_회원_탈퇴_request_fields"><a class="link" href="#_회원_탈퇴_request_fields">Request fields</a></h3>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">이름</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>email</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">이메일</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>nickname</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">닉네임</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>providerType</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">OAuth 제공자</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="sect2">
-<h3 id="_회원_탈퇴_http_request"><a class="link" href="#_회원_탈퇴_http_request">HTTP request</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">DELETE /api/members HTTP/1.1
-Content-Type: application/json
-Authorization: Bearer testToken
-Content-Length: 96
-Host: localhost:8080
-
-{"name":"test","email":"test@naver.com","nickname":"updatedTestNickname","providerType":"NAVER"}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_회원_탈퇴_http_response"><a class="link" href="#_회원_탈퇴_http_response">HTTP response</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 83
-
-{"code":200,"message":"탈퇴되었습니다. 이용해주셔서 감사합니다."}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_회원_탈퇴_response_fields"><a class="link" href="#_회원_탈퇴_response_fields">Response fields</a></h3>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">탈퇴 결과 메시지</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_로그아웃"><a class="link" href="#_로그아웃">로그아웃</a></h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="_로그아웃_curl_request"><a class="link" href="#_로그아웃_curl_request">Curl request</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-bash hljs" data-lang="bash">$ curl 'http://localhost:8080/api/members/logout' -i -X POST \
-    -H 'Content-Type: application/json' \
-    -H 'Authorization: Bearer testToken'</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_로그아웃_http_request"><a class="link" href="#_로그아웃_http_request">HTTP request</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">POST /api/members/logout HTTP/1.1
-Content-Type: application/json
-Authorization: Bearer testToken
-Host: localhost:8080</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_로그아웃_http_response"><a class="link" href="#_로그아웃_http_response">HTTP response</a></h3>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight nowrap"><code class="language-http hljs" data-lang="http">HTTP/1.1 200 OK
-Content-Type: application/json
-Content-Length: 63
-
-{"code":200,"message":"로그아웃에 성공하였습니다."}</code></pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_로그아웃_response_fields"><a class="link" href="#_로그아웃_response_fields">Response fields</a></h3>
-<table class="tableblock frame-all grid-all stretch">
-<colgroup>
-<col style="width: 33.3333%;">
-<col style="width: 33.3333%;">
-<col style="width: 33.3334%;">
-</colgroup>
-<thead>
-<tr>
-<th class="tableblock halign-left valign-top">Path</th>
-<th class="tableblock halign-left valign-top">Type</th>
-<th class="tableblock halign-left valign-top">Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">응답 코드</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">로그아웃 결과 메시지</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.0.2<br>
-Last updated 2025-06-19 14:28:39 UTC
+Version 1.1.0<br>
+Last updated 2025-07-27 03:35:51 UTC
 </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.3/highlight.min.js"></script>
