@@ -74,18 +74,10 @@ class PostLikeServiceUnitTest {
     }
 
     private Post createMockPost(Long postId) {
-        Member member = createMockMember();
-        Store store = Store.builder().name("Dummy Store").build();
-        Post post = Post.builder()
-                .title("Test Post")
-                .content("Test Content")
-                .member(member)
-                .store(store)
-                .build();
-        ReflectionTestUtils.setField(post, "id", postId);
+        Post post = mock(Post.class, withSettings().lenient());
+        when(post.getId()).thenReturn(postId);
         return post;
     }
-
 
     @Test
     @DisplayName("좋아요 - 처음 누를 때는 좋아요 추가")
@@ -96,16 +88,18 @@ class PostLikeServiceUnitTest {
         MemberInfo memberInfo = new MemberInfo(member.getNickname(), member.getProviderType(), member.getRole());
 
         when(memberRepository.findByNickname(member.getNickname())).thenReturn(Optional.of(member));
-        when(postService.findByIdOrThrow(postId)).thenReturn(null);
+        when(postLikeRepository.existsByPostIdAndMemberId(postId, member.getId())).thenReturn(false);
         when(postRepository.findByIdWithOptimisticLock(postId)).thenReturn(Optional.of(post));
-
 
         var response = postLikeService.toggleLike(postId, memberInfo);
 
         assertNotNull(response);
         assertTrue(response.likedByCurrentUser());
+
         verify(postLikeRepository).save(any(PostLike.class));
+        verify(post).increaseLikeCount();
     }
+
 
     @Test
     @DisplayName("좋아요 - 이미 좋아요한 상태에서 누르면 좋아요 취소")
@@ -116,22 +110,20 @@ class PostLikeServiceUnitTest {
         MemberInfo memberInfo = new MemberInfo(member.getNickname(), member.getProviderType(), member.getRole());
 
         when(memberRepository.findByNickname(member.getNickname())).thenReturn(Optional.of(member));
-        when(postService.findByIdOrThrow(postId)).thenReturn(null);
+        when(postLikeRepository.existsByPostIdAndMemberId(postId, member.getId())).thenReturn(true);
         when(postRepository.findByIdWithOptimisticLock(postId)).thenReturn(Optional.of(post));
 
-        when(postLikeRepository.save(any(PostLike.class)))
-                .thenThrow(new DataIntegrityViolationException("Duplicate like"));
-
         doNothing().when(postLikeRepository).deleteByPostIdAndMemberId(postId, member.getId());
-
-        when(entityManager.merge(any(Post.class))).thenReturn(post);
 
         var response = postLikeService.toggleLike(postId, memberInfo);
 
         assertNotNull(response);
         assertFalse(response.likedByCurrentUser());
+
         verify(postLikeRepository).deleteByPostIdAndMemberId(postId, member.getId());
+        verify(post).decreaseLikeCount();
     }
+
 
     @Test
     @DisplayName("좋아요 실패 - 존재하지 않는 게시글")

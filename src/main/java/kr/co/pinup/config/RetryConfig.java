@@ -21,7 +21,7 @@ public class RetryConfig {
         RetryTemplate retryTemplate = new RetryTemplate();
 
         SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy(
-                5,
+                6,
                 Map.of(
                         ObjectOptimisticLockingFailureException.class, true,
                         JpaOptimisticLockingFailureException.class, true,
