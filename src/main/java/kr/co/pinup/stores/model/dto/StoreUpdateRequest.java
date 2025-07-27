@@ -1,51 +1,49 @@
 package kr.co.pinup.stores.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import kr.co.pinup.store_operatingHour.model.dto.OperatingHourRequest;
-import kr.co.pinup.stores.model.enums.Status;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourRequest;
+import kr.co.pinup.stores.model.enums.StoreStatus;
+import lombok.Builder;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Getter
-@Setter
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class StoreUpdateRequest {
+@Builder
+public record StoreUpdateRequest(
+        @NotBlank(message = "스토어 이름은 필수 입력값입니다.")
+        String name,
 
-    //TODO SpringValidation 이용한 업데이트로 변경
+        @NotBlank(message = "스토어 설명은 필수 입력값입니다.")
+        String description,
 
-//    @NotBlank(message = "스토어 이름은 필수 입력값입니다.")
-    private String name;
+        @NotNull(message = "시작 날짜는 필수 입력값입니다.")
+        LocalDate startDate,
 
-//    @NotBlank(message = "스토어 설명은 필수 입력값입니다.")
-    private String description;
+        @NotNull(message = "종료 날짜는 필수 입력값입니다.")
+        LocalDate endDate,
 
-//    @NotNull(message = "카테고리는 필수 입력값입니다.")
-    private Long categoryId;
+        String websiteUrl,
 
-//    @NotNull(message = "위치는 필수 입력값입니다.")
-    private Long locationId;
+        String snsUrl,
 
-//    @NotNull(message = "시작 날짜는 필수 입력값입니다.")
-    private LocalDate startDate;
+        Long thumbnailId,
 
-//    @NotNull(message = "종료 날짜는 필수 입력값입니다.")
-    private LocalDate endDate;
+        Long thumbnailIndex,
 
-//    @NotNull(message = "스토어 상태는 필수 입력값입니다.")
-    private Status status;
+        @NotNull(message = "카테고리는 필수 입력값입니다.")
+        Long categoryId,
 
-    private String contactNumber;
+        @NotNull(message = "위치는 필수 입력값입니다.")
+        Long locationId,
 
-    private String websiteUrl;
+        @Size(min = 1)
+        @Valid
+        List<StoreOperatingHourRequest> operatingHours,
 
-    private String snsUrl;
-
-    private String imageUrl;
-
-    private List<OperatingHourRequest> operatingHours;
-
-    private Integer thumbnailImage;
+        List<Long> deletedImageIds
+) {
 }

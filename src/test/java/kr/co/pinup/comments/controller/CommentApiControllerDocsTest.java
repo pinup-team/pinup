@@ -37,6 +37,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.mock;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -110,7 +111,7 @@ class CommentApiControllerDocsTest {
                         .content(json)
                         .with(csrf()))
                 .andExpect(status().isCreated())
-                .andDo(restDocs.document(
+                .andDo(document("comment-create",  // <<< 경로 지정
                         pathParameters(parameterWithName("postId").description("댓글을 작성할 게시글 ID")),
                         requestFields(fieldWithPath("content").description("댓글 내용")),
                         responseFields(
@@ -141,7 +142,7 @@ class CommentApiControllerDocsTest {
 
         mockMvc.perform(delete("/api/comment/{commentId}", commentId).with(csrf()))
                 .andExpect(status().isNoContent())
-                .andDo(restDocs.document(
+                .andDo(document("comment-delete",  // <<< 경로 지정
                         pathParameters(parameterWithName("commentId").description("삭제할 댓글 ID"))
                 ));
     }

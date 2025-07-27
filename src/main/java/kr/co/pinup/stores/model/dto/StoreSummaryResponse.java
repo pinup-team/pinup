@@ -1,30 +1,32 @@
 package kr.co.pinup.stores.model.dto;
 
+import kr.co.pinup.storeimages.StoreImage;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record StoreSummaryResponse(
         Long id,
         String name,
-        String district,
-        String categoryName,
+        StoreStatus status,
         LocalDate startDate,
         LocalDate endDate,
-        String imageUrl,
-        Status status
+        String categoryName,
+        String district,
+        List<StoreImage> storeImages
 ) {
     public static StoreSummaryResponse from(Store store) {
         return new StoreSummaryResponse(
                 store.getId(),
                 store.getName(),
-                store.getLocation().getDistrict(),
-                store.getCategory().getName(),
+                store.getStoreStatus(),
                 store.getStartDate(),
                 store.getEndDate(),
-                store.getImageUrl(),
-                store.getStatus()
+                store.getCategory().getName(),
+                store.getLocation().getSigungu(),
+                store.getStoreImages()
         );
     }
 

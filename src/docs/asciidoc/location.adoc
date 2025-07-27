@@ -1,0 +1,8 @@
+== Location API
+=== 저장
+
+operation::location-api-controller-test/create-location[snippets='curl-request,http-request,request-fields,http-response,response-fields']
+
+=== 수정
+
+operation::location-api-controller-test/update-location[snippets='curl-request,http-request,path-parameters,request-fields,http-response,response-fields']

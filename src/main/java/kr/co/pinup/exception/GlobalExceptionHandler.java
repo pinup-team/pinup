@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -53,10 +55,8 @@ public class GlobalExceptionHandler {
         appLogger.warn(
                 new WarnLog("요청 파라미터 유효성 오류")
                         .setStatus(String.valueOf(status))
-                        .addDetails("reason", "validation failure","invalidField", ex.getFieldErrors().toString())
+                        .addDetails("reason", "validation failure", "invalidField", ex.getFieldErrors().toString())
         );
-
-
 
         return ResponseEntity.status(status)
                 .body(errorResponse);
@@ -223,7 +223,7 @@ public class GlobalExceptionHandler {
         appLogger.warn(
                 new WarnLog("입력값 유효성 오류")
                         .setStatus(String.valueOf(status))
-                        .addDetails("reason", "invalid input","invalidFields", errors.toString())
+                        .addDetails("reason", "invalid input", "invalidFields", errors.toString())
         );
 
         ErrorResponse errorResponse = new ErrorResponse(
@@ -233,6 +233,59 @@ public class GlobalExceptionHandler {
         );
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ResponseStatus(BAD_REQUEST)
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    @ResponseBody
+    public ResponseEntity<ErrorResponse> handlerMethodValidationHandler(HandlerMethodValidationException ex) {
+        final int status = BAD_REQUEST.value();
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .status(status)
+                .message("잘못된 요청입니다.")
+                .build();
+
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+
+        ex.getParameterValidationResults().stream()
+                .flatMap(result -> result.getResolvableErrors().stream())
+                .forEach(error -> {
+                    final String field = extractFieldName(error.getCodes());
+                    final String message = error.getDefaultMessage();
+                    errorResponse.addValidation(field, message);
+                    fieldErrors.put(field, message);
+                });
+
+        appLogger.warn(
+                new WarnLog("요청 파라미터 유효성 오류")
+                        .setStatus(String.valueOf(status))
+                        .addDetails("reason", "validation failure")
+                        .addDetails("invalidFields", fieldErrors.toString())
+        );
+
+        return ResponseEntity.status(status)
+                .body(errorResponse);
+    }
+
+    private String extractFieldName(String[] codes) {
+        if (codes == null || codes.length == 0) return "unknown";
+
+        for (String code : codes) {
+            if (code == null) continue;
+            if (code.contains(".")) {
+                String[] parts = code.split("\\.");
+                return parts[parts.length - 1];
+            }
+        }
+
+        for (String code : codes) {
+            if (code != null && Character.isLowerCase(code.charAt(0))) {
+                return code;
+            }
+        }
+
+        return "unknown";
     }
 
 }

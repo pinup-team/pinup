@@ -1,0 +1,24 @@
+== 팝업스토어 API
+=== 전체 조회
+
+operation::store-api-controller-test/get-stores[snippets='curl-request,http-request,http-response,response-fields']
+
+=== 요약 썸네일 조회
+
+operation::store-api-controller-test/get-store-thumbnails[snippets='curl-request,http-request,http-response,response-fields']
+
+=== 단건 조회
+
+operation::store-api-controller-test/get-store-by-id[snippets='curl-request,http-request,http-response,response-fields']
+
+=== 저장
+
+operation::store-api-controller-test/create-store[snippets='curl-request,http-request,request-parts,request-part-storeRequest-fields,http-response,response-fields']
+
+=== 수정
+
+operation::store-api-controller-test/update-store[snippets='curl-request,http-request,path-parameters,request-parts,request-part-request-fields,http-response,response-fields']
+
+=== 삭제
+
+operation::store-api-controller-test/delete-store[snippets='curl-request,http-request,path-parameters,http-response']

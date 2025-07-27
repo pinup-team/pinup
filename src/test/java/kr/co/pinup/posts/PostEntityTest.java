@@ -12,10 +12,11 @@ import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.posts.repository.PostRepository;
-import kr.co.pinup.store_categories.StoreCategory;
-import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
+import kr.co.pinup.storecategories.StoreCategory;
+import kr.co.pinup.storecategories.repository.StoreCategoryRepository;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
 import org.hibernate.Hibernate;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,8 +68,7 @@ class PostEntityTest {
                 .description("설명")
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(1))
-                .status(Status.RESOLVED)
-                .imageUrl("url")
+                .storeStatus(StoreStatus.RESOLVED)
                 .category(category)
                 .location(location)
                 .build());

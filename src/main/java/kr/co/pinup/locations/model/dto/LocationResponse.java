@@ -1,13 +1,15 @@
 package kr.co.pinup.locations.model.dto;
 
 import kr.co.pinup.locations.Location;
+import lombok.Builder;
 
+@Builder
 public record LocationResponse(
         Long id,
         String name,
-        String zoneCode,
-        String state,
-        String district,
+        String zonecode,
+        String sido,
+        String sigungu,
         Double latitude,
         Double longitude,
         String address,
@@ -17,9 +19,9 @@ public record LocationResponse(
         return new LocationResponse(
                 location.getId(),
                 location.getName(),
-                location.getZoneCode(),
-                location.getState(),
-                location.getDistrict(),
+                location.getZonecode(),
+                location.getSido(),
+                location.getSigungu(),
                 location.getLatitude(),
                 location.getLongitude(),
                 location.getAddress(),

@@ -1,5 +1,6 @@
 package kr.co.pinup.posts.service;
 
+import kr.co.pinup.comments.repository.CommentRepository;
 import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.members.Member;
@@ -13,6 +14,7 @@ import kr.co.pinup.postImages.exception.postimage.PostImageUpdateCountException;
 import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
+import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostDeleteFailedException;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
@@ -20,10 +22,10 @@ import kr.co.pinup.posts.model.dto.CreatePostRequest;
 import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.repository.PostRepository;
-import kr.co.pinup.store_categories.StoreCategory;
+import kr.co.pinup.storecategories.StoreCategory;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.exception.StoreNotFoundException;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -41,8 +43,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,6 +61,10 @@ PostServiceUnitTest {
     private MemberRepository memberRepository;
     @Mock
     private StoreRepository storeRepository;
+    @Mock
+    private CommentRepository commentRepository;
+    @Mock
+    private PostLikeRepository postLikeRepository;
     @Mock
     private AppLogger appLogger;
 
@@ -82,8 +90,7 @@ PostServiceUnitTest {
                 .description("Description")
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(1))
-                .status(Status.RESOLVED)
-                .imageUrl("image.jpg")
+                .storeStatus(StoreStatus.RESOLVED)
                 .category(new StoreCategory("Cat"))
                 .location(new Location("Loc", "12345", "State", "Dist", 1.1, 2.2, "Addr", "Detail"))
                 .build();
@@ -642,6 +649,35 @@ PostServiceUnitTest {
 
             assertThrows(PostNotFoundException.class, () -> postService.findByIdOrThrow(1L));
         }
+
+        @Test
+        @DisplayName("로그인 사용자 - likedByCurrentUser=true 반환")
+        void findByStoreIdWithLikes_loggedInUser_likesPost() {
+            // given
+            Long storeId = 1L;
+            MemberInfo memberInfo = new MemberInfo("닉네임",OAuthProvider.NAVER,MemberRole.ROLE_USER);
+
+            Post post = Post.builder()
+                    .likeCount(3)
+                    .store(store)
+                    .member(member)
+                    .build();
+
+            given(postRepository.findByStoreIdAndIsDeleted(eq(storeId), anyBoolean()))
+                    .willReturn(List.of(post));
+            given(memberRepository.findByNickname(eq("닉네임"))).willReturn(Optional.of(member));
+            given(postLikeRepository.existsByPostIdAndMemberId(post.getId(), member.getId()))
+                    .willReturn(true);
+            given(commentRepository.countByPostId(post.getId())).willReturn(5);
+
+            // when
+            List<PostResponse> result = postService.findByStoreIdWithCommentsAndLikes(storeId, false, memberInfo);
+
+            // then
+            assertThat(result).hasSize(1);
+            assertThat(result.get(0).likedByCurrentUser()).isTrue();
+        }
+
     }
 
 }

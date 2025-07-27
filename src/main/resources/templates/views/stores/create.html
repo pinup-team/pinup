@@ -10,10 +10,21 @@
 <div layout:fragment="content">
     <h1>팝업스토어 생성</h1>
     <form name="storeForm" id="storeForm" enctype="multipart/form-data">
-        <label>이름: <input type="text" id="name" name="name" required></label><br>
-        <label>설명: <textarea type="text" id="description" name="description" rows="4" required></textarea></label><br>
-        <label>시작 날짜: <input type="date" id="startDate" name="startDate" required></label><br>
-        <label>종료 날짜: <input type="date" id="endDate" name="endDate" required></label><br>
+        <label for="name">이름: </label>
+        <input type="text" id="name" name="name" required>
+        <br>
+
+        <label for="description">설명: </label>
+        <textarea type="text" id="description" name="description" rows="4" required></textarea>
+        <br>
+
+        <label for="startDate">시작 날짜: </label>
+        <input type="date" id="startDate" name="startDate" required>
+        <br>
+        <label for="endDate">종료 날짜: </label>
+        <input type="date" id="endDate" name="endDate" required>
+        <br>
+
         <label>카테고리:
             <select id="categoryId" name="categoryId" required>
                 <option value=""> 카테고리 선택</option>
@@ -21,8 +32,9 @@
                         th:text="${category.name}"></option>
             </select>
         </label><br>
+
         <div id="operatingHoursContainer">
-            <label>운영 시간</label>
+            <span>운영 시간</span>
             <div class="operating-hour">
                 <label>
                     <input type="text" name="days" placeholder="요일 (예: 월요일, 월~목)" required>
@@ -33,46 +45,48 @@
                 <label>
                     <input type="time" name="endTimes" required>
                 </label>
-                <button type="button" onclick="removeOperatingHour(this)">-</button>
+                <button type="button" class="addOperatingHour">+</button>
             </div>
         </div>
 
         <div id="contactContainer">
-            <label>상세 정보</label>
-            <label>
-                <input type="text" name="snsUrl" placeholder="snsUrl">
+            <span>상세 정보</span>
+            <label for="snsUrl">
+                <input type="text" id="snsUrl" name="snsUrl" placeholder="snsUrl">
             </label>
-            <label>
-                <input type="text" name="websiteUrl" placeholder="websiteUrl">
-            </label>
-            <label>
-                <input type="text" name="contactNumber" placeholder="contactNumber">
+            <label for="websiteUrl">
+                <input type="text" id="websiteUrl" name="websiteUrl" placeholder="websiteUrl">
             </label>
         </div>
-        <button type="button" id="addOperatingHour">+</button>
+
         <input id="locationId" type="hidden" name="locationId"/>
-        <label>우편번호: <input type="text" id="zoneCode" name="zoneCode" readonly required/></label>
-        <button type="button" onclick="searchAddress()">주소 검색</button>
+        <label for="zonecode">우편번호: </label>
+        <input type="text" id="zonecode" name="zonecode" readonly required/>
+        <button type="button" id="searchAddress">주소 검색</button>
         <br>
 
-        <label>주소: <input type="text" id="address" name="address" readonly required/></label>
-        <label>상세주소: <input type="text" id="addressDetail" name="addressDetail" required/></label>
-        <label></label>
-        <label>스토어 이미지 업로드 : <input type="file" name="imageFiles" id="imageFiles" accept="image/*" multiple
-                                    required></label><br>
+        <label for="address">주소: </label>
+        <input type="text" id="address" name="address" readonly required/>
+        <label for="addressDetail">상세주소: </label>
+        <input type="text" id="addressDetail" name="addressDetail" required/>
+        <br/>
+
+        <label for="images">스토어 이미지 업로드 : </label>
+        <input type="file" name="images" id="images" accept="image/*" multiple required />
+        <br>
+
         <div id="previewContainer" style="display: flex; flex-wrap: wrap"></div>
-        <input type="hidden" id="thumbnailImage" name="thumbnailImage" />
-        <button type="button" id="submitStoreButton" onclick="submitStore()">생성</button>
+        <input type="hidden" id="thumbnailIndex" name="thumbnailIndex" />
+        <input type="hidden" id="thumbnailId" name="thumbnailId" />
+
+        <button type="button" id="createSubmitButton">생성</button>
     </form>
     <a href="/stores">목록으로 돌아가기</a>
 </div>
 
 <th:block layout:fragment="pageScripts">
-    <script th:inline="javascript">
-        localStorage.setItem('KAKAO_API_KEY', /*[[${kakaoMapKey}]]*/);
-    </script>
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
-    <th:block th:replace="~{fragments/script-loader :: load('store-create')}"></th:block>
-    <th:block th:replace="~{fragments/script-loader :: load('location')}"></th:block>
+    <th:block th:replace="~{fragments/scriptModuleLoader :: load('store')}"></th:block>
+    <th:block th:replace="~{fragments/scriptModuleLoader :: load('locationData')}"></th:block>
 </th:block>
 </html>

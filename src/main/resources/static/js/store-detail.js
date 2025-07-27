@@ -1,4 +1,3 @@
-
 async function changeTab(tab) {
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.remove('active');
@@ -43,7 +42,6 @@ async function changeTab(tab) {
     }
 }
 
-
 document.addEventListener("DOMContentLoaded", function () {
     const imageList = document.querySelector(".image-list");
     const items = document.querySelectorAll(".image-item");
@@ -77,9 +75,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 });
-
-
-
 
 // 카카오 지도 API 로드 함수
 function loadMap() {
@@ -120,9 +115,25 @@ function loadMap() {
     }, 500);
 }
 
+function copyAddress() {
+    console.log('copy address');
+    const address = document.getElementById('location-address').textContent;
+    const addressDetail = document.getElementById('location-address-detail')?.textContent;
+    const text = addressDetail ? `${address} ${addressDetail}` : address;
+
+    navigator.clipboard.writeText(text)
+        .then(() => alert('클립보드에 링크가 복사되었습니다.'))
+        .catch(err => console.error('복사 실패', err));
+}
+
 // 페이지가 로드되면 initializeMap 함수 실행
 document.addEventListener("DOMContentLoaded", function () {
     if (typeof kakao !== "undefined") {
         kakao.maps.load(loadMap);
+    }
+
+    const addressCopyButton = document.getElementById('address-copy');
+    if (addressCopyButton) {
+        addressCopyButton.addEventListener('click', () => copyAddress());
     }
 });

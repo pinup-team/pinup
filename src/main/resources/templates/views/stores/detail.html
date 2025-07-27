@@ -12,8 +12,6 @@
 
     <div sec:authorize="isAuthenticated() and hasRole('ROLE_ADMIN')">
         <a th:href="@{/stores/{id}/update(id=${store.id})}">수정</a>
-        <!--        <button class="delete-btn" th:data-store-id="*{id}">삭제</button>-->
-        <a th:href="@{/stores/create}" class="create-btn" th:data-store-id="*{id}">등록</a>
     </div>
 
     <!--    <a href="/stores">목록으로 돌아가기</a>-->
@@ -79,7 +77,7 @@
                         th:text="*{endDate()}"></span>
                     <p class="title-text-location" th:with="loc=*{location}">
                         📍 <span
-                            th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address} +' ' +  ${loc.addressDetail}"></span>
+                            th:text="${loc.address} +' ' +  ${loc.addressDetail}"></span>
                     </p>
                 </div>
                 <br>
@@ -91,7 +89,7 @@
 
                             <ul th:unless="*{operatingHours.isEmpty()}">
                                 <li th:each="hour : *{operatingHours}">
-                                    <span th:text="${hour.day}"></span> :
+                                    <span th:text="${hour.days}"></span> :
                                     <span th:text="${#temporals.format(hour.startTime, 'HH:mm')}"></span> ~
                                     <span th:text="${#temporals.format(hour.endTime, 'HH:mm')}"></span>
                                 </li>
@@ -106,15 +104,15 @@
 
                     <!-- 컨택트 -->
                     <div class="contact-container"
-                         th:unless="${#strings.isEmpty(contactNumber) and #strings.isEmpty(snsUrl) and #strings.isEmpty(websiteUrl)}">
+                         th:unless="${!#strings.isEmpty(snsUrl) and !#strings.isEmpty(websiteUrl)}">
                         <p class="info-subtitle"> 찾아보기 </p>
 
-                        <a class="contact-textbox" th:if="${!#strings.isEmpty(snsUrl)}" th:href="*{snsUrl}">SNS</a>
-                        <a class="contact-textbox" th:if="${!#strings.isEmpty(websiteUrl)}" th:href="*{websiteUrl}">웹사이트</a>
-                        <span>📞 </span> <span class="contact-textbox" th:if="${!#strings.isEmpty(contactNumber)}" th:text="*{contactNumber}"></span>
+                        <a class="contact-textbox" target="_blank" th:if="*{!#strings.isEmpty(snsUrl)}" th:href="*{snsUrl}">SNS 바로가기</a>
+                        <br />
+                        <a class="contact-textbox" th:if="*{!#strings.isEmpty(websiteUrl)}" th:href="*{websiteUrl}">웹사이트 바로가기</a>
                     </div>
 
-                    <p class="info-subtitle" th:if="*{contactNumber == null and snsUrl == null and websiteUrl == null}">
+                    <p class="info-subtitle" th:if="*{snsUrl == null and websiteUrl == null}">
                         연락처 정보가 준비 중입니다.
                     </p>
 
@@ -122,17 +120,22 @@
                     <div class="map-container">
                         <input type="hidden" id="latitude-hidden" th:value="${location.latitude}">
                         <input type="hidden" id="longitude-hidden" th:value="${location.longitude}">
-                        <div class="map-wrap">
-                            <div id="map" class="map-box"></div>
+                        <div class="map-text-location">
+                            <div class="location-group">
+                                <span>📍</span>
+                                <div th:with="loc=*{location}">
+                                    <span id="location-address" th:text="${loc.address}"></span>
+                                    <span id="location-address-detail" th:if="${loc.addressDetail != null and !#strings.isEmpty(loc.addressDetail)}"
+                                          th:text="' ' + ${loc.addressDetail}"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <button type="button" class="address-clipboard-button" id="address-copy">주소복사</button>
+                            </div>
                         </div>
 
-                        <div>
-                            <p class="map-text-location" th:with="loc=*{location}">
-                                📍
-                                <span th:text="${loc.state} + ' ' + ${loc.district} + ' ' + ${loc.address}"></span>
-                                <span th:if="${loc.addressDetail != null and !#strings.isEmpty(loc.addressDetail)}"
-                                      th:text="' ' + ${loc.addressDetail}"></span>
-                            </p>
+                        <div class="map-wrap">
+                            <div id="map" class="map-box"></div>
                         </div>
                     </div>
                 </div>

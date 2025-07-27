@@ -1,22 +1,19 @@
 package kr.co.pinup.stores.controller;
 
-import jakarta.validation.Valid;
-import kr.co.pinup.locations.service.LocationService;
-import kr.co.pinup.store_categories.service.CategoryService;
-import kr.co.pinup.store_images.service.StoreImageService;
-import kr.co.pinup.stores.model.dto.StoreRequest;
+import kr.co.pinup.storecategories.service.StoreCategoryService;
 import kr.co.pinup.stores.model.dto.StoreResponse;
-import kr.co.pinup.stores.model.dto.StoreSummaryResponse;
-import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.dto.StoreThumbnailResponse;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -26,75 +23,55 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StoreController {
 
+    private static final String VIEW_PATH = "views/stores";
+
     private final StoreService storeService;
-    private final CategoryService categoryService;
-    private final LocationService locationService;
-    private final StoreImageService storeImageService;
+    private final StoreCategoryService storeCategoryService;
 
     @GetMapping
     public String listStores(@RequestParam(required = false) String status, Model model) {
-        log.info("StoreController listStores status={}", status);
-        List<StoreSummaryResponse> stores;
-        Status selectedStatus = null;
-
-        if (status != null && !status.equalsIgnoreCase("ALL") && !status.isBlank()) {
-            try {
-                selectedStatus = Status.valueOf(status);
-                stores = storeService.getStoreSummariesByStatus(selectedStatus);
-            } catch (IllegalArgumentException e) {
-                stores = storeService.getStoreSummaries();
-            }
-        } else {
-            stores = storeService.getStoreSummaries();
+        if (status == null) {
+            return "redirect:/stores?status=resolved";
         }
 
-        model.addAttribute("stores", stores);
+        log.info("StoreController listStores status={}", status);
+        StoreStatus selectedStatus = StoreStatus.from(status);
+        final List<StoreThumbnailResponse> stores = (selectedStatus != null)
+                ? storeService.getStoresByStatus(selectedStatus)
+                : storeService.getStoresSortedByStatusPriority();
+
         model.addAttribute("selectedStatus", selectedStatus);
-        return "views/stores/list";
+        model.addAttribute("stores", stores);
+
+        return VIEW_PATH + "/list";
     }
+
     @GetMapping("/{id}")
     public String storeDetail(@PathVariable Long id, Model model) {
         StoreResponse storeResponse = storeService.getStoreById(id);
+
         model.addAttribute("store", storeResponse);
-        model.addAttribute("location", locationService.getLocationId(storeResponse.location().id()));
-        model.addAttribute("storeImages", storeImageService.getStoreImages(id));
-        return "views/stores/detail";
+        model.addAttribute("location", storeResponse.location());
+        model.addAttribute("storeImages", storeResponse.storeImages());
+
+        return VIEW_PATH + "/detail";
     }
 
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @GetMapping("/create")
     public String createStoreForm(Model model) {
-        model.addAttribute("categories", categoryService.getAllCategories());
-        return "views/stores/create";
+        model.addAttribute("categories", storeCategoryService.getCategories());
+
+        return VIEW_PATH + "/create";
     }
 
-    @PostMapping("/create")
-    public String createStore(@Valid @ModelAttribute StoreRequest storeRequest) {
-        return "redirect:views/stores/list";
-    }
-
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @GetMapping("/{id}/update")
     public String editStoreForm(@PathVariable Long id, Model model) {
         model.addAttribute("store", storeService.getStoreById(id));
-        model.addAttribute("categories", categoryService.getAllCategories());
-        return "views/stores/update";
+        model.addAttribute("categories", storeCategoryService.getCategories());
+
+        return VIEW_PATH + "/update";
     }
 
-    @PostMapping("/{id}/update")
-    public String updateStore(@PathVariable Long id,
-                              @Valid @ModelAttribute StoreUpdateRequest request,
-                              BindingResult result,
-                              @RequestParam(value = "imageFiles", required = false) List<MultipartFile> imageFiles) {
-        if (result.hasErrors()) {
-            return "views/stores/update";
-        }
-        storeService.updateStore(id, request, imageFiles);
-        return "redirect:views/stores/list";
-    }
-
-
-    @PostMapping("/{id}/delete")
-    public String deleteStore(@PathVariable Long id) {
-        storeService.deleteStore(id);
-        return "redirect:views/stores/list";
-    }
 }

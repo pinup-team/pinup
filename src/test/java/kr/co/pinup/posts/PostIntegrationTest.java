@@ -12,13 +12,17 @@ import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.repository.PostImageRepository;
+import kr.co.pinup.postLikes.PostLike;
+import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
+import kr.co.pinup.posts.model.dto.PostResponse;
 import kr.co.pinup.posts.model.dto.UpdatePostRequest;
 import kr.co.pinup.posts.repository.PostRepository;
-import kr.co.pinup.store_categories.StoreCategory;
-import kr.co.pinup.store_categories.repository.StoreCategoryRepository;
+import kr.co.pinup.storecategories.StoreCategory;
+import kr.co.pinup.storecategories.repository.StoreCategoryRepository;
 import kr.co.pinup.stores.Store;
-import kr.co.pinup.stores.model.enums.Status;
+import kr.co.pinup.stores.model.enums.StoreStatus;
+import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
 import org.hibernate.Hibernate;
 import org.junit.jupiter.api.*;
@@ -33,9 +37,11 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.ui.ModelMap;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
@@ -54,10 +60,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -81,6 +87,7 @@ public class PostIntegrationTest {
     @Autowired private MockMvc mockMvc;
     @Autowired private PostRepository postRepository;
     @Autowired private PostImageRepository postImageRepository;
+    @Autowired private PostLikeRepository postLikeRepository;
     @Autowired private StoreRepository storeRepository;
     @Autowired private StoreCategoryRepository storeCategoryRepository;
     @Autowired private LocationRepository locationRepository;
@@ -95,6 +102,7 @@ public class PostIntegrationTest {
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
+        postLikeRepository.deleteAll();
         postImageRepository.deleteAll();
         postRepository.deleteAll();
         memberRepository.deleteAll();
@@ -107,8 +115,7 @@ public class PostIntegrationTest {
                 .description("설명")
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(10))
-                .status(Status.RESOLVED)
-                .imageUrl("store.jpg")
+                .storeStatus(StoreStatus.RESOLVED)
                 .category(category)
                 .location(location)
                 .build());
@@ -534,6 +541,93 @@ public class PostIntegrationTest {
                     .andExpect(result ->
                             assertThat(result.getResolvedException().getClass().getSimpleName())
                                     .isEqualTo("PostNotFoundException"));
+        }
+
+    }
+
+    @Nested
+    @DisplayName("게시글 목록 리스트 흐름 테스트")
+    class PostListLikeIntegration {
+
+        @Test
+        @DisplayName("로그인 사용자 - likedByCurrentUser=true 반환")
+        @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
+        void getPostList_whenLiked_thenLikedByCurrentUserTrue() throws Exception {
+            // Given
+            Post post = postRepository.save(Post.builder()
+                    .title("제목").content("내용").store(store).member(member).build());
+
+            postLikeRepository.save(PostLike.builder()
+                    .post(post).member(member).build());
+
+            // When
+            MvcResult result = mockMvc.perform(get("/post/list/" + store.getId()))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            // Then: 모델에서 직접 검증
+            ModelMap modelMap = result.getModelAndView().getModelMap();
+            List<PostResponse> posts = (List<PostResponse>) modelMap.get("posts");
+
+            assertThat(posts).hasSize(1);
+            PostResponse response = posts.get(0);
+            assertThat(response.likedByCurrentUser()).isTrue();
+            assertThat(response.commentCount()).isEqualTo(0);
+        }
+
+        @Test
+        @DisplayName("로그인 사용자 - 좋아요 하지 않은 경우 likedByCurrentUser=false")
+        @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
+        void getPostList_whenNotLiked_thenLikedByCurrentUserFalse() throws Exception {
+            // Given
+            postRepository.save(Post.builder()
+                    .title("제목")
+                    .content("내용")
+                    .store(store)
+                    .member(member)
+                    .build());
+
+            // When
+            MvcResult result = mockMvc.perform(get("/post/list/" + store.getId()))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            // Then
+            ModelMap modelMap = result.getModelAndView().getModelMap();
+            List<PostResponse> posts = (List<PostResponse>) modelMap.get("posts");
+
+            assertThat(posts).isNotEmpty();
+            assertThat(posts).anySatisfy(post -> {
+                assertThat(post.likedByCurrentUser()).isFalse();
+                assertThat(post.commentCount()).isEqualTo(0);
+            });
+        }
+
+        @Test
+        @DisplayName("비로그인 사용자 - likedByCurrentUser=false 반환")
+        void getPostList_whenAnonymous_thenLikedByCurrentUserFalse() throws Exception {
+            // Given
+            postRepository.save(Post.builder()
+                    .title("비로그인용")
+                    .content("내용")
+                    .store(store)
+                    .member(member)
+                    .build());
+
+            // When
+            MvcResult result = mockMvc.perform(get("/post/list/" + store.getId()))
+                    .andExpect(status().isOk())
+                    .andReturn();
+
+            // Then
+            ModelMap modelMap = result.getModelAndView().getModelMap();
+            List<PostResponse> posts = (List<PostResponse>) modelMap.get("posts");
+
+            assertThat(posts).isNotEmpty();
+            assertThat(posts).anySatisfy(post -> {
+                assertThat(post.likedByCurrentUser()).isFalse();
+                assertThat(post.commentCount()).isEqualTo(0);
+            });
         }
 
     }

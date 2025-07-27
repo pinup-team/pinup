@@ -1,0 +1,32 @@
+### Store 등록 API
+POST {{base_url}}/api/stores
+Content-Type: multipart/form-data; boundary=boundary123
+Cookie: JSESSIONID={{cookie}}
+
+--boundary123
+Content-Disposition: form-data; name="storeRequest"
+Content-Type: application/json
+
+{
+  "description": "description",
+  "startDate": "2025-07-18",
+  "endDate": "2025-07-28",
+  "websiteUrl": "",
+  "snsUrl": "",
+  "thumbnailIndex": 0,
+  "categoryId": 1,
+  "locationId": 1,
+  "operatingHours": [
+    {
+      "days": "월~금",
+      "startTime": "13:00:00",
+      "endTime": "23:00:00"
+    }
+  ]
+}
+--boundary123
+Content-Disposition: form-data; name="images"; filename="image.png"
+Content-Type: image/jpeg
+
+< /path/image.png
+--boundary123--
