@@ -58,13 +58,15 @@ public class StoreControllerTest {
     void listStores() throws Exception {
         // Arrange
         final StoreStatus status = RESOLVED;
+        final String sigungu = "all";
         final List<StoreThumbnailResponse> stores = List.of();
 
         given(storeService.getStoresByStatus(status)).willReturn(stores);
 
         // Act & Assert
         mockMvc.perform(get("/stores")
-                        .param("status", "resolved"))
+                        .param("status", "resolved")
+                        .param("sigungu", sigungu))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(view().name(VIEW_PATH + "/list"))
@@ -72,19 +74,7 @@ public class StoreControllerTest {
                 .andExpect(model().attributeExists("stores"));
 
         then(storeService).should(times(1))
-                .getStoresByStatus(status);
-    }
-
-    @DisplayName("status가 없을 때 RESOLVED로 리다이렉트된다ㅣ")
-    @Test
-    void listStoresRedirectWhenNoStatus() throws Exception {
-        // Arrange
-
-        // Act & Assert
-        mockMvc.perform(get("/stores"))
-                .andDo(print())
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/stores?status=resolved"));
+                .findAll(status, sigungu);
     }
 
     @DisplayName("팝업스토어 detail 페이지 뷰를 반환한다")

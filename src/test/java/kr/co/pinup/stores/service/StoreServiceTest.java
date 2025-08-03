@@ -87,6 +87,124 @@ public class StoreServiceTest {
                 .findAllByIsDeletedFalse();
     }
 
+    @DisplayName("진행상태, 자치구 필터로 팝업스토어 리스트 전체 조회")
+    @Test
+    void findAllWithStoreStatusNotAllAndSigunguNotAll() {
+        // Arrange
+        final StoreStatus storeStatus = RESOLVED;
+        final String sigungu = "송파구";
+
+        final Store store1 = createStore("Store 1", "Store description 1", RESOLVED);
+        final Store store2 = createStore("Store 2", "Store description 2", PENDING);
+        final Store store3 = createStore("Store 3", "Store description 3", RESOLVED);
+
+        given(storeRepository.findAllByLocation_SigunguAndStoreStatusAndIsDeletedFalse(sigungu, storeStatus))
+                .willReturn(List.of(store1, store3));
+
+        // Act
+        final List<StoreThumbnailResponse> result = storeService.findAll(storeStatus, sigungu);
+
+        // Assert
+        assertThat(result).hasSize(2);
+
+        then(storeRepository).should(times(1))
+                .findAllByLocation_SigunguAndStoreStatusAndIsDeletedFalse(sigungu, storeStatus);
+        then(storeRepository).should(times(0))
+                .findAllByStoreStatusAndIsDeletedFalse(storeStatus);
+        then(storeRepository).should(times(0))
+                .findAllByLocation_SigunguAndIsDeletedFalse(sigungu);
+        then(storeRepository).should(times(0))
+                .findAllByIsDeletedFalse();
+    }
+
+    @DisplayName("진행상태 필터로 팝업스토어 리스트 전체 조회")
+    @Test
+    void findAllWithStoreStatusNotAllAndSigunguAll() {
+        // Arrange
+        final StoreStatus storeStatus = RESOLVED;
+        final String sigungu = "all";
+
+        final Store store1 = createStore("Store 1", "Store description 1", RESOLVED);
+        final Store store2 = createStore("Store 2", "Store description 2", PENDING);
+        final Store store3 = createStore("Store 3", "Store description 3", RESOLVED);
+
+        given(storeRepository.findAllByStoreStatusAndIsDeletedFalse(storeStatus)).willReturn(List.of(store1, store3));
+
+        // Act
+        final List<StoreThumbnailResponse> result = storeService.findAll(storeStatus, sigungu);
+
+        // Assert
+        assertThat(result).hasSize(2);
+
+        then(storeRepository).should(times(0))
+                .findAllByLocation_SigunguAndStoreStatusAndIsDeletedFalse(sigungu, storeStatus);
+        then(storeRepository).should(times(1))
+                .findAllByStoreStatusAndIsDeletedFalse(storeStatus);
+        then(storeRepository).should(times(0))
+                .findAllByLocation_SigunguAndIsDeletedFalse(sigungu);
+        then(storeRepository).should(times(0))
+                .findAllByIsDeletedFalse();
+    }
+
+    @DisplayName("자치구 필터로 팝업스토어 리스트 전체 조회")
+    @Test
+    void findAllWithStoreStatusAllAndSigunguNotAll() {
+        // Arrange
+        final StoreStatus storeStatus = null;
+        final String sigungu = "송파구";
+
+        final Store store1 = createStore("Store 1", "Store description 1", RESOLVED);
+        final Store store2 = createStore("Store 2", "Store description 2", PENDING);
+        final Store store3 = createStore("Store 3", "Store description 3", RESOLVED);
+
+        given(storeRepository.findAllByLocation_SigunguAndIsDeletedFalse(sigungu))
+                .willReturn(List.of(store1, store2, store3));
+
+        // Act
+        final List<StoreThumbnailResponse> result = storeService.findAll(storeStatus, sigungu);
+
+        // Assert
+        assertThat(result).hasSize(3);
+
+        then(storeRepository).should(times(0))
+                .findAllByLocation_SigunguAndStoreStatusAndIsDeletedFalse(sigungu, storeStatus);
+        then(storeRepository).should(times(0))
+                .findAllByStoreStatusAndIsDeletedFalse(storeStatus);
+        then(storeRepository).should(times(1))
+                .findAllByLocation_SigunguAndIsDeletedFalse(sigungu);
+        then(storeRepository).should(times(0))
+                .findAllByIsDeletedFalse();
+    }
+
+    @DisplayName("필터 없이 팝업스토어 리스트 전체 조회")
+    @Test
+    void findAllWithStoreStatusAllAndSigunguAll() {
+        // Arrange
+        final StoreStatus storeStatus = null;
+        final String sigungu = "all";
+
+        final Store store1 = createStore("Store 1", "Store description 1", RESOLVED);
+        final Store store2 = createStore("Store 2", "Store description 2", PENDING);
+        final Store store3 = createStore("Store 3", "Store description 3", RESOLVED);
+
+        given(storeRepository.findAllByIsDeletedFalse()).willReturn(List.of(store1, store2, store3));
+
+        // Act
+        final List<StoreThumbnailResponse> result = storeService.findAll(storeStatus, sigungu);
+
+        // Assert
+        assertThat(result).hasSize(3);
+
+        then(storeRepository).should(times(0))
+                .findAllByLocation_SigunguAndStoreStatusAndIsDeletedFalse(sigungu, storeStatus);
+        then(storeRepository).should(times(0))
+                .findAllByStoreStatusAndIsDeletedFalse(storeStatus);
+        then(storeRepository).should(times(0))
+                .findAllByLocation_SigunguAndIsDeletedFalse(sigungu);
+        then(storeRepository).should(times(1))
+                .findAllByIsDeletedFalse();
+    }
+
     @DisplayName("팝업스토어 상태를 정렬해서 limit 수만큼 조회한다")
     @Test
     void getStoresThumbnailWithLimit() {
@@ -214,6 +332,53 @@ public class StoreServiceTest {
 
         then(storeRepository).should(times(1))
                 .findById(storeId);
+    }
+
+    @DisplayName("진행상태, 자치구 필터로 팝업스토어를 조회한다")
+    @Test
+    void getStoresByStatusAndLocationBySigungu() {
+        // Arrange
+        final StoreStatus storeStatus = PENDING;
+        final String sigungu = "송파구";
+
+        final Store store1 = createStore("Store 1", "Store description 1", RESOLVED);
+        final Store store2 = createStore("Store 2", "Store description 2", PENDING);
+        final Store store3 = createStore("Store 3", "Store description 3", RESOLVED);
+
+        given(storeRepository.findAllByLocation_SigunguAndStoreStatusAndIsDeletedFalse(sigungu, storeStatus))
+                .willReturn(List.of(store2));
+
+        // Act
+        final List<StoreThumbnailResponse> result = storeService.getStoresByStatusAndLocationBySigungu(storeStatus, sigungu);
+
+        // Assert
+        assertThat(result).hasSize(1);
+
+        then(storeRepository).should(times(1))
+                .findAllByLocation_SigunguAndStoreStatusAndIsDeletedFalse(sigungu, storeStatus);
+    }
+
+    @DisplayName("자치구 필터로 팝업스토어를 조회한다")
+    @Test
+    void getStoresByLocationBySigungu() {
+        // Arrange
+        final String sigungu = "송파구";
+
+        final Store store1 = createStore("Store 1", "Store description 1", RESOLVED);
+        final Store store2 = createStore("Store 2", "Store description 2", PENDING);
+        final Store store3 = createStore("Store 3", "Store description 3", RESOLVED);
+
+        given(storeRepository.findAllByLocation_SigunguAndIsDeletedFalse(sigungu))
+                .willReturn(List.of(store1, store2, store3));
+
+        // Act
+        final List<StoreThumbnailResponse> result = storeService.getStoresByLocationBySigungu(sigungu);
+
+        // Assert
+        assertThat(result).hasSize(3);
+
+        then(storeRepository).should(times(1))
+                .findAllByLocation_SigunguAndIsDeletedFalse(sigungu);
     }
 
     @DisplayName("팝업스토어 정보를 저장한다")
