@@ -148,6 +148,7 @@ public class MemberServiceUnitTest {
             MemberRequest testRequest = new MemberRequest(
                     "test",
                     "wrongEmail@example.com",
+                    "",
                     "updatedTestNickname",
                     OAuthProvider.NAVER
             );
@@ -166,6 +167,7 @@ public class MemberServiceUnitTest {
             MemberRequest testRequest = new MemberRequest(
                     "test",
                     "test@naver.com",
+                    "",
                     "updatedTestNicknameupdatedTestNicknameupdatedTestNicknameupdatedTestNicknameupdatedTestNickname",
                     OAuthProvider.NAVER
             );

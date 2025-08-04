@@ -5,19 +5,20 @@
     <div class="logo">
         <a th:href="@{/}">
             <img th:src="@{/images/logo.png}" th:alt="loading..." th:width="45px">
-            <span>PinUp</span>
+            <span style="font-size: small">PinUp</span>
         </a>
     </div>
     <nav>
         <ul>
-            <li><a th:href="@{/}">홈</a></li>
-            <li><a th:href="@{/stores}">팝업스토어</a></li>
-            <li><a th:href="@{/notices}">고객센터</a></li>
+            <li><a style="font-size: small" th:href="@{/}">홈</a></li>
+            <li><a style="font-size: small" th:href="@{/stores}">팝업스토어</a></li>
+            <li><a style="font-size: small" th:href="@{/notices}">고객센터</a></li>
         </ul>
     </nav>
     <div class="user-actions">
         <th:block sec:authorize="isAnonymous()">
-            <button th:onclick="|window.location.href='/members/login'|">로그인</button>
+            <a style="font-size: small" th:href="@{/members/login}">로그인</a>
+<!--            <button th:onclick="|window.location.href='/members/login'|">로그인</button>-->
         </th:block>
         <th:block sec:authorize="isAuthenticated()">
             <button class="hamburger" onclick="toggleMenu()">
@@ -30,7 +31,9 @@
                 <button th:onclick="|window.location.href='/members/profile'|">마이페이지</button>
                 <button th:onclick="|logOut()|">로그아웃</button>
                 <hr/>
-                <p th:class="menu_nickname" sec:authentication="principal.nickname">Nickname</p>
+                <p th:class="menu_nickname" sec:authentication="principal.nickname"
+                   th:text="${#authentication.principal.nickname}"
+                   th:title="${#authentication.principal.nickname}">Nickname</p>
             </div>
         </th:block>
     </div>

@@ -25,6 +25,8 @@ public class SessionExpirationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String requestURI = request.getRequestURI();
 
+        System.out.println("requestURI: "+requestURI);
+        System.out.println("isExcluded(requestURI): "+isExcluded(requestURI));
         if (isExcluded(requestURI)) {
             chain.doFilter(request, response);
             return;
