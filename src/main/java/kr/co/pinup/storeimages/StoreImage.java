@@ -3,7 +3,10 @@ package kr.co.pinup.storeimages;
 import jakarta.persistence.*;
 import kr.co.pinup.BaseEntity;
 import kr.co.pinup.stores.Store;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Getter

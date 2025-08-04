@@ -53,7 +53,7 @@ public class CommentServiceUnitTest {
     void getCommentsByPostId_whenCommentsExist_thenReturnsCommentList() {
         // Given
         Long postId = 1L;
-        Member mockMember = new Member("행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER, false);
+        Member mockMember = new Member("행복한 돼지", "test@example.com", "happyPig", "", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER, false);
 
         List<CommentResponse> commentResponses = List.of(
                 CommentResponse.builder()
@@ -118,7 +118,7 @@ public class CommentServiceUnitTest {
         // Given
         Long postId = 1L;
         String commentContent = "Test Comment";
-        Member mockMember = new Member("행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER, false);
+        Member mockMember = new Member("행복한 돼지", "test@example.com", "happyPig", "", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER, false);
 
         CreateCommentRequest createCommentRequest = CreateCommentRequest.builder()
                 .content(commentContent)
@@ -176,7 +176,7 @@ public class CommentServiceUnitTest {
                 .content("Test Comment")
                 .build();
 
-        Member mockMember = new Member("행복한 돼지", "test@example.com", "happyPig", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER, false);
+        Member mockMember = new Member("행복한 돼지", "test@example.com", "happyPig", "", OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER, false);
 
         when(memberRepository.findByNickname(mockMember.getNickname())).thenReturn(Optional.of(mockMember));
         when(postRepository.findById(postId)).thenReturn(Optional.empty());

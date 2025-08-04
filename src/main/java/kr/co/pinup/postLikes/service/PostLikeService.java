@@ -17,7 +17,6 @@ import kr.co.pinup.posts.repository.PostRepository;
 import kr.co.pinup.posts.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Slf4j

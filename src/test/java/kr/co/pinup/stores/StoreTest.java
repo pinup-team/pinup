@@ -1,7 +1,6 @@
 package kr.co.pinup.stores;
 
 import kr.co.pinup.locations.Location;
-import kr.co.pinup.notices.Notice;
 import kr.co.pinup.storecategories.StoreCategory;
 import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourRequest;
 import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
