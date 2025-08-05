@@ -1,0 +1,33 @@
+MemberRequest password 추가로 인한 타페이지 수정
+
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+#
+# Date:      Tue Aug 5 08:08:22 2025 +0900
+#
+# On branch feat-members
+# Changes to be committed:
+#	modified:   build.gradle
+#	new file:   src/main/java/kr/co/pinup/custom/memberRequest/PasswordRequiredForLocal.java
+#	new file:   src/main/java/kr/co/pinup/custom/memberRequest/PasswordValidator.java
+#	modified:   src/main/java/kr/co/pinup/postLikes/service/PostLikeService.java
+#	modified:   src/main/java/kr/co/pinup/posts/repository/PostRepository.java
+#	modified:   src/main/java/kr/co/pinup/storeimages/StoreImage.java
+#	modified:   src/main/java/kr/co/pinup/stores/model/dto/StoreUpdateRequest.java
+#	modified:   src/main/java/kr/co/pinup/stores/model/enums/StoreStatus.java
+#	modified:   src/test/java/kr/co/pinup/PinupApplicationTests.java
+#	modified:   src/test/java/kr/co/pinup/comments/CommentEntityTest.java
+#	modified:   src/test/java/kr/co/pinup/comments/CommentIntegrationTest.java
+#	modified:   src/test/java/kr/co/pinup/comments/CommentRepositoryTest.java
+#	modified:   src/test/java/kr/co/pinup/comments/controller/CommentApiControllerIntegrationTest.java
+#	modified:   src/test/java/kr/co/pinup/comments/service/CommentServiceIntegrationTest.java
+#	modified:   src/test/java/kr/co/pinup/comments/service/CommentServiceUnitTest.java
+#	modified:   src/test/java/kr/co/pinup/postLikes/PostLikeEntityTest.java
+#	modified:   src/test/java/kr/co/pinup/postLikes/service/PostLikeServiceUnitTest.java
+#	modified:   src/test/java/kr/co/pinup/posts/PostEntityTest.java
+#	modified:   src/test/java/kr/co/pinup/posts/PostIntegrationTest.java
+#	modified:   src/test/java/kr/co/pinup/posts/controller/PostApiControllerIntegrationTest.java
+#	modified:   src/test/java/kr/co/pinup/storeimages/StoreImageIntegrationTest.java
+#	modified:   src/test/java/kr/co/pinup/storeoperatinghour/service/StoreOperatingHourServiceTest.java
+#	modified:   src/test/java/kr/co/pinup/stores/StoreTest.java
+#
