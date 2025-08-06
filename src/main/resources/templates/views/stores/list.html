@@ -13,17 +13,49 @@
         <a th:href="@{/stores/create}" class="create-btn">등록</a>
     </div>
 
-    <form method="get" action="/stores">
-        <label for="statusFilter">진행 상태 : </label>
-        <select name="status" id="statusFilter" onchange="this.form.submit()">
-            <option th:value="all" th:selected="${selectedStatus == null}">전체</option>
-            <option th:each="statusOption : ${T(kr.co.pinup.stores.model.enums.StoreStatus).values()}"
-                    th:value="${statusOption.name().toLowerCase()}"
-                    th:text="${statusOption.value}"
-                    th:selected="${selectedStatus?.name() == statusOption.name()}">
-            </option>
-        </select>
-    </form>
+    <div>
+        <form method="get" action="/stores">
+            <label for="statusFilter">진행 상태 : </label>
+            <select name="status" id="statusFilter" onchange="this.form.submit()">
+                <option th:value="all" th:selected="${selectedStatus == null}">전체</option>
+                <option th:each="statusOption : ${T(kr.co.pinup.stores.model.enums.StoreStatus).values()}"
+                        th:value="${statusOption.name().toLowerCase()}"
+                        th:text="${statusOption.value}"
+                        th:selected="${selectedStatus?.name() == statusOption.name()}">
+                </option>
+            </select>
+
+            <label for="sigungu-filter">자치구 : </label>
+            <select name="sigungu" id="sigungu-filter" onchange="this.form.submit()">
+                <option value="all" th:selected="${selectedSigungu == null}">전체</option>
+                <option value="강남구" th:selected="${selectedSigungu == '강남구'}">강남구</option>
+                <option value="강동구" th:selected="${selectedSigungu == '강동구'}">강동구</option>
+                <option value="강북구" th:selected="${selectedSigungu == '강북구'}">강북구</option>
+                <option value="강서구" th:selected="${selectedSigungu == '강서구'}">강서구</option>
+                <option value="관악구" th:selected="${selectedSigungu == '관악구'}">관악구</option>
+                <option value="광진구" th:selected="${selectedSigungu == '광진구'}">광진구</option>
+                <option value="구로구" th:selected="${selectedSigungu == '구로구'}">구로구</option>
+                <option value="금천구" th:selected="${selectedSigungu == '금천구'}">금천구</option>
+                <option value="노원구" th:selected="${selectedSigungu == '노원구'}">노원구</option>
+                <option value="도봉구" th:selected="${selectedSigungu == '도봉구'}">도봉구</option>
+                <option value="동대문구" th:selected="${selectedSigungu == '동대문구'}">동대문구</option>
+                <option value="동작구" th:selected="${selectedSigungu == '동작구'}">동작구</option>
+                <option value="마포구" th:selected="${selectedSigungu == '마포구'}">마포구</option>
+                <option value="서대문구" th:selected="${selectedSigungu == '서대문구'}">서대문구</option>
+                <option value="서초구" th:selected="${selectedSigungu == '서초구'}">서초구</option>
+                <option value="성동구" th:selected="${selectedSigungu == '성동구'}">성동구</option>
+                <option value="성북구" th:selected="${selectedSigungu == '성북구'}">성북구</option>
+                <option value="송파구" th:selected="${selectedSigungu == '송파구'}">송파구</option>
+                <option value="양천구" th:selected="${selectedSigungu == '양천구'}">양천구</option>
+                <option value="영등포구" th:selected="${selectedSigungu == '영등포구'}">영등포구</option>
+                <option value="용산구" th:selected="${selectedSigungu == '용산구'}">용산구</option>
+                <option value="은평구" th:selected="${selectedSigungu == '은평구'}">은평구</option>
+                <option value="종로구" th:selected="${selectedSigungu == '종로구'}">종로구</option>
+                <option value="중구" th:selected="${selectedSigungu == '중구'}">중구</option>
+                <option value="중랑구" th:selected="${selectedSigungu == '중랑구'}">중랑구</option>
+            </select>
+        </form>
+    </div>
 
     <div class="store-list">
         <div th:each="store : ${stores}" class="store-card">

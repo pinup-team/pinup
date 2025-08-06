@@ -29,16 +29,14 @@ public class StoreController {
     private final StoreCategoryService storeCategoryService;
 
     @GetMapping
-    public String listStores(@RequestParam(required = false) String status, Model model) {
-        if (status == null) {
-            return "redirect:/stores?status=resolved";
-        }
+    public String listStores(
+            @RequestParam String status,
+            @RequestParam String sigungu,
+            Model model) {
+        log.info("StoreController listStores status={}, sigungu={}", status, sigungu);
 
-        log.info("StoreController listStores status={}", status);
         StoreStatus selectedStatus = StoreStatus.from(status);
-        final List<StoreThumbnailResponse> stores = (selectedStatus != null)
-                ? storeService.getStoresByStatus(selectedStatus)
-                : storeService.getStoresSortedByStatusPriority();
+        List<StoreThumbnailResponse> stores = storeService.findAll(selectedStatus, sigungu);
 
         model.addAttribute("selectedStatus", selectedStatus);
         model.addAttribute("stores", stores);
