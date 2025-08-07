@@ -187,7 +187,6 @@ class MemberApiControllerDocsTest {
     }
 
     @Test
-    @Disabled
     @DisplayName("POST /api/members/login - 회원 자체 로그인 성공 문서화")
     void testPinupLoginSuccess_document() throws Exception {
         Member member = Member.builder()
