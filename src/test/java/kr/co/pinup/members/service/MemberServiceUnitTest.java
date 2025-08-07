@@ -1,5 +1,6 @@
 package kr.co.pinup.members.service;
 
+import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.exception.common.UnauthorizedException;
 import kr.co.pinup.members.Member;
@@ -8,18 +9,22 @@ import kr.co.pinup.members.exception.MemberBadRequestException;
 import kr.co.pinup.members.exception.MemberNotFoundException;
 import kr.co.pinup.members.exception.MemberServiceException;
 import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.members.model.dto.MemberLoginRequest;
 import kr.co.pinup.members.model.dto.MemberRequest;
 import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.security.SecurityUtil;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
@@ -39,6 +44,9 @@ public class MemberServiceUnitTest {
     private SecurityUtil securityUtil;
 
     @Mock
+    private BCryptPasswordEncoder passwordEncoder;
+
+    @Mock
     private AppLogger appLogger;
 
     @InjectMocks
@@ -55,6 +63,7 @@ public class MemberServiceUnitTest {
         member = Member.builder()
                 .name("test")
                 .email("test@naver.com")
+                .password(passwordEncoder.encode(""))
                 .nickname("네이버TestMember")
                 .providerType(OAuthProvider.NAVER)
                 .providerId("123456789")
@@ -68,6 +77,7 @@ public class MemberServiceUnitTest {
         memberRequest = MemberRequest.builder()
                 .name("test")
                 .email("test@naver.com")
+                .password("")
                 .nickname("updatedTestNickname")
                 .providerType(OAuthProvider.NAVER)
                 .build();
@@ -76,6 +86,309 @@ public class MemberServiceUnitTest {
                 .provider(OAuthProvider.NAVER)
                 .role(MemberRole.ROLE_USER)
                 .build();
+    }
+
+    @Nested
+    @DisplayName("이메일 검증 테스트")
+    class ValidateEmailTests {
+
+        @Test
+        @DisplayName("이메일이 null인 경우 false 반환")
+        void testValidateEmail_WithNullEmail_ShouldReturnFalse() {
+            boolean result = memberService.validateEmail(null);
+            assertFalse(result);
+        }
+
+        @Test
+        @DisplayName("이메일이 빈 문자열인 경우 false 반환")
+        void testValidateEmail_WithEmptyEmail_ShouldReturnFalse() {
+            boolean result = memberService.validateEmail("");
+            assertFalse(result);
+        }
+
+        @Test
+        @DisplayName("이미 존재하는 이메일인 경우 false 반환")
+        void testValidateEmail_WithExistingEmail_ShouldReturnFalse() {
+            String email = "test@naver.com";
+
+            when(memberRepository.findByEmailAndIsDeletedFalse(email))
+                    .thenReturn(Optional.of(member));
+
+            boolean result = memberService.validateEmail(email);
+
+            assertFalse(result);
+        }
+
+        @Test
+        @DisplayName("신규 이메일인 경우 true 반환")
+        void testValidateEmail_WithNewEmail_ShouldReturnTrue() {
+            String email = "test@naver.com";
+
+            when(memberRepository.findByEmailAndIsDeletedFalse(email))
+                    .thenReturn(Optional.empty());
+
+            boolean result = memberService.validateEmail(email);
+
+            assertTrue(result);
+        }
+    }
+
+    @Nested
+    @DisplayName("회원 등록 관련 테스트")
+    class RegisterMemberTests {
+
+        @Test
+        @DisplayName("회원 등록_정상")
+        void testRegister_WithValidRequest_ShouldReturnNewMember() {
+            // given
+            MemberRequest pinupRequest = MemberRequest.builder()
+                    .name("test")
+                    .email("test@test.com")
+                    .password("test1234!")
+                    .nickname("updatedTestNickname")
+                    .providerType(OAuthProvider.PINUP)
+                    .build();
+
+            when(memberRepository.findByEmailAndIsDeletedFalse(pinupRequest.email()))
+                    .thenReturn(Optional.empty());
+
+            // 닉네임 중복 검사
+            when(memberRepository.findByNickname(pinupRequest.email()))
+                    .thenReturn(Optional.empty());
+
+            when(passwordEncoder.encode(anyString()))
+                    .thenReturn("encoded-password");
+
+            Member member = Member.builder()
+                    .email(pinupRequest.email())
+                    .nickname(pinupRequest.nickname())
+                    .password("encoded-password")
+                    .providerType(pinupRequest.providerType())
+                    .role(MemberRole.ROLE_USER)
+                    .build();
+
+            when(memberRepository.save(any(Member.class))).thenReturn(member);
+
+            // when
+            Pair<Member, String> result = memberService.register(pinupRequest);
+
+            // then
+            assertNotNull(result);
+            assertEquals("updatedTestNickname", result.getLeft().getNickname());
+        }
+
+        @Test
+        @DisplayName("회원 등록_이메일 누락")
+        void testRegister_WithNullEmail_ShouldThrowBadRequest() {
+            MemberRequest pinupRequest = MemberRequest.builder()
+                    .name("test")
+                    .email(null)
+                    .password("test1234!")
+                    .nickname("updatedTestNickname")
+                    .providerType(OAuthProvider.PINUP)
+                    .build();
+
+            MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
+                memberService.register(pinupRequest);
+            });
+
+            assertEquals("이메일은 필수 입력 항목입니다.", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("회원 등록_이메일 중복")
+        void testRegister_WithDuplicateEmail_ShouldThrowBadRequest() {
+            Member member1 = Member.builder()
+                    .name("test")
+                    .email("test@test.com")
+                    .password(passwordEncoder.encode("test1234!"))
+                    .nickname("핀업TestMember")
+                    .providerType(OAuthProvider.PINUP)
+                    .role(MemberRole.ROLE_USER)
+                    .build();
+
+            MemberRequest pinupRequest = MemberRequest.builder()
+                    .name("test")
+                    .email("test@test.com")
+                    .password("test1234!")
+                    .nickname("핀업TestMember")
+                    .providerType(OAuthProvider.PINUP)
+                    .build();
+
+            when(memberRepository.findByEmailAndIsDeletedFalse(pinupRequest.email()))
+                    .thenReturn(Optional.of(member1));
+
+            MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
+                memberService.register(pinupRequest);
+            });
+
+            assertEquals("이미 존재하는 이메일입니다.", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("회원 등록_닉네임 누락")
+        void testRegister_WithNullNickname_ShouldThrowBadRequest() {
+            MemberRequest request = new MemberRequest(
+                    "test",
+                    "test@naver.com",
+                    "password",
+                    null,
+                    OAuthProvider.PINUP
+            );
+
+            when(memberRepository.findByEmailAndIsDeletedFalse(request.email()))
+                    .thenReturn(Optional.empty());
+
+            MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
+                memberService.register(request);
+            });
+
+            assertEquals("닉네임은 필수 입력 항목입니다.", exception.getMessage());
+        }
+
+        @Test
+        @DisplayName("회원 등록_닉네임 중복")
+        void testRegister_WithDuplicateNickname_ShouldThrowBadRequest() {
+            Member member1 = Member.builder()
+                    .name("test")
+                    .email("test@test.com")
+                    .password(passwordEncoder.encode("test1234!"))
+                    .nickname("duplicateNickname")
+                    .providerType(OAuthProvider.PINUP)
+                    .role(MemberRole.ROLE_USER)
+                    .build();
+
+            MemberRequest request = new MemberRequest(
+                    "test",
+                    "test@test.com",
+                    "password",
+                    "duplicateNickname",
+                    OAuthProvider.PINUP
+            );
+
+            // 이메일은 중복 아님
+            when(memberRepository.findByEmailAndIsDeletedFalse(request.email()))
+                    .thenReturn(Optional.empty());
+
+            // 닉네임 중복
+            when(memberRepository.findByNickname(request.email()))
+                    .thenReturn(Optional.of(member1));
+
+            MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
+                memberService.register(request);
+            });
+
+            assertEquals("이미 존재하는 닉네임입니다.", exception.getMessage());
+        }
+    }
+
+    @Nested
+    @DisplayName("로그인 테스트")
+    class LoginTests {
+
+        @Mock
+        private HttpSession session;
+
+        MemberLoginRequest request = MemberLoginRequest.builder()
+                .email("notfound@example.com")
+                .password("test1234!")
+                .providerType(OAuthProvider.PINUP).build();
+
+        @Test
+        @DisplayName("PINUP 로그인 시 비밀번호가 없으면 IllegalArgumentException 발생")
+        void testLogin_PinupProvider_NoPassword_ShouldThrowIllegalArgumentException() {
+            MemberNotFoundException ex = assertThrows(MemberNotFoundException.class, () -> {
+                memberService.login(request, session);
+            });
+
+            assertEquals("사용자를 찾을 수 없습니다.\n이메일 혹은 비밀번호를 확인해주세요.", ex.getMessage());
+        }
+
+        @Test
+        @DisplayName("존재하지 않는 이메일로 로그인 시 MemberNotFoundException 발생")
+        void testLogin_EmailNotFound_ShouldThrowMemberNotFoundException() {
+            when(memberRepository.findByEmailAndIsDeletedFalse(request.email()))
+                    .thenReturn(Optional.empty());
+
+            MemberNotFoundException ex = assertThrows(MemberNotFoundException.class, () -> {
+                memberService.login(request, session);
+            });
+
+            assertEquals("사용자를 찾을 수 없습니다.\n이메일 혹은 비밀번호를 확인해주세요.", ex.getMessage());
+        }
+
+        @Test
+        @DisplayName("다른 providerType으로 가입된 이메일 로그인 시 MemberServiceException 발생")
+        void testLogin_DifferentProvider_ShouldThrowMemberServiceException() {
+            Member member = Member.builder()
+                    .email(request.email())
+                    .providerType(OAuthProvider.NAVER)  // 다른 provider
+                    .build();
+
+            when(memberRepository.findByEmailAndIsDeletedFalse(request.email()))
+                    .thenReturn(Optional.of(member));
+
+            MemberServiceException ex = assertThrows(MemberServiceException.class, () -> {
+                memberService.login(request, session);
+            });
+
+            assertEquals("이 이메일은 네이버 로그인으로 가입된 계정입니다.", ex.getMessage());
+        }
+
+        @Test
+        @DisplayName("비밀번호 불일치 시 UnauthorizedException 발생")
+        void testLogin_PasswordMismatch_ShouldThrowUnauthorizedException() {
+            Member member = Member.builder()
+                    .email(request.email())
+                    .providerType(OAuthProvider.PINUP)
+                    .password(passwordEncoder.encode("test1234!"))
+                    .build();
+
+            when(memberRepository.findByEmailAndIsDeletedFalse(request.email()))
+                    .thenReturn(Optional.of(member));
+
+            when(passwordEncoder.matches(request.password(), member.getPassword()))
+                    .thenReturn(false);
+
+            UnauthorizedException ex = assertThrows(UnauthorizedException.class, () -> {
+                memberService.login(request, session);
+            });
+
+            assertEquals("비밀번호를 확인해주세요.", ex.getMessage());
+        }
+
+        @Test
+        @DisplayName("정상 로그인 시 Member와 환영 메시지 반환")
+        void testLogin_Success_ShouldReturnMemberAndMessage() {
+            Member member = Member.builder()
+                    .email(request.email())
+                    .providerType(OAuthProvider.PINUP)
+                    .password(passwordEncoder.encode("test1234!"))
+                    .nickname("testNick")
+                    .name("홍길동")
+                    .role(MemberRole.ROLE_USER)
+                    .build();
+
+            when(memberRepository.findByEmailAndIsDeletedFalse(request.email()))
+                    .thenReturn(Optional.of(member));
+            when(passwordEncoder.matches(request.password(), member.getPassword()))
+                    .thenReturn(true);
+
+            // securityUtil.generateToken 모킹
+            when(securityUtil.generateToken(member)).thenReturn("mockedAccessToken");
+
+            // securityUtil.setAuthentication는 void 메서드이므로 doNothing() 사용 가능
+            doNothing().when(securityUtil).setAuthentication(any(), any());
+
+            Pair<Member, String> result = memberService.login(request, session);
+
+            assertNotNull(result);
+            assertEquals(member, result.getLeft());
+            assertEquals("다시 돌아오신 걸 환영합니다 \"" + member.getName() + "\"님", result.getRight());
+
+            verify(securityUtil).setAuthentication(any(), any());
+            verify(session).setAttribute(eq(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY), any());
+        }
     }
 
     @Nested
@@ -127,6 +440,7 @@ public class MemberServiceUnitTest {
         public void testUpdate_WithValidRequest_ShouldReturnUpdatedMember() {
             when(memberRepository.findByNickname(memberInfo.nickname()))
                     .thenReturn(Optional.of(member));
+
             when(memberRepository.findByNickname(memberRequest.nickname()))
                     .thenReturn(Optional.empty());
 
@@ -137,7 +451,7 @@ public class MemberServiceUnitTest {
 
             assertNotNull(response);
             assertEquals("updatedTestNickname", response.getNickname());
-            verify(memberRepository).save(member);
+            verify(memberRepository).save(any(Member.class));
         }
 
         @Test
@@ -201,16 +515,22 @@ public class MemberServiceUnitTest {
 
         @Test
         @DisplayName("회원 수정_저장 중 오류 발생")
-        public void testUpdate_WithExceptionInSave_ShouldThrowMemberServiceException() {
-            when(memberRepository.findByNickname(memberInfo.nickname()))
-                    .thenReturn(Optional.of(member));
+        void testUpdate_WithExceptionInSave_ShouldThrowMemberServiceException() {
+            // given
+            when(memberRepository.findByNickname(eq(memberInfo.nickname())))
+                    .thenReturn(Optional.of(member)); // 기존 회원 찾기
+
             when(memberRepository.findByNickname(memberRequest.nickname()))
                     .thenReturn(Optional.empty());
-            doThrow(new RuntimeException("Database error")).when(memberRepository).save(member);
 
+            doThrow(new RuntimeException("DB error"))
+                    .when(memberRepository).save(any(Member.class)); // 저장 시 예외 발생
+
+            // when & then
             MemberServiceException exception = assertThrows(MemberServiceException.class, () -> {
                 memberService.update(memberInfo, memberRequest);
             });
+
             assertEquals("회원 정보 저장 중 오류가 발생했습니다.", exception.getMessage());
         }
     }

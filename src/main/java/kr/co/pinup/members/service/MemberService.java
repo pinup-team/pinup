@@ -177,7 +177,7 @@ public class MemberService {
         // 닉네임 비어있거나 존재하는지 확인
         if (request.nickname() == null || request.nickname().isBlank()) {
             throw new MemberBadRequestException("닉네임은 필수 입력 항목입니다.");
-        } else if (memberRepository.findByEmailAndIsDeletedFalse(request.email()).isPresent()) {
+        } else if (memberRepository.findByNickname(request.email()).isPresent()) {
             throw new MemberBadRequestException("이미 존재하는 닉네임입니다.");
         }
 
