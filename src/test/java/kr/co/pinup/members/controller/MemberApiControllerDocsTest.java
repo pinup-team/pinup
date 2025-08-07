@@ -130,7 +130,7 @@ class MemberApiControllerDocsTest {
     }
 
     @Test
-    @DisplayName("회원가입 - 성공 문서화")
+    @DisplayName("GET /api/members/validate - 회원 가입 성공 문서화")
     void testRegisterSuccess_document() throws Exception {
         MemberRequest memberRequest = MemberRequest.builder()
                 .name("test")
@@ -170,7 +170,7 @@ class MemberApiControllerDocsTest {
     }
 
     @Test
-    @DisplayName("이메일 중복 확인 - 사용 가능")
+    @DisplayName("GET /api/members/validate - 회원 이메일 중복 성공 문서화")
     void testValidateEmailAvailable_document() throws Exception {
         when(memberService.validateEmail(anyString())).thenReturn(true);
 
@@ -187,8 +187,8 @@ class MemberApiControllerDocsTest {
     }
 
     @Test
-    @DisplayName("핀업 자체 로그인 성공")
     @Disabled
+    @DisplayName("POST /api/members/login - 회원 자체 로그인 성공 문서화")
     void testPinupLoginSuccess_document() throws Exception {
         Member member = Member.builder()
                 .name("핀업")

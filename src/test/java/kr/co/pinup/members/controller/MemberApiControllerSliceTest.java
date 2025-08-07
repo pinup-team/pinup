@@ -59,7 +59,7 @@ public class MemberApiControllerSliceTest {
     }
 
     @Nested
-    @DisplayName("회원가입 API")
+    @DisplayName("회원가입")
     class RegisterMemberTests {
 
         @Test
@@ -156,7 +156,7 @@ public class MemberApiControllerSliceTest {
     }
 
     @Nested
-    @DisplayName("이메일 중복 확인 API")
+    @DisplayName("회원 이메일 중복 확인")
     class ValidateEmailTests {
 
         @Test
@@ -252,33 +252,33 @@ public class MemberApiControllerSliceTest {
 
     @Test
     @WithMockMember
-    @DisplayName("닉네임 추천 - referer 조건별 응답 테스트")
+    @DisplayName("회원 닉네임 추천")
     void testMakeNicknameByRefererConditions() throws Exception {
         String generatedNickname = "generate-nickname";
         when(memberService.makeNickname()).thenReturn(generatedNickname);
 
-        // 1. /members/profile → 로그인 필요
+        // 로그인 필요
         mockMvc.perform(get("/api/members/nickname")
                         .header("Referer", "/members/profile"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(generatedNickname));
 
-        // 2. /members/register → 비로그인 가능
+        // 비로그인 가능
         mockMvc.perform(get("/api/members/nickname")
                         .header("Referer", "/members/register"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().string(generatedNickname));
 
-        // 3. /unknown → 403
+        // unknown → 403
         mockMvc.perform(get("/api/members/nickname")
                         .header("Referer", "/unknown"))
                 .andDo(print())
                 .andExpect(status().isForbidden())
                 .andExpect(content().string("허용되지 않은 요청입니다."));
 
-        // 4. no referer → 403
+        // no referer → 403
         mockMvc.perform(get("/api/members/nickname"))
                 .andDo(print())
                 .andExpect(status().isForbidden())
@@ -286,7 +286,7 @@ public class MemberApiControllerSliceTest {
     }
 
     @Nested
-    @DisplayName("회원정보 수정")
+    @DisplayName("회원 정보 수정")
     class UpdateMemberTests {
 
         @Test
