@@ -18,7 +18,6 @@
     <div class="user-actions">
         <th:block sec:authorize="isAnonymous()">
             <a style="font-size: 18px" th:href="@{/members/login}">로그인</a>
-<!--            <button style="font-size: small" th:onclick="|window.location.href='/members/login'|">로그인</button>-->
         </th:block>
         <th:block sec:authorize="isAuthenticated()">
             <button class="hamburger" onclick="toggleMenu()">
