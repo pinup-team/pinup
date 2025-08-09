@@ -1,14 +1,18 @@
 package kr.co.pinup.security;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.exception.common.UnauthorizedException;
+import kr.co.pinup.members.Member;
 import kr.co.pinup.members.exception.OAuth2AuthenticationException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.members.model.dto.MemberInfo;
+import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.oauth.OAuthService;
 import kr.co.pinup.oauth.OAuthToken;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +24,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+
+import java.time.Duration;
+import java.util.Date;
 
 @Slf4j
 @Component
@@ -168,7 +175,7 @@ public class SecurityUtil {
         try {
             MemberInfo memberInfo = getMemberInfo();
             String accessToken = getAccessTokenFromSecurityContext();
-            if (accessToken != null) {
+            if (accessToken != null && memberInfo.getProvider() != OAuthProvider.PINUP) {
                 if (!oAuthService.revoke(memberInfo.provider(), accessToken)) {
                     throw new OAuthTokenRequestException("SecurityUtil clearContextAndDeleteCookie || Access Token 무효화에 실패했습니다.");
                 }
@@ -213,4 +220,20 @@ public class SecurityUtil {
         cookie.setSecure(cookieSetting);
         response.addCookie(cookie);
     }
+
+    public String generateToken(Member member) {
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + Duration.ofHours(3).toMillis()); // 1시간 유효
+
+        String dynamicSecretKey = java.util.UUID.randomUUID().toString().replace("-", "");
+
+        return Jwts.builder()
+                .setSubject(member.getEmail())  // 토큰 주체, 보통 userId 혹은 email
+                .claim("role", member.getRole().name()) // 사용자 역할 권한 등 추가 정보
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(SignatureAlgorithm.HS256, dynamicSecretKey.getBytes()) // secretKey를 바이트 배열로 전달
+                .compact();
+    }
+
 }

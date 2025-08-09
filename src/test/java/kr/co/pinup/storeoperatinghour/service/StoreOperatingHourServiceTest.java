@@ -6,7 +6,6 @@ import kr.co.pinup.storeoperatinghour.StoreOperatingHour;
 import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourRequest;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.enums.StoreStatus;
-import kr.co.pinup.stores.model.enums.StoreStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

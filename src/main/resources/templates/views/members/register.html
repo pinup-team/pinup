@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/member.css}">
+    <title>Register</title>
+</head>
+<div class="center_content" layout:fragment="content">
+    <div class="page_description">
+        <h1>Register</h1>
+        <h4>간단한 정보를 입력하고 핀업을 경험해보세요...?</h4>
+    </div>
+    <div class="member_profile_content">
+        <div class="table-container">
+            <table class="table" th:object="${registerRequest}">
+                <tbody>
+                <tr>
+                    <td>이름</td>
+                    <td><input type="text" name="name" th:field="*{name}" placeholder="이름" onclick="this.select()"/></td>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <div id="error-name" class="error-text"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>이메일</td>
+                    <td>
+                        <input type="text" id="emailRegister" name="emailRegister" th:field="*{email}" th:placeholder="이메일" onclick="this.select()">
+                        <button id="btn_email_check" type="button" th:onclick="validEmail()">중복 확인</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <div id="error-email" class="error-text"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>비밀번호</td>
+                    <td><input type="password" name="password" th:field="*{password}" th:placeholder="비밀번호" onclick="this.select()">
+                    </td>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <div id="error-password" class="error-text"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>닉네임</td>
+                    <td>
+                        <input id="nickname" type="text" th:field="*{nickname}" th:placeholder="닉네임"
+                               onclick="this.select()">
+                        <button type="button" th:onclick="generateNickname()">추천</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <div id="error-nickname" class="error-text"></div>
+                    </td>
+                </tr>
+                <tr style="display: none;">
+                    <td>가입경로</td>
+                    <td>
+                        <input type="hidden" id="providerType" name="providerType"
+                               th:value="${registerRequest.providerType}"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="button-container">
+        <div class="home-button">
+            <button th:onclick="redirectToHome()">홈으로 돌아가기</button>
+        </div>
+        <div></div>
+        <div class="member-buttons">
+            <button type="button" th:onclick="register()">회원가입</button>
+        </div>
+    </div>
+</div>
+</html>

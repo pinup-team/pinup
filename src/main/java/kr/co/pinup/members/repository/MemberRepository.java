@@ -1,6 +1,7 @@
 package kr.co.pinup.members.repository;
 
 import kr.co.pinup.members.Member;
+import kr.co.pinup.oauth.OAuthProvider;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +13,8 @@ import java.util.Optional;
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByEmailAndIsDeletedFalse(String email);
+
+    Optional<Member> findByEmailAndProviderTypeAndIsDeletedFalse(String email, OAuthProvider provider);
 
     boolean existsByNickname(String nickname);
 

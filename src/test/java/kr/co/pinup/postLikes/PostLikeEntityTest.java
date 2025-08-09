@@ -50,7 +50,7 @@ public class PostLikeEntityTest {
     }
 
     private Member createMember() {
-        Member member = new Member("테스트유저", "test@example.com", "testNick",
+        Member member = new Member("테스트유저", "test@example.com", "testNick", "",
                 OAuthProvider.NAVER, "naver-123", MemberRole.ROLE_USER, false);
         em.persist(member);
         return member;

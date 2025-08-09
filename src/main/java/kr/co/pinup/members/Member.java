@@ -11,8 +11,8 @@ import lombok.*;
 @Getter
 @Builder
 @Table(name = "members")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseEntity {
     @Column(nullable = false, length = 50)
     private String name;
@@ -20,11 +20,13 @@ public class Member extends BaseEntity {
     private String email;
     @Column(nullable = false, length = 50, unique = true)
     private String nickname;
+    @Column(length = 255)
+    private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "provider_type", nullable = false, length = 50)
     private OAuthProvider providerType;
-    @Column(name = "provider_id", nullable = false, length = 255)
+    @Column(name = "provider_id", length = 255)
     private String providerId;
 
     @Column(nullable = false)

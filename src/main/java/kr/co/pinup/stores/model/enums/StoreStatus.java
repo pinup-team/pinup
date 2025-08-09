@@ -1,6 +1,5 @@
 package kr.co.pinup.stores.model.enums;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
