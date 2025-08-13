@@ -40,6 +40,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -656,19 +658,15 @@ PostServiceUnitTest {
             // given
             Long storeId = 1L;
             MemberInfo memberInfo = new MemberInfo("닉네임",OAuthProvider.NAVER,MemberRole.ROLE_USER);
+            LocalDateTime now = LocalDateTime.of(2025, 8, 13, 12, 0);
 
-            Post post = Post.builder()
-                    .likeCount(3)
-                    .store(store)
-                    .member(member)
-                    .build();
+            given(memberRepository.findByNickname(eq("닉네임")))
+                    .willReturn(Optional.of(member));
 
-            given(postRepository.findByStoreIdAndIsDeleted(eq(storeId), anyBoolean()))
-                    .willReturn(List.of(post));
-            given(memberRepository.findByNickname(eq("닉네임"))).willReturn(Optional.of(member));
-            given(postLikeRepository.existsByPostIdAndMemberId(post.getId(), member.getId()))
-                    .willReturn(true);
-            given(commentRepository.countByPostId(post.getId())).willReturn(5);
+            given(postRepository.findPostListItems(eq(storeId), eq(false), eq(member.getId())))
+                    .willReturn(List.of(
+                            new PostResponse(1L, "닉네임", "제목1", "thumb1.jpg", now , 5L, 3, true)
+                    ));
 
             // when
             List<PostResponse> result = postService.findByStoreIdWithCommentsAndLikes(storeId, false, memberInfo);
@@ -676,6 +674,9 @@ PostServiceUnitTest {
             // then
             assertThat(result).hasSize(1);
             assertThat(result.get(0).likedByCurrentUser()).isTrue();
+
+            then(postRepository).should().findPostListItems(storeId, false, member.getId());
+            then(postRepository).shouldHaveNoMoreInteractions();
         }
 
     }
