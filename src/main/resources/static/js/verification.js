@@ -13,6 +13,9 @@ function sendMail() {
     // 기존 에러 메시지 초기화
     document.querySelectorAll('.error-text').forEach(div => div.textContent = '');
 
+    const mailBtn = document.getElementById('btn_mail');
+    mailBtn.disabled = true;
+
     fetch('/api/verification/send', {
         method: 'POST',
         headers: {
@@ -43,11 +46,11 @@ function sendMail() {
                 }
 
                 throw new Error("메일 전송 실패");
+                mailBtn.disabled = false;
             } else {
                 alert(data.message);
 
                 const emailInput = document.getElementById('email');
-                const mailBtn = document.getElementById('btn_mail');
                 const codeInput = document.getElementById('verification-code');
                 const verifyBtn = document.getElementById('btn_verify');
 
@@ -61,11 +64,13 @@ function sendMail() {
                 // 여기서 display 직접 변경
                 document.getElementById('code-row').style.display = '';
                 document.getElementById('code-error-row').style.display = '';
+                document.getElementById('timer-row').style.display = ''; // 타이머 표시
 
                 startTimer(TIMER_DURATION, codeInput, verifyBtn, mailBtn);
             }
         })
         .catch(error => {
+            mailBtn.disabled = false;
             throw new Error("메일 전송 실패");
         });
 }
@@ -73,31 +78,24 @@ function sendMail() {
 // 타이머 시작
 function startTimer(duration, codeInput, verifyBtn, mailBtn) {
     let remaining = duration;
+    const timerText = document.getElementById('timer-text');
 
-    // 기존 타이머 제거
-    const existingTimer = document.getElementById('timer-display');
-    if (existingTimer) existingTimer.remove();
     clearInterval(timerInterval);
 
-    // 타이머 표시 요소 생성
-    const timerDisplay = document.createElement('div');
-    timerDisplay.id = 'timer-display';
-    timerDisplay.style.marginTop = '10px';
-    document.querySelector('.table-container').appendChild(timerDisplay);
-
     timerInterval = setInterval(() => {
-        const minutes = Math.floor(remaining / 60);
-        const seconds = remaining % 60;
-        timerDisplay.innerText = `인증 코드 남은 시간: ${minutes}:${seconds.toString().padStart(2,'0')}`;
-
-        remaining--;
         if (remaining < 0) {
             clearInterval(timerInterval);
-            timerDisplay.innerText = '인증 코드 유효시간이 만료되었습니다.';
+            timerText.textContent = '인증 코드 유효시간이 만료되었습니다.';
             codeInput.disabled = true;
             verifyBtn.disabled = true;
             mailBtn.disabled = false; // 재전송 가능
+            return;
         }
+
+        const minutes = Math.floor(remaining / 60);
+        const seconds = remaining % 60;
+        timerText.textContent = `인증 코드 남은 시간: ${minutes}:${seconds.toString().padStart(2,'0')}`;
+        remaining--;
     }, 1000);
 }
 
@@ -153,14 +151,13 @@ function verify() {
                 clearInterval(timerInterval);
                 document.getElementById('verification-code').disabled = true;
                 document.getElementById('btn_verify').disabled = true;
-                const timerDisplay = document.getElementById('timer-display');
-                if(timerDisplay) timerDisplay.remove();
+                document.getElementById('timer-text').textContent = '';
 
                 window.location.href = "/members/password";
             }
         })
         .catch(error => {
-            // throw new Error("회원가입 실패");
+            // throw new Error("본인 인증 실패");
         });
 }
 

@@ -27,8 +27,10 @@ public class VerificationService {
         try {
             String code = String.format("%06d", new Random().nextInt(1000000));
 
+            System.out.println("기존코드 삭제 deleteByEmail");
             // 기존 코드 삭제
             verificationRepository.deleteByEmail(email);
+            verificationRepository.flush(); // 즉시 반영
             appLogger.info(new InfoLog("기존 인증 코드 삭제 완료 - 이메일=" + email));
 
             // 메일 발송

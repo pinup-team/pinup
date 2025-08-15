@@ -98,7 +98,9 @@ public class VerificationApiControllerSliceTest {
                             .content(objectMapper.writeValueAsString(request))
                             .session(session))
                     .andExpect(status().isOk())
-                    .andExpect(content().string("사용자 본인 확인이 완료되었습니다.\n비밀번호 변경 화면으로 이동합니다."));
+                    .andExpect(content().json(objectMapper.writeValueAsString(
+                            Map.of("message", "사용자 본인 확인이 완료되었습니다.\n비밀번호 변경 화면으로 이동합니다.")
+                    )));
 
             assertThat(session.getAttribute("verifiedEmail")).isEqualTo("test@pinup.com");
         }
@@ -117,7 +119,9 @@ public class VerificationApiControllerSliceTest {
                             .content(objectMapper.writeValueAsString(request))
                             .session(session))
                     .andExpect(status().isNotFound())
-                    .andExpect(content().string("이 계정은 가입되지 않았습니다.\n비밀번호 변경은 지원되지 않습니다."));
+                    .andExpect(content().json(objectMapper.writeValueAsString(
+                            Map.of("message", "이 계정은 가입되지 않았습니다.\n비밀번호 변경은 지원되지 않습니다.")
+                    )));
         }
 
         @Test
@@ -134,7 +138,9 @@ public class VerificationApiControllerSliceTest {
                             .content(objectMapper.writeValueAsString(request))
                             .session(session))
                     .andExpect(status().isConflict())
-                    .andExpect(content().string("이 계정은 " + OAuthProvider.GOOGLE.getDisplayName() + " 계정으로 가입되어 있습니다.\n비밀번호 변경은 지원되지 않습니다."));
+                    .andExpect(content().json(objectMapper.writeValueAsString(
+                            Map.of("message", "이 계정은 " + OAuthProvider.GOOGLE.getDisplayName() + " 계정으로 가입되어 있습니다.\n비밀번호 변경은 지원되지 않습니다.")
+                    )));
         }
     }
 }

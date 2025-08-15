@@ -3,9 +3,12 @@ package kr.co.pinup.verification.controller;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import kr.co.pinup.custom.logging.AppLogger;
+import kr.co.pinup.custom.logging.model.dto.ErrorLog;
 import kr.co.pinup.custom.logging.model.dto.InfoLog;
+import kr.co.pinup.custom.logging.model.dto.WarnLog;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
+import kr.co.pinup.verification.exception.VerificationBadRequestException;
 import kr.co.pinup.verification.model.VerificationRequest;
 import kr.co.pinup.verification.service.VerificationService;
 import lombok.RequiredArgsConstructor;
@@ -38,23 +41,38 @@ public class VerificationApiController {
     }
 
     @PostMapping("/verifyCode")
-    public ResponseEntity<String> verifyCode(@RequestBody @Valid VerificationRequest verificationRequest, HttpSession session) {
+    public ResponseEntity<?> verifyCode(@RequestBody @Valid VerificationRequest verificationRequest, HttpSession session) {
         appLogger.info(new InfoLog("이메일 인증 코드 검증: " + verificationRequest.email()));
-        verificationService.verifyCode(verificationRequest);
 
-        OAuthProvider provider = memberService.getProviderType(verificationRequest.email());
+        try {
+            verificationService.verifyCode(verificationRequest);
 
-        if (provider == null || "".equals(provider)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("이 계정은 가입되지 않았습니다.\n비밀번호 변경은 지원되지 않습니다.");
-        } else if (provider != OAuthProvider.PINUP) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("이 계정은 " + provider.getDisplayName() + " 계정으로 가입되어 있습니다.\n비밀번호 변경은 지원되지 않습니다.");
+            OAuthProvider provider = memberService.getProviderType(verificationRequest.email());
+
+            if (provider == null) {
+                return ResponseEntity
+                        .status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", "이 계정은 가입되지 않았습니다.\n비밀번호 변경은 지원되지 않습니다."));
+            } else if (provider != OAuthProvider.PINUP) {
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body(Map.of("message", "이 계정은 " + provider.getDisplayName() + " 계정으로 가입되어 있습니다.\n비밀번호 변경은 지원되지 않습니다."));
+            }
+
+            // 인증 성공 시 비밀번호 변경을 위해 세션에 메일 저장
+            session.setAttribute("verifiedEmail", verificationRequest.email());
+            return ResponseEntity.ok(Map.of("message", "사용자 본인 확인이 완료되었습니다.\n비밀번호 변경 화면으로 이동합니다."));
+
+        } catch (VerificationBadRequestException e) {
+            appLogger.warn(new WarnLog("이메일 인증 실패 - email: " + verificationRequest.email())
+                    .setStatus(String.valueOf(HttpStatus.BAD_REQUEST.value()))
+                    .addDetails("reason", e.getMessage()));
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            appLogger.error(new ErrorLog("이메일 인증 처리 중 예외 발생 - email: " + verificationRequest.email(), e));
+            throw new VerificationBadRequestException("본인 인증에 실패하였습니다.");
         }
-
-        // 인증 성공시 비밀번호 변경을 위해 세션에 메일 저장
-        session.setAttribute("verifiedEmail", verificationRequest.email());
-        return ResponseEntity.ok("사용자 본인 확인이 완료되었습니다.\n비밀번호 변경 화면으로 이동합니다.");
     }
-
 }

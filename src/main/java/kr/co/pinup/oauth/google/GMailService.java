@@ -6,7 +6,6 @@ import kr.co.pinup.custom.logging.model.dto.ErrorLog;
 import kr.co.pinup.custom.logging.model.dto.InfoLog;
 import kr.co.pinup.oauth.OAuthMailService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;

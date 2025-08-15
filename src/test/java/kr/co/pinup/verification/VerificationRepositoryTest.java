@@ -1,11 +1,6 @@
 package kr.co.pinup.verification;
 
 import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
-import kr.co.pinup.members.Member;
-import kr.co.pinup.members.model.enums.MemberRole;
-import kr.co.pinup.members.repository.MemberRepository;
-import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.verification.repository.VerificationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

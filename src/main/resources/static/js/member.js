@@ -140,13 +140,25 @@ function login() {
 }
 
 document.addEventListener("DOMContentLoaded", function() {
-    // 비밀번호 엔터 이벤트
+    // 로그인-엔터 이벤트
     const passwordInput = document.getElementById('password');
     if (passwordInput) {
         passwordInput.addEventListener("keydown", function(event) {
             if (event.key === "Enter") {
                 event.preventDefault();
                 login();
+            }
+        });
+    }
+
+    // 비밀번호 찾기-엔터 이벤트
+    const newPasswordInput = document.getElementById('newPassword');
+    const confirmInput = document.getElementById('confirmPassword');
+    if (newPasswordInput && confirmInput) {
+        newPasswordInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                resetPassword();
             }
         });
     }
