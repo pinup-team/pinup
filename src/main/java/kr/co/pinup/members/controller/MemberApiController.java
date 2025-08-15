@@ -60,32 +60,6 @@ public class MemberApiController {
         appLogger.info(new InfoLog("Login with OAuth Start"));
         HttpSession session = request.getSession(true);
 
-//        Triple<OAuthResponse, OAuthToken, String> triple = null;
-//        try {
-//            triple = memberService.oauthLogin(params, session);
-//            appLogger.info(new InfoLog("OAuth 로그인 성공 - provider=" + params.oAuthProvider() + ", email=" + triple.getLeft().getEmail()));
-//        } catch (Exception e) {
-//            appLogger.error(new ErrorLog("OAuth 로그인 실패 - provider: " + params.oAuthProvider(), e));
-//            throw new OAuthTokenRequestException("OAuth 로그인 실패");
-//        }
-//
-//        OAuthToken oAuthToken = triple.getMiddle();
-//
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.setLocation(URI.create("/"));
-//        securityUtil.setRefreshTokenToCookie(response, oAuthToken.getRefreshToken());
-//
-//        String encodedMessage = URLEncoder.encode(triple.getRight(), StandardCharsets.UTF_8);
-//        ResponseCookie messageCookie = ResponseCookie.from("loginMessage", encodedMessage)
-//                .path("/")
-//                .maxAge(5)
-//                .httpOnly(false)
-//                .build();
-//        response.addHeader(HttpHeaders.SET_COOKIE, messageCookie.toString());
-//
-//        return ResponseEntity.status(HttpStatus.FOUND)
-//                .headers(headers)
-//                .build();
         try {
             Triple<OAuthResponse, OAuthToken, String> triple = memberService.oauthLogin(params, session);
             appLogger.info(new InfoLog("OAuth 로그인 성공 - provider=" + params.oAuthProvider() + ", email=" + triple.getLeft().getEmail()));
@@ -100,6 +74,10 @@ public class MemberApiController {
                     createCookie("loginMessage", encodedMessage, 5, false).toString());
 
             return ResponseEntity.status(HttpStatus.FOUND).headers(headers).build();
+        } catch (MemberBadRequestException e) {
+            appLogger.error(new ErrorLog("OAuth 로그인 실패 - provider: " + params.oAuthProvider(), e));
+
+            throw new MemberServiceException(params.oAuthProvider().getDisplayName() + " 로그인에 실패하였습니다.\n" + e.getMessage());
         } catch (Exception e) {
             appLogger.error(new ErrorLog("OAuth 로그인 실패 - provider: " + params.oAuthProvider(), e));
             throw new OAuthTokenRequestException("OAuth 로그인 실패");
@@ -150,7 +128,7 @@ public class MemberApiController {
                         .body("회원가입에 실패했습니다.\n이미 존재하는 이메일일 수 있습니다.");
             }
 
-            return ResponseEntity.ok("회원가입이 완료되었습니다.");
+            return ResponseEntity.ok("회원가입이 완료되었습니다.\n로그인 화면으로 이동합니다.");
         } catch (MemberBadRequestException e) {
             appLogger.error(new ErrorLog("회원가입 실패", e));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

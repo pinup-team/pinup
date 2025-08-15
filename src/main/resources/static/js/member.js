@@ -45,6 +45,7 @@ function googleLogin() {
 function validEmail() {
     const email = document.getElementById('emailRegister').value;
     const emailCheckButton = document.getElementById('btn_email_check');
+    const registerButton = document.getElementById("btn_register");
 
     if (!email) {
         alert("이메일을 입력해주세요.");
@@ -71,18 +72,12 @@ function validEmail() {
                 // throw new Error(message); // catch로 흘러감 (로그용)
             } else {
                 alert(message);
-                emailCheckButton.disabled = true; // 버튼 비활성화
+
+                // 중복체크 이후 중복확인 막고 회원가입 활성화
+                emailCheckButton.disabled = true;
+                registerButton.disabled = false;
             }
         });
-}
-
-// 이메일이 변경되면 버튼 다시 활성화
-const emailRegisterInput = document.getElementById('emailRegister');
-if (emailRegisterInput) {
-    emailRegisterInput.addEventListener('input', function () {
-        const btn = document.getElementById('btn_email_check');
-        if (btn) btn.disabled = false;
-    });
 }
 
 // 자체로그인
@@ -118,7 +113,7 @@ function login() {
             try {
                 data = JSON.parse(text);
             } catch (e) {
-                data = { message: text };
+                data = {message: text};
             }
 
             if (!response.ok) {
@@ -144,6 +139,32 @@ function login() {
         });
 }
 
+document.addEventListener("DOMContentLoaded", function() {
+    // 비밀번호 엔터 이벤트
+    const passwordInput = document.getElementById('password');
+    if (passwordInput) {
+        passwordInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                login();
+            }
+        });
+    }
+
+    // 이메일 입력 시 버튼 활성화 이벤트
+    const emailRegisterInput = document.getElementById('emailRegister');
+    if (emailRegisterInput) {
+        emailRegisterInput.addEventListener('input', function () {
+            const emailCheck = document.getElementById('btn_email_check');
+            const register = document.getElementById("btn_register");
+            if (emailCheck && register) {
+                emailCheck.disabled = false;
+                register.disabled = true;
+            }
+        });
+    }
+});
+
 // 회원가입
 function register() {
     const emailError = document.getElementById('error-email').textContent;
@@ -157,6 +178,21 @@ function register() {
     const password = document.querySelector('input[name="password"]').value;
     const nickname = document.querySelector('input[name="nickname"]').value;
     const providerType = document.getElementById('providerType').value;
+
+    if (!name) {
+        alert("이름은 빈 값일 수 없습니다.");
+        return;
+    }
+
+    if (!nickname) {
+        alert("닉네임은 빈 값일 수 없습니다.");
+        return;
+    }
+
+    if (!email || !password || !providerType) {
+        alert("이메일과 비밀번호는 빈 값일 수 없습니다.");
+        return;
+    }
 
     // 기존 에러 메시지 초기화
     document.querySelectorAll('.error-text').forEach(div => div.textContent = '');
@@ -175,7 +211,7 @@ function register() {
             try {
                 data = JSON.parse(text);
             } catch (e) {
-                data = { message: text };
+                data = {message: text};
             }
 
             if (!response.ok) {
@@ -184,6 +220,8 @@ function register() {
                         const errorDiv = document.getElementById(`error-${field}`);
                         if (errorDiv) errorDiv.textContent = data.validation?.[field] || '';
                     }
+                } else {
+                    alert(data.message || "회원가입에 실패했습니다.");
                 }
             } else {
                 alert(data.message);
@@ -247,6 +285,11 @@ function updateAccount() {
     const nicknameInput = document.getElementById('nickname');
     const password = document.getElementById('password').value;
     const nickname = document.getElementById('nickname').value;
+
+    if (!password) {
+        alert("비밀번호는 빈 값일 수 없습니다.");
+        return;
+    }
 
     if (nickname.length > 50 || !nickname) {
         alert("닉네임은 1자 이상 50자 이하로 입력해주세요.");
@@ -324,19 +367,19 @@ function deleteAccount() {
             },
             body: JSON.stringify(profile)
         })
-            .then(response => response.text())
-            .then(text => {
-                if (text === "탈퇴 성공") {
-                    alert(text);
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(data.message);
                     window.location.href = "/";
-                } else {
-                    alert(text);
+                } else if (data.error) {
+                    alert(data.error);
                 }
             })
             .catch(error => {
                 alert('서버와의 연결에 실패했습니다.');
             });
-    } else alert('탈퇴 취소')
+    }
 }
 
 function redirectToHome() {
