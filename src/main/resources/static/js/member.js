@@ -233,6 +233,18 @@ function register() {
         });
 }
 
+// 비밀번호 검증
+function togglePassword(id, btn) {
+    const input = document.getElementById(id);
+    if (input.type === "password") {
+        input.type = "text";
+        btn.textContent = "🙈"; // 아이콘 변경 (보기 → 숨기기)
+    } else {
+        input.type = "password";
+        btn.textContent = "🐵"; // 아이콘 변경 (숨기기 → 보기)
+    }
+}
+
 // 로그아웃
 function logOut() {
     fetch('/api/members/logout', {
@@ -384,4 +396,65 @@ function deleteAccount() {
 
 function redirectToHome() {
     window.location.href = "/";
+}
+
+// 비밀번호 변경
+function resetPassword() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    const providerType = document.getElementById('providerType').value;
+
+    if (!email) {
+        alert("이메일은 빈 값일 수 없습니다.");
+        return;
+    }
+
+    if (!password || !providerType) {
+        alert("비밀번호는 빈 값일 수 없습니다.");
+        return;
+    }
+
+    if (password && !confirmPassword) {
+        document.getElementById('error-password').textContent = "비밀번호 검증은 필수입니다.";
+        return;
+    }
+
+    // 기존 에러 메시지 초기화
+    document.querySelectorAll('.error-text').forEach(div => div.textContent = '');
+
+    fetch('/api/members/reset', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({email, password, providerType})
+    })
+        .then(async response => {
+            const text = await response.text();
+            let data;
+
+            try {
+                data = JSON.parse(text);
+            } catch (e) {
+                data = {message: text};
+            }
+
+            if (!response.ok) {
+                if (data.validation) {
+                    for (const [field, message] of Object.entries(data.validation)) {
+                        const errorDiv = document.getElementById(`error-${field}`);
+                        if (errorDiv) errorDiv.textContent = data.validation?.[field] || '';
+                    }
+                } else {
+                    alert(data.message || "회원가입에 실패했습니다.");
+                }
+            } else {
+                alert(data.message);
+                window.location.href = "/members/login";
+            }
+        })
+        .catch(error => {
+            // throw new Error("회원가입 실패");
+        });
 }

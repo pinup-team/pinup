@@ -277,6 +277,37 @@ public class MemberService {
         }
     }
 
+    public MemberResponse resetPassword(MemberPasswordRequest memberRequest) {
+        appLogger.info(new InfoLog("회원 비밀번호 변경 요청 - email: " + memberRequest.email()));
+
+        Member member = memberRepository.findByEmailAndIsDeletedFalse(memberRequest.email())
+                .orElseThrow(() -> {
+                    appLogger.warn(new WarnLog("회원 비밀번호 변경 실패 - 사용자를 찾을 수 없음")
+                            .setStatus("404"));
+                    return new MemberNotFoundException();
+                });
+
+        if (member.getProviderType() != memberRequest.providerType()) {
+            appLogger.warn(new WarnLog("회원 비밀번호 변경 실패 - 가입경로 불일치: 요청=" + memberRequest.providerType() + ", DB=" + member.getProviderType()).setStatus("400"));
+            throw new MemberBadRequestException("가입경로가 일치하지 않습니다.");
+        }
+
+        try {
+            member.setPassword(passwordEncoder.encode(memberRequest.password()));
+            Member savedMember = memberRepository.save(member);
+
+            appLogger.info(new InfoLog("회원 비밀번호 변경 성공 - email: " + savedMember.getEmail()));
+
+            return MemberResponse.fromMember(savedMember);
+        } catch (DataIntegrityViolationException e) {
+            appLogger.warn(new WarnLog("회원 비밀번호 변경 실패 - 제약 조건 위반").setStatus("500"));
+            throw new MemberServiceException("회원 비밀번호 변경 중 제약 조건 위반이 발생했습니다.");
+        } catch (Exception e) {
+            appLogger.error(new ErrorLog("회원 비밀번호 변경 실패 - 알 수 없는 오류", e).setStatus("500"));
+            throw new MemberServiceException("회원 비밀번호 변경 중 오류가 발생했습니다.");
+        }
+    }
+
     public boolean disable(MemberInfo memberInfo, MemberRequest memberRequest) {
         String nickname = memberInfo.nickname();
         appLogger.info(new InfoLog("회원 탈퇴 요청: nickname = " + nickname));
@@ -419,6 +450,12 @@ public class MemberService {
         Random random = new Random();
         int index = random.nextInt(items.size());
         return items.get(index);
+    }
+
+    public OAuthProvider getProviderType(String email) { // 본인인증 시 확인
+        return memberRepository.findByEmailAndIsDeletedFalse(email)
+                .map(Member::getProviderType)
+                .orElse(null);
     }
 
     private static final List<String> ADJECTIVES = List.of(

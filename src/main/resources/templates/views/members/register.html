@@ -11,7 +11,7 @@
 <div class="center_content" layout:fragment="content">
     <div class="page_description">
         <h1>Register</h1>
-        <h4>간단한 정보를 입력하고 핀업을 경험해보세요...?</h4>
+        <h4>간단한 정보 입력 후 핀업을 경험해보세요!</h4>
     </div>
     <div class="member_profile_content">
         <div class="table-container">
@@ -44,8 +44,13 @@
                 </tr>
                 <tr>
                     <td>비밀번호</td>
-                    <td><input type="password" name="password" th:field="*{password}" th:placeholder="비밀번호"
-                               onclick="this.select()">
+                    <td><input type="password" name="password" th:field="*{password}" th:placeholder="비밀번호">
+                    </td>
+                </tr>
+                <tr>
+                    <td>비밀번호 확인</td>
+                    <td>
+                        <input type="password" id="confirmPassword" placeholder="비밀번호 확인">
                     </td>
                 </tr>
                 <tr>
@@ -90,3 +95,4 @@
     </div>
 </div>
 </html>
+<th:block th:replace="~{fragments/script-loader :: load('verification')}"></th:block>

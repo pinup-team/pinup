@@ -180,6 +180,21 @@ public class MemberApiController {
         }
     }
 
+    @PatchMapping("/reset")
+    public ResponseEntity<?> resetPassword(@Validated @RequestBody MemberPasswordRequest memberRequest) {
+        appLogger.info(new InfoLog("사용자 정보 수정 요청 - 이메일=" + memberRequest.email()));
+
+        MemberResponse updatedMemberResponse = memberService.resetPassword(memberRequest);
+        if (updatedMemberResponse != null && updatedMemberResponse.getEmail().equals(memberRequest.email())) {
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+                    .body(MemberApiResponse.builder().code(200).message("비밀번호 수정이 성공적으로 완료되었습니다.").build());
+        } else {
+            appLogger.warn(new WarnLog("사용자 정보 수정 실패 - 이메일=" + memberRequest.email()).setStatus("400"));
+            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON)
+                    .body(MemberApiResponse.builder().code(400).message("비밀번호 수정에 실패하였습니다.\n관리자에게 문의해주세요.").build());
+        }
+    }
+
     @DeleteMapping
     public ResponseEntity<?> disable(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
         appLogger.info(new InfoLog("사용자 탈퇴 요청 - 닉네임=" + memberInfo.getUsername() + ", 이메일=" + memberRequest.email()));
