@@ -14,7 +14,6 @@ import kr.co.pinup.security.SecurityUtil;
 import kr.co.pinup.support.RestDocsSupport;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -156,7 +155,7 @@ class MemberApiControllerDocsTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(memberRequest)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("회원가입이 완료되었습니다."))
+                .andExpect(content().string("회원가입이 완료되었습니다.\n로그인 화면으로 이동합니다."))
                 .andDo(document("members-register-success",
                         requestFields(
                                 fieldWithPath("name").description("회원 이름"),
@@ -170,7 +169,7 @@ class MemberApiControllerDocsTest {
     }
 
     @Test
-    @DisplayName("GET /api/members/validate - 회원 이메일 중복 성공 문서화")
+    @DisplayName("GET /api/members/validate - 회원 이메일 중복 검증 성공 문서화")
     void testValidateEmailAvailable_document() throws Exception {
         when(memberService.validateEmail(anyString())).thenReturn(true);
 
