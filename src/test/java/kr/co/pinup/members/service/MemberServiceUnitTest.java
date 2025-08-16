@@ -153,7 +153,7 @@ public class MemberServiceUnitTest {
                     .thenReturn(Optional.empty());
 
             // 닉네임 중복 검사
-            when(memberRepository.findByNickname(pinupRequest.email()))
+            when(memberRepository.findByNickname(pinupRequest.nickname()))
                     .thenReturn(Optional.empty());
 
             when(passwordEncoder.encode(anyString()))
@@ -222,7 +222,7 @@ public class MemberServiceUnitTest {
                 memberService.register(pinupRequest);
             });
 
-            assertEquals("이미 존재하는 이메일입니다.", exception.getMessage());
+            assertEquals("\"" + pinupRequest.email() + "\"은 이미 가입된 이메일입니다.", exception.getMessage());
         }
 
         @Test
@@ -271,14 +271,14 @@ public class MemberServiceUnitTest {
                     .thenReturn(Optional.empty());
 
             // 닉네임 중복
-            when(memberRepository.findByNickname(request.email()))
+            when(memberRepository.findByNickname(request.nickname()))
                     .thenReturn(Optional.of(member1));
 
             MemberBadRequestException exception = assertThrows(MemberBadRequestException.class, () -> {
                 memberService.register(request);
             });
 
-            assertEquals("이미 존재하는 닉네임입니다.", exception.getMessage());
+            assertEquals("\"" + request.nickname() + "\"은 중복된 닉네임입니다.", exception.getMessage());
         }
     }
 

@@ -19,7 +19,8 @@
                 <tbody>
                 <tr>
                     <td>이름</td>
-                    <td><input type="text" name="name" th:field="*{name}" placeholder="이름" onclick="this.select()"/></td>
+                    <td><input type="text" name="name" th:field="*{name}" placeholder="이름" onclick="this.select()"/>
+                    </td>
                 </tr>
                 <tr>
                     <td/>
@@ -30,7 +31,8 @@
                 <tr>
                     <td>이메일</td>
                     <td>
-                        <input type="text" id="emailRegister" name="emailRegister" th:field="*{email}" th:placeholder="이메일" onclick="this.select()">
+                        <input type="text" id="emailRegister" name="emailRegister" th:field="*{email}"
+                               th:placeholder="이메일" onclick="this.select()">
                         <button id="btn_email_check" type="button" th:onclick="validEmail()">중복 확인</button>
                     </td>
                 </tr>
@@ -42,7 +44,8 @@
                 </tr>
                 <tr>
                     <td>비밀번호</td>
-                    <td><input type="password" name="password" th:field="*{password}" th:placeholder="비밀번호" onclick="this.select()">
+                    <td><input type="password" name="password" th:field="*{password}" th:placeholder="비밀번호"
+                               onclick="this.select()">
                     </td>
                 </tr>
                 <tr>
@@ -82,7 +85,7 @@
         </div>
         <div></div>
         <div class="member-buttons">
-            <button type="button" th:onclick="register()">회원가입</button>
+            <button id="btn_register" type="button" th:onclick="register()" disabled>회원가입</button>
         </div>
     </div>
 </div>

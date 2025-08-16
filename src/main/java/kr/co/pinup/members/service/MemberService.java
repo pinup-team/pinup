@@ -82,10 +82,15 @@ public class MemberService {
     }
 
     private Pair<Member, String> findOrCreateMember(OAuthResponse oAuthResponse) {
-        Optional<Member> optionalMember = memberRepository.findByEmailAndProviderTypeAndIsDeletedFalse(oAuthResponse.getEmail(), oAuthResponse.getOAuthProvider());
+        Optional<Member> optionalMember = memberRepository.findByEmailAndIsDeletedFalse(oAuthResponse.getEmail());
 
         if (optionalMember.isPresent()) {
             Member member = optionalMember.get();
+
+            if (member.getProviderType() != oAuthResponse.getOAuthProvider()) {
+                throw new MemberBadRequestException("이 이메일은 " + member.getProviderType().getDisplayName() + " 로그인으로 가입된 계정입니다.");
+            }
+
             appLogger.info(new InfoLog("기존 회원 로그인: email='" + member.getEmail() + "', nickname='" + member.getNickname() + "'"));
             return Pair.ofNonNull(member, "다시 돌아오신 걸 환영합니다 \"" + member.getName() + "\"님");
         } else {
@@ -171,14 +176,14 @@ public class MemberService {
         if (request.email() == null || request.email().isBlank()) {
             throw new MemberBadRequestException("이메일은 필수 입력 항목입니다.");
         } else if (memberRepository.findByEmailAndIsDeletedFalse(request.email()).isPresent()) {
-            throw new MemberBadRequestException("이미 존재하는 이메일입니다.");
+            throw new MemberBadRequestException("\"" + request.email() + "\"은 이미 가입된 이메일입니다.");
         }
 
         // 닉네임 비어있거나 존재하는지 확인
         if (request.nickname() == null || request.nickname().isBlank()) {
             throw new MemberBadRequestException("닉네임은 필수 입력 항목입니다.");
-        } else if (memberRepository.findByNickname(request.email()).isPresent()) {
-            throw new MemberBadRequestException("이미 존재하는 닉네임입니다.");
+        } else if (memberRepository.findByNickname(request.nickname()).isPresent()) {
+            throw new MemberBadRequestException("\"" + request.nickname() + "\"은 중복된 닉네임입니다.");
         }
 
         Pair<Member, String> newMember = newMember(request);
