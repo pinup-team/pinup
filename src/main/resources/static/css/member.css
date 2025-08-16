@@ -7,6 +7,11 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+}
+
+.page_description {
+    width: 70%;
 }
 
 .member_profile_content {
@@ -107,6 +112,12 @@ td > button:disabled {
     cursor: not-allowed;
 }
 
+button:disabled {
+    background-color: #d3d3d3;
+    color: #888888;
+    cursor: not-allowed;
+}
+
 /*-------oauth 폼--------*/
 .oauth-container {
     display: flex;
@@ -120,6 +131,8 @@ td > button:disabled {
 .button-container {
     display: flex;
     justify-content: space-between; /* 좌우 정렬 */
+    width: 80%;
+    margin-left: 10%;
 }
 
 .member-buttons button {

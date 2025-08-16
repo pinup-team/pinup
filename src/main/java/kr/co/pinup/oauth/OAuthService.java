@@ -46,7 +46,7 @@ public class OAuthService {
 
         OAuthToken token = Optional.ofNullable(client.requestAccessToken(params))
                 .orElseThrow(() -> {
-                    String msg = "OAuth 엑세스 토큰 요청에 실패했습니다.";
+                    String msg = "OAuth 액세스 토큰 요청에 실패했습니다.";
                     appLogger.warn(new WarnLog(msg));
                     return new OAuthTokenRequestException(msg);
                 });
@@ -64,7 +64,7 @@ public class OAuthService {
 
         return Optional.ofNullable(client.isAccessTokenExpired(accessToken))
                 .orElseThrow(() -> {
-                    String msg = "엑세스 토큰이 만료되었습니다.";
+                    String msg = "액세스 토큰이 만료되었습니다.";
                     appLogger.warn(new WarnLog(msg));
                     return new OAuthAccessTokenNotFoundException(msg);
                 });
@@ -80,7 +80,7 @@ public class OAuthService {
 
         OAuthToken token = Optional.ofNullable(client.refreshAccessToken(refreshToken))
                 .orElseThrow(() -> {
-                    String msg = "엑세스 토큰 요청에 실패했습니다.";
+                    String msg = "액세스 토큰 요청에 실패했습니다.";
                     appLogger.warn(new WarnLog(msg));
                     return new OAuthTokenRequestException(msg);
                 });

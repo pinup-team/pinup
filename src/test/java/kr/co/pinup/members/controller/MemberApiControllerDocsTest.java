@@ -14,7 +14,6 @@ import kr.co.pinup.security.SecurityUtil;
 import kr.co.pinup.support.RestDocsSupport;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -170,7 +169,7 @@ class MemberApiControllerDocsTest {
     }
 
     @Test
-    @DisplayName("GET /api/members/validate - 회원 이메일 중복 성공 문서화")
+    @DisplayName("GET /api/members/validate - 회원 이메일 중복 검증 성공 문서화")
     void testValidateEmailAvailable_document() throws Exception {
         when(memberService.validateEmail(anyString())).thenReturn(true);
 
@@ -182,6 +181,44 @@ class MemberApiControllerDocsTest {
                 .andDo(document("members-validate-email-available",
                         queryParameters(
                                 parameterWithName("email").description("중복 확인할 이메일 주소")
+                        )
+                ));
+    }
+
+    @Test
+    @DisplayName("비밀번호 재설정 성공 문서화")
+    void testResetPasswordSuccess_document() throws Exception {
+        MemberPasswordRequest passwordRequest = MemberPasswordRequest.builder()
+                .email("test@test.com")
+                .password("NewPass123!")
+                .providerType(OAuthProvider.PINUP)
+                .build();
+
+        MemberResponse memberResponse = MemberResponse.builder()
+                .email(passwordRequest.email())
+                .nickname("testNick")
+                .providerType(OAuthProvider.PINUP)
+                .build();
+
+        when(memberService.resetPassword(any(MemberPasswordRequest.class)))
+                .thenReturn(memberResponse);
+
+        mockMvc.perform(patch("/api/members/reset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(passwordRequest)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("비밀번호 수정이 성공적으로 완료되었습니다."))
+                .andDo(document("members-reset-password-success",
+                        requestFields(
+                                fieldWithPath("email").description("회원 이메일"),
+                                fieldWithPath("password").description("새 비밀번호"),
+                                fieldWithPath("providerType").description("OAuth 제공자 (PINUP)")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").description("응답 코드"),
+                                fieldWithPath("message").description("결과 메시지")
                         )
                 ));
     }

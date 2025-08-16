@@ -1,5 +1,6 @@
 package kr.co.pinup.members.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.config.LoggerConfig;
@@ -7,6 +8,7 @@ import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.exception.MemberBadRequestException;
+import kr.co.pinup.members.exception.MemberServiceException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
 import kr.co.pinup.members.model.dto.*;
 import kr.co.pinup.members.model.enums.MemberRole;
@@ -494,6 +496,89 @@ public class MemberApiControllerSliceTest {
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.code").value(400))
                     .andExpect(jsonPath("$.message").value("탈퇴에 실패하였습니다.\n관리자에게 문의해주세요."));
+        }
+    }
+
+    @Nested
+    @DisplayName("비밀번호 재설정 API 테스트")
+    class ResetPasswordApiTests {
+
+        private MemberPasswordRequest passwordRequest;
+        private MemberResponse memberResponse;
+        private String passwordRequestJson;
+
+        @Autowired
+        private ObjectMapper objectMapper;
+
+        @BeforeEach
+        void setUp() throws JsonProcessingException {
+            passwordRequest = MemberPasswordRequest.builder()
+                    .email("test@test.com")
+                    .password("NewPass123!")
+                    .providerType(OAuthProvider.PINUP)
+                    .build();
+
+            memberResponse = MemberResponse.builder()
+                    .email(passwordRequest.email())
+                    .nickname("testNick")
+                    .providerType(OAuthProvider.PINUP)
+                    .build();
+
+            // DTO → JSON 문자열로 변환
+            passwordRequestJson = objectMapper.writeValueAsString(passwordRequest);
+        }
+
+        @Test
+        @DisplayName("비밀번호 재설정 성공 시 200 OK 반환")
+        void testResetPassword_Success() throws Exception {
+            when(memberService.resetPassword(any(MemberPasswordRequest.class)))
+                    .thenReturn(memberResponse);
+
+            mockMvc.perform(patch("/api/members/reset")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(passwordRequestJson))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code").value(200))
+                    .andExpect(jsonPath("$.message").value("비밀번호 수정이 성공적으로 완료되었습니다."));
+        }
+
+        @Test
+        @DisplayName("비밀번호 재설정 실패 시 400 Bad Request 반환")
+        void testResetPassword_Failure() throws Exception {
+            // 이메일이 다르게 리턴되는 경우 실패 시나리오
+            MemberResponse wrongResponse = MemberResponse.builder()
+                    .email("wrong@test.com")
+                    .nickname("testNick")
+                    .providerType(OAuthProvider.PINUP)
+                    .build();
+
+            when(memberService.resetPassword(any(MemberPasswordRequest.class)))
+                    .thenReturn(wrongResponse);
+
+            mockMvc.perform(patch("/api/members/reset")
+                            .contentType(MediaType.APPLICATION_JSON)
+                    .contentType(MediaType.APPLICATION_JSON)
+                            .content(passwordRequestJson))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code").value(400))
+                    .andExpect(jsonPath("$.message").value("비밀번호 수정에 실패하였습니다.\n관리자에게 문의해주세요."));
+        }
+
+        @Test
+        @DisplayName("MemberService에서 예외 발생 시 500 Internal Server Error")
+        void testResetPassword_ServiceException() throws Exception {
+            when(memberService.resetPassword(any(MemberPasswordRequest.class)))
+                    .thenThrow(new MemberServiceException("테스트용 예외"));
+
+            mockMvc.perform(patch("/api/members/reset")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(passwordRequestJson))
+                    .andDo(print())
+                    .andExpect(status().isInternalServerError());
         }
     }
 }

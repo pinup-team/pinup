@@ -12,6 +12,7 @@ import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +20,10 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @Import({SecurityConfigTest.class, LoggerConfig.class})
 @WebMvcTest(MemberController.class)
-//@WebMvcTest(controllers = MemberController.class)
 @ImportAutoConfiguration(ThymeleafAutoConfiguration.class)
 public class MemberControllerSliceTest {
 
@@ -119,5 +121,45 @@ public class MemberControllerSliceTest {
                     assertEquals(testResponse.getNickname(), profile.nickname());
                     assertEquals(testResponse.getProviderType(), profile.providerType());
                 });
+    }
+
+    @Test
+    @DisplayName("본인 인증 페이지 접근")
+    void verifyPage_returnsVerifyView() throws Exception {
+        mockMvc.perform(get("/members/verify"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("views/members/verify"));
+    }
+
+    @Nested
+    @DisplayName("비밀번호 재설정 화면")
+    class RegisterMemberTests {
+        @Test
+        @DisplayName("비밀번호 재설정 페이지 - 세션 없으면 /members/verify로 리다이렉트")
+        void password_noSession_redirectVerify() throws Exception {
+            mockMvc.perform(get("/members/password"))
+                    .andExpect(status().is3xxRedirection())
+                    .andExpect(redirectedUrl("/members/verify"));
+        }
+
+        @Test
+        @DisplayName("비밀번호 재설정 페이지 - 세션 있을 때 정상 페이지 반환")
+        void password_withSession_returnsPage() throws Exception {
+            MockHttpSession session = new MockHttpSession();
+            session.setAttribute("verifiedEmail", "test@test.com");
+
+            MvcResult result = mockMvc.perform(get("/members/password").session(session))
+                    .andExpect(status().isOk())
+                    .andExpect(view().name("views/members/password"))
+                    .andExpect(model().attributeExists("resetRequest"))
+                    .andReturn();
+
+            Object resetRequest = result.getModelAndView().getModel().get("resetRequest");
+            assertNotNull(resetRequest, "resetRequest가 null이면 안 됩니다.");
+            // 세부 필드 확인
+            // resetRequest는 MemberPasswordRequest 타입
+            assertEquals("test@test.com", ((kr.co.pinup.members.model.dto.MemberPasswordRequest) resetRequest).email());
+            assertEquals(OAuthProvider.PINUP, ((kr.co.pinup.members.model.dto.MemberPasswordRequest) resetRequest).providerType());
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import kr.co.pinup.config.OauthConfig;
+import kr.co.pinup.config.SecurityConfig;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -21,6 +22,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -33,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
 @WireMockTest(httpPort = 8888)
+@Import(SecurityConfig.class)
 class MemberServiceIntegrationTest {
 
     @Autowired

@@ -1,10 +1,8 @@
 package kr.co.pinup.members.controller;
 
+import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.custom.loginMember.LoginMember;
-import kr.co.pinup.members.model.dto.MemberInfo;
-import kr.co.pinup.members.model.dto.MemberLoginRequest;
-import kr.co.pinup.members.model.dto.MemberRequest;
-import kr.co.pinup.members.model.dto.MemberResponse;
+import kr.co.pinup.members.model.dto.*;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import lombok.RequiredArgsConstructor;
@@ -53,5 +51,23 @@ public class MemberController {
         }
 
         return "views/members/profile";
+    }
+
+    @GetMapping("/verify")
+    public String verify() {
+        return "views/members/verify";
+    }
+
+    @GetMapping("/password")
+    public String password(HttpSession session, Model model) {
+        String email = (String) session.getAttribute("verifiedEmail");
+
+        if (email == null) {
+            // 세션에 이메일이 없으면 본인인증 페이지로 리다이렉트
+            return "redirect:/members/verify";
+        }
+
+        model.addAttribute("resetRequest", MemberPasswordRequest.builder().email(email).providerType(OAuthProvider.PINUP).build());
+        return "views/members/password";
     }
 }
