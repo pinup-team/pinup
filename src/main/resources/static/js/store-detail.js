@@ -34,6 +34,9 @@ async function changeTab(tab) {
             const postContainer = document.getElementById("post-list-container");
             postContainer.innerHTML = postHtml;
             postContainer.style.display = "block";
+            initializeLikeButtons?.();
+            window.LikeSync?.apply(postContainer);
+
 
         } catch (error) {
             console.error("게시판 데이터 로딩 중 오류 발생:", error);

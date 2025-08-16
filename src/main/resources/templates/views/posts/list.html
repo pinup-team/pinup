@@ -41,16 +41,24 @@
                                             <img alt="테스트이미지" class="img_thumb" th:src="@{${post.thumbnail}}"/>
                                         </div>
                                         <div class="pinup_content">
-                                            <h4 class="pinup_title" th:text="${post.title}"></h4>
-                                            <div class="post_description_wrapper">
-                                                <p class="post_description_text" th:text="${post.content}"></p>
-                                            </div>
+                                            <h3 class="pinup_title" th:text="${post.title}"></h3>
                                             <div class="post_sub_info">
                                                 <span class="post_date"
                                                       th:text="*{#temporals.format(post.createdAt, 'yyyy-MM-dd')}"></span>
                                                 <span class="post_separator">·</span>
-                                                <span class="post_comment_count"
-                                                      th:text="${post.commentCount} + '개의 댓글'"></span>
+                                                <span class="comment_meta">💬 <span
+                                                        th:text="${post.commentCount}"></span></span>
+                                                <span class="post_separator">·</span>
+                                                <span class="like_meta" th:data-post-id="${post.id}">
+                                                  <button class="like-button transparent-button"
+                                                          type="button"
+                                                          data-readonly="true"
+                                                          aria-disabled="true"
+                                                          title="상세에서 좋아요 가능 (클릭 시 상세 열림)">
+                                                    <span th:text="${post.likedByCurrentUser} ? '❤️' : '🤍'"></span>
+                                                  </button>
+                                                  <span class="like-count" th:text="${post.likeCount}"></span>
+                                                </span>
                                             </div>
                                         </div>
                                         <div class="post_action_wrapper">
@@ -62,7 +70,7 @@
                                                     수정
                                                 </button>
                                                 <button class="post_delete_button"
-                                                        th:onclick="disablePost([[${post.id}]], [[${post.storeId}]])"
+                                                        th:onclick="disablePost([[${post.id}]], [[${storeId}]])"
                                                         th:if="${post.member != null and post.member.nickname != null and #authentication.principal.username == post.member.nickname
                                                         or #authentication.authorities.?[authority == 'ROLE_ADMIN'].size() > 0}">
                                                     삭제
@@ -86,6 +94,6 @@
     </div>
 </div>
 
-    <th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
+<th:block th:replace="~{fragments/script-loader :: load('post')}"></th:block>
 </body>
 </html>

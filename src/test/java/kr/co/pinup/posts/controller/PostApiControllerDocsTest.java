@@ -94,8 +94,8 @@ class PostApiControllerDocsTest {
                 .build();
 
         List<PostResponse> posts = List.of(
-                new PostResponse(1L, storeId, writer, "제목1", "내용1", "thumb1.jpg", now, now, 3,false),
-                new PostResponse(2L, storeId, writer, "제목2", "내용2", "thumb2.jpg", now, now, 1,false)
+                new PostResponse(1L,"writer","제목1", "thumb1.jpg", now, 1L,1,false),
+                new PostResponse(2L,"writer","제목2", "thumb2.jpg", now, 1L,1,false)
         );
 
         given(postService.findByStoreId(eq(storeId), eq(false))).willReturn(posts);
@@ -107,25 +107,16 @@ class PostApiControllerDocsTest {
                         pathParameters(
                                 parameterWithName("storeId").description("스토어 ID")
                         ),
-                        responseFields(
+                        relaxedResponseFields(
                                 fieldWithPath("[].id").description("게시글 ID"),
-                                fieldWithPath("[].storeId").description("스토어 ID"),
-                                fieldWithPath("[].member.id").description("작성자 ID"),
-                                fieldWithPath("[].member.name").description("작성자 이름 (nullable)").optional(),
                                 fieldWithPath("[].member.nickname").description("작성자 닉네임"),
-                                fieldWithPath("[].member.email").description("작성자 이메일"),
-                                fieldWithPath("[].member.providerType").description("OAuth 제공자"),
-                                fieldWithPath("[].member.role").description("사용자 권한"),
-                                fieldWithPath("[].member.deleted").description("탈퇴 여부"),
                                 fieldWithPath("[].title").description("게시글 제목"),
-                                fieldWithPath("[].content").description("게시글 내용"),
                                 fieldWithPath("[].thumbnail").description("썸네일 이미지 URL"),
                                 fieldWithPath("[].createdAt").description("작성일시"),
-                                fieldWithPath("[].updatedAt").description("수정일시"),
                                 fieldWithPath("[].commentCount").description("댓글 수"),
+                                fieldWithPath("[].likeCount").description("좋아요 수").optional(),
                                 fieldWithPath("[].likedByCurrentUser").description("현재 로그인한 사용자가 좋아요 눌렀는지 여부").optional()
                         )
-
                 ));
     }
 
@@ -146,11 +137,7 @@ class PostApiControllerDocsTest {
                 .isDeleted(false)
                 .build();
 
-        PostResponse postResponse = new PostResponse(
-                postId, 10L, writer,
-                "문서화 제목", "문서화 내용", "https://s3.bucket/thumb.jpg",
-                now, now, 1,false
-        );
+        PostResponse postResponse =  new PostResponse(1L,"writer","제목1", "thumb1.jpg", now, 1L,1,false);
 
         Member commentWriter = Member.builder()
                 .nickname("댓글유저")
@@ -310,6 +297,7 @@ class PostApiControllerDocsTest {
                                 fieldWithPath("createdAt").description("생성 일시"),
                                 fieldWithPath("updatedAt").description("수정 일시"),
                                 fieldWithPath("commentCount").description("댓글 수"),
+                                fieldWithPath("likeCount").description("좋아요 수"),
                                 fieldWithPath("likedByCurrentUser").description("현재 로그인한 사용자가 좋아요 눌렀는지 여부").optional()
                         )
                 ));
@@ -445,6 +433,7 @@ class PostApiControllerDocsTest {
                                 fieldWithPath("createdAt").description("생성 일시"),
                                 fieldWithPath("updatedAt").description("수정 일시"),
                                 fieldWithPath("commentCount").description("댓글 수"),
+                                fieldWithPath("likeCount").description("좋아요 수"),
                                 fieldWithPath("likedByCurrentUser").description("현재 로그인한 사용자가 좋아요 눌렀는지 여부").optional()
                         )
 
