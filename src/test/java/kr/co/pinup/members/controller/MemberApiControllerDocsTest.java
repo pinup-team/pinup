@@ -155,7 +155,7 @@ class MemberApiControllerDocsTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(memberRequest)))
                 .andExpect(status().isOk())
-                .andExpect(content().string("회원가입이 완료되었습니다."))
+                .andExpect(content().string("회원가입이 완료되었습니다.\n로그인 화면으로 이동합니다."))
                 .andDo(document("members-register-success",
                         requestFields(
                                 fieldWithPath("name").description("회원 이름"),

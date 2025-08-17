@@ -91,7 +91,7 @@ public class MemberApiControllerSliceTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(memberRequest)))
                     .andExpect(status().isOk())
-                    .andExpect(content().string("회원가입이 완료되었습니다."));
+                    .andExpect(content().string("회원가입이 완료되었습니다.\n로그인 화면으로 이동합니다."));
         }
 
         @Test

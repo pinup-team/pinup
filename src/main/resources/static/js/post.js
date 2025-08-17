@@ -448,7 +448,7 @@ function initializeCommentHandlers() {
                 });
 
                 if (response.status === 401) {
-                    alert("로그인 후 댓글을 작성할 수 있습니다.");
+                    alert("댓글 작성은 로그인 후 이용할 수 있습니다.");
                     window.location.href = "/members/login";
                 } else if (response.ok) {
                     const newComment = await response.json();
@@ -485,42 +485,88 @@ function initializeCommentHandlers() {
 }
 
 function initializeLikeButtons() {
-    const likeButtons = document.querySelectorAll(".like-button");
+    if (document.body.__likeBound) return;
+    document.body.__likeBound = true;
 
-    likeButtons.forEach(button => {
-        button.addEventListener("click", async () => {
-            const postId = button.getAttribute("data-post-id");
+    document.addEventListener("click", async (e) => {
+        const btn = e.target.closest(".like-button");
+        if (!btn) return;
 
-            try {
-                const response = await fetch(`/api/post-like/${postId}`, {
-                    method: "POST"
-                });
-
-                if (response.status === 401) {
-                    alert("로그인 후 좋아요를 눌 수 있습니다.");
-                    window.location.href = "/members/login";
-                    return;
-                }
-
-                const result = await response.json();
-
-                const heartSpan = button.querySelector("span");
-                const likeCountElem = button.closest(".card-buttons").parentElement.querySelector("#like-count");
-
-                if (result.likedByCurrentUser) {
-                    heartSpan.textContent = "❤️";
-                    button.classList.add("liked");
-                } else {
-                    heartSpan.textContent = "🤍";
-                    button.classList.remove("liked");
-                }
-
-                if (likeCountElem) {
-                    likeCountElem.textContent = `좋아요 ${result.likeCount}`;
-                }
-            } catch (error) {
-                console.error("좋아요 처리 중 오류:", error);
+        if (btn.hasAttribute("data-readonly")) {
+            const root = btn.closest('.like_meta[data-post-id]');
+            const id = root?.dataset.postId;
+            if (id && typeof openDetailPopup === 'function') {
+                e.stopPropagation();
+                openDetailPopup(id);
             }
-        });
+            return;
+        }
+
+        const root = btn.closest('.like_meta[data-post-id]');
+        const postId = btn.dataset.postId || root?.dataset.postId;
+        if (!postId) return;
+
+        try {
+            const res = await fetch(`/api/post-like/${postId}`, { method: "POST" });
+
+            if (res.status === 401) {
+                alert("좋아요는 로그인 후 이용할 수 있습니다.");
+                window.location.href = "/members/login";
+                return;
+            }
+            const data = await res.json();
+
+            LikeSync.record(postId, !!data.likedByCurrentUser, Number(data.likeCount));
+        } catch (err) {
+            console.error("좋아요 처리 오류:", err);
+        }
     });
 }
+window.LikeSync = {
+    pending: new Map(),
+
+    record(postId, liked, likeCount) {
+        this.pending.set(String(postId), { liked: !!liked, likeCount: Number(likeCount) });
+        this.apply();
+        try { sessionStorage.setItem('likeSync', JSON.stringify([...this.pending])); } catch (_) {}
+    },
+
+    apply(root = document) {
+        for (const [id, upd] of this.pending.entries()) {
+
+            root.querySelectorAll(
+                `.like_meta[data-post-id="${id}"] .like-button, ` +          // 리스트(읽기 전용)
+                `.like-button[data-post-id="${id}"]`                         // 디테일
+            ).forEach(btn => {
+                btn.classList.toggle('liked', upd.liked);
+                const icon = btn.querySelector('span');
+                if (icon) icon.textContent = upd.liked ? '❤️' : '🤍';
+            });
+
+            // 카운트: 리스트(숫자만) + 디테일("좋아요 N")
+            root.querySelectorAll(
+                `.like_meta[data-post-id="${id}"] .like-count, ` +
+                `#like-count`
+            ).forEach(el => {
+                if (!Number.isFinite(upd.likeCount)) return;
+                el.textContent = el.id === 'like-count'
+                    ? `좋아요 ${upd.likeCount}`
+                    : String(upd.likeCount);
+            });
+        }
+    },
+
+    restore() {
+        try {
+            const raw = sessionStorage.getItem('likeSync');
+            if (!raw) return;
+            this.pending = new Map(JSON.parse(raw));
+            this.apply();
+        } catch (_) {}
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeLikeButtons();
+    window.LikeSync?.restore();
+});

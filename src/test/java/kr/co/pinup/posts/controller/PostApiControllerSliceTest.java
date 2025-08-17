@@ -133,18 +133,10 @@ class PostApiControllerSliceTest {
 
             when(mock.createPost(any(), any(), any()))
                     .thenReturn(new PostResponse(
-                            1L, 1L,
-                            MemberResponse.builder()
-                                    .id(1L)
-                                    .name("테스트유저")
-                                    .email("test@example.com")
-                                    .nickname("tester")
-                                    .providerType(OAuthProvider.GOOGLE)
-                                    .role(MemberRole.ROLE_USER)
-                                    .isDeleted(false)
-                                    .build(),
-                            "dummy title", "dummy content", null,
-                            LocalDateTime.now(), LocalDateTime.now(), 0,false
+                            1L,
+                            "테스트유저",
+                            "dummy title",  null,
+                            LocalDateTime.now(),1L, 0,false
                     ));
 
             doAnswer(invocation -> {
