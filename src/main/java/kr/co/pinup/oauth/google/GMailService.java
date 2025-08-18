@@ -6,15 +6,19 @@ import kr.co.pinup.custom.logging.model.dto.ErrorLog;
 import kr.co.pinup.custom.logging.model.dto.InfoLog;
 import kr.co.pinup.oauth.OAuthMailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
+
+import java.nio.charset.StandardCharsets;
 
 @Component
 @RequiredArgsConstructor
 public class GMailService implements OAuthMailService {
     // private final GoogleApiClient googleApiClient;
-    private final JavaMailSenderImpl mailSender;
+    private final JavaMailSenderImpl javaMailSender;
     private final AppLogger appLogger;
 
     // 환경변수에 저장한 refresh token
@@ -29,13 +33,19 @@ public class GMailService implements OAuthMailService {
         // OAuth 관련 코드 제거, 앱 비밀번호 사용
 
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-            helper.setTo(toEmail);
-            helper.setSubject("[Pinup] 비밀번호 찾기 인증코드");
-            helper.setText("인증코드: " + code + "\n유효기간: 5분");
+            MimeMessage message = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            Resource resource = new ClassPathResource("templates/views/mail.html");
+            String mailHtml = new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
 
-            mailSender.send(message);
+            // ${code} 부분 치환
+            mailHtml = mailHtml.replace("${code}", code);
+
+            helper.setTo(toEmail);
+            helper.setSubject("[Pinup] 비밀번호 재설정 인증코드 안내");
+            helper.setText(mailHtml, true); // true = HTML 메일
+
+            javaMailSender.send(message);
             appLogger.info(new InfoLog("메일 전송 완료 - 이메일=" + toEmail + ", 코드=" + code));
 
         } catch (Exception e) {

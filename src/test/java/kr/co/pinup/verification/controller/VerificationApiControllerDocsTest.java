@@ -36,8 +36,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(VerificationApiController.class)
 @ExtendWith(RestDocumentationExtension.class)
@@ -117,7 +116,8 @@ class VerificationApiControllerDocsTest {
                         .content(objectMapper.writeValueAsString(VERIFY_SUCCESS_REQ))
                         .session(session))
                 .andExpect(status().isOk())
-                .andExpect(content().string("사용자 본인 확인이 완료되었습니다.\n비밀번호 변경 화면으로 이동합니다."))
+                .andExpect(jsonPath("$.message")
+                        .value("사용자 본인 확인이 완료되었습니다.\n비밀번호 변경 화면으로 이동합니다."))
                 .andDo(document("verification-verify-success",
                         requestFields(
                                 fieldWithPath("email").description("인증할 이메일 주소"),

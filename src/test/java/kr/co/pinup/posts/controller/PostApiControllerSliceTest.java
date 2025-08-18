@@ -11,7 +11,6 @@ import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.model.dto.MemberInfo;
-import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.members.service.MemberService;
