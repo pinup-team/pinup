@@ -24,32 +24,31 @@ public class VerificationService {
     private final AppLogger appLogger;
 
     public boolean sendCode(String email) {
+        String maskingEmail = maskEmail(email);
         try {
             String code = String.format("%06d", new Random().nextInt(1000000));
 
-            System.out.println("기존코드 삭제 deleteByEmail");
-            // 기존 코드 삭제
             verificationRepository.deleteByEmail(email);
             verificationRepository.flush(); // 즉시 반영
-            appLogger.info(new InfoLog("기존 인증 코드 삭제 완료 - 이메일=" + email));
+            appLogger.info(new InfoLog("기존 인증 코드 삭제 완료 - 이메일=" + maskingEmail));
 
-            // 메일 발송
             OAuthMailService.sendVerificationCode(email, code);
-            appLogger.info(new InfoLog("메일 전송 완료 - 이메일=" + email));
+            appLogger.info(new InfoLog("메일 전송 완료 - 이메일=" + maskingEmail));
 
-            // 새 코드 저장
             Verification verification = new Verification(email, code, LocalDateTime.now().plusMinutes(5));
             verificationRepository.save(verification);
-            appLogger.info(new InfoLog("새 인증 코드 저장 완료 - 이메일=" + email + ", 코드=" + code));
+            appLogger.info(new InfoLog("새 인증 코드 저장 완료 - 이메일=" + maskingEmail));
 
             return true;
         } catch (Exception e) {
-            appLogger.error(new InfoLog("메일 전송 실패 - 이메일=" + email + ", 오류=" + e.getMessage()));
+            appLogger.error(new InfoLog("메일 전송 실패 - 이메일=" + maskingEmail + ", 오류=" + e.getMessage()));
             return false;
         }
     }
 
     public void verifyCode(VerificationRequest verificationRequest) {
+        appLogger.info(new InfoLog("인증 코드 검증 시작 - 이메일=" + maskEmail(verificationRequest.email())));
+
         Verification verification = verificationRepository.findByEmail(verificationRequest.email())
                 .orElseThrow(() -> new VerificationBadRequestException("인증 코드가 발송되지 않았습니다."));
 
@@ -65,7 +64,15 @@ public class VerificationService {
             throw new VerificationBadRequestException("인증 코드가 만료되었습니다.");
         }
 
-        // 검증 성공 시 DB에서 해당 기록 삭제 (재사용 방지)
         verificationRepository.delete(verification);
+    }
+
+    public static String maskEmail(String email) {
+        if (email == null) return null;
+        int atIndex = email.indexOf("@");
+        if (atIndex <= 2) {
+            return "***" + email.substring(atIndex);
+        }
+        return email.substring(0, 2) + "***" + email.substring(atIndex);
     }
 }

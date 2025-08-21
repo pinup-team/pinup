@@ -33,7 +33,7 @@ public class VerificationApiController {
     @PostMapping("/send")
     public ResponseEntity<String> sendEmail(@RequestBody Map<String, String> request) {
         String email = request.get("email");
-        appLogger.info(new InfoLog("이메일 인증 코드 전송: " + email));
+        appLogger.info(new InfoLog("이메일 인증 코드 전송: " + verificationService.maskEmail(email)));
 
         return verificationService.sendCode(email)
                 ? ResponseEntity.ok("인증 코드가 성공적으로 전송되었습니다.")
@@ -42,7 +42,8 @@ public class VerificationApiController {
 
     @PostMapping("/verifyCode")
     public ResponseEntity<?> verifyCode(@RequestBody @Valid VerificationRequest verificationRequest, HttpSession session) {
-        appLogger.info(new InfoLog("이메일 인증 코드 검증: " + verificationRequest.email()));
+        String maskingEmail = verificationService.maskEmail(verificationRequest.email());
+        appLogger.info(new InfoLog("이메일 인증 코드 검증: " + maskingEmail));
 
         try {
             verificationService.verifyCode(verificationRequest);
@@ -64,14 +65,14 @@ public class VerificationApiController {
             return ResponseEntity.ok(Map.of("message", "사용자 본인 확인이 완료되었습니다.\n비밀번호 변경 화면으로 이동합니다."));
 
         } catch (VerificationBadRequestException e) {
-            appLogger.warn(new WarnLog("이메일 인증 실패 - email: " + verificationRequest.email())
+            appLogger.warn(new WarnLog("이메일 인증 실패 - email: " + maskingEmail)
                     .setStatus(String.valueOf(HttpStatus.BAD_REQUEST.value()))
                     .addDetails("reason", e.getMessage()));
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("message", e.getMessage()));
         } catch (Exception e) {
-            appLogger.error(new ErrorLog("이메일 인증 처리 중 예외 발생 - email: " + verificationRequest.email(), e));
+            appLogger.error(new ErrorLog("이메일 인증 처리 중 예외 발생 - email: " + maskingEmail, e));
             throw new VerificationBadRequestException("본인 인증에 실패하였습니다.");
         }
     }

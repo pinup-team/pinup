@@ -10,6 +10,13 @@ function sendMail() {
         return;
     }
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert("이메일 형식이 올바르지 않습니다.");
+        document.getElementById("error-email").textContent = "이메일 형식이 올바르지 않습니다.";
+        return;
+    }
+
     // 기존 에러 메시지 초기화
     document.querySelectorAll('.error-text').forEach(div => div.textContent = '');
 

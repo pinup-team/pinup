@@ -46,10 +46,10 @@ public class GMailService implements OAuthMailService {
             helper.setText(mailHtml, true); // true = HTML 메일
 
             javaMailSender.send(message);
-            appLogger.info(new InfoLog("메일 전송 완료 - 이메일=" + toEmail + ", 코드=" + code));
+            appLogger.info(new InfoLog("메일 전송 완료 - 이메일=" + toEmail.replaceAll("(^..)[^@]+", "$1***") + ", 코드=" + code));
 
         } catch (Exception e) {
-            appLogger.error(new ErrorLog("메일 전송 실패 - 이메일=" + toEmail + ", 오류=" + e.getMessage(), e));
+            appLogger.error(new ErrorLog("메일 전송 실패 - 이메일=" + toEmail.replaceAll("(^..)[^@]+", "$1***") + ", 오류=" + e.getMessage(), e));
             throw new RuntimeException("메일 전송 실패", e);
         }
     }

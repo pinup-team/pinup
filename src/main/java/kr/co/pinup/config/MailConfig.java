@@ -42,7 +42,7 @@ public class MailConfig {
 
     @Bean
     public JavaMailSenderImpl javaMailSender() {
-        appLogger.info(new InfoLog("JavaMailSender 빈 생성 - Gmail SMTP 사용, username=" + username));
+        appLogger.info(new InfoLog("JavaMailSender 빈 생성 - Gmail SMTP 사용, username=" + username.replaceAll("(^..)[^@]+", "$1***")));
 
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
