@@ -1,4 +1,4 @@
-package kr.co.pinup.members.service;
+package kr.co.pinup.verification.service;
 
 import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.custom.logging.AppLogger;
@@ -11,6 +11,7 @@ import kr.co.pinup.members.exception.MemberServiceException;
 import kr.co.pinup.members.model.dto.*;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
+import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.security.SecurityUtil;
 import org.apache.commons.lang3.tuple.Pair;
@@ -32,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @MemberTestAnnotation
-public class MemberServiceUnitTest {
+public class VerificationServiceUnitTest {
     MockMvc mockMvc;
 
     @Mock

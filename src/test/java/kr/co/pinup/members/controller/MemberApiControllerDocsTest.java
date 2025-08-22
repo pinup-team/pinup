@@ -186,6 +186,44 @@ class MemberApiControllerDocsTest {
     }
 
     @Test
+    @DisplayName("비밀번호 재설정 성공 문서화")
+    void testResetPasswordSuccess_document() throws Exception {
+        MemberPasswordRequest passwordRequest = MemberPasswordRequest.builder()
+                .email("test@test.com")
+                .password("NewPass123!")
+                .providerType(OAuthProvider.PINUP)
+                .build();
+
+        MemberResponse memberResponse = MemberResponse.builder()
+                .email(passwordRequest.email())
+                .nickname("testNick")
+                .providerType(OAuthProvider.PINUP)
+                .build();
+
+        when(memberService.resetPassword(any(MemberPasswordRequest.class)))
+                .thenReturn(memberResponse);
+
+        mockMvc.perform(patch("/api/members/reset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(passwordRequest)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.message").value("비밀번호 수정이 성공적으로 완료되었습니다."))
+                .andDo(document("members-reset-password-success",
+                        requestFields(
+                                fieldWithPath("email").description("회원 이메일"),
+                                fieldWithPath("password").description("새 비밀번호"),
+                                fieldWithPath("providerType").description("OAuth 제공자 (PINUP)")
+                        ),
+                        responseFields(
+                                fieldWithPath("code").description("응답 코드"),
+                                fieldWithPath("message").description("결과 메시지")
+                        )
+                ));
+    }
+
+    @Test
     @DisplayName("POST /api/members/login - 회원 자체 로그인 성공 문서화")
     void testPinupLoginSuccess_document() throws Exception {
         Member member = Member.builder()

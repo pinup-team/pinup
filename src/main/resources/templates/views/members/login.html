@@ -13,7 +13,7 @@
 <div class="member_profile" layout:fragment="content">
     <div class="page_description">
         <h1>Login</h1>
-        <h4>직접 입력하거나 소셜 계정을 사용해 로그인/회원가입 하세요</h4>
+        <h4>계정을 입력하거나 소셜 계정을 사용해 빠르게 로그인/회원가입할 수 있어요.</h4>
     </div>
     <div class="member_profile_content">
         <div class="table-container">
@@ -55,7 +55,7 @@
         </div>
         <div class="button-container">
             <div class="member-buttons">
-                <button th:onclick="redirectToHome()">홈으로 돌아가기</button>
+                <button th:onclick="|window.location.href='/members/verify'|">비밀번호 찾기</button>
             </div>
             <div class="member-buttons">
                 <button th:onclick="|window.location.href='/members/register'|">회원가입</button>
