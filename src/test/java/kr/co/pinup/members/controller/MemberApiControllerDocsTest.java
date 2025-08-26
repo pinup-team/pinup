@@ -177,7 +177,7 @@ class MemberApiControllerDocsTest {
                         .param("email", "available@test.com")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("가입 가능한 이메일입니다."))
+                .andExpect(content().string("해당 이메일은 가입 가능합니다.\n이어서 본인 인증을 진행해 주세요."))
                 .andDo(document("members-validate-email-available",
                         queryParameters(
                                 parameterWithName("email").description("중복 확인할 이메일 주소")
@@ -209,7 +209,7 @@ class MemberApiControllerDocsTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("비밀번호 수정이 성공적으로 완료되었습니다."))
+                .andExpect(jsonPath("$.message").value("비밀번호가 성공적으로 변경되었습니다."))
                 .andDo(document("members-reset-password-success",
                         requestFields(
                                 fieldWithPath("email").description("회원 이메일"),
@@ -283,7 +283,7 @@ class MemberApiControllerDocsTest {
                 .thenReturn(updatedMemberResponse);
 
         MemberApiResponse expectedResponse =
-                MemberApiResponse.builder().code(200).message("사용자 정보 수정되었습니다.").build();
+                MemberApiResponse.builder().code(200).message("사용자 정보가 성공적으로 수정되었습니다.").build();
 
         mockMvc.perform(patch("/api/members")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -348,7 +348,7 @@ class MemberApiControllerDocsTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code").value(200))
-                .andExpect(jsonPath("$.message").value("탈퇴되었습니다. 이용해주셔서 감사합니다."))
+                .andExpect(jsonPath("$.message").value("회원 탈퇴가 완료되었습니다.\n이용해주셔서 감사합니다."))
                 .andDo(document("members-disable-success",
                         requestHeaders(
                                 headerWithName("Authorization").description("Bearer 토큰")

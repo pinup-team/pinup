@@ -108,11 +108,11 @@ public class MemberApiController {
     }
 
     @GetMapping("/validate")
-    public ResponseEntity<String> validateEmail(@RequestParam("email") @Valid String email) {
+    public ResponseEntity<?> validateEmail(@RequestParam("email") @Valid String email) {
         appLogger.info(new InfoLog("이메일 중복 확인 요청: " + email));
 
         return memberService.validateEmail(email)
-                ? ResponseEntity.ok("가입 가능한 이메일입니다.")
+                ? ResponseEntity.ok("해당 이메일은 가입 가능합니다.\n이어서 본인 인증을 진행해 주세요.")
                 : ResponseEntity.status(HttpStatus.CONFLICT).body("이미 가입된 이메일입니다.");
     }
 
@@ -125,7 +125,7 @@ public class MemberApiController {
 
             if (pair == null || pair.getLeft() == null) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body("회원가입에 실패했습니다.\n이미 존재하는 이메일일 수 있습니다.");
+                        .body("회원가입에 실패했습니다.\n잠시 후 다시 시도해 주세요.");
             }
 
             return ResponseEntity.ok("회원가입이 완료되었습니다.\n로그인 화면으로 이동합니다.");
@@ -172,11 +172,11 @@ public class MemberApiController {
         MemberResponse updatedMemberResponse = memberService.update(memberInfo, memberRequest);
         if (updatedMemberResponse != null && updatedMemberResponse.getNickname().equals(memberRequest.nickname())) {
             return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(200).message("사용자 정보 수정되었습니다.").build());
+                    .body(MemberApiResponse.builder().code(200).message("사용자 정보가 성공적으로 수정되었습니다.").build());
         } else {
             appLogger.warn(new WarnLog("사용자 정보 수정 실패 - 기존 닉네임=" + memberInfo.getUsername() + ", 요청 닉네임=" + memberRequest.nickname()).setStatus("400"));
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(400).message("사용자 정보 수정에 실패하였습니다.\n관리자에게 문의해주세요.").build());
+                    .body(MemberApiResponse.builder().code(400).message("정보 수정에 실패했습니다.\n잠시 후 다시 시도해 주세요.").build());
         }
     }
 
@@ -187,11 +187,11 @@ public class MemberApiController {
         MemberResponse updatedMemberResponse = memberService.resetPassword(memberRequest);
         if (updatedMemberResponse != null && updatedMemberResponse.getEmail().equals(memberRequest.email())) {
             return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(200).message("비밀번호 수정이 성공적으로 완료되었습니다.").build());
+                    .body(MemberApiResponse.builder().code(200).message("비밀번호가 성공적으로 변경되었습니다.").build());
         } else {
             appLogger.warn(new WarnLog("사용자 정보 수정 실패 - 이메일=" + memberRequest.email()).setStatus("400"));
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(400).message("비밀번호 수정에 실패하였습니다.\n관리자에게 문의해주세요.").build());
+                    .body(MemberApiResponse.builder().code(400).message("비밀번호 변경에 실패했습니다.\n잠시 후 다시 시도해 주세요.").build());
         }
     }
 
@@ -201,11 +201,11 @@ public class MemberApiController {
 
         if (memberService.disable(memberInfo, memberRequest)) {
             return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(200).message("탈퇴되었습니다. 이용해주셔서 감사합니다.").build());
+                    .body(MemberApiResponse.builder().code(200).message("회원 탈퇴가 완료되었습니다.\n이용해주셔서 감사합니다.").build());
         } else {
             appLogger.warn(new WarnLog("회원 탈퇴 실패 - nickname: " + memberInfo.getUsername()).setStatus("400"));
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(400).message("탈퇴에 실패하였습니다.\n관리자에게 문의해주세요.").build());
+                    .body(MemberApiResponse.builder().code(400).message("회원 탈퇴에 실패했습니다.\n관리자에게 문의해 주세요.").build());
         }
     }
 
@@ -219,7 +219,7 @@ public class MemberApiController {
         } else {
             appLogger.warn(new WarnLog("로그아웃 실패 - nickname: " + memberInfo.getUsername()).setStatus("400"));
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(400).message("로그아웃에 실패하였습니다.\n관리자에게 문의해주세요.").build());
+                    .body(MemberApiResponse.builder().code(400).message("로그아웃에 실패했습니다.\n잠시 후 다시 시도해 주세요.").build());
         }
     }
 
