@@ -106,24 +106,91 @@ jobs:
 
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "_자세한 내용은 'Actions > Run logs' 를 확인하세요._" >> $GITHUB_STEP_SUMMARY
-      - name: Send success message
+#      - name: Send success message
+#        if: ${{ success() }}
+#        uses: appleboy/discord-action@v1.0.0
+#        with:
+#          args: '@everyone ✅ Pull Request 성공 알림'
+#        env:
+#          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+#          DISCORD_USERNAME: WAPP_BOT
+#          DISCORD_AVATAR: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true
+#          DISCORD_EMBEDS: |
+#            [
+#              {
+#                "author": {
+#                  "name": "${{ github.event.pull_request.user.login}}",
+#                  "url": "https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?row=true",
+#                  "icon_url": "${{ github.event.pull_request.user.avatar_url }}"
+#                },
+#                "title": "PR 성공, 영! 차! 조! 와! 써 ~ 🚚🚚\n#${{ github.event.pull_request.number }} : ${{ github.event.pull_request.title }}",
+#                "color": 10478271,
+#                "description": "${{ github.event.pull_request.html_url }}",
+#                "fields": [
+#                  {
+#                    "name": "Base Branch",
+#                    "value": "${{ github.base_ref }}",
+#                    "inline": true
+#                  },
+#                  {
+#                    "name": "Compare Branch",
+#                    "value": "${{ github.head_ref }}",
+#                    "inline": true
+#                  }
+#                ]
+#              }
+#            ]
+#
+#      - name: Send Failure Message
+#        if: ${{ failure() }}
+#        uses: appleboy/discord-action@v1.0.0
+#        with:
+#          args: '@everyone ❌ Pull Request 실패 알림'
+#        env:
+#          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+#          DISCORD_USERNAME: WAPP_BOT
+#          DISCORD_AVATAR: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true
+#          DISCORD_EMBEDS: |
+#            [
+#              {
+#                "author": {
+#                  "name": "${{ github.event.pull_request.user.login }}",
+#                  "url": "https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true",
+#                  "icon_url": "${{ github.event.pull_request.user.avatar_url }}"
+#                },
+#                "title": "PR 실패, 삐용삐용~ 🚑🚑\n#${{ github.event.pull_request.number }} : ${{ github.event.pull_request.title }}",
+#                "color": 13458524,
+#                "description": "${{ github.event.pull_request.html_url }}",
+#                "fields": [
+#                  {
+#                    "name": "Base Branch",
+#                    "value": "${{ github.base_ref }}",
+#                    "inline": true
+#                  },
+#                  {
+#                    "name": "Compare Branch",
+#                    "value": "${{ github.head_ref }}",
+#                    "inline": true
+#                  }
+#                ]
+#              }
+#            ]
+      - name: Send Success Message
         if: ${{ success() }}
-        uses: Ilshidur/action-discord@0.3.2
+        uses: appleboy/discord-action@v1.0.0
         with:
-          args: '@everyone ✅ Pull Request 성공 알림'
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          DISCORD_USERNAME: WAPP_BOT
-          DISCORD_AVATAR: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true
-          DISCORD_EMBEDS: |
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          username: WAPP_BOT
+          avatar_url: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true
+          embeds: |
             [
               {
                 "author": {
-                  "name": "${{ github.event.pull_request.user.login}}",
-                  "url": "https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?row=true",
+                  "name": "${{ github.event.pull_request.user.login }}",
+                  "url": "${{ github.event.pull_request.user.html_url }}",
                   "icon_url": "${{ github.event.pull_request.user.avatar_url }}"
                 },
-                "title": "PR 성공, 영! 차! 조! 와! 써 ~ 🚚🚚\n#${{ github.event.pull_request.number }} : ${{ github.event.pull_request.title }}",
+                "title": "✅ PR 성공, 영! 차! 조! 와! 써 ~ 🚚🚚\n#${{ github.event.pull_request.number }} : ${{ github.event.pull_request.title }}",
                 "color": 10478271,
                 "description": "${{ github.event.pull_request.html_url }}",
                 "fields": [
@@ -143,22 +210,20 @@ jobs:
 
       - name: Send Failure Message
         if: ${{ failure() }}
-        uses: Ilshidur/action-discord@0.3.2
+        uses: appleboy/discord-action@v1.0.0
         with:
-          args: '@everyone ❌ Pull Request 실패 알림'
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          DISCORD_USERNAME: WAPP_BOT
-          DISCORD_AVATAR: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true
-          DISCORD_EMBEDS: |
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          username: WAPP_BOT
+          avatar_url: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true
+          embeds: |
             [
               { 
                 "author": {
                   "name": "${{ github.event.pull_request.user.login }}",
-                  "url": "https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true",
+                  "url": "${{ github.event.pull_request.user.html_url }}",
                   "icon_url": "${{ github.event.pull_request.user.avatar_url }}"
                 },
-                "title": "PR 실패, 삐용삐용~ 🚑🚑\n#${{ github.event.pull_request.number }} : ${{ github.event.pull_request.title }}",
+                "title": "❌ PR 실패, 삐용삐용~ 🚑🚑\n#${{ github.event.pull_request.number }} : ${{ github.event.pull_request.title }}",
                 "color": 13458524,
                 "description": "${{ github.event.pull_request.html_url }}",
                 "fields": [
@@ -175,6 +240,7 @@ jobs:
                 ]
               }
             ]
+
 
   # main 브랜치 pr(build 및 docs 정적 배포)
   build:
