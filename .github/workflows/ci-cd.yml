@@ -106,91 +106,24 @@ jobs:
 
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "_자세한 내용은 'Actions > Run logs' 를 확인하세요._" >> $GITHUB_STEP_SUMMARY
-#      - name: Send success message
-#        if: ${{ success() }}
-#        uses: appleboy/discord-action@v1.0.0
-#        with:
-#          args: '@everyone ✅ Pull Request 성공 알림'
-#        env:
-#          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-#          DISCORD_USERNAME: WAPP_BOT
-#          DISCORD_AVATAR: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true
-#          DISCORD_EMBEDS: |
-#            [
-#              {
-#                "author": {
-#                  "name": "${{ github.event.pull_request.user.login}}",
-#                  "url": "https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?row=true",
-#                  "icon_url": "${{ github.event.pull_request.user.avatar_url }}"
-#                },
-#                "title": "PR 성공, 영! 차! 조! 와! 써 ~ 🚚🚚\n#${{ github.event.pull_request.number }} : ${{ github.event.pull_request.title }}",
-#                "color": 10478271,
-#                "description": "${{ github.event.pull_request.html_url }}",
-#                "fields": [
-#                  {
-#                    "name": "Base Branch",
-#                    "value": "${{ github.base_ref }}",
-#                    "inline": true
-#                  },
-#                  {
-#                    "name": "Compare Branch",
-#                    "value": "${{ github.head_ref }}",
-#                    "inline": true
-#                  }
-#                ]
-#              }
-#            ]
-#
-#      - name: Send Failure Message
-#        if: ${{ failure() }}
-#        uses: appleboy/discord-action@v1.0.0
-#        with:
-#          args: '@everyone ❌ Pull Request 실패 알림'
-#        env:
-#          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-#          DISCORD_USERNAME: WAPP_BOT
-#          DISCORD_AVATAR: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true
-#          DISCORD_EMBEDS: |
-#            [
-#              {
-#                "author": {
-#                  "name": "${{ github.event.pull_request.user.login }}",
-#                  "url": "https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true",
-#                  "icon_url": "${{ github.event.pull_request.user.avatar_url }}"
-#                },
-#                "title": "PR 실패, 삐용삐용~ 🚑🚑\n#${{ github.event.pull_request.number }} : ${{ github.event.pull_request.title }}",
-#                "color": 13458524,
-#                "description": "${{ github.event.pull_request.html_url }}",
-#                "fields": [
-#                  {
-#                    "name": "Base Branch",
-#                    "value": "${{ github.base_ref }}",
-#                    "inline": true
-#                  },
-#                  {
-#                    "name": "Compare Branch",
-#                    "value": "${{ github.head_ref }}",
-#                    "inline": true
-#                  }
-#                ]
-#              }
-#            ]
-      - name: Send Success Message
+      - name: Send success message
         if: ${{ success() }}
-        uses: appleboy/discord-action@v1.0.0
+        uses: Ilshidur/action-discord@0.4.0
         with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          username: WAPP_BOT
-          avatar_url: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true
-          embeds: |
+          args: '@everyone ✅ Pull Request 성공 알림'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_USERNAME: WAPP_BOT
+          DISCORD_AVATAR: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true
+          DISCORD_EMBEDS: |
             [
               {
                 "author": {
-                  "name": "${{ github.event.pull_request.user.login }}",
-                  "url": "${{ github.event.pull_request.user.html_url }}",
+                  "name": "${{ github.event.pull_request.user.login}}",
+                  "url": "https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?row=true",
                   "icon_url": "${{ github.event.pull_request.user.avatar_url }}"
                 },
-                "title": "✅ PR 성공, 영! 차! 조! 와! 써 ~ 🚚🚚\n#${{ github.event.pull_request.number }} : ${{ github.event.pull_request.title }}",
+                "title": "PR 성공, 영! 차! 조! 와! 써 ~ 🚚🚚\n#${{ github.event.pull_request.number }} : ${{ github.event.pull_request.title }}",
                 "color": 10478271,
                 "description": "${{ github.event.pull_request.html_url }}",
                 "fields": [
@@ -210,20 +143,22 @@ jobs:
 
       - name: Send Failure Message
         if: ${{ failure() }}
-        uses: appleboy/discord-action@v1.0.0
+        uses: Ilshidur/action-discord@0.4.0
         with:
-          webhook: ${{ secrets.DISCORD_WEBHOOK }}
-          username: WAPP_BOT
-          avatar_url: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true
-          embeds: |
+          args: '@everyone ❌ Pull Request 실패 알림'
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_USERNAME: WAPP_BOT
+          DISCORD_AVATAR: https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true
+          DISCORD_EMBEDS: |
             [
               { 
                 "author": {
                   "name": "${{ github.event.pull_request.user.login }}",
-                  "url": "${{ github.event.pull_request.user.html_url }}",
+                  "url": "https://github.com/pknu-wap/WAPP/blob/main/image/icon.png?raw=true",
                   "icon_url": "${{ github.event.pull_request.user.avatar_url }}"
                 },
-                "title": "❌ PR 실패, 삐용삐용~ 🚑🚑\n#${{ github.event.pull_request.number }} : ${{ github.event.pull_request.title }}",
+                "title": "PR 실패, 삐용삐용~ 🚑🚑\n#${{ github.event.pull_request.number }} : ${{ github.event.pull_request.title }}",
                 "color": 13458524,
                 "description": "${{ github.event.pull_request.html_url }}",
                 "fields": [
@@ -240,7 +175,6 @@ jobs:
                 ]
               }
             ]
-
 
   # main 브랜치 pr(build 및 docs 정적 배포)
   build:
@@ -307,106 +241,106 @@ jobs:
 
   # Release시 빌드
   release-build:
-      if: github.event_name == 'release' && github.event.action == 'published'
-      runs-on: ubuntu-latest
+    if: github.event_name == 'release' && github.event.action == 'published'
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-        - name: Create application.yml
-          run: |
-            echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
-            echo "${{ secrets.APPLICATION_PROD_YML }}" | base64 --decode > src/main/resources/application-prod.yml          
+      - name: Create application.yml
+        run: |
+          echo "${{ secrets.APPLICATION_YML }}" | base64 --decode > src/main/resources/application.yml
+          echo "${{ secrets.APPLICATION_PROD_YML }}" | base64 --decode > src/main/resources/application-prod.yml          
 
-        - name: Set up JDK 17
-          uses: actions/setup-java@v4
-          with:
-            java-version: '17'
-            distribution: 'temurin'
-            cache: gradle
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
 
-        - run: chmod +x gradlew
+      - run: chmod +x gradlew
 
-        - name: Run full build
-          run: ./gradlew -Pprod build -x test -x asciidoctor
+      - name: Run full build
+        run: ./gradlew -Pprod build -x test -x asciidoctor
 
-        - name: Upload build artifact
-          uses: actions/upload-artifact@v4
-          with:
-            name: app-build
-            path: build/libs/*.jar
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-build
+          path: build/libs/*.jar
 
     # build 완료 후 Docker 이미지 빌드 & 배포
   docker-build-push-deploy:
-      needs: release-build
-      runs-on: ubuntu-latest
+    needs: release-build
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        - name: Download build artifact
-          uses: actions/download-artifact@v4
-          with:
-            name: app-build
-            path: build/libs/
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: app-build
+          path: build/libs/
 
-        - name: Set up Docker Buildx
-          uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-        - name: Login to Docker Hub
-          uses: docker/login-action@v3
-          with:
-            username: ${{ secrets.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-        - name: Extract version from tag
-          id: extract_version
-          run: |
-            FILENAME=$(basename build/libs/pinup-*.jar)
-            VERSION=$(echo "$FILENAME" | sed -E 's/pinup-([0-9.]+)\.jar/\1/')
-            echo "Extracted version: $VERSION"
-            echo "version=v$VERSION" >> $GITHUB_OUTPUT
+      - name: Extract version from tag
+        id: extract_version
+        run: |
+          FILENAME=$(basename build/libs/pinup-*.jar)
+          VERSION=$(echo "$FILENAME" | sed -E 's/pinup-([0-9.]+)\.jar/\1/')
+          echo "Extracted version: $VERSION"
+          echo "version=v$VERSION" >> $GITHUB_OUTPUT
 
-        - name: Build and push Docker image
-          id: push_image
-          uses: docker/build-push-action@v6
-          with:
-            context: .
-            file: ./Dockerfile
-            push: true
-            tags: pinup0106/pinup:${{ steps.extract_version.outputs.version }}
-            labels: version=${{ steps.extract_version.outputs.version }}
+      - name: Build and push Docker image
+        id: push_image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: pinup0106/pinup:${{ steps.extract_version.outputs.version }}
+          labels: version=${{ steps.extract_version.outputs.version }}
 
-        - name: Get GitHub IP
-          id: ip
-          run: |
-            echo "ipv4=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
+      - name: Get GitHub IP
+        id: ip
+        run: |
+          echo "ipv4=$(curl -s https://api.ipify.org)" >> $GITHUB_OUTPUT
 
-        - name: Configure AWS credentials
-          uses: aws-actions/configure-aws-credentials@v4
-          with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: ${{ secrets.AWS_REGION }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-        - name: Add GitHub IP to AWS Security Group
-          run: |
-            aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+      - name: Add GitHub IP to AWS Security Group
+        run: |
+          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
 
-        - name: Deploy to EC2
-          uses: appleboy/ssh-action@v1.0.3
-          with:
-            host: ${{ secrets.EC2_HOST }}
-            username: ${{ secrets.EC2_USER }}
-            key: ${{ secrets.EC2_SSH_KEY }}
-            script: |
-              docker pull pinup0106/pinup:${{ steps.extract_version.outputs.version }}
-              docker stop pinup-container || true
-              docker rm pinup-container || true
-              docker run -d --name pinup-container -p 8080:8080 pinup0106/pinup:${{ steps.extract_version.outputs.version }}
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull pinup0106/pinup:${{ steps.extract_version.outputs.version }}
+            docker stop pinup-container || true
+            docker rm pinup-container || true
+            docker run -d --name pinup-container -p 8080:8080 pinup0106/pinup:${{ steps.extract_version.outputs.version }}
 
-        - name: Remove IP FROM Security Group
-          run: |
-            aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+      - name: Remove IP FROM Security Group
+        run: |
+          aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
