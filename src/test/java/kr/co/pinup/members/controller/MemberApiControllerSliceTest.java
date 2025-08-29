@@ -111,7 +111,7 @@ public class MemberApiControllerSliceTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(memberRequest)))
                     .andExpect(status().isConflict())
-                    .andExpect(content().string("회원가입에 실패했습니다.\n이미 존재하는 이메일일 수 있습니다."));
+                    .andExpect(content().string("회원가입에 실패했습니다.\n잠시 후 다시 시도해 주세요."));
         }
 
         @Test
@@ -171,7 +171,7 @@ public class MemberApiControllerSliceTest {
             mockMvc.perform(get("/api/members/validate")
                             .param("email", email))
                     .andExpect(status().isOk())
-                    .andExpect(content().string("가입 가능한 이메일입니다."));
+                    .andExpect(content().string("해당 이메일은 가입 가능합니다.\n이어서 본인 인증을 진행해 주세요."));
         }
 
         @Test
@@ -320,7 +320,7 @@ public class MemberApiControllerSliceTest {
                     .andExpect(status().isOk())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.code").value(200))
-                    .andExpect(jsonPath("$.message").value("사용자 정보 수정되었습니다."));
+                    .andExpect(jsonPath("$.message").value("사용자 정보가 성공적으로 수정되었습니다."));
         }
 
         @Test
@@ -354,7 +354,7 @@ public class MemberApiControllerSliceTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.code").value(400))
-                    .andExpect(jsonPath("$.message").value("사용자 정보 수정에 실패하였습니다.\n관리자에게 문의해주세요."));
+                    .andExpect(jsonPath("$.message").value("정보 수정에 실패했습니다.\n잠시 후 다시 시도해 주세요."));
         }
     }
 
@@ -388,7 +388,7 @@ public class MemberApiControllerSliceTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.code").value(400))
-                    .andExpect(jsonPath("$.message").value("로그아웃에 실패하였습니다.\n관리자에게 문의해주세요."));
+                    .andExpect(jsonPath("$.message").value("로그아웃에 실패했습니다.\n잠시 후 다시 시도해 주세요."));
         }
 
         @Test
@@ -398,7 +398,7 @@ public class MemberApiControllerSliceTest {
             when(memberService.logout(any(OAuthProvider.class), any(String.class))).thenReturn(false);
 
             MemberApiResponse expectedResponse =
-                    MemberApiResponse.builder().code(400).message("로그아웃에 실패하였습니다.\n관리자에게 문의해주세요.").build();
+                    MemberApiResponse.builder().code(400).message("로그아웃에 실패했습니다.\n잠시 후 다시 시도해 주세요.").build();
 
             mockMvc.perform(post("/api/members/logout")
                             .header("Authorization", "Bearer testToken")
@@ -472,7 +472,7 @@ public class MemberApiControllerSliceTest {
                     .andExpect(status().isOk())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.code").value(200))
-                    .andExpect(jsonPath("$.message").value("탈퇴되었습니다. 이용해주셔서 감사합니다."));
+                    .andExpect(jsonPath("$.message").value("회원 탈퇴가 완료되었습니다.\n이용해주셔서 감사합니다."));
         }
 
         @Test
@@ -495,7 +495,7 @@ public class MemberApiControllerSliceTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.code").value(400))
-                    .andExpect(jsonPath("$.message").value("탈퇴에 실패하였습니다.\n관리자에게 문의해주세요."));
+                    .andExpect(jsonPath("$.message").value("회원 탈퇴에 실패했습니다.\n관리자에게 문의해 주세요."));
         }
     }
 
@@ -541,7 +541,7 @@ public class MemberApiControllerSliceTest {
                     .andExpect(status().isOk())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.code").value(200))
-                    .andExpect(jsonPath("$.message").value("비밀번호 수정이 성공적으로 완료되었습니다."));
+                    .andExpect(jsonPath("$.message").value("비밀번호가 성공적으로 변경되었습니다."));
         }
 
         @Test
@@ -565,7 +565,7 @@ public class MemberApiControllerSliceTest {
                     .andExpect(status().isBadRequest())
                     .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.code").value(400))
-                    .andExpect(jsonPath("$.message").value("비밀번호 수정에 실패하였습니다.\n관리자에게 문의해주세요."));
+                    .andExpect(jsonPath("$.message").value("비밀번호 변경에 실패했습니다.\n잠시 후 다시 시도해 주세요."));
         }
 
         @Test

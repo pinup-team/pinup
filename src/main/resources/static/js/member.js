@@ -44,11 +44,17 @@ function googleLogin() {
 // 이메일 중복
 function validEmail() {
     const email = document.getElementById('emailRegister').value;
-    const emailCheckButton = document.getElementById('btn_email_check');
-    const registerButton = document.getElementById("btn_register");
 
     if (!email) {
         alert("이메일을 입력해주세요.");
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailRegex.test(email)) {
+        const message = "올바른 이메일 형식이 아닙니다.";
+        alert(message);
+        document.getElementById('error-email').textContent = message;
         return;
     }
 
@@ -66,16 +72,18 @@ function validEmail() {
             if (!response.ok) {
                 if (response.status != 409) {
                     message = '이메일 중복 검증에 실패했습니다. 다시 시도해주세요.';
+                } else {
+                    message = '이미 사용 중인 이메일입니다.\n다른 이메일을 입력해 주세요.';
                 }
                 alert(message);
                 document.getElementById('error-email').textContent = message;
-                // throw new Error(message); // catch로 흘러감 (로그용)
             } else {
-                alert(message);
+                alert("이 이메일은 사용 가능합니다.\n이어서 본인 인증을 진행해 주세요.");
 
                 // 중복체크 이후 중복확인 막고 회원가입 활성화
-                emailCheckButton.disabled = true;
-                registerButton.disabled = false;
+                document.getElementById('btn_email_check').disabled = true;
+                document.getElementById("btn_mail").disabled = false;
+                document.getElementById('verification-row').style.display = '';
             }
         });
 }
@@ -88,6 +96,14 @@ function login() {
 
     if (!email || !password || !providerType) {
         alert("이메일과 비밀번호는 빈 값일 수 없습니다.");
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailRegex.test(email)) {
+        const message = "올바른 이메일 형식이 아닙니다.";
+        alert(message);
+        document.getElementById('error-email').textContent = message;
         return;
     }
 
@@ -171,6 +187,10 @@ document.addEventListener("DOMContentLoaded", function() {
             const register = document.getElementById("btn_register");
             if (emailCheck && register) {
                 emailCheck.disabled = false;
+                document.getElementById("btn_mail").disabled = false;
+                document.getElementById('password').disabled = true;
+                document.getElementById('confirmPassword').disabled = true;
+                document.getElementById('nickname').disabled = true;
                 register.disabled = true;
             }
         });
@@ -203,6 +223,14 @@ function register() {
 
     if (!email || !password || !providerType) {
         alert("이메일과 비밀번호는 빈 값일 수 없습니다.");
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+    if (!emailRegex.test(email)) {
+        const message = "올바른 이메일 형식이 아닙니다.";
+        alert(message);
+        document.getElementById('error-email').textContent = message;
         return;
     }
 

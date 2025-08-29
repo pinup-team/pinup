@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.config.SecurityConfigTest;
 import kr.co.pinup.members.service.MemberService;
-import kr.co.pinup.oauth.OAuthProvider;
-import kr.co.pinup.verification.model.VerificationRequest;
+import kr.co.pinup.verification.exception.VerificationBadRequestException;
+import kr.co.pinup.verification.model.dto.VerificationConfirm;
+import kr.co.pinup.verification.model.dto.VerificationRequest;
+import kr.co.pinup.verification.model.enums.VerifyPurpose;
 import kr.co.pinup.verification.service.VerificationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,9 +21,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -52,94 +52,111 @@ public class VerificationApiControllerSliceTest {
     class SendEmailTests {
 
         @Test
-        @DisplayName("인증 코드 전송 성공")
-        void testSendEmailSuccess() throws Exception {
-            Map<String, String> request = Map.of("email", "test@pinup.com");
-
-            when(verificationService.sendCode("test@pinup.com")).thenReturn(true);
+        @DisplayName("회원가입 인증 코드 전송 성공")
+        void testSendEmailRegisterSuccess() throws Exception {
+            VerificationRequest request = new VerificationRequest("test@pinup.com", VerifyPurpose.REGISTER);
+            when(verificationService.sendCode(any(VerificationRequest.class)))
+                    .thenReturn("인증 코드가 성공적으로 전송되었습니다.");
 
             mockMvc.perform(post("/api/verification/send")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isOk())
-                    .andExpect(content().string("인증 코드가 성공적으로 전송되었습니다."));
+                    .andExpect(content().json(objectMapper.writeValueAsString(
+                            java.util.Map.of("message", "인증 코드가 성공적으로 전송되었습니다.")
+                    )));
         }
 
         @Test
-        @DisplayName("인증 코드 전송 실패")
-        void testSendEmailConflict() throws Exception {
-            Map<String, String> request = Map.of("email", "fail@pinup.com");
-
-            when(verificationService.sendCode("fail@pinup.com")).thenReturn(false);
+        @DisplayName("회원가입 인증 코드 전송 실패 - BadRequest")
+        void testSendEmailRegisterBadRequest() throws Exception {
+            VerificationRequest request = new VerificationRequest("fail@pinup.com", VerifyPurpose.REGISTER);
+            when(verificationService.sendCode(any(VerificationRequest.class)))
+                    .thenThrow(new VerificationBadRequestException("잘못된 요청"));
 
             mockMvc.perform(post("/api/verification/send")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
-                    .andExpect(status().isConflict())
-                    .andExpect(content().string("인증 코드 전송에 실패하였습니다."));
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().json(objectMapper.writeValueAsString(
+                            java.util.Map.of("message", "잘못된 요청")
+                    )));
+        }
+
+        @Test
+        @DisplayName("회원가입 인증 코드 전송 실패 - ServerError")
+        void testSendEmailRegisterServerError() throws Exception {
+            VerificationRequest request = new VerificationRequest("error@pinup.com", VerifyPurpose.REGISTER);
+            when(verificationService.sendCode(any(VerificationRequest.class)))
+                    .thenThrow(new RuntimeException("서버 오류"));
+
+            mockMvc.perform(post("/api/verification/send")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(content().json(objectMapper.writeValueAsString(
+                            java.util.Map.of("message", "서버 오류")
+                    )));
         }
     }
 
     @Nested
-    @DisplayName("이메일 인증 코드 검증")
+    @DisplayName("인증 코드 검증")
     class VerifyCodeTests {
 
         @Test
-        @DisplayName("인증 성공 - PINUP 계정")
-        void testVerifyCodeSuccess() throws Exception {
-            VerificationRequest request = new VerificationRequest("test@pinup.com", "123456");
+        @DisplayName("회원가입 계정 인증 성공")
+        void testVerifyCodeRegisterSuccess() throws Exception {
+            VerificationConfirm confirm = new VerificationConfirm("test@pinup.com", "123456", VerifyPurpose.REGISTER);
             MockHttpSession session = new MockHttpSession();
 
-            doNothing().when(verificationService).verifyCode(any());
-            when(memberService.getProviderType("test@pinup.com")).thenReturn(OAuthProvider.PINUP);
+            doNothing().when(verificationService).verifyCode(any(VerificationConfirm.class), any(MockHttpSession.class));
 
             mockMvc.perform(post("/api/verification/verifyCode")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request))
+                            .content(objectMapper.writeValueAsString(confirm))
                             .session(session))
                     .andExpect(status().isOk())
                     .andExpect(content().json(objectMapper.writeValueAsString(
-                            Map.of("message", "사용자 본인 확인이 완료되었습니다.\n비밀번호 변경 화면으로 이동합니다.")
-                    )));
-
-            assertThat(session.getAttribute("verifiedEmail")).isEqualTo("test@pinup.com");
-        }
-
-        @Test
-        @DisplayName("가입되지 않은 계정")
-        void testVerifyCodeNotFound() throws Exception {
-            VerificationRequest request = new VerificationRequest("notfound@pinup.com", "123456");
-            MockHttpSession session = new MockHttpSession();
-
-            doNothing().when(verificationService).verifyCode(any());
-            when(memberService.getProviderType("notfound@pinup.com")).thenReturn(null);
-
-            mockMvc.perform(post("/api/verification/verifyCode")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request))
-                            .session(session))
-                    .andExpect(status().isNotFound())
-                    .andExpect(content().json(objectMapper.writeValueAsString(
-                            Map.of("message", "이 계정은 가입되지 않았습니다.\n비밀번호 변경은 지원되지 않습니다.")
+                            java.util.Map.of("message", "본인 확인이 완료되었습니다.")
                     )));
         }
 
         @Test
-        @DisplayName("다른 OAuth 계정")
-        void testVerifyCodeOtherProvider() throws Exception {
-            VerificationRequest request = new VerificationRequest("google@pinup.com", "123456");
+        @DisplayName("회원가입 계정 인증 실패 - BadRequest")
+        void testVerifyCodeRegisterBadRequest() throws Exception {
+            VerificationConfirm confirm = new VerificationConfirm("fail@pinup.com", "123456", VerifyPurpose.REGISTER);
             MockHttpSession session = new MockHttpSession();
 
-            doNothing().when(verificationService).verifyCode(any());
-            when(memberService.getProviderType("google@pinup.com")).thenReturn(OAuthProvider.GOOGLE);
+            doThrow(new VerificationBadRequestException("인증 코드가 올바르지 않습니다."))
+                    .when(verificationService).verifyCode(confirm, session);
 
             mockMvc.perform(post("/api/verification/verifyCode")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(request))
+                            .content(objectMapper.writeValueAsString(confirm))
                             .session(session))
-                    .andExpect(status().isConflict())
+                    .andExpect(status().isBadRequest())
                     .andExpect(content().json(objectMapper.writeValueAsString(
-                            Map.of("message", "이 계정은 " + OAuthProvider.GOOGLE.getDisplayName() + " 계정으로 가입되어 있습니다.\n비밀번호 변경은 지원되지 않습니다.")
+                            java.util.Map.of("message", "인증 코드가 올바르지 않습니다.")
+                    )));
+        }
+
+        @Test
+        @DisplayName("회원가입 계정 인증 실패 - ServerError")
+        void testVerifyCodeRegisterServerError() throws Exception {
+            VerificationConfirm confirm = new VerificationConfirm("error@pinup.com", "123456", VerifyPurpose.REGISTER);
+            MockHttpSession session = new MockHttpSession();
+
+            doThrow(new RuntimeException("서버 오류"))
+                    .when(verificationService).verifyCode(confirm, session);
+
+            mockMvc.perform(post("/api/verification/verifyCode")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(confirm))
+                            .session(session))
+                    .andExpect(status().isInternalServerError())
+                    .andExpect(content().json(objectMapper.writeValueAsString(
+                            java.util.Map.of("message", "서버 오류")
                     )));
         }
     }

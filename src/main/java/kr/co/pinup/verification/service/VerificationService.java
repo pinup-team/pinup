@@ -1,11 +1,16 @@
 package kr.co.pinup.verification.service;
 
+import jakarta.servlet.http.HttpSession;
 import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.custom.logging.model.dto.InfoLog;
+import kr.co.pinup.members.service.MemberService;
+import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.oauth.google.GMailService;
 import kr.co.pinup.verification.Verification;
 import kr.co.pinup.verification.exception.VerificationBadRequestException;
-import kr.co.pinup.verification.model.VerificationRequest;
+import kr.co.pinup.verification.model.dto.VerificationConfirm;
+import kr.co.pinup.verification.model.dto.VerificationRequest;
+import kr.co.pinup.verification.model.enums.VerifyPurpose;
 import kr.co.pinup.verification.repository.VerificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,10 +25,62 @@ import java.util.Random;
 public class VerificationService {
 
     private final VerificationRepository verificationRepository;
+    private final MemberService memberService;
     private final GMailService OAuthMailService;
     private final AppLogger appLogger;
 
-    public boolean sendCode(String email) {
+    public String sendCode(VerificationRequest request) {
+        String email = request.email();
+        VerifyPurpose purpose = request.purpose();
+        OAuthProvider provider = memberService.getProviderType(email);
+
+        switch (purpose) {
+            case REGISTER:
+                if (provider != null) {
+                    throw new VerificationBadRequestException(provider.getDisplayName() + " 계정으로 이미 가입되어 있습니다.\n" +
+                            provider.getDisplayName() + " 로그인을 이용해 주세요.");
+                }
+                break;
+
+            case RESET_PASSWORD:
+                if (provider == null) {
+                    throw new VerificationBadRequestException("가입되지 않은 이메일입니다.");
+                }
+                if (provider != OAuthProvider.PINUP) {
+                    throw new VerificationBadRequestException(provider.getDisplayName() + " 계정은 비밀번호 변경이 불가합니다.\n" +
+                            provider.getDisplayName() + " 로그인을 이용해 주세요.");
+                }
+                break;
+        }
+
+        // 실제 메일 전송 로직
+        boolean sent = sendEmailCode(email);
+        if (!sent) throw new IllegalStateException("인증 코드 전송에 실패했습니다.");
+        return "인증 코드가 성공적으로 전송되었습니다.";
+    }
+
+    public void verifyCode(VerificationConfirm confirm, HttpSession session) {
+        appLogger.info(new InfoLog("인증 코드 검증 시작 - 이메일=" + maskEmail(confirm.email())));
+
+        // 코드 검증
+        boolean verified = checkCode(confirm.email(), confirm.code());
+        if (!verified) throw new IllegalStateException("인증 코드가 일치하지 않습니다.");
+
+        if (confirm.purpose() == VerifyPurpose.RESET_PASSWORD) {
+            session.setAttribute("verifiedEmail", confirm.email());
+        }
+    }
+
+    public static String maskEmail(String email) {
+        if (email == null) return null;
+        int atIndex = email.indexOf("@");
+        if (atIndex <= 2) {
+            return "***" + email.substring(atIndex);
+        }
+        return email.substring(0, 2) + "***" + email.substring(atIndex);
+    }
+
+    private boolean sendEmailCode(String email) {
         String maskingEmail = maskEmail(email);
         try {
             String code = String.format("%06d", new Random().nextInt(1000000));
@@ -46,17 +103,11 @@ public class VerificationService {
         }
     }
 
-    public void verifyCode(VerificationRequest verificationRequest) {
-        appLogger.info(new InfoLog("인증 코드 검증 시작 - 이메일=" + maskEmail(verificationRequest.email())));
-
-        Verification verification = verificationRepository.findByEmail(verificationRequest.email())
+    private boolean checkCode(String email, String code) {
+        Verification verification = verificationRepository.findByEmail(email)
                 .orElseThrow(() -> new VerificationBadRequestException("인증 코드가 발송되지 않았습니다."));
 
-        if (verificationRequest.code() == null || verificationRequest.code().isBlank()) {
-            throw new VerificationBadRequestException("인증 코드가 필요합니다.");
-        }
-
-        if (!verification.getCode().equals(verificationRequest.code())) {
+        if (!verification.getCode().equals(code)) {
             throw new VerificationBadRequestException("인증 코드가 일치하지 않습니다.");
         }
 
@@ -65,14 +116,6 @@ public class VerificationService {
         }
 
         verificationRepository.delete(verification);
-    }
-
-    public static String maskEmail(String email) {
-        if (email == null) return null;
-        int atIndex = email.indexOf("@");
-        if (atIndex <= 2) {
-            return "***" + email.substring(atIndex);
-        }
-        return email.substring(0, 2) + "***" + email.substring(atIndex);
+        return true;
     }
 }
