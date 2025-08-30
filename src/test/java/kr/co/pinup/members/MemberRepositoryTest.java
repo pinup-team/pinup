@@ -28,7 +28,7 @@ public class MemberRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        member = new Member("test", "test@naver.com", "네이버TestMember", OAuthProvider.NAVER, "123456789", MemberRole.ROLE_USER, false);
+        member = new Member("test", "test@naver.com", "네이버TestMember", "", OAuthProvider.NAVER, "123456789", MemberRole.ROLE_USER, false);
         memberRepository.save(member);
         entityManager.flush();
     }
@@ -36,7 +36,7 @@ public class MemberRepositoryTest {
     @Test
     @DisplayName("회원 조회_이메일로 회원을 조회하고 삭제되지 않았는지 확인")
     void testFindByEmailAndIsDeletedFalse_ShouldReturnMember() {
-        Optional<Member> foundMember = memberRepository.findByEmailAndIsDeletedFalse("test@naver.com");
+        Optional<Member> foundMember = memberRepository.findByEmailAndProviderTypeAndIsDeletedFalse("test@naver.com", OAuthProvider.NAVER);
 
         assertTrue(foundMember.isPresent());
         assertEquals("test@naver.com", foundMember.get().getEmail());

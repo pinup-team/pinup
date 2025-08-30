@@ -10,7 +10,6 @@ import kr.co.pinup.storeimages.repository.StoreImageRepository;
 import kr.co.pinup.storeimages.service.StoreImageService;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.enums.StoreStatus;
-import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

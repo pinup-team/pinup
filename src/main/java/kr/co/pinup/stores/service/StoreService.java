@@ -44,6 +44,18 @@ public class StoreService {
                 .toList();
     }
 
+    public List<StoreThumbnailResponse> findAll(final StoreStatus selectedStatus, final String sigungu) {
+        if (selectedStatus != null && !sigungu.equals("all")) {
+            return getStoresByStatusAndLocationBySigungu(selectedStatus, sigungu);
+        } else if (selectedStatus != null) {
+            return getStoresByStatus(selectedStatus);
+        } else if (!sigungu.equals("all")) {
+            return getStoresByLocationBySigungu(sigungu);
+        }
+
+        return getStoresSortedByStatusPriority();
+    }
+
     public List<StoreThumbnailResponse> getStoresThumbnailWithLimit(final int limit) {
         return storeRepository.findAllByIsDeletedFalse().stream()
                 .sorted(Comparator.comparingInt(store -> getStoreStatusOrder(store.getStoreStatus())))
@@ -72,15 +84,37 @@ public class StoreService {
         return StoreResponse.from(store);
     }
 
+    public List<StoreThumbnailResponse> getStoresByStatusAndLocationBySigungu(
+            final StoreStatus selectedStatus, final String sigungu) {
+        return storeRepository.findAllByLocation_SigunguAndStoreStatusAndIsDeletedFalse(sigungu, selectedStatus)
+                .stream()
+                .map(StoreThumbnailResponse::from)
+                .toList();
+    }
+
+    public List<StoreThumbnailResponse> getStoresByLocationBySigungu(final String sigungu) {
+        return storeRepository.findAllByLocation_SigunguAndIsDeletedFalse(sigungu).stream()
+                .sorted(Comparator.comparingInt(store -> getStoreStatusOrder(store.getStoreStatus())))
+                .map(StoreThumbnailResponse::from)
+                .toList();
+    }
+
     @Transactional
     public StoreResponse createStore(StoreRequest request, List<MultipartFile> images) {
         final StoreCategory category = categoryService.findCategoryById(request.categoryId());
         final Location location = locationService.getLocation(request.locationId());
 
-        StoreStatus storeStatus = request.startDate().isAfter(LocalDate.now())
-                ? StoreStatus.PENDING
-                : StoreStatus.RESOLVED;
-        log.info("createStore storeStatus={}", storeStatus);
+        final LocalDate now = LocalDate.now();
+        final LocalDate startDate = request.startDate();
+        StoreStatus storeStatus;
+        if (request.startDate().isAfter(now)) {
+            storeStatus = StoreStatus.PENDING;
+        } else if (request.endDate().isBefore(now)) {
+            storeStatus = StoreStatus.DISMISSED;
+        } else {
+            storeStatus = StoreStatus.RESOLVED;
+        }
+        log.debug("createStore storeStatus={}", storeStatus);
 
         Store store = Store.builder()
                 .name(request.name())

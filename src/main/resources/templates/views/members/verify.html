@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+<head>
+    <link rel="stylesheet" th:href="@{/css/member.css}">
+    <title>Verify</title>
+</head>
+<div class="member_profile" layout:fragment="content">
+    <div class="page_description">
+        <h1>본인 인증</h1>
+        <h4>비밀번호 변경을 위해 이메일 인증을 완료해주세요.</h4>
+    </div>
+    <div class="member_profile_content">
+        <div class="table-container">
+            <table class="table">
+                <tbody>
+                <tr>
+                    <td>이메일</td>
+                    <td>
+                        <input type="text" name="email" id="email" placeholder="이메일" onclick="this.select()">
+                    </td>
+                </tr>
+                <tr>
+                    <td/>
+                    <td><div id="error-email" name="error-email" class="error-text"></div></td>
+                </tr>
+                <!-- 인증 코드 입력란 (초기에는 숨김) -->
+                <tr id="code-row" style="display: none;">
+                    <td>인증 코드</td>
+                    <td><input type="text" id="verification-code" placeholder="인증 코드"></td>
+                </tr>
+                <tr id="code-error-row" style="display: none;">
+                    <td/>
+                    <td><div id="error-code" class="error-text"></div></td>
+                </tr>
+                <tr id="timer-row" style="display: none;">
+                    <td/>
+                    <td><div id="timer-text" class="error-text"></div></td>
+                </tr>
+                <tr id="purpose-row" style="display: none;">
+                    <td/>
+                    <td><div class="error-text"></div></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="button-container">
+            <div class="member-buttons">
+                <button th:onclick="|window.location.href='/members/login'|">로그인 화면으로 이동</button>
+            </div>
+            <div class="member-buttons">
+                <button id="btn_mail" th:onclick="sendMail()" disabled>메일 보내기</button>
+                <button id="btn_verify" th:onclick="verify()" disabled>인증코드 검증</button>
+            </div>
+        </div>
+    </div>
+</div>
+</html>
+<th:block th:replace="~{fragments/script-loader :: load('verification')}"></th:block>

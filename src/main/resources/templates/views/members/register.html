@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/main}">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+    <link rel="stylesheet" th:href="@{/css/member.css}">
+    <title>Register</title>
+</head>
+<div class="member_profile" layout:fragment="content">
+    <div class="page_description">
+        <h1>Register</h1>
+        <h4>간단한 정보 입력 후 핀업을 경험해보세요!</h4>
+    </div>
+    <div class="member_profile_content">
+        <div class="table-container">
+            <table class="table" th:object="${registerRequest}">
+                <tbody>
+                <tr>
+                    <td>이름</td>
+                    <td><input type="text" name="name" th:field="*{name}" placeholder="이름" onclick="this.select()"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <div id="error-name" class="error-text"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>이메일</td>
+                    <td>
+                        <input type="text" id="emailRegister" name="emailRegister" th:field="*{email}"
+                               th:placeholder="이메일" onclick="this.select()">
+                        <button id="btn_email_check" type="button" th:onclick="validEmail()" title="입력한 이메일 중복 확인">중복확인</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <div id="error-email" class="error-text"></div>
+                    </td>
+                </tr>
+                <!-- 본인인증 -->
+                <tr id="verification-row" style="display: none;">
+                    <td>본인인증</td>
+                    <td>
+                        <input type="text" id="verification-code" placeholder="인증코드" disabled>
+                        <button id="btn_mail" th:onclick="sendMail()" title="이메일로 인증코드 전송">전송</button>
+                        <button id="btn_verify" type="button" th:onclick="verifyRegister()" title="인증코드 확인" disabled>검증</button>
+                    </td>
+                </tr>
+<!--                <tr id="verification-row" style="display: none;">-->
+<!--                    <td>본인인증</td>-->
+<!--                    <td><button id="btn_mail" th:onclick="sendMail()" disabled>메일 보내기</button></td>-->
+<!--                </tr>-->
+<!--                <tr id="code-row" style="display: none;">-->
+<!--                    <td>인증코드</td>-->
+<!--                    <td>-->
+<!--                        <input type="text" id="verification-code" placeholder="인증코드">-->
+<!--                        <button id="btn_verify" type="button" th:onclick="verifyRegister()">인증코드 검증</button>-->
+<!--                    </td>-->
+<!--                </tr>-->
+                <tr id="code-error-row" style="display: none;">
+                    <td/>
+                    <td><div id="error-code" class="error-text"></div></td>
+                </tr>
+                <tr id="timer-row" style="display: none;">
+                    <td/>
+                    <td><div id="timer-text" class="error-text"></div></td>
+                </tr>
+                <!-- 본인인증 완료 후 작성 가능해짐 -->
+                <tr>
+                    <td>비밀번호</td>
+                    <td><input type="password" name="password" th:field="*{password}" th:placeholder="비밀번호" disabled>
+                    </td>
+                </tr>
+                <tr>
+                    <td>비밀번호 확인</td>
+                    <td>
+                        <input type="password" id="confirmPassword" placeholder="비밀번호 확인" disabled>
+                    </td>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <div id="error-password" class="error-text"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>닉네임</td>
+                    <td>
+                        <input id="nickname" type="text" th:field="*{nickname}" th:placeholder="닉네임"
+                               onclick="this.select()" disabled>
+                        <button id="btn_nickname" type="button" th:onclick="generateNickname()" disabled>추천</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <div id="error-nickname" class="error-text"></div>
+                    </td>
+                </tr>
+                <tr style="display: none;">
+                    <td>가입경로</td>
+                    <td>
+                        <input type="hidden" id="providerType" name="providerType"
+                               th:value="${registerRequest.providerType}"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="button-container">
+        <div class="home-button">
+            <button th:onclick="|window.location.href='/members/login'|">로그인 화면으로 이동</button>
+        </div>
+        <div></div>
+        <div class="member-buttons">
+            <button id="btn_register" type="button" th:onclick="register()" disabled>회원가입</button>
+        </div>
+    </div>
+</div>
+</html>
+<th:block th:replace="~{fragments/script-loader :: load('verification')}"></th:block>

@@ -123,6 +123,7 @@ class CommentApiControllerDocsTest {
                                 fieldWithPath("member.nickname").description("작성자 닉네임"),
                                 fieldWithPath("member.name").description("작성자 이름"),
                                 fieldWithPath("member.email").description("작성자 이메일"),
+                                fieldWithPath("member.password").description("작성자 비밀번호"),
                                 fieldWithPath("member.providerType").description("소셜 로그인 제공자"),
                                 fieldWithPath("member.providerId").description("소셜 제공자 식별자"),
                                 fieldWithPath("member.role").description("작성자 권한"),

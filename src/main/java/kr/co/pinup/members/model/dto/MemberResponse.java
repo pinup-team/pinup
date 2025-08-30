@@ -52,6 +52,12 @@ public class MemberResponse {
         isDeleted = member.isDeleted();
     }
 
+    public static MemberResponse ofNickname(String nickname) {
+        return MemberResponse.builder()
+                .nickname(nickname)
+                .build();
+    }
+
     public static MemberResponse fromMember(Member member) {
         return MemberResponse.builder()
                 .id(member.getId())

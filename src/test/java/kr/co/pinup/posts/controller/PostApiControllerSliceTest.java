@@ -11,7 +11,6 @@ import kr.co.pinup.comments.service.CommentService;
 import kr.co.pinup.config.LoggerConfig;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.model.dto.MemberInfo;
-import kr.co.pinup.members.model.dto.MemberResponse;
 import kr.co.pinup.members.model.enums.MemberRole;
 import kr.co.pinup.members.repository.MemberRepository;
 import kr.co.pinup.members.service.MemberService;
@@ -133,18 +132,10 @@ class PostApiControllerSliceTest {
 
             when(mock.createPost(any(), any(), any()))
                     .thenReturn(new PostResponse(
-                            1L, 1L,
-                            MemberResponse.builder()
-                                    .id(1L)
-                                    .name("테스트유저")
-                                    .email("test@example.com")
-                                    .nickname("tester")
-                                    .providerType(OAuthProvider.GOOGLE)
-                                    .role(MemberRole.ROLE_USER)
-                                    .isDeleted(false)
-                                    .build(),
-                            "dummy title", "dummy content", null,
-                            LocalDateTime.now(), LocalDateTime.now(), 0,false
+                            1L,
+                            "테스트유저",
+                            "dummy title",  null,
+                            LocalDateTime.now(),1L, 0,false
                     ));
 
             doAnswer(invocation -> {

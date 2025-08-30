@@ -4,7 +4,20 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum OAuthProvider {
-    GOOGLE, NAVER, KAKAO;
+    GOOGLE("구글"),
+    NAVER("네이버"),
+    KAKAO("카카오"),
+    PINUP("일반");
+
+    private final String displayName;
+
+    OAuthProvider(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
 
     @JsonCreator
     public static OAuthProvider fromString(String value) {

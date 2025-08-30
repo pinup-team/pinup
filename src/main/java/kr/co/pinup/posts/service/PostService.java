@@ -97,30 +97,13 @@ public class PostService {
     public List<PostResponse> findByStoreIdWithCommentsAndLikes(Long storeId, boolean isDeleted, MemberInfo memberInfo) {
         log.debug("댓글 포함 게시글 요청: storeId={}, isDeleted={}", storeId, isDeleted);
 
-        List<Post> posts = postRepository.findByStoreIdAndIsDeleted(storeId, isDeleted);
+        Long memberId = (memberInfo != null) ? memberRepository.findByNickname(memberInfo.nickname())
+                .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."))
+                .getId() : null;
 
-        if (memberInfo == null) {
-            return posts.stream()
-                    .map(post -> PostResponse.fromPostWithComments(
-                            post,
-                            commentRepository.countByPostId(post.getId()),
-                            false
-                    ))
-                    .collect(Collectors.toList());
-        }
+        return postRepository.findPostListItems(storeId, isDeleted, memberId);
 
-        Member member = memberRepository.findByNickname(memberInfo.nickname())
-                .orElseThrow(() -> new MemberNotFoundException(memberInfo.nickname() + "님을 찾을 수 없습니다."));
-
-        return posts.stream()
-                .map(post -> PostResponse.fromPostWithComments(
-                        post,
-                        commentRepository.countByPostId(post.getId()),
-                        postLikeRepository.existsByPostIdAndMemberId(post.getId(), member.getId())
-                ))
-                .collect(Collectors.toList());
     }
-
 
     public PostResponse getPostById(Long id, boolean isDeleted) {
         log.debug("게시글 단건 요청: postId={}, isDeleted={}", id, isDeleted);
@@ -231,7 +214,6 @@ public class PostService {
             throw e;
         }
     }
-
 
     public void disablePost(Long postId) {
         Post post = findByIdOrThrow(postId);

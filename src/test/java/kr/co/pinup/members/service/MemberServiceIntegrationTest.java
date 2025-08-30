@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.junit5.WireMockTest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import kr.co.pinup.config.OauthConfig;
+import kr.co.pinup.config.SecurityConfig;
 import kr.co.pinup.members.Member;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.members.model.dto.MemberInfo;
@@ -21,6 +22,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -33,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
 @WireMockTest(httpPort = 8888)
+@Import(SecurityConfig.class)
 class MemberServiceIntegrationTest {
 
     @Autowired
@@ -62,9 +65,9 @@ class MemberServiceIntegrationTest {
 
         session = new MockHttpSession();
 
-        member = new Member("test", "test@naver.com", "testNickname", OAuthProvider.NAVER, "123456789", MemberRole.ROLE_USER, false);
+        member = new Member("test", "test@naver.com", "testNickname", "", OAuthProvider.NAVER, "123456789", MemberRole.ROLE_USER, false);
         memberInfo = new MemberInfo("testNickname", OAuthProvider.NAVER, MemberRole.ROLE_USER);
-        memberRequest = new MemberRequest("test", "test@naver.com", "updatedNickname", OAuthProvider.NAVER);
+        memberRequest = new MemberRequest("test", "test@naver.com", "", "updatedNickname", OAuthProvider.NAVER);
 
         memberRepository.save(member);
     }
@@ -83,7 +86,7 @@ class MemberServiceIntegrationTest {
     @Disabled
     void testNaverOAuthLogin_ShouldReturnUpdatedMember() {
         NaverLoginParams naverLoginParams = NaverLoginParams.builder().code("oauthTestCode").state("oauthTestState").build();
-        Triple<OAuthResponse, OAuthToken, String> response = memberService.login(naverLoginParams, session);
+        Triple<OAuthResponse, OAuthToken, String> response = memberService.oauthLogin(naverLoginParams, session);
         // 작동안함....진짜 환장 왜 안하는거야 도라방스
         assertNotNull(response);
         OAuthToken oAuthToken = response.getMiddle();
@@ -114,7 +117,7 @@ class MemberServiceIntegrationTest {
 
         assertNotNull(response);
         assertThat(response.getNickname()).isEqualTo("updatedNickname");
-        Member updated = memberRepository.findByEmailAndIsDeletedFalse(member.getEmail()).orElseThrow();
+        Member updated = memberRepository.findByEmailAndProviderTypeAndIsDeletedFalse(member.getEmail(), member.getProviderType()).orElseThrow();
         assertThat(updated.getNickname()).isEqualTo("updatedNickname");
     }
 

@@ -14,7 +14,6 @@ import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.repository.PostRepository;
 import kr.co.pinup.posts.service.PostService;
-import kr.co.pinup.stores.Store;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
@@ -67,7 +65,7 @@ class PostLikeServiceUnitTest {
     }
 
     private Member createMockMember() {
-        Member member = new Member("행복한 돼지", "test@example.com", "happyPig",
+        Member member = new Member("행복한 돼지", "test@example.com", "happyPig", "",
                 OAuthProvider.NAVER, "provider-id-123", MemberRole.ROLE_USER, false);
         ReflectionTestUtils.setField(member, "id", 100L); // ID 설정 추가
         return member;

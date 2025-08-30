@@ -4,20 +4,67 @@
       layout:decorate="~{layouts/main}"
       xmlns:oauth="http://oauth">
 <head>
+    <link rel="stylesheet" th:href="@{/css/member.css}">
     <title>Login</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+
 </head>
-<div class="center_content" layout:fragment="content">
+<div class="member_profile" layout:fragment="content">
     <div class="page_description">
         <h1>Login</h1>
-        <h4>소셜 계정을 사용해 간단하게 로그인/회원가입 하세요</h4>
+        <h4>계정을 입력하거나 소셜 계정을 사용해 빠르게 로그인/회원가입할 수 있어요.</h4>
     </div>
-    <div>
-        <a oauth:naverLoginUrl="커스텀 uri">
-            <button>NAVER 로그인</button>
-        </a>
-        <a oauth:googleLoginUrl="커스텀 uri">
-            <button>GOOGLE 로그인</button>
-        </a>
+    <div class="member_profile_content">
+        <div class="table-container">
+            <table class="table" th:object="${loginRequest}">
+                <tbody>
+                <tr>
+                    <td>이메일</td>
+                    <td><input type="text" name="email" th:field="*{email}" th:placeholder="이메일" id="email" onclick="this.select()"></td>
+                </tr>
+                <tr>
+                    <td/>
+                    <td><div id="error-email" name="error-email" class="error-text"></div></td>
+                </tr>
+                <tr>
+                    <td>비밀번호</td>
+                    <td><input type="password" name="password" th:field="*{password}" th:placeholder="비밀번호" id="password" onclick="this.select()"></td>
+                </tr>
+                <tr>
+                    <td/>
+                    <td><div id="error-password" class="error-text"></div></td>
+                </tr>
+                <tr style="display: none;">
+                    <td>가입경로</td>
+                    <td>
+                        <input type="hidden" id="providerType" name="providerType"
+                               th:value="${loginRequest.providerType}"/>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="oauth-container">
+            <a oauth:naverLoginUrl="커스텀 uri">
+                <img class="naver-login-button" src="/images/btnG_축약형.png" alt="네이버 로그인"/>
+            </a>
+            <a oauth:googleLoginUrl="커스텀 uri">
+                <img class="google-login-button" src="/images/구글로그인.png" alt="네이버 로그인"/>
+            </a>
+        </div>
+        <div class="button-container">
+            <div class="member-buttons">
+                <button th:onclick="|window.location.href='/members/verify'|">비밀번호 찾기</button>
+            </div>
+            <div class="member-buttons">
+                <button th:onclick="|window.location.href='/members/register'|">회원가입</button>
+                <button type="button" th:onclick="login()">로그인</button>
+            </div>
+        </div>
     </div>
 </div>
 </html>
+<script th:inline="javascript">
+    var profile = /*[[${loginRequest}]]*/'${loginRequest}';
+</script>

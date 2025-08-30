@@ -9,11 +9,13 @@ import kr.co.pinup.custom.logging.model.dto.ErrorLog;
 import kr.co.pinup.custom.logging.model.dto.InfoLog;
 import kr.co.pinup.custom.logging.model.dto.WarnLog;
 import kr.co.pinup.custom.loginMember.LoginMember;
+import kr.co.pinup.exception.common.UnauthorizedException;
+import kr.co.pinup.members.Member;
+import kr.co.pinup.members.exception.MemberBadRequestException;
+import kr.co.pinup.members.exception.MemberNotFoundException;
+import kr.co.pinup.members.exception.MemberServiceException;
 import kr.co.pinup.members.exception.OAuthTokenRequestException;
-import kr.co.pinup.members.model.dto.MemberApiResponse;
-import kr.co.pinup.members.model.dto.MemberInfo;
-import kr.co.pinup.members.model.dto.MemberRequest;
-import kr.co.pinup.members.model.dto.MemberResponse;
+import kr.co.pinup.members.model.dto.*;
 import kr.co.pinup.members.service.MemberService;
 import kr.co.pinup.oauth.OAuthLoginParams;
 import kr.co.pinup.oauth.OAuthResponse;
@@ -22,6 +24,7 @@ import kr.co.pinup.oauth.google.GoogleLoginParams;
 import kr.co.pinup.oauth.naver.NaverLoginParams;
 import kr.co.pinup.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.http.*;
 import org.springframework.validation.annotation.Validated;
@@ -30,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Optional;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,57 +60,138 @@ public class MemberApiController {
         appLogger.info(new InfoLog("Login with OAuth Start"));
         HttpSession session = request.getSession(true);
 
-        Triple<OAuthResponse, OAuthToken, String> triple = null;
         try {
-            triple = memberService.login(params, session);
+            Triple<OAuthResponse, OAuthToken, String> triple = memberService.oauthLogin(params, session);
             appLogger.info(new InfoLog("OAuth 로그인 성공 - provider=" + params.oAuthProvider() + ", email=" + triple.getLeft().getEmail()));
+
+            securityUtil.setRefreshTokenToCookie(response, triple.getMiddle().getRefreshToken());
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create("/"));
+
+            String encodedMessage = URLEncoder.encode(triple.getRight(), StandardCharsets.UTF_8);
+            response.addHeader(HttpHeaders.SET_COOKIE,
+                    createCookie("loginMessage", encodedMessage, 5, false).toString());
+
+            return ResponseEntity.status(HttpStatus.FOUND).headers(headers).build();
+        } catch (MemberBadRequestException e) {
+            appLogger.error(new ErrorLog("OAuth 로그인 실패 - provider: " + params.oAuthProvider(), e));
+
+            throw new MemberServiceException(params.oAuthProvider().getDisplayName() + " 로그인에 실패하였습니다.\n" + e.getMessage());
         } catch (Exception e) {
             appLogger.error(new ErrorLog("OAuth 로그인 실패 - provider: " + params.oAuthProvider(), e));
             throw new OAuthTokenRequestException("OAuth 로그인 실패");
         }
+    }
 
-        OAuthToken oAuthToken = triple.getMiddle();
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@Valid @RequestBody MemberLoginRequest member, HttpServletRequest request, HttpServletResponse response) {
+        appLogger.info(new InfoLog("Login By Pinup"));
+        HttpSession session = request.getSession(true);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setLocation(URI.create("/"));
-        securityUtil.setRefreshTokenToCookie(response, oAuthToken.getRefreshToken());
+        try {
+            Pair<Member, String> pair = memberService.login(member, session);
+            appLogger.info(new InfoLog("자체 로그인 성공 - provider=" + member.providerType() + ", email=" + member.email()));
+            securityUtil.setRefreshTokenToCookie(response, null);
+            return ResponseEntity.ok(pair.getRight());
+        } catch (MemberServiceException | MemberNotFoundException | UnauthorizedException e) {
+            appLogger.warn(new WarnLog("자체 로그인 실패 - provider: " + member.providerType())
+                    .setStatus(String.valueOf(HttpStatus.BAD_REQUEST.value()))
+                    .addDetails("reason", e.getMessage()));
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            appLogger.error(new ErrorLog("자체 로그인 실패 - provider: " + member.providerType(), e));
+            throw new MemberNotFoundException("로그인에 실패하였습니다.");
+        }
+    }
 
-        String encodedMessage = URLEncoder.encode(triple.getRight(), StandardCharsets.UTF_8);
-        ResponseCookie messageCookie = ResponseCookie.from("loginMessage", encodedMessage)
-                .path("/")
-                .maxAge(5)
-                .httpOnly(false)
-                .build();
-        response.addHeader(HttpHeaders.SET_COOKIE, messageCookie.toString());
+    @GetMapping("/validate")
+    public ResponseEntity<?> validateEmail(@RequestParam("email") @Valid String email) {
+        appLogger.info(new InfoLog("이메일 중복 확인 요청: " + email));
 
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .headers(headers)
-                .build();
+        return memberService.validateEmail(email)
+                ? ResponseEntity.ok("해당 이메일은 가입 가능합니다.\n이어서 본인 인증을 진행해 주세요.")
+                : ResponseEntity.status(HttpStatus.CONFLICT).body("이미 가입된 이메일입니다.");
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody MemberRequest member, HttpServletResponse response) {
+        appLogger.info(new InfoLog("register By Pinup"));
+
+        try {
+            Pair<Member, String> pair = memberService.register(member);
+
+            if (pair == null || pair.getLeft() == null) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("회원가입에 실패했습니다.\n잠시 후 다시 시도해 주세요.");
+            }
+
+            return ResponseEntity.ok("회원가입이 완료되었습니다.\n로그인 화면으로 이동합니다.");
+        } catch (MemberBadRequestException e) {
+            appLogger.error(new ErrorLog("회원가입 실패", e));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("회원가입에 실패했습니다.\n" + e.getMessage());
+        } catch (Exception e) {
+            appLogger.error(new ErrorLog("회원가입 실패", e));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("서버 오류로 인해 회원가입에 실패했습니다.");
+        }
     }
 
     @GetMapping(value = "/nickname", produces = MediaType.TEXT_PLAIN_VALUE)
-    public ResponseEntity<String> makeNickname(@LoginMember MemberInfo memberInfo) {
+    public ResponseEntity<String> makeNickname(HttpServletRequest request) {
         appLogger.info(new InfoLog("Make Random Nickname"));
 
-        return Optional.ofNullable(memberInfo).map(user -> {
+        String referer = request.getHeader("Referer");
+
+        if (referer != null && referer.contains("/members/profile")) {
+            MemberInfo memberInfo = securityUtil.getMemberInfo();
+            if (memberInfo == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body("로그인 정보가 없습니다.");
+            }
             String nickname = memberService.makeNickname();
             return ResponseEntity.ok(nickname);
-        }).orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body("로그인 정보가 없습니다."));
+        }
+
+        if (referer != null && referer.contains("/members/register")) {
+            String nickname = memberService.makeNickname();
+            return ResponseEntity.ok(nickname);
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("허용되지 않은 요청입니다.");
     }
 
     @PatchMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> update(@LoginMember MemberInfo memberInfo, @Validated @RequestBody MemberRequest memberRequest) {
-        appLogger.info(new InfoLog("사용자 닉네임 변경 요청 - 기존 닉네임=" + memberInfo.getUsername() + ", 변경할 닉네임=" + memberRequest.nickname()));
+        appLogger.info(new InfoLog("사용자 정보 수정 요청 - 기존 닉네임=" + memberInfo.getUsername() + ", 변경할 닉네임=" + memberRequest.nickname()));
 
         MemberResponse updatedMemberResponse = memberService.update(memberInfo, memberRequest);
         if (updatedMemberResponse != null && updatedMemberResponse.getNickname().equals(memberRequest.nickname())) {
             return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(200).message("닉네임이 변경되었습니다.").build());
+                    .body(MemberApiResponse.builder().code(200).message("사용자 정보가 성공적으로 수정되었습니다.").build());
         } else {
-            appLogger.warn(new WarnLog("닉네임 변경 실패 - 기존 닉네임=" + memberInfo.getUsername() + ", 요청 닉네임=" + memberRequest.nickname()).setStatus("400"));
+            appLogger.warn(new WarnLog("사용자 정보 수정 실패 - 기존 닉네임=" + memberInfo.getUsername() + ", 요청 닉네임=" + memberRequest.nickname()).setStatus("400"));
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(400).message("닉네임 변경에 실패하였습니다.\n관리자에게 문의해주세요.").build());
+                    .body(MemberApiResponse.builder().code(400).message("정보 수정에 실패했습니다.\n잠시 후 다시 시도해 주세요.").build());
+        }
+    }
+
+    @PatchMapping("/reset")
+    public ResponseEntity<?> resetPassword(@Validated @RequestBody MemberPasswordRequest memberRequest) {
+        appLogger.info(new InfoLog("사용자 정보 수정 요청 - 이메일=" + memberRequest.email()));
+
+        MemberResponse updatedMemberResponse = memberService.resetPassword(memberRequest);
+        if (updatedMemberResponse != null && updatedMemberResponse.getEmail().equals(memberRequest.email())) {
+            return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+                    .body(MemberApiResponse.builder().code(200).message("비밀번호가 성공적으로 변경되었습니다.").build());
+        } else {
+            appLogger.warn(new WarnLog("사용자 정보 수정 실패 - 이메일=" + memberRequest.email()).setStatus("400"));
+            return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON)
+                    .body(MemberApiResponse.builder().code(400).message("비밀번호 변경에 실패했습니다.\n잠시 후 다시 시도해 주세요.").build());
         }
     }
 
@@ -117,11 +201,11 @@ public class MemberApiController {
 
         if (memberService.disable(memberInfo, memberRequest)) {
             return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(200).message("탈퇴되었습니다. 이용해주셔서 감사합니다.").build());
+                    .body(MemberApiResponse.builder().code(200).message("회원 탈퇴가 완료되었습니다.\n이용해주셔서 감사합니다.").build());
         } else {
             appLogger.warn(new WarnLog("회원 탈퇴 실패 - nickname: " + memberInfo.getUsername()).setStatus("400"));
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(400).message("탈퇴에 실패하였습니다.\n관리자에게 문의해주세요.").build());
+                    .body(MemberApiResponse.builder().code(400).message("회원 탈퇴에 실패했습니다.\n관리자에게 문의해 주세요.").build());
         }
     }
 
@@ -131,11 +215,20 @@ public class MemberApiController {
 
         if (memberService.logout(memberInfo.provider(), securityUtil.getAccessTokenFromSecurityContext())) {
             return ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(200).message("로그아웃에 성공하였습니다.").build());
+                    .body(MemberApiResponse.builder().code(200).message("로그아웃되었습니다.").build());
         } else {
             appLogger.warn(new WarnLog("로그아웃 실패 - nickname: " + memberInfo.getUsername()).setStatus("400"));
             return ResponseEntity.badRequest().contentType(MediaType.APPLICATION_JSON)
-                    .body(MemberApiResponse.builder().code(400).message("로그아웃에 실패하였습니다.\n관리자에게 문의해주세요.").build());
+                    .body(MemberApiResponse.builder().code(400).message("로그아웃에 실패했습니다.\n잠시 후 다시 시도해 주세요.").build());
         }
     }
+
+    private ResponseCookie createCookie(String name, String value, int maxAge, boolean httpOnly) {
+        return ResponseCookie.from(name, value)
+                .path("/")
+                .maxAge(maxAge)
+                .httpOnly(httpOnly)
+                .build();
+    }
+
 }

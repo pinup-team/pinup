@@ -65,10 +65,11 @@ public class AccessTokenValidationFilter extends OncePerRequestFilter {
         } catch (UnauthorizedException e) {
             appLogger.error(new ErrorLog("AccessTokenFilter 사용자 인증 실패", e)
                     .addDetails("requestURI", requestURI));
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         } catch (OAuthAccessTokenNotFoundException e) {
             appLogger.error(new ErrorLog("AccessTokenFilter AccessToken 존재 X", e)
                     .addDetails("requestURI", requestURI));
-            response.sendRedirect("/login");
+            response.sendRedirect("/members/login");
         } catch (Exception e) {
             appLogger.error(new ErrorLog("AccessTokenFilter 예상치 못한 오류 발생", e)
                     .addDetails("requestURI", requestURI));

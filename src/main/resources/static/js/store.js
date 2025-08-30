@@ -1,5 +1,5 @@
-import { getLocationData } from "./locationData.js";
-import { registerLocation, updateLocation } from "./locationApi.js";
+import {getLocationData} from "./locationData.js";
+import {registerLocation, updateLocation} from "./locationApi.js";
 import ImagePreview from "./storeImagePreview.js";
 
 function addOperatingHour() {

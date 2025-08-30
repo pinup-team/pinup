@@ -65,9 +65,9 @@ public class MemberApiControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        member = new Member("test", "test@naver.com", "네이버TestMember", OAuthProvider.NAVER, "123456789", MemberRole.ROLE_USER, false);
+        member = new Member("test", "test@naver.com", "네이버TestMember", "", OAuthProvider.NAVER, "123456789", MemberRole.ROLE_USER, false);
         memberInfo = new MemberInfo("네이버TestMember", OAuthProvider.NAVER, MemberRole.ROLE_USER);
-        memberRequest = new MemberRequest("test", "test@naver.com", "updatedTestNickname", OAuthProvider.NAVER);
+        memberRequest = new MemberRequest("test", "test@naver.com", "", "updatedTestNickname", OAuthProvider.NAVER);
         memberRepository.save(member);
 
         UsernamePasswordAuthenticationToken authentication =
@@ -83,7 +83,7 @@ public class MemberApiControllerIntegrationTest {
         NaverResponse oAuthResponse = NaverResponse.builder().response(NaverResponse.Response.builder().id("123456789").name("test").email("test@naver.com").build()).build(); // Mock or populate with necessary data
         NaverToken oAuthToken = NaverToken.builder().accessToken("access_token").refreshToken("refresh_token").build(); // Missing refresh token
 
-        when(memberService.login(any(NaverLoginParams.class), any(HttpSession.class)))
+        when(memberService.oauthLogin(any(NaverLoginParams.class), any(HttpSession.class)))
                 .thenReturn(Triple.of(oAuthResponse, oAuthToken, "Success"));
 
         mockMvc.perform(get("/api/members/oauth/naver")
@@ -102,7 +102,7 @@ public class MemberApiControllerIntegrationTest {
         GoogleResponse oAuthResponse = GoogleResponse.builder().sub("987654321").name("test").email("test@gmail.com").build();
         GoogleToken oAuthToken = GoogleToken.builder().accessToken("access_token").refreshToken("refresh_token").build();
 
-        when(memberService.login(any(GoogleLoginParams.class), any(HttpSession.class)))
+        when(memberService.oauthLogin(any(GoogleLoginParams.class), any(HttpSession.class)))
                 .thenReturn(Triple.of(oAuthResponse, oAuthToken, "Success"));
 
         mockMvc.perform(get("/api/members/oauth/google")
@@ -139,7 +139,7 @@ public class MemberApiControllerIntegrationTest {
                 .andExpect(jsonPath("$.code").value(expectedResponse.code()))
                 .andExpect(jsonPath("$.message").value(expectedResponse.message()));
 
-        Member updatedMember = memberRepository.findByEmailAndIsDeletedFalse(member.getEmail()).orElseThrow();
+        Member updatedMember = memberRepository.findByEmailAndProviderTypeAndIsDeletedFalse(member.getEmail(), OAuthProvider.NAVER).orElseThrow();
         assertEquals("updatedTestNickname", updatedMember.getNickname());
     }
 
