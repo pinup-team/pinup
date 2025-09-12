@@ -1,0 +1,21 @@
+name: Add issues/PRs to Project
+
+on:
+  issues:
+    types: [opened, reopened, edited]
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+permissions:
+  contents: read  # 코드 체크아웃 안 하므로 최소 권한
+
+jobs:
+  add:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/add-to-project@v1.0.2
+        with:
+          # ↓ 본인 프로젝트 URL로 교체
+          project-url: https://github.com/orgs/pinup-team/projects/2
+          # ↑ Org 프로젝트면: https://github.com/orgs/<ORG>/projects/<NUMBER>
+          github-token: ${{ secrets.PROJECTS_TOKEN }}
