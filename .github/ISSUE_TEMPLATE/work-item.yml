@@ -1,0 +1,138 @@
+name: Work Item (Tables)
+description: 테이블(도메인) 단위 운영 작업 생성
+title: "[Task] issue "
+labels: []
+
+body:
+  # --- 상단 안내/도움말(가독성 향상) ---
+  - type: markdown
+    attributes:
+      value: |
+        ### 🧾 Quick summary
+        이 폼은 카드에 **Priority / Component / Change Type / Due Date** 4가지만 칩으로 보이도록 설계되어 있습니다.  
+        아래 **도움말**을 참고해 각 항목을 빠르게 선택하세요.
+
+        <details>
+        <summary><strong>도움말 펼치기</strong> (Change Type / Component / Priority / Due Date 안내)</summary>
+
+        #### 🏷 Change Type (작업 성격)
+        - `feat` : 신규 기능 추가  
+        - `fix` : 버그 수정  
+        - `refactor` : 내부 구조 개선(동작 동일)  
+        - `docs` : 문서만 수정  
+        - `chore` : 유지보수/도구/종속성 등(로직 영향 없음)  
+        - `perf` : 성능 개선(더 빠름/적은 리소스)  
+        - `test` : 테스트 추가/수정  
+        - `ci` : CI 파이프라인 변경  
+        - `build` : 빌드/패키징/종속성 변경  
+        - `revert` : 변경 되돌리기
+
+        #### 🧩 Component (대표 도메인 선택)
+        - `members`(회원/계정), `posts`(게시글/피드), `comments`(댓글), `post_like`(좋아요), `post_images`(게시글 이미지)  
+        - `notices`(공지), `faqs`(FAQ)  
+        - `stores`(매장), `store_categories`(매장 카테고리), `store_images`(매장 이미지), `store_operating_hour`(영업시간), `locations`(위치/지점)  
+        - `verification`(계정/매장 인증)
+
+        #### 🚨 Priority (영향/긴급도)
+        - **Critical**: 서비스 중단·보안·데이터 손실 등 즉시 대응  
+        - **High**: 핵심 기능 영향, 다수 사용자 영향 → 스프린트 우선 처리  
+        - **Medium**: 일반 개선/경미한 버그  
+        - **Low**: 낮은 영향의 정리 작업
+
+        #### 📅 Due Date (마감일)
+        - 형식: `YYYY-MM-DD` (예: `2025-09-12`)  
+        - **비워두면** 워크플로가 KST ‘오늘’로 자동 설정합니다.  
+        - 칸반 카드에는 날짜 칩(예: `Nov 6, 2025`)으로 표시됩니다.  
+        - 카드/사이드패널에서 직접 수정해도 워크플로가 **덮어쓰지 않습니다.**
+
+        </details>
+
+  # 핵심 메타 4종 —— (워크플로가 동기화)
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: 작업의 비즈니스 임팩트/긴급도
+      options: [Critical, High, Medium, Low]
+    validations:
+
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: 작업 테이블(대표 도메인) 1개를 선택하세요
+      options:
+        - comments
+        - faqs
+        - locations
+        - members
+        - notices
+        - post_images
+        - post_like
+        - posts
+        - store_categories
+        - store_images
+        - store_operating_hour
+        - stores
+        - verification
+
+#  - type: checkboxes
+#    id: affected_tables
+#    attributes:
+#      label: Affected Tables
+#      description: 함께 영향을 받는 테이블(복수 선택)
+#      options:
+#        - label: comments
+#        - label: faqs
+#        - label: locations
+#        - label: members
+#        - label: notices
+#        - label: post_images
+#        - label: post_like
+#        - label: posts
+#        - label: store_categories
+#        - label: store_images
+#        - label: store_operating_hour
+#        - label: stores
+#        - label: verification
+
+  - type: dropdown
+    id: change_type
+    attributes:
+      label: Change Type
+      description: 작업 성격
+      options: ["feat","fix","refactor","docs","chore","perf","test","ci","build","revert"]
+    #docs : 문서만 수정/chore : 유지보수/잡무(코드 로직 변화 없음)/perf : 성능 개선/test : 테스트 추가/수정/ci, build : 파이프라인/빌드 변경/revert : 변경 되돌리기
+    validations:
+
+
+  - type: input
+    id: due_date
+    attributes:
+      label: Due Date
+      description: YYYY-MM-DD 형식으로 입력
+      placeholder: "2025-09-12"
+    validations:
+
+
+  # 구분선
+  - type: markdown
+    attributes:
+      value: "---"
+
+  # 본문 — 카드에는 안 보이고 이슈 상세에서만 읽힘
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: 무엇/왜/어떻게 (재현 스텝, 로그/쿼리, 기대동작, 영향 범위 등)
+      placeholder: |
+        - 배경:
+        - 기대 동작:
+        - 변경 내용:
+        - 영향 범위/리스크:
+        - 테스트/검증:
+        - 롤백/모니터링:
+    validations:
+      required: true

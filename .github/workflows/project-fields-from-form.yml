@@ -1,0 +1,311 @@
+name: Sync issue form to Project fields (ORG)
+
+on:
+  issues:
+    types: [opened, edited]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Manual sync target issue number"
+        required: true
+        type: number
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write   # 코멘트/본문 업데이트
+
+    env:
+      # === 조직 프로젝트 설정 ===
+      ORG: "pinup-team"            # ← 조직 로그인 (organization login)
+      PROJECT_NUMBER: "2"          # ← 조직 Project(v2) 번호
+
+      # === Projects 필드명 (철자 완전 일치) ===
+      PRIORITY_FIELD_NAME: "Priority"        # Single-select
+      COMPONENT_FIELD_NAME: "Component"      # Single-select
+      CHANGE_TYPE_FIELD_NAME: "Change Type"  # Single-select
+      DUEDATE_FIELD_NAME: "Due Date"         # Date
+      SUMMARY_FIELD_NAME: "Summary"          # Text (선택)
+      DDAY_FIELD_NAME: "D-Day"               # Text (선택)
+
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.PROJECTS_TOKEN }}  # classic PAT (repo, project, read:org)
+          script: |
+            const gql = github.graphql;
+            const ops = [];
+
+            // ---------- helpers ----------
+            const KST_TODAY = () => new Date().toLocaleString('sv-SE', { timeZone: 'Asia/Seoul' }).slice(0,10);
+            const isISO = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s) && !Number.isNaN(new Date(`${s}T00:00:00Z`).getTime());
+            const stripMd = (s) => (s || "").replace(/(^_+|_+$)/g,"").replace(/[ *`~>|]/g,"").trim();
+            const emptyLike = (s) => !s || /^no response$/i.test(s) || /^n\/a$/i.test(s) || /^none$/i.test(s) || /^-+$/.test(s);
+            const ddayLabel = (n) => n===0 ? "D-Day" : n>0 ? `D-${n}` : `D+${Math.abs(n)}`;
+            const diffDaysKST = (iso) => {
+              if (!iso) return null;
+              const tz = "Asia/Seoul";
+              const todayStr = new Date().toLocaleString("sv-SE", { timeZone: tz }).slice(0,10);
+              const [ty,tm,td] = todayStr.split("-").map(Number);
+              const [y,m,d]    = iso.split("-").map(Number);
+              const t0 = Date.UTC(ty, tm-1, td);
+              const d0 = Date.UTC(y, m-1, d);
+              return Math.round((d0 - t0) / 86400000);
+            };
+
+            // ---------- 0) 프로젝트 메타 (ORG 기반) ----------
+            const orgLogin = (process.env.ORG || "").trim();
+            const projectNumber = Number(process.env.PROJECT_NUMBER || "0");
+            if (!orgLogin || !projectNumber) { core.setFailed("ORG/PROJECT_NUMBER missing"); return; }
+
+            const resOrg = await gql(`
+              query($login:String!, $num:Int!) {
+                organization(login:$login){
+                  projectV2(number:$num){
+                    id title
+                    fields(first:100){
+                      nodes{
+                        ... on ProjectV2FieldCommon       { id name }
+                        ... on ProjectV2SingleSelectField { id name options { id name } }
+                        ... on ProjectV2Field             { id name }
+                      }
+                    }
+                  }
+                }
+              }
+            `, { login: orgLogin, num: projectNumber });
+
+            const project = resOrg?.organization?.projectV2;
+            if (!project) { core.setFailed("Project not found. Check ORG/PROJECT_NUMBER."); return; }
+            const fields = project.fields.nodes || [];
+            const byName = (n) => fields.find(f => f && f.name === n);
+
+            const fPriority   = byName(process.env.PRIORITY_FIELD_NAME);
+            const fComponent  = byName(process.env.COMPONENT_FIELD_NAME);
+            const fChangeType = byName(process.env.CHANGE_TYPE_FIELD_NAME);
+            const fDue        = byName(process.env.DUEDATE_FIELD_NAME);
+            const fSummary    = byName(process.env.SUMMARY_FIELD_NAME);
+            const fDDay       = byName(process.env.DDAY_FIELD_NAME);
+
+            // ---------- 1) 대상 이슈 ----------
+            const owner = context.repo.owner;
+            const repo  = context.repo.repo;
+            let issue;
+            if (context.eventName === "workflow_dispatch") {
+              const num = Number(core.getInput("issue_number"));
+              if (!num) { core.setFailed("workflow_dispatch requires issue_number"); return; }
+              const { data } = await github.rest.issues.get({ owner, repo, issue_number: num });
+              issue = data;
+            } else {
+              issue = context.payload.issue;
+            }
+
+            // ---------- 2) 이슈 → 프로젝트 아이템 ----------
+            const resIssue = await gql(`
+              query($id:ID!){
+                node(id:$id){
+                  ... on Issue {
+                    id number
+                    projectItems(first:30){ nodes { id project { id } } }
+                  }
+                }
+              }`, { id: issue.node_id });
+
+            const issueNode = resIssue.node;
+            let itemId = issueNode.projectItems.nodes.find(n => n.project.id === project.id)?.id;
+            if (!itemId) {
+              const add = await gql(`
+                mutation($pid:ID!,$content:ID!){
+                  addProjectV2ItemById(input:{projectId:$pid, contentId:$content}) {
+                    item { id }
+                  }
+                }`, { pid: project.id, content: issueNode.id });
+              itemId = add.addProjectV2ItemById.item.id;
+              ops.push(`➕ Added to project "${project.title}" (Issue #${issueNode.number})`);
+            }
+
+            // ---------- 3) 현재 프로젝트 값 읽기 (fallback용) ----------
+            let currentDue = "";
+            let currentPriority = "", currentComponent = "", currentChangeType = "";
+            if (fDue || fPriority || fComponent || fChangeType) {
+              const resVals = await gql(`
+                query($item: ID!) {
+                  node(id: $item) {
+                    ... on ProjectV2Item {
+                      fieldValues(first: 50) {
+                        nodes {
+                          ... on ProjectV2ItemFieldDateValue {
+                            date
+                            field { ... on ProjectV2FieldCommon { id name } }
+                          }
+                          ... on ProjectV2ItemFieldSingleSelectValue {
+                            name
+                            field { ... on ProjectV2FieldCommon { id name } }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }`, { item: itemId });
+
+              const fvs = resVals?.node?.fieldValues?.nodes || [];
+              const getByField = (fid, pick) => {
+                const n = fvs.find(n => n?.field?.id === fid);
+                return n ? pick(n) : "";
+              };
+              if (fDue)        currentDue        = getByField(fDue.id,        n => n.date || "");
+              if (fPriority)   currentPriority   = getByField(fPriority.id,   n => n.name || "");
+              if (fComponent)  currentComponent  = getByField(fComponent.id,  n => n.name || "");
+              if (fChangeType) currentChangeType = getByField(fChangeType.id, n => n.name || "");
+            }
+
+            // ---------- 4) 폼 값 파싱 + fallback ----------
+            const issueBody = issue.body || "";
+            const pick = (label) => {
+              const re = new RegExp(`^###\\s*${label}\\s*\\n+([\\s\\S]*?)(?=\\n###|$)`, "m");
+              const m = issueBody.match(re);
+              return m ? m[1].trim() : "";
+            };
+
+            let vPriority   = stripMd(pick("Priority"));
+            let vComponent  = stripMd(pick("Component"));
+            let vChangeType = stripMd(pick("Change Type"));
+            let vDue        = stripMd(pick("Due Date"));
+            if (emptyLike(vDue)) vDue = "";
+
+            // 폼이 비어 있으면 프로젝트 칩 값으로 보강
+            if (!vPriority)   vPriority   = currentPriority;
+            if (!vComponent)  vComponent  = currentComponent;
+            if (!vChangeType) vChangeType = currentChangeType;
+
+            // ---------- 5) Due Date 결정 ----------
+            let finalDue = currentDue || "";
+            let isoDue = "";
+            if (isISO(vDue)) {
+              isoDue = vDue;
+            } else if (!vDue && !currentDue) {
+              isoDue = KST_TODAY();
+              ops.push(`ℹ️ Due Date empty → defaulting to ${isoDue} (KST today)`);
+            }
+            if (isoDue && isoDue !== currentDue) {
+              if (fDue?.id) {
+                await gql(`
+                  mutation($pid:ID!,$item:ID!,$fid:ID!,$date:Date!){
+                    updateProjectV2ItemFieldValue(input:{
+                      projectId:$pid, itemId:$item, fieldId:$fid, value:{ date:$date }
+                    }){ projectV2Item { id } }
+                  }`, { pid: project.id, item: itemId, fid: fDue.id, date: isoDue });
+                ops.push(`🔁 Due Date → ${isoDue}`);
+                finalDue = isoDue;
+              } else {
+                ops.push(`⚠️ Due Date field "${process.env.DUEDATE_FIELD_NAME}" not found, skipped update`);
+              }
+            } else {
+              finalDue = currentDue;
+            }
+
+            // ---------- 6) 나머지 필드 동기화 ----------
+            const maybeUpdateSelect = async (field, valueText, currentText, label) => {
+              if (!field?.options?.length || !valueText) return;
+              if (valueText === currentText) { ops.push(`✓ ${label} unchanged (${currentText || "-"})`); return; }
+              const opt = field.options.find(o => o.name === valueText);
+              if (!opt) { ops.push(`⚠️ ${label}: option "${valueText}" not found`); return; }
+              await gql(`
+                mutation($pid:ID!,$item:ID!,$fid:ID!,$opt:ID!){
+                  updateProjectV2ItemFieldValue(input:{
+                    projectId:$pid, itemId:$item, fieldId:$fid, value:{ singleSelectOptionId:$opt }
+                  }){ projectV2Item { id } }
+                }`, { pid: project.id, item: itemId, fid: field.id, opt: opt.id });
+              ops.push(`🔁 ${label} → ${valueText}`);
+            };
+
+            await maybeUpdateSelect(fPriority,   vPriority,   currentPriority,   "Priority");
+            await maybeUpdateSelect(fComponent,  vComponent,  currentComponent,  "Component");
+            await maybeUpdateSelect(fChangeType, vChangeType, currentChangeType, "Change Type");
+
+            // ---------- 7) Summary / D-Day ----------
+            const prMap = { Critical:"🔥 Critical", High:"🚨 High", Medium:"⚖️ Medium", Low:"💤 Low" };
+            const ctMap = { feat:"🌟 feat", fix:"🛠 fix", refactor:"♻️ refactor", docs:"📝 docs", perf:"⚡ perf",
+                            chore:"🧹 chore", test:"✅ test", ci:"🤖 ci", build:"📦 build", revert:"↩️ revert" };
+            const pieces = [];
+            if (vChangeType) pieces.push(ctMap[vChangeType] || `🏷 ${vChangeType}`);
+            if (vComponent)  pieces.push(`🧩 ${vComponent}`);
+            if (vPriority)   pieces.push(prMap[vPriority] || vPriority);
+            if (finalDue)    pieces.push(`⏰ ${finalDue} (${ddayLabel(diffDaysKST(finalDue))})`);
+
+            const summaryText = pieces.join(" · ");
+            const updateText = async (field, text, label) => {
+              if (!field || !text) return;
+              await gql(`
+                mutation($pid:ID!,$item:ID!,$fid:ID!,$txt:String!){
+                  updateProjectV2ItemFieldValue(input:{
+                    projectId:$pid, itemId:$item, fieldId:$fid, value:{ text:$txt }
+                  }){ projectV2Item { id } }
+                }`, { pid: project.id, item: itemId, fid: field.id, txt: text });
+              ops.push(`🔁 ${label} → ${text}`);
+            };
+            if (fSummary && summaryText) await updateText(fSummary, summaryText, process.env.SUMMARY_FIELD_NAME);
+            if (fDDay) {
+              const d = finalDue ? ddayLabel(diffDaysKST(finalDue)) : "";
+              if (d) await updateText(fDDay, d, process.env.DDAY_FIELD_NAME);
+            }
+
+            // ---------- 8) Summary 코멘트 업서트 ----------
+            const marker = "<!-- project-sync-summary -->";
+            const prettyDate = finalDue
+              ? new Intl.DateTimeFormat("en-US", { month:"short", day:"numeric", year:"numeric", timeZone:"Asia/Seoul" })
+                  .format(new Date(finalDue+"T00:00:00+09:00"))
+              : "";
+            const mdLines = [
+              marker,
+              "### 🧾 Summary",
+              `- **Priority:** ${vPriority || "_(none)_"}`,
+              `- **Component:** ${vComponent || "_(none)_"}`,
+              `- **Change Type:** ${vChangeType || "_(none)_"}`,
+              `- **Due Date:** ${finalDue ? `${prettyDate} (${ddayLabel(diffDaysKST(finalDue))})` : "_(none)_"}`,
+              "",
+              "> 필드는 프로젝트 카드에도 동기화됩니다. 폼/프로젝트가 비어 있으면 Due Date는 KST 오늘로 기본 설정됩니다.",
+              marker
+            ];
+            const md = mdLines.join("\n");
+
+            const list = await github.rest.issues.listComments({ owner, repo, issue_number: issue.number, per_page: 100 });
+            const existing = (list.data || []).find(c => (c.body || "").includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body: md });
+              ops.push("📝 Updated summary comment");
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number: issue.number, body: md });
+              ops.push("📝 Created summary comment");
+            }
+
+            // ---------- 9) 본문 tidy (opened 시 1회) ----------
+            if (context.eventName === "issues" && context.payload.action === "opened") {
+              const tidyMarker = "<!-- project-sync-tidied -->";
+              const { data: fresh } = await github.rest.issues.get({ owner, repo, issue_number: issue.number });
+              let ibody = fresh.body || "";
+              if (!ibody.includes(tidyMarker)) {
+                const stripSection = (src, label) =>
+                  src.replace(
+                    new RegExp(`(^|\\n)###\\s*${label}\\s*\\r?\\n+[\\s\\S]*?(?=(\\n###\\s)|$)`, "m"),
+                    (m, p1) => (p1 ? p1 : "")
+                  ).trim();
+                const SECTIONS = ["Priority", "Component", "Change Type", "Due Date"];
+                let newBody = ibody;
+                for (const sec of SECTIONS) newBody = stripSection(newBody, sec);
+                const notice = [
+                  tidyMarker,
+                  "> ℹ️  상단 폼 섹션은 숨기고 아래 **Summary**에서 핵심만 보여줍니다.",
+                  "> 상세 서술은 **Details** 섹션을 사용하세요.",
+                  ""
+                ].join("\n");
+                newBody = `${notice}${newBody}`;
+                await github.rest.issues.update({ owner, repo, issue_number: issue.number, body: newBody });
+                ops.push("🧹 Tidied issue body (hid form sections)");
+              }
+            }
+
+            // ---------- 10) 로그 ----------
+            console.log(ops.length ? ops.join('\n') : 'No field changes.');

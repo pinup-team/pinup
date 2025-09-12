@@ -52,10 +52,12 @@ node_modules
 ### REST Docs 출력 디렉토리 ###
 !src/docs/
 
-### GitAction 출력 디렉토리 ###
+### GitAction/Issue Template 화이트리스트 ###
 !.github/
 !.github/workflows/
-!.github/workflows/*
+!.github/workflows/*.yml
+!.github/ISSUE_TEMPLATE/
+!.github/ISSUE_TEMPLATE/*.yml
 
 ### k6 성능 테스트 디렉토리 ###
 k6-load-test/
