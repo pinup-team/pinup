@@ -212,12 +212,13 @@ jobs:
               if (valueText === currentText) { ops.push(`✓ ${label} unchanged (${currentText || "-"})`); return; }
               const opt = field.options.find(o => o.name === valueText);
               if (!opt) { ops.push(`⚠️ ${label}: option "${valueText}" not found`); return; }
+              // ✅ FIX: $opt 타입을 String! 으로 선언 (이전 오류: ID! / String 미스매치)
               await gql(`
-                mutation($pid:ID!,$item:ID!,$fid:ID!,$opt:ID!){
+                mutation($pid:ID!,$item:ID!,$fid:ID!,$opt:String!){
                   updateProjectV2ItemFieldValue(input:{
                     projectId:$pid, itemId:$item, fieldId:$fid, value:{ singleSelectOptionId:$opt }
                   }){ projectV2Item { id } }
-                }`, { pid: project.id, item: itemId, fid: field.id, opt: opt.id });
+                }`, { pid: project.id, item: itemId, fid: field.id, opt: opt.id }); // opt.id는 GraphQL에서 받은 "옵션 노드 ID(문자열)"
               ops.push(`🔁 ${label} → ${valueText}`);
             };
 
