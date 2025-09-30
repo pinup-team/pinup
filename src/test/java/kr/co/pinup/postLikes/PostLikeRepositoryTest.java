@@ -22,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDate;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -67,7 +68,8 @@ class PostLikeRepositoryTest {
         member = memberRepository.save(Member.builder()
                 .email("test@naver.com")
                 .name("테스트")
-                .nickname("nickname")
+                .nickname("테스터_" + UUID.randomUUID())
+                .password("encoded")
                 .providerType(OAuthProvider.NAVER)
                 .providerId("pid")
                 .role(MemberRole.ROLE_USER)

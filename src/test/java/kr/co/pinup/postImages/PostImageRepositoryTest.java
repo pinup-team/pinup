@@ -24,6 +24,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -52,7 +53,8 @@ class PostImageRepositoryTest {
         member = memberRepository.save(Member.builder()
                 .email("test@sample.com")
                 .name("테스터")
-                .nickname("행복한돼지")
+                .nickname("테스터_" + UUID.randomUUID())
+                .password("encoded")
                 .providerType(OAuthProvider.NAVER)
                 .providerId("provider-id-1234")
                 .role(MemberRole.ROLE_USER)
