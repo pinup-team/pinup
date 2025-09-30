@@ -111,23 +111,22 @@ public class PostImageService  {
     @Transactional
     public void deleteAllByPost(Long postId) {
         List<PostImage> postImages = postImageRepository.findByPostId(postId);
-        if (postImages.isEmpty()) {
-            return;
-        }
-        try {
-            postImages.forEach(postImage -> {
-                String fileUrl = postImage.getS3Url();
-                String fileName = PATH_PREFIX+ "/" + s3Service.extractFileName(fileUrl);
+        if (postImages.isEmpty()) return;
 
-                s3Service.deleteFromS3(fileName);
-            });
+        List<String> urls = postImages.stream().map(PostImage::getS3Url).collect(Collectors.toList());
+        try {
             postImageRepository.deleteAllByPostId(postId);
-            appLogger.info(new InfoLog("전체 이미지 삭제 완료").setTargetId(postId.toString()));
+            appLogger.info(new InfoLog("전체 이미지 DB 삭제 완료").setTargetId(postId.toString()));
         } catch (Exception e) {
-            appLogger.error(new ErrorLog("전체 이미지 삭제 실패", e).setStatus("500").setTargetId(postId.toString()).addDetails("reason", e.getMessage()));
+            appLogger.error(new ErrorLog("전체 이미지 DB 삭제 실패", e)
+                    .setStatus("500").setTargetId(postId.toString())
+                    .addDetails("reason", e.getMessage()));
             throw new PostImageDeleteFailedException("이미지 삭제 중 문제가 발생했습니다.", e);
         }
+        deleteS3QuietlyAfterCommit(urls);
     }
+
+
     @Transactional
     public void deleteSelectedImages(Long postId, UpdatePostImageRequest updatePostImageRequest) {
         List<String> reqUrls = updatePostImageRequest.getImagesToDelete();
@@ -173,11 +172,7 @@ public class PostImageService  {
         }
     }
 
-    public PostImage findFirstImageByPostId(Long postId) {
-        return postImageRepository.findTopByPostIdOrderByIdAsc(postId);
-    }
-
-
+    @Transactional(readOnly = true)
     public List<PostImageResponse> findImagesByPostId(Long postId) {
         log.debug("이미지 목록 조회: postId={}", postId);
         List<PostImage> postImages = postImageRepository.findByPostId(postId);
