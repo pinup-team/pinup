@@ -11,6 +11,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Builder(toBuilder = true)
@@ -75,5 +76,19 @@ public class Post extends BaseEntity {
     }
 
     public void decreaseLikeCount() {if (this.likeCount > 0) {this.likeCount --;}}
+
+    public boolean applyTextIfChanged(String newTitle, String newContent) {
+        boolean changed = false;
+
+        if (newTitle != null && !Objects.equals(this.title, newTitle)) {
+            this.title = newTitle;
+            changed = true;
+        }
+        if (newContent != null && !Objects.equals(this.content, newContent)) {
+            this.content = newContent;
+            changed = true;
+        }
+        return changed;
+    }
 }
 
