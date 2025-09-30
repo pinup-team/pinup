@@ -1,7 +1,6 @@
 package kr.co.pinup.posts.service;
 
-import jakarta.transaction.Transactional;
-import kr.co.pinup.comments.repository.CommentRepository;
+
 import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.custom.logging.model.dto.ErrorLog;
 import kr.co.pinup.custom.logging.model.dto.InfoLog;
@@ -17,7 +16,6 @@ import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.model.dto.UpdatePostImageRequest;
 import kr.co.pinup.postImages.service.PostImageService;
-import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostDeleteFailedException;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
@@ -31,6 +29,7 @@ import kr.co.pinup.stores.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;
@@ -47,21 +46,19 @@ public class PostService {
     private final PostImageService postImageService;
     private final MemberRepository memberRepository;
     private final StoreRepository  storeRepository;
-    private final CommentRepository commentRepository;
-    private final PostLikeRepository postLikeRepository;
     private final AppLogger appLogger ;
 
     @Transactional
     public PostResponse createPost(MemberInfo memberInfo, CreatePostRequest createPostRequest, CreatePostImageRequest createPostImageRequest) {
+
+        List<String> uploadedUrls = postImageService.uploadImagesOnly(createPostImageRequest);
+        postImageService.cleanupUploadedOnRollback(uploadedUrls);
+
+
         Post post = createPostEntity(memberInfo, createPostRequest);
         post = postRepository.save(post);
 
-        appLogger.info(new InfoLog("게시글 생성 완료")
-                .setStatus("201")
-                .setTargetId(post.getId().toString())
-                .addDetails("writer", post.getMember().getNickname(), "title", post.getTitle()));
-
-        List<PostImage> postImages = postImageService.savePostImages(createPostImageRequest, post);
+        List<PostImage> postImages = postImageService.saveImageUrls(post, uploadedUrls);
 
         if (!postImages.isEmpty()) {
             post.updateThumbnail(postImages.get(0).getS3Url());
