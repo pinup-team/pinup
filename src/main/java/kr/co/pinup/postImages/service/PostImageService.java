@@ -128,47 +128,50 @@ public class PostImageService  {
             throw new PostImageDeleteFailedException("이미지 삭제 중 문제가 발생했습니다.", e);
         }
     }
-
+    @Transactional
     public void deleteSelectedImages(Long postId, UpdatePostImageRequest updatePostImageRequest) {
-        List<String> imagesToDelete = updatePostImageRequest.getImagesToDelete();
+        List<String> reqUrls = updatePostImageRequest.getImagesToDelete();
+        List<String> actuallyDeleted = deleteSelectedImagesDbOnly(postId, reqUrls);
+        deleteS3QuietlyAfterCommit(actuallyDeleted);
+    }
 
-        if (imagesToDelete != null && !imagesToDelete.isEmpty()) {
-            List<PostImage> postImages = postImageRepository.findByPostIdAndS3UrlIn(postId, imagesToDelete);
-
-            postImages.forEach(postImage -> {
-                String fileUrl = postImage.getS3Url();
-                String fileName = PATH_PREFIX+ "/" + s3Service.extractFileName(fileUrl);
-                try {
-                    s3Service.deleteFromS3(fileName);
-                } catch (ImageDeleteFailedException e) {
-                    appLogger.error(new ErrorLog("S3 이미지 삭제 실패", e)
-                            .setTargetId(postId.toString())
-                            .setStatus("500")
-                            .addDetails("file", fileName));
-                    throw new ImageDeleteFailedException("이미지 삭제 중 문제가 발생했습니다.", e);
-                }
-            });
-
-            try {
-                postImageRepository.deleteAll(postImages);
-                appLogger.info(new InfoLog("선택 이미지 삭제 완료")
-                        .setTargetId(postId.toString())
-                        .addDetails("count", String.valueOf(postImages.size())));
-            } catch (Exception e) {
-                appLogger.error(new ErrorLog("DB 이미지 삭제 실패", e)
-                        .setTargetId(postId.toString())
-                        .setStatus("500")
-                        .addDetails("reason", e.getMessage()));
-                throw new PostImageDeleteFailedException("이미지 삭제 중 문제가 발생했습니다.", e);
-            }
-        } else {
+    @Transactional
+    public List<String> deleteSelectedImagesDbOnly(Long postId, List<String> imagesToDelete) {
+        if (imagesToDelete == null || imagesToDelete.isEmpty()) {
             appLogger.warn(new WarnLog("삭제 요청 이미지 없음")
-                    .setTargetId(postId.toString())
-                    .setStatus("400"));
+                    .setTargetId(postId.toString()).setStatus("400"));
             throw new PostImageNotFoundException("삭제할 이미지 URL이 없습니다.");
+        }
+        List<PostImage> targets = postImageRepository.findByPostIdAndS3UrlIn(postId, imagesToDelete);
+        try {
+            if (!targets.isEmpty()) {
+                postImageRepository.deleteAll(targets);
+                appLogger.info(new InfoLog("선택 이미지 DB 삭제 완료")
+                        .setTargetId(postId.toString())
+                        .addDetails("count", String.valueOf(targets.size())));
+            }
+
+            return targets.stream().map(PostImage::getS3Url).collect(Collectors.toList());
+        } catch (Exception e) {
+            appLogger.error(new ErrorLog("DB 이미지 삭제 실패", e)
+                    .setTargetId(postId.toString()).setStatus("500")
+                    .addDetails("reason", e.getMessage()));
+            throw new PostImageDeleteFailedException("이미지 삭제 중 문제가 발생했습니다.", e);
         }
     }
 
+    public void deleteS3QuietlyAfterCommit(List<String> imageUrls) {
+        if (imageUrls == null || imageUrls.isEmpty()) return;
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override public void afterCommit() {
+                    deleteS3ByUrlsQuietly(imageUrls);
+                }
+            });
+        } else {
+            deleteS3ByUrlsQuietly(imageUrls);
+        }
+    }
 
     public PostImage findFirstImageByPostId(Long postId) {
         return postImageRepository.findTopByPostIdOrderByIdAsc(postId);
