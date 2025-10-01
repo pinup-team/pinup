@@ -54,7 +54,7 @@ public class PostLikeEntityTest {
         Member member = new Member(
                 "테스트유저",
                 "test@example.com",
-                "testNick",
+                "testNick"+UUID.randomUUID(),
                 "pw",
                 OAuthProvider.NAVER,
                 "naver-123",

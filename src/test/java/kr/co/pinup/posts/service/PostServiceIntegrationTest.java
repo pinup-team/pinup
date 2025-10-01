@@ -38,10 +38,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,7 +80,10 @@ public class PostServiceIntegrationTest {
         @Bean public PostImageService postImageService() { return mock(PostImageService.class); }
         @Bean public MemberService memberService() { return mock(MemberService.class); }
     }
-
+    @BeforeEach
+    void resetMocksAndSeed() {
+        reset(postImageService);
+    }
     @BeforeEach
     void setUp() {
         StoreCategory category = storeCategoryRepository.save(new StoreCategory("Category"));
@@ -103,7 +109,7 @@ public class PostServiceIntegrationTest {
                 .build();
         store = storeRepository.save(store);
 
-        mockMember = Member.builder().email("test@naver.com").nickname("행복한돼지").name("test").providerId("pid").providerType(OAuthProvider.NAVER).role(MemberRole.ROLE_USER).build();
+        mockMember = Member.builder().email("test@naver.com").nickname("행복한돼지"+ UUID.randomUUID()).name("test").providerId("pid").providerType(OAuthProvider.NAVER).role(MemberRole.ROLE_USER).build();
         mockMember = memberRepository.save(mockMember);
 
         mockPost = Post.builder().title("제목").content("내용").store(store).member(mockMember).build();
@@ -176,28 +182,41 @@ public class PostServiceIntegrationTest {
         // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
 
-        when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(
-                List.of(
-                        PostImageResponse.builder().id(1L).postId(mockPost.getId()).s3Url("img1").build(),
-                        PostImageResponse.builder().id(2L).postId(mockPost.getId()).s3Url("remain_url").build()
-                ),
-                List.of(
-                        PostImageResponse.builder().id(2L).postId(mockPost.getId()).s3Url("remain_url").build()
-                )
-        );
-
-        doNothing().when(postImageService).deleteSelectedImages(eq(mockPost.getId()), any());
-
-        MultipartFile img = new MockMultipartFile("img", "file.jpg", "image/jpeg", "data".getBytes());
-        when(postImageService.savePostImages(any(), eq(mockPost)))
+        when(postImageService.uploadImagesOnly(any(CreatePostImageRequest.class)))
+                .thenReturn(List.of("new_url"));
+        when(postImageService.saveImageUrls(eq(mockPost), eq(List.of("new_url"))))
                 .thenReturn(List.of(new PostImage(mockPost, "new_url")));
 
-        // When
-        PostResponse result = postService.updatePost(mockPost.getId(), req, new MultipartFile[]{img}, List.of("img1"));
+        when(postImageService.deleteSelectedImagesDbOnly(eq(mockPost.getId()), eq(List.of("img1"))))
+                .thenReturn(List.of("img1"));
 
-        // Then
+        when(postImageService.findImagesByPostId(mockPost.getId()))
+                .thenReturn(List.of(
+                        PostImageResponse.builder().id(2L).postId(mockPost.getId()).s3Url("remain_url").build(),
+                        PostImageResponse.builder().id(3L).postId(mockPost.getId()).s3Url("new_url").build()
+                ));
+
+        MultipartFile img = new MockMultipartFile("img", "file.jpg", "image/jpeg", "data".getBytes());
+
+        // When
+        PostResponse result = postService.updatePost(
+                mockPost.getId(),
+                req,
+                new MultipartFile[]{img},
+                List.of("img1")
+        );
+
+
         assertNotNull(result);
+        assertEquals("Updated", result.title());
+        assertEquals("Content", result.content());
         assertEquals("remain_url", result.thumbnail());
+
+        verify(postImageService, atLeastOnce()).uploadImagesOnly(any(CreatePostImageRequest.class));
+        verify(postImageService, atLeastOnce()).saveImageUrls(eq(mockPost), eq(List.of("new_url")));
+        verify(postImageService, atLeastOnce()).deleteSelectedImagesDbOnly(mockPost.getId(), List.of("img1"));
+        verify(postImageService, atLeastOnce()).findImagesByPostId(mockPost.getId());
+
     }
 
     @Test
@@ -239,31 +258,37 @@ public class PostServiceIntegrationTest {
                 new MockMultipartFile("img", "file2.jpg", "image/jpeg", "data2".getBytes())
         };
 
-        PostImage postImage1 = PostImage.builder()
-                .post(mockPost)
-                .s3Url("https://s3.com/file1.jpg")
-                .build();
+        Long postId = mockPost.getId(); // ← 실제 DB에 저장된 ID 사용
 
-        PostImage postImage2 = PostImage.builder()
-                .post(mockPost)
-                .s3Url("https://s3.com/file2.jpg")
-                .build();
+        // 업로드 후 S3 URL들이 만들어진다고 가정
+        List<String> uploadedUrls = List.of(
+                "https://s3.com/file1.jpg",
+                "https://s3.com/file2.jpg"
+        );
+        when(postImageService.uploadImagesOnly(any(CreatePostImageRequest.class)))
+                .thenReturn(uploadedUrls);
 
-        List<PostImage> uploadedImages = List.of(postImage1, postImage2);
-        when(postImageService.savePostImages(any(), eq(mockPost))).thenReturn(uploadedImages);
+        // URL을 DB에 저장하면 PostImage 리스트를 반환
+        PostImage postImage1 = PostImage.builder().post(mockPost).s3Url(uploadedUrls.get(0)).build();
+        PostImage postImage2 = PostImage.builder().post(mockPost).s3Url(uploadedUrls.get(1)).build();
+        when(postImageService.saveImageUrls(any(Post.class), eq(uploadedUrls)))
+                .thenReturn(List.of(postImage1, postImage2)); // ← any(Post.class) 로 받기
 
+        // 썸네일 갱신 기준용: 현재 이미지 목록(여기서는 업로드 2장만 응답하도록 가정)
         List<PostImageResponse> uploadedResponses = List.of(
                 PostImageResponse.from(postImage1),
                 PostImageResponse.from(postImage2)
         );
-        when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(uploadedResponses);
+        when(postImageService.findImagesByPostId(postId)).thenReturn(uploadedResponses);
 
         // When
-        PostResponse result = postService.updatePost(mockPost.getId(), req, imgs, List.of());
+        PostResponse result = postService.updatePost(postId, req, imgs, List.of());
 
         // Then
         assertNotNull(result);
-        assertEquals("https://s3.com/file1.jpg", result.thumbnail());
+        assertEquals("Updated", result.title());
+        assertEquals("Content", result.content());
+        assertEquals("https://s3.com/file1.jpg", result.thumbnail()); // remaining.get(0) 규칙에 맞게 첫 이미지
     }
 
     @Test
