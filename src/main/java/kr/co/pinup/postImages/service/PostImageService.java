@@ -2,6 +2,7 @@ package kr.co.pinup.postImages.service;
 
 import kr.co.pinup.custom.s3.exception.ImageDeleteFailedException;
 import kr.co.pinup.postImages.model.dto.PostImageUploadRequest;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -134,7 +135,7 @@ public class PostImageService  {
         deleteS3QuietlyAfterCommit(actuallyDeleted);
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<String> deleteSelectedImagesDbOnly(Long postId, List<String> imagesToDelete) {
         if (imagesToDelete == null || imagesToDelete.isEmpty()) {
             appLogger.warn(new WarnLog("삭제 요청 이미지 없음")
