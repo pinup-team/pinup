@@ -177,6 +177,7 @@ public class PostService {
         return request.getImages().stream().anyMatch(file -> !file.isEmpty());
     }
 
+    @Transactional
     public PostResponse updatePost(Long id,
                                    UpdatePostRequest updatePostRequest,
                                    MultipartFile[] images,
@@ -203,8 +204,7 @@ public class PostService {
     }
 
 
-    @Transactional
-    protected PostResponse updatePostTx(Long id,
+    private  PostResponse updatePostTx(Long id,
                                         UpdatePostRequest req,
                                         List<String> uploadedUrls,
                                         List<String> deleteUrls,
