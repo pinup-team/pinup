@@ -1,12 +1,13 @@
 package kr.co.pinup.verification;
 
-import jakarta.persistence.EntityManager;
 import kr.co.pinup.verification.repository.VerificationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -14,13 +15,12 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@EnableJpaAuditing
+@ActiveProfiles("test")
 public class VerificationRepositoryTest {
 
     @Autowired
     private VerificationRepository verificationRepository;
-
-    @Autowired
-    private EntityManager entityManager;
 
     private Verification verification;
 
@@ -28,7 +28,7 @@ public class VerificationRepositoryTest {
     void setUp() {
         verification = new Verification("test@pinup.com", "12345", LocalDateTime.now().plusMinutes(5));
         verificationRepository.save(verification);
-        entityManager.flush();
+        verificationRepository.flush();
     }
 
     @Test
@@ -43,7 +43,6 @@ public class VerificationRepositoryTest {
     @DisplayName("이메일로 Verification 삭제 테스트")
     void deleteByEmailTest() {
         verificationRepository.deleteByEmail("test@pinup.com");
-        entityManager.flush();
 
         Optional<Verification> found = verificationRepository.findByEmail("test@pinup.com");
         assertFalse(found.isPresent());
