@@ -27,6 +27,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
@@ -54,7 +55,8 @@ class PostImageEntityTest {
 
         member = memberRepository.save(Member.builder()
                 .email("test@sample.com")
-                .nickname("테스터")
+                .nickname("테스터_" + UUID.randomUUID())
+                .password("encoded")
                 .name("홍길동")
                 .providerId("1234")
                 .providerType(OAuthProvider.NAVER)

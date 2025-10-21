@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -50,11 +51,20 @@ public class PostLikeEntityTest {
     }
 
     private Member createMember() {
-        Member member = new Member("테스트유저", "test@example.com", "testNick", "",
-                OAuthProvider.NAVER, "naver-123", MemberRole.ROLE_USER, false);
+        Member member = new Member(
+                "테스트유저",
+                "test@example.com",
+                "testNick"+UUID.randomUUID(),
+                "pw",
+                OAuthProvider.NAVER,
+                "naver-123",
+                MemberRole.ROLE_USER,
+                false
+        );
         em.persist(member);
         return member;
     }
+
 
     private Post createPost(Store store, Member member) {
         Post post = Post.builder()
@@ -110,6 +120,6 @@ public class PostLikeEntityTest {
         PostLike found = em.find(PostLike.class, postLike.getId());
 
         assertThat(found.getPost().getTitle()).isEqualTo("테스트 제목");
-        assertThat(found.getMember().getNickname()).isEqualTo("testNick");
+        assertThat(found.getMember().getNickname()).startsWith("testNick");
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
@@ -46,7 +47,7 @@ class CommentRepositoryTest {
 
         member = memberRepository.save(Member.builder()
                 .email("test@email.com")
-                .nickname("tester")
+                .nickname("테스터_" + UUID.randomUUID())
                 .name("홍길동")
                 .providerId("1234")
                 .providerType(OAuthProvider.KAKAO)

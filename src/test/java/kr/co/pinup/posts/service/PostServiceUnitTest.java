@@ -1,6 +1,5 @@
 package kr.co.pinup.posts.service;
 
-import kr.co.pinup.comments.repository.CommentRepository;
 import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.members.Member;
@@ -14,7 +13,6 @@ import kr.co.pinup.postImages.exception.postimage.PostImageUpdateCountException;
 import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.service.PostImageService;
-import kr.co.pinup.postLikes.repository.PostLikeRepository;
 import kr.co.pinup.posts.Post;
 import kr.co.pinup.posts.exception.post.PostDeleteFailedException;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
@@ -38,18 +36,22 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
+import static org.mockito.Mockito.*;
+import org.mockito.ArgumentCaptor;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.*;
+
 
 @ExtendWith(MockitoExtension.class)
 public class
@@ -64,10 +66,6 @@ PostServiceUnitTest {
     @Mock
     private StoreRepository storeRepository;
     @Mock
-    private CommentRepository commentRepository;
-    @Mock
-    private PostLikeRepository postLikeRepository;
-    @Mock
     private AppLogger appLogger;
 
     @InjectMocks
@@ -78,10 +76,12 @@ PostServiceUnitTest {
 
     @BeforeEach
     void setUp() {
+
         member = Member.builder()
                 .email("test@naver.com")
                 .name("test")
-                .nickname("행복한돼지")
+                .nickname("테스터_" + UUID.randomUUID())
+                .password("encoded")
                 .providerType(OAuthProvider.NAVER)
                 .providerId("provider-id")
                 .role(MemberRole.ROLE_USER)
@@ -96,31 +96,47 @@ PostServiceUnitTest {
                 .category(new StoreCategory("Cat"))
                 .location(new Location("Loc", "12345", "State", "Dist", 1.1, 2.2, "Addr", "Detail"))
                 .build();
+
+        ReflectionTestUtils.setField(postService, "appLogger", appLogger);
+        lenient().doNothing().when(appLogger).info(any());
     }
 
     @Nested
     @DisplayName("게시물 생성(createPost)")
     class CreatePost {
+
         @Test
         @DisplayName("게시물 생성 - 이미지 포함 시 성공")
         void createPost_whenValidRequestWithImages_thenSuccess() {
             // Given
             MemberInfo memberInfo = new MemberInfo("행복한돼지", OAuthProvider.NAVER, MemberRole.ROLE_USER);
             CreatePostRequest req = new CreatePostRequest(1L, "New Post", "Content");
-            List<MultipartFile> validFiles = List.of(
+
+            List<MultipartFile> files = List.of(
                     new MockMultipartFile("img", "test1.jpg", "image/jpeg", "data1".getBytes()),
                     new MockMultipartFile("img", "test2.jpg", "image/jpeg", "data2".getBytes())
             );
-            CreatePostImageRequest imageReq = CreatePostImageRequest.builder().images(validFiles).build();
-            Post post = Post.builder().store(store).member(member).title(req.title()).content(req.content()).build();
+            CreatePostImageRequest imageReq = CreatePostImageRequest.builder().images(files).build();
+
+            List<String> urls = List.of("thumb.jpg", "img2.jpg");
+
+            Post post = Post.builder()
+                    .store(store).member(member)
+                    .title(req.title()).content(req.content())
+                    .build();
             ReflectionTestUtils.setField(post, "id", 1L);
 
             when(memberRepository.findByNickname("행복한돼지")).thenReturn(Optional.of(member));
             when(storeRepository.findById(1L)).thenReturn(Optional.of(store));
             when(postRepository.save(any(Post.class))).thenReturn(post);
-            when(postImageService.savePostImages(any(), eq(post))).thenReturn(
-                    List.of(new PostImage(post, "thumb.jpg"))
-            );
+
+            when(postImageService.uploadImagesOnly(eq(imageReq))).thenReturn(urls);
+
+            when(postImageService.saveImageUrls(eq(post), eq(urls)))
+                    .thenReturn(List.of(
+                            new PostImage(post, "thumb.jpg"),
+                            new PostImage(post, "img2.jpg")
+                    ));
 
             // When
             PostResponse response = postService.createPost(memberInfo, req, imageReq);
@@ -128,6 +144,9 @@ PostServiceUnitTest {
             // Then
             assertEquals("New Post", response.title());
             assertEquals("thumb.jpg", response.thumbnail());
+
+            verify(postImageService).uploadImagesOnly(eq(imageReq));
+            verify(postImageService).saveImageUrls(eq(post), eq(urls));
         }
 
         @Test
@@ -166,29 +185,36 @@ PostServiceUnitTest {
         void createPost_whenImageCountIsLessThanTwo_thenThrowsException() {
             MemberInfo memberInfo = new MemberInfo("행복한돼지", OAuthProvider.NAVER, MemberRole.ROLE_USER);
             CreatePostRequest req = new CreatePostRequest(1L, "제목", "내용");
+
+            Post post = Post.builder().store(store).member(member).title("제목").content("내용").build();
+            ReflectionTestUtils.setField(post, "id", 1L);
+
+            when(memberRepository.findByNickname("행복한돼지")).thenReturn(Optional.of(member));
+            when(storeRepository.findById(1L)).thenReturn(Optional.of(store));
+            when(postRepository.save(any(Post.class))).thenReturn(post);
+
+            // 1장만 업로드된 상황을 명시
+            when(postImageService.uploadImagesOnly(any(CreatePostImageRequest.class)))
+                    .thenReturn(List.of("only1.jpg"));
+
+            // size<2이면 예외
+            when(postImageService.saveImageUrls(eq(post), argThat(list -> list != null && list.size() < 2)))
+                    .thenThrow(new PostImageUpdateCountException());
+
             CreatePostImageRequest imageReq = CreatePostImageRequest.builder()
                     .images(List.of(new MockMultipartFile("img", "only1.jpg", "image/jpeg", "data".getBytes())))
                     .build();
 
-            when(memberRepository.findByNickname("행복한돼지")).thenReturn(Optional.of(member));
-            when(storeRepository.findById(1L)).thenReturn(Optional.of(store));
-
-            Post post = Post.builder().store(store).member(member).title("제목").content("내용").build();
-            ReflectionTestUtils.setField(post, "id", 1L);
-            when(postRepository.save(any(Post.class))).thenReturn(post);
-
-            when(postImageService.savePostImages(any(), any())).thenThrow(PostImageUpdateCountException.class);
-
-            assertThrows(PostImageUpdateCountException.class, () ->
-                    postService.createPost(memberInfo, req, imageReq));
+            assertThrows(PostImageUpdateCountException.class,
+                    () -> postService.createPost(memberInfo, req, imageReq));
         }
-
 
         @Test
         @DisplayName("게시물 생성 - 이미지 저장 호출 확인")
         void createPost_whenValidImages_thenSavesAllImages() {
             MemberInfo memberInfo = new MemberInfo("행복한돼지", OAuthProvider.NAVER, MemberRole.ROLE_USER);
             CreatePostRequest req = new CreatePostRequest(1L, "제목", "내용");
+
             List<MultipartFile> files = List.of(
                     new MockMultipartFile("img", "1.jpg", "image/jpeg", "data1".getBytes()),
                     new MockMultipartFile("img", "2.jpg", "image/jpeg", "data2".getBytes())
@@ -198,13 +224,23 @@ PostServiceUnitTest {
             Post post = Post.builder().store(store).member(member).title("제목").content("내용").build();
             ReflectionTestUtils.setField(post, "id", 1L);
 
+            List<String> urls = List.of("1.jpg", "2.jpg");
+
             when(memberRepository.findByNickname("행복한돼지")).thenReturn(Optional.of(member));
             when(storeRepository.findById(1L)).thenReturn(Optional.of(store));
             when(postRepository.save(any())).thenReturn(post);
 
+            when(postImageService.uploadImagesOnly(any(CreatePostImageRequest.class)))
+                    .thenReturn(urls);
+
+            when(postImageService.saveImageUrls(eq(post), eq(urls)))
+                    .thenReturn(List.of(new PostImage(post, "1.jpg"), new PostImage(post, "2.jpg")));
+
             postService.createPost(memberInfo, req, imageReq);
 
-            verify(postImageService).savePostImages(eq(imageReq), any(Post.class));
+            ArgumentCaptor<List<String>> urlsCaptor = ArgumentCaptor.forClass(List.class);
+            verify(postImageService).saveImageUrls(eq(post), urlsCaptor.capture());
+            assertThat(urlsCaptor.getValue()).containsExactlyInAnyOrderElementsOf(urls);
         }
 
         @Test
@@ -212,11 +248,13 @@ PostServiceUnitTest {
         void createPost_whenValidImages_thenSetsThumbnailToFirstImage() {
             MemberInfo memberInfo = new MemberInfo("행복한돼지", OAuthProvider.NAVER, MemberRole.ROLE_USER);
             CreatePostRequest req = new CreatePostRequest(1L, "제목", "내용");
+
             List<MultipartFile> files = List.of(
                     new MockMultipartFile("img", "1.jpg", "image/jpeg", "data1".getBytes()),
                     new MockMultipartFile("img", "2.jpg", "image/jpeg", "data2".getBytes())
             );
-            CreatePostImageRequest imageReq = CreatePostImageRequest.builder().images(files).build();
+
+            List<String> urls = List.of("thumb1.jpg", "thumb2.jpg");
 
             Post post = Post.builder().store(store).member(member).title("제목").content("내용").build();
             ReflectionTestUtils.setField(post, "id", 1L);
@@ -224,10 +262,15 @@ PostServiceUnitTest {
             when(memberRepository.findByNickname("행복한돼지")).thenReturn(Optional.of(member));
             when(storeRepository.findById(1L)).thenReturn(Optional.of(store));
             when(postRepository.save(any())).thenReturn(post);
-            when(postImageService.savePostImages(any(), eq(post)))
-                    .thenReturn(List.of(new PostImage(post, "thumb1.jpg"), new PostImage(post, "thumb2.jpg")));
 
-            PostResponse response = postService.createPost(memberInfo, req, imageReq);
+            when(postImageService.saveImageUrls(eq(post), anyList()))
+                    .thenReturn(List.of(
+                            new PostImage(post, "thumb1.jpg"),
+                            new PostImage(post, "thumb2.jpg")
+                    ));
+
+            PostResponse response = postService.createPost(memberInfo, req,
+                    CreatePostImageRequest.builder().images(files).build());
 
             assertEquals("thumb1.jpg", response.thumbnail());
         }
@@ -236,6 +279,7 @@ PostServiceUnitTest {
     @Nested
     @DisplayName("게시물 수정(updatePost)")
     class UpdatePost {
+
         @Test
         @DisplayName("게시물 수정 - 제목과 내용만 변경, 이미지 변경 없음")
         void updatePost_whenOnlyTextUpdated_thenSkipsImageHandling() {
@@ -248,8 +292,12 @@ PostServiceUnitTest {
             PostResponse result = postService.updatePost(1L, req, new MultipartFile[0], List.of());
 
             assertEquals("Updated", result.title());
-            verify(postImageService, never()).deleteSelectedImages(anyLong(), any());
-            verify(postImageService, never()).savePostImages(any(), any());
+
+            verify(postImageService, never()).uploadImagesOnly(any());
+            verify(postImageService, never()).saveImageUrls(any(), anyList());
+            verify(postImageService, never()).deleteSelectedImagesDbOnly(anyLong(), anyList());
+            verify(postImageService, never()).findImagesByPostId(anyLong());
+            verify(postImageService, never()).cleanupUploadedOnRollback(anyList());
         }
 
         @Test
@@ -264,8 +312,12 @@ PostServiceUnitTest {
             PostResponse result = postService.updatePost(1L, req, new MultipartFile[0], List.of());
 
             assertEquals("Updated Content", result.content());
-            verify(postImageService, never()).deleteSelectedImages(anyLong(), any());
-            verify(postImageService, never()).savePostImages(any(), any());
+
+            verify(postImageService, never()).uploadImagesOnly(any());
+            verify(postImageService, never()).saveImageUrls(any(), anyList());
+            verify(postImageService, never()).deleteSelectedImagesDbOnly(anyLong(), anyList());
+            verify(postImageService, never()).findImagesByPostId(anyLong());
+            verify(postImageService, never()).cleanupUploadedOnRollback(anyList());
         }
 
         @Test
@@ -288,30 +340,29 @@ PostServiceUnitTest {
         void updatePost_whenTitleContentAndImagesDeleted_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("New Title", "New Content");
             Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
+            post.updateThumbnail("img1.jpg");
+
             List<String> toDelete = List.of("img1.jpg");
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
-            when(postRepository.save(any())).thenReturn(post);
+            when(postRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            when(postImageService.deleteSelectedImagesDbOnly(1L, toDelete))
+                    .thenReturn(toDelete);
 
             when(postImageService.findImagesByPostId(1L)).thenReturn(
-                    List.of(
-                            PostImageResponse.builder().id(1L).postId(1L).s3Url("img1.jpg").build(),
-                            PostImageResponse.builder().id(2L).postId(1L).s3Url("img2.jpg").build(),
-                            PostImageResponse.builder().id(3L).postId(1L).s3Url("img3.jpg").build()
-                    ),
                     List.of(
                             PostImageResponse.builder().id(2L).postId(1L).s3Url("img2.jpg").build(),
                             PostImageResponse.builder().id(3L).postId(1L).s3Url("img3.jpg").build()
                     )
             );
 
-            doNothing().when(postImageService).deleteSelectedImages(eq(1L), any());
-
             PostResponse result = postService.updatePost(1L, req, new MultipartFile[0], toDelete);
 
             assertEquals("New Title", result.title());
             assertEquals("New Content", result.content());
             assertEquals("img2.jpg", result.thumbnail());
+            verify(postImageService).findImagesByPostId(1L);
         }
 
         @Test
@@ -319,23 +370,32 @@ PostServiceUnitTest {
         void updatePost_whenTitleUpdatedAndImagesUploaded_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("New Title", "Old Content");
             Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
+            post.updateThumbnail("existing.jpg");
 
             MultipartFile[] upload = {
                     new MockMultipartFile("img", "new1.jpg", "image/jpeg", "data".getBytes())
             };
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
-            when(postRepository.save(any())).thenReturn(post);
-            when(postImageService.findImagesByPostId(1L)).thenReturn(
-                    List.of(PostImageResponse.builder().id(1L).postId(1L).s3Url("existing.jpg").build())
-            );
-            when(postImageService.savePostImages(any(), eq(post)))
+            when(postRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            when(postImageService.uploadImagesOnly(any(CreatePostImageRequest.class)))
+                    .thenReturn(List.of("new1.jpg"));
+            when(postImageService.saveImageUrls(eq(post), eq(List.of("new1.jpg"))))
                     .thenReturn(List.of(new PostImage(post, "new1.jpg")));
+
+            when(postImageService.findImagesByPostId(1L)).thenReturn(
+                    List.of(
+                            PostImageResponse.builder().id(1L).postId(1L).s3Url("existing.jpg").build(),
+                            PostImageResponse.builder().id(2L).postId(1L).s3Url("new1.jpg").build()
+                    )
+            );
 
             PostResponse result = postService.updatePost(1L, req, upload, List.of());
 
             assertEquals("New Title", result.title());
             assertEquals("existing.jpg", result.thumbnail());
+            verify(postImageService).findImagesByPostId(1L);
         }
 
         @Test
@@ -343,29 +403,28 @@ PostServiceUnitTest {
         void updatePost_whenTitleUpdatedAndImagesDeleted_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("New Title", "Old Content");
             Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
+            post.updateThumbnail("img1.jpg");
+
             List<String> toDelete = List.of("img1.jpg");
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
-            when(postRepository.save(any())).thenReturn(post);
+            when(postRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            when(postImageService.deleteSelectedImagesDbOnly(1L, toDelete))
+                    .thenReturn(toDelete);
 
             when(postImageService.findImagesByPostId(1L)).thenReturn(
-                    List.of(
-                            PostImageResponse.builder().id(1L).postId(1L).s3Url("img1.jpg").build(),
-                            PostImageResponse.builder().id(2L).postId(1L).s3Url("img2.jpg").build(),
-                            PostImageResponse.builder().id(3L).postId(1L).s3Url("img3.jpg").build()
-                    ),
                     List.of(
                             PostImageResponse.builder().id(2L).postId(1L).s3Url("img2.jpg").build(),
                             PostImageResponse.builder().id(3L).postId(1L).s3Url("img3.jpg").build()
                     )
             );
 
-            doNothing().when(postImageService).deleteSelectedImages(eq(1L), any());
-
             PostResponse result = postService.updatePost(1L, req, new MultipartFile[0], toDelete);
 
             assertEquals("New Title", result.title());
             assertEquals("img2.jpg", result.thumbnail());
+            verify(postImageService).findImagesByPostId(1L);
         }
 
         @Test
@@ -373,23 +432,33 @@ PostServiceUnitTest {
         void updatePost_whenContentUpdatedAndImagesUploaded_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("Old Title", "Updated Content");
             Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
+            post.updateThumbnail("existing.jpg");
 
             MultipartFile[] upload = {
                     new MockMultipartFile("img", "new1.jpg", "image/jpeg", "data".getBytes())
             };
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
-            when(postRepository.save(any())).thenReturn(post);
-            when(postImageService.findImagesByPostId(1L)).thenReturn(
-                    List.of(PostImageResponse.builder().id(1L).postId(1L).s3Url("existing.jpg").build())
-            );
-            when(postImageService.savePostImages(any(), eq(post)))
+            when(postRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            when(postImageService.uploadImagesOnly(any(CreatePostImageRequest.class)))
+                    .thenReturn(List.of("new1.jpg"));
+            when(postImageService.saveImageUrls(eq(post), eq(List.of("new1.jpg"))))
                     .thenReturn(List.of(new PostImage(post, "new1.jpg")));
+
+            // ★ 변경 '이후' 목록 1회만, 최소 2장. 기존 썸네일이 포함되어 있어야 유지됨
+            when(postImageService.findImagesByPostId(1L)).thenReturn(
+                    List.of(
+                            PostImageResponse.builder().id(1L).postId(1L).s3Url("existing.jpg").build(),
+                            PostImageResponse.builder().id(2L).postId(1L).s3Url("new1.jpg").build()
+                    )
+            );
 
             PostResponse result = postService.updatePost(1L, req, upload, List.of());
 
             assertEquals("Updated Content", result.content());
-            assertEquals("existing.jpg", result.thumbnail());
+            assertEquals("existing.jpg", result.thumbnail()); // 유지
+            verify(postImageService).findImagesByPostId(1L);
         }
 
         @Test
@@ -397,30 +466,29 @@ PostServiceUnitTest {
         void updatePost_whenContentUpdatedAndImagesDeleted_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("Old Title", "Updated Content");
             Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
+            post.updateThumbnail("img1.jpg"); // 삭제될 썸네일
+
             List<String> toDelete = List.of("img1.jpg");
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
-            when(postRepository.save(any())).thenReturn(post);
+            when(postRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
+            when(postImageService.deleteSelectedImagesDbOnly(1L, toDelete))
+                    .thenReturn(toDelete);
+
+            // ★ 변경 '이후' 목록을 1회만, 최소 2장, 0번을 기대 썸네일(img2.jpg)로
             when(postImageService.findImagesByPostId(1L)).thenReturn(
-                    List.of(
-                            PostImageResponse.builder().id(1L).postId(1L).s3Url("img1.jpg").build(),
-                            PostImageResponse.builder().id(2L).postId(1L).s3Url("img2.jpg").build(),
-                            PostImageResponse.builder().id(3L).postId(1L).s3Url("img3.jpg").build()
-                    ),
-
                     List.of(
                             PostImageResponse.builder().id(2L).postId(1L).s3Url("img2.jpg").build(),
                             PostImageResponse.builder().id(3L).postId(1L).s3Url("img3.jpg").build()
                     )
             );
 
-            doNothing().when(postImageService).deleteSelectedImages(eq(1L), any());
-
             PostResponse result = postService.updatePost(1L, req, new MultipartFile[0], toDelete);
 
             assertEquals("Updated Content", result.content());
             assertEquals("img2.jpg", result.thumbnail());
+            verify(postImageService).findImagesByPostId(1L); // 호출 1회
         }
 
         @Test
@@ -428,6 +496,8 @@ PostServiceUnitTest {
         void updatePost_whenImagesToDeleteProvided_thenDeletesImages() {
             UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
             Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
+            post.updateThumbnail("url1"); // 지워질 썸네일
+
             List<String> toDelete = List.of("url1");
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
@@ -439,18 +509,18 @@ PostServiceUnitTest {
                             PostImageResponse.builder().id(2L).postId(1L).s3Url("remain_url1").build(),
                             PostImageResponse.builder().id(3L).postId(1L).s3Url("remain_url2").build()
                     ),
-
                     List.of(
                             PostImageResponse.builder().id(2L).postId(1L).s3Url("remain_url1").build(),
-                            PostImageResponse.builder().id(3L).postId(1L).s3Url("remain_url2").build()
-                    )
-            );
+                    PostImageResponse.builder().id(3L).postId(1L).s3Url("remain_url2").build()
+        )
+    );
 
-            doNothing().when(postImageService).deleteSelectedImages(eq(1L), any());
+            when(postImageService.deleteSelectedImagesDbOnly(1L, toDelete))
+                    .thenReturn(toDelete);
 
             postService.updatePost(1L, req, new MultipartFile[0], toDelete);
 
-            verify(postImageService).deleteSelectedImages(eq(1L), any());
+            verify(postImageService).deleteSelectedImagesDbOnly(eq(1L), any());
         }
 
         @Test
@@ -458,24 +528,36 @@ PostServiceUnitTest {
         void updatePost_whenNewImagesUploaded_thenSavesNewImages() {
             UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
             Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
+            post.updateThumbnail("existing.jpg");
 
             MultipartFile[] images = {
                     new MockMultipartFile("img", "upload1.jpg", "image/jpeg", "data1".getBytes())
             };
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
-            when(postRepository.save(any())).thenReturn(post);
-            when(postImageService.findImagesByPostId(1L)).thenReturn(List.of(
-                    PostImageResponse.builder().id(1L).postId(1L).s3Url("existing.jpg").build()
-            ));
+            when(postRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-            when(postImageService.savePostImages(any(), eq(post)))
+            when(postImageService.uploadImagesOnly(any(CreatePostImageRequest.class)))
+                    .thenReturn(List.of("upload1.jpg"));
+            when(postImageService.saveImageUrls(eq(post), eq(List.of("upload1.jpg"))))
                     .thenReturn(List.of(new PostImage(post, "upload1.jpg")));
 
+            // ★ 최소 2장 반환 (existing 유지 + 새 업로드)
+            when(postImageService.findImagesByPostId(1L)).thenReturn(
+                    List.of(
+                            PostImageResponse.builder().id(1L).postId(1L).s3Url("existing.jpg").build(),
+                            PostImageResponse.builder().id(2L).postId(1L).s3Url("upload1.jpg").build()
+                    )
+            );
+
+            // when
             PostResponse result = postService.updatePost(1L, req, images, List.of());
 
-            verify(postImageService).savePostImages(any(), eq(post));
+            // then
+            verify(postImageService).saveImageUrls(eq(post), eq(List.of("upload1.jpg")));
             assertEquals("Updated", result.title());
+            // 썸네일은 기존 유지 (선택) :
+            assertEquals("existing.jpg", result.thumbnail());
         }
 
         @Test
@@ -483,32 +565,39 @@ PostServiceUnitTest {
         void updatePost_whenImagesDeletedAndUploaded_thenSuccess() {
             UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
             Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
-            List<String> toDelete = List.of("url1");
+            post.updateThumbnail("url1"); // 지워질 썸네일
 
+            List<String> toDelete = List.of("url1");
             MultipartFile[] newImages = {
                     new MockMultipartFile("img", "new.jpg", "image/jpeg", "valid data".getBytes())
             };
 
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
-            when(postRepository.save(any())).thenReturn(post);
+            when(postRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+            when(postImageService.deleteSelectedImagesDbOnly(1L, toDelete))
+                    .thenReturn(toDelete);
+            when(postImageService.uploadImagesOnly(any(CreatePostImageRequest.class)))
+                    .thenReturn(List.of("new_url"));
+            when(postImageService.saveImageUrls(eq(post), eq(List.of("new_url"))))
+                    .thenReturn(List.of(new PostImage(post, "new_url")));
+
+            // ★ 변경 '이후' 상태 한 번만, 최소 2장, 0번에 remain_url 배치
             when(postImageService.findImagesByPostId(1L)).thenReturn(
                     List.of(
-                            PostImageResponse.builder().id(1L).postId(1L).s3Url("url1").build(),
-                            PostImageResponse.builder().id(2L).postId(1L).s3Url("remain_url").build()
-                    ),
-                    List.of(
-                            PostImageResponse.builder().id(2L).postId(1L).s3Url("remain_url").build()
+                            PostImageResponse.builder().id(2L).postId(1L).s3Url("remain_url").build(),
+                            PostImageResponse.builder().id(3L).postId(1L).s3Url("new_url").build()
                     )
             );
 
-            doNothing().when(postImageService).deleteSelectedImages(eq(1L), any());
-            when(postImageService.savePostImages(any(), eq(post)))
-                    .thenReturn(List.of(new PostImage(post, "new_url")));
-
+            // when
             PostResponse result = postService.updatePost(1L, req, newImages, toDelete);
 
+            // then
             assertEquals("Updated", result.title());
             assertEquals("remain_url", result.thumbnail());
+
+            verify(postImageService).findImagesByPostId(1L); // 호출 1회
         }
 
         @Test
@@ -532,34 +621,48 @@ PostServiceUnitTest {
         @Test
         @DisplayName("게시물 수정 - 썸네일 우선순위 검증 (삭제 후 업로드 이미지 적용)")
         void updatePost_whenThumbnailIsUpdated_thenAppliesPriorityRules() {
+            // Given
             UpdatePostRequest req = new UpdatePostRequest("Updated", "Updated Content");
             Post post = Post.builder().title("Old").content("Old").store(store).member(member).build();
-            List<String> toDelete = List.of("existing.jpg");
+            post.updateThumbnail("existing.jpg"); // 기존 썸네일(삭제 대상)
 
+            List<String> toDelete = List.of("existing.jpg");
             MultipartFile[] upload = {
                     new MockMultipartFile("img", "new1.jpg", "image/jpeg", "data".getBytes())
             };
 
+            // 리포지토리
             when(postRepository.findById(1L)).thenReturn(Optional.of(post));
-            when(postRepository.save(any())).thenReturn(post);
+            when(postRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
+            // 업로드/삭제/저장
+            when(postImageService.deleteSelectedImagesDbOnly(1L, toDelete))
+                    .thenReturn(toDelete);
+            when(postImageService.uploadImagesOnly(any(CreatePostImageRequest.class)))
+                    .thenReturn(List.of("new1.jpg"));
+            when(postImageService.saveImageUrls(eq(post), eq(List.of("new1.jpg"))))
+                    .thenReturn(List.of(new PostImage(post, "new1.jpg")));
+
+            // ★ 썸네일 갱신에 사용될 "변경 이후" 목록을 단 한 번만 스텁 (2장 이상 필수)
             when(postImageService.findImagesByPostId(1L)).thenReturn(
                     List.of(
-                            PostImageResponse.builder().id(1L).postId(1L).s3Url("existing.jpg").build(),
-                            PostImageResponse.builder().id(2L).postId(1L).s3Url("to_keep.jpg").build()
-                    ),
-                    List.of(
-                            PostImageResponse.builder().id(2L).postId(1L).s3Url("new1.jpg").build()
+                            PostImageResponse.builder().id(10L).postId(1L).s3Url("new1.jpg").build(),
+                            PostImageResponse.builder().id(11L).postId(1L).s3Url("to_keep.jpg").build()
                     )
             );
 
-            when(postImageService.savePostImages(any(), eq(post)))
-                    .thenReturn(List.of(new PostImage(post, "new1.jpg")));
-
+            // When
             PostResponse result = postService.updatePost(1L, req, upload, toDelete);
 
+            // Then
             assertEquals("new1.jpg", result.thumbnail());
+            // 보너스 검증
+            verify(postImageService).deleteSelectedImagesDbOnly(1L, toDelete);
+            verify(postImageService).uploadImagesOnly(any(CreatePostImageRequest.class));
+            verify(postImageService).saveImageUrls(eq(post), eq(List.of("new1.jpg")));
+            verify(postImageService).findImagesByPostId(1L); // 호출 1회
         }
+
     }
 
     @Nested
