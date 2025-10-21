@@ -141,7 +141,6 @@ class PostImageServiceIntegrationTest {
         // Given
         PostImage image = postImageRepository.save(new PostImage(post, "https://s3.com/test.jpg"));
         when(s3Service.extractFileName(image.getS3Url())).thenReturn("test.jpg");
-        // doNothing() 불필요 (void default)
 
         // When
         postImageService.deleteAllByPost(post.getId());
