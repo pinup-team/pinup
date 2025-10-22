@@ -3,22 +3,18 @@ package kr.co.pinup.stores;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import kr.co.pinup.exception.ErrorResponse;
 import kr.co.pinup.locations.Location;
-import kr.co.pinup.locations.model.dto.LocationResponse;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
 import kr.co.pinup.members.custom.WithMockMember;
 import kr.co.pinup.storecategories.StoreCategory;
-import kr.co.pinup.storecategories.model.dto.StoreCategoryResponse;
 import kr.co.pinup.storecategories.repository.StoreCategoryRepository;
 import kr.co.pinup.storeimages.StoreImage;
-import kr.co.pinup.storeimages.model.dto.StoreImageResponse;
 import kr.co.pinup.storeimages.repository.StoreImageRepository;
 import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourRequest;
-import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourResponse;
 import kr.co.pinup.storeoperatinghour.repository.StoreOperatingHourRepository;
 import kr.co.pinup.stores.model.dto.StoreRequest;
-import kr.co.pinup.stores.model.dto.StoreResponse;
 import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +22,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static kr.co.pinup.members.model.enums.MemberRole.ROLE_ADMIN;
 import static kr.co.pinup.stores.model.enums.StoreStatus.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.BDDMockito.given;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.IMAGE_JPEG_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
@@ -63,42 +55,48 @@ public class StoreApiIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockitoBean
+    @Autowired
     private StoreRepository storeRepository;
 
-    @MockitoBean
+    @Autowired
     private StoreCategoryRepository categoryRepository;
 
-    @MockitoBean
-    private LocationRepository locationRepository;
+    @Autowired
+    private StoreImageRepository imageRepository;
 
-    @MockitoBean
+    @Autowired
     private StoreOperatingHourRepository operatingHourRepository;
 
-    @MockitoBean
-    private StoreImageRepository imageRepository;
+    @Autowired
+    private LocationRepository locationRepository;
+
+    @BeforeEach
+    void setUp() {
+        imageRepository.deleteAllInBatch();
+        operatingHourRepository.deleteAllInBatch();
+        storeRepository.deleteAllInBatch();
+        locationRepository.deleteAllInBatch();
+        categoryRepository.deleteAllInBatch();
+    }
 
     @WithMockMember(role = ROLE_ADMIN)
     @DisplayName("POST /api/stores 요청 시 201 Created와 응답 정보를 반환한다.")
     @Test
     void createStore() throws Exception {
         // Arrange
-        final StoreCategory category = createCategory();
-        final Location location = createLocation();
+        final StoreCategory category = categoryRepository.save(createCategory());
+        final Location location = locationRepository.save(createLocation());
 
         final MockMultipartFile images = new MockMultipartFile(
                 "images", "image.jpeg", IMAGE_JPEG_VALUE, "data".getBytes());
 
-        final StoreRequest storeRequest = getStoreRequest();
+        final StoreRequest storeRequest = getStoreRequest(category.getId(), location.getId());
         final MockMultipartFile request = new MockMultipartFile(
                 "storeRequest",
                 "storeRequest.json",
                 "application/json",
                 objectMapper.writeValueAsString(storeRequest)
                         .getBytes(UTF_8));
-
-        given(categoryRepository.findById(1L)).willReturn(Optional.ofNullable(category));
-        given(locationRepository.findById(1L)).willReturn(Optional.ofNullable(location));
 
         // Act & Assert
         mockMvc.perform(multipart("/api/stores")
@@ -107,18 +105,8 @@ public class StoreApiIntegrationTest {
                         .contentType(MULTIPART_FORM_DATA))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").exists())
-                .andExpect(jsonPath("$.description").exists())
-                .andExpect(jsonPath("$.status").exists())
-                .andExpect(jsonPath("$.startDate").exists())
-                .andExpect(jsonPath("$.endDate").exists())
-                .andExpect(jsonPath("$.websiteUrl").exists())
-                .andExpect(jsonPath("$.snsUrl").exists())
-                .andExpect(jsonPath("$.viewCount").exists())
-                .andExpect(jsonPath("$.category").exists())
-                .andExpect(jsonPath("$.location").exists())
-                .andExpect(jsonPath("$.operatingHours").exists())
-                .andExpect(jsonPath("$.storeImages").exists());
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.createdAt").exists());
     }
 
     @WithMockMember
@@ -157,10 +145,12 @@ public class StoreApiIntegrationTest {
     @Test
     void getStores() throws Exception {
         // Arrange
-        final Store store1 = getStore("store1", "description1", PENDING);
-        final Store store2 = getStore("store2", "description2", PENDING);
+        final StoreCategory category = categoryRepository.save(createCategory());
+        final Location location = locationRepository.save(createLocation());
 
-        given(storeRepository.findAllByIsDeletedFalse()).willReturn(List.of(store1, store2));
+        final Store store1 = getStore("store1", "description1", PENDING, category, location);
+        final Store store2 = getStore("store2", "description2", PENDING, category, location);
+        storeRepository.saveAll(List.of(store1, store2));
 
         // Act & Assert
         mockMvc.perform(get("/api/stores"))
@@ -184,11 +174,13 @@ public class StoreApiIntegrationTest {
     @Test
     void getStoreThumbnails() throws Exception {
         // Arrange
-        final Store store1 = getStoreWithThumbnail("store1", "description1", PENDING);
-        final Store store2 = getStoreWithThumbnail("store2", "description2", RESOLVED);
-        final Store store3 = getStoreWithThumbnail("store2", "description2", DISMISSED);
+        final StoreCategory category = categoryRepository.save(createCategory());
+        final Location location = locationRepository.save(createLocation());
 
-        given(storeRepository.findAllByIsDeletedFalse()).willReturn(List.of(store1, store2, store3));
+        final Store store1 = getStoreWithThumbnail("store1", "description1", PENDING, category, location);
+        final Store store2 = getStoreWithThumbnail("store2", "description2", RESOLVED, category, location);
+        final Store store3 = getStoreWithThumbnail("store2", "description2", DISMISSED, category, location);
+        storeRepository.saveAll(List.of(store1, store2, store3));
 
         // Act & Assert
         mockMvc.perform(get("/api/stores/summary")
@@ -209,14 +201,14 @@ public class StoreApiIntegrationTest {
     @Test
     void getStoreById() throws Exception {
         // Arrange
-        final long id = 1L;
+        final StoreCategory category = categoryRepository.save(createCategory());
+        final Location location = locationRepository.save(createLocation());
 
-        final Store store1 = getStore("store", "description", RESOLVED);
-
-        given(storeRepository.findById(id)).willReturn(Optional.of(store1));
+        final Store store = getStore("store", "description", RESOLVED, category, location);
+        storeRepository.save(store);
 
         // Act & Assert
-        mockMvc.perform(get("/api/stores/{id}", id))
+        mockMvc.perform(get("/api/stores/{id}", store.getId()))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").exists())
@@ -250,7 +242,13 @@ public class StoreApiIntegrationTest {
                 .build();
     }
 
-    private Store getStore(final String store, final String description, final StoreStatus storeStatus) {
+    private Store getStore(
+            final String store,
+            final String description,
+            final StoreStatus storeStatus,
+            final StoreCategory category,
+            final Location location
+    ) {
         return Store.builder()
                 .name(store)
                 .description(description)
@@ -258,13 +256,19 @@ public class StoreApiIntegrationTest {
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusDays(10))
                 .snsUrl("https://instgram.com/test")
-                .category(createCategory())
-                .location(createLocation())
+                .category(category)
+                .location(location)
                 .build();
     }
 
-    private Store getStoreWithThumbnail(final String store, final String description, final StoreStatus storeStatus) {
-        final Store storeEntity = getStore(store, description, storeStatus);
+    private Store getStoreWithThumbnail(
+            final String store,
+            final String description,
+            final StoreStatus storeStatus,
+            final StoreCategory category,
+            final Location location
+    ) {
+        final Store storeEntity = getStore(store, description, storeStatus, category, location);
 
         final StoreImage storeImage = StoreImage.builder()
                 .imageUrl("http://127.0.0.1:4566/pinup/store/image1.png")
@@ -295,58 +299,22 @@ public class StoreApiIntegrationTest {
                 .build();
     }
 
-    private StoreResponse getStoreResponse() {
-        return new StoreResponse(
-                1L,
-                "store",
-                "description",
-                RESOLVED,
-                LocalDate.now(),
-                LocalDate.now().plusDays(10),
-                "",
-                "https://instgram.com/test",
-                0,
-                getStoreCategoryResponse(),
-                getLocationResponse(),
-                List.of(getStoreOperatingHourResponse()),
-                List.of(getStoreImageResponse()),
-                LocalDateTime.now(),
-                null
-        );
-    }
-
-    private StoreCategoryResponse getStoreCategoryResponse() {
-        return new StoreCategoryResponse(1L, "뷰티", LocalDateTime.now(), null);
-    }
-
-    private LocationResponse getLocationResponse() {
-        return LocationResponse.builder()
-                .id(1L)
-                .name("서울 송파구 올림픽로 300")
-                .zonecode("05551")
-                .sido("서울")
-                .sigungu("송파구")
-                .address("서울 송파구 올림픽로 300")
-                .longitude(127.104302)
-                .latitude(37.513713)
-                .addressDetail("")
-                .build();
-    }
-
-    private StoreOperatingHourResponse getStoreOperatingHourResponse() {
-        return new StoreOperatingHourResponse(
-                "월~금",
-                LocalTime.now(),
-                LocalTime.now().plusHours(10)
-        );
-    }
-
-    private StoreImageResponse getStoreImageResponse() {
-        return StoreImageResponse.builder()
-                .id(1L)
-                .storeId(1L)
-                .imageUrl("http://127.0.0.1:4566/pinup/store/image1.png")
-                .isThumbnail(true)
+    private StoreRequest getStoreRequest(final long categoryId, final long locationId) {
+        return StoreRequest.builder()
+                .name("store")
+                .description("description")
+                .startDate(LocalDate.now())
+                .endDate(LocalDate.now().plusDays(10))
+                .websiteUrl("")
+                .snsUrl("")
+                .thumbnailIndex(0L)
+                .categoryId(categoryId)
+                .locationId(locationId)
+                .operatingHours(List.of(StoreOperatingHourRequest.builder()
+                        .days("월~금")
+                        .startTime(LocalTime.now())
+                        .endTime(LocalTime.now().plusHours(10))
+                        .build()))
                 .build();
     }
 

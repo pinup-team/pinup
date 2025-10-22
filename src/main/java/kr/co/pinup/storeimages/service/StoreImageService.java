@@ -43,21 +43,14 @@ public class StoreImageService {
         return StoreImageResponse.from(storeImage);
     }
 
-    @Transactional
-    public List<StoreImage> createUploadImages(final Store store, final List<MultipartFile> images, Long thumbnailIndex) {
-        final List<String> uploadUrls = s3UploadFiles(images);
-
-        final List<StoreImage> storeImages = IntStream.range(0, uploadUrls.size())
+    public List<StoreImage> createUploadImages(final Store store, final List<String> uploadUrls, Long thumbnailIndex) {
+        return IntStream.range(0, uploadUrls.size())
                 .mapToObj(i -> StoreImage.builder()
                         .imageUrl(uploadUrls.get(i))
                         .isThumbnail(i == thumbnailIndex)
                         .store(store)
                         .build())
                 .toList();
-
-        storeImageRepository.saveAll(storeImages);
-
-        return storeImages;
     }
 
     @Transactional

@@ -15,24 +15,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.web.multipart.MultipartFile;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer.Service;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -81,44 +72,23 @@ public class StoreImageIntegrationTest {
         registry.add("cloud.aws.s3.endpoint", () -> localstack.getEndpointOverride(Service.S3).toString());
     }
 
-    @DisplayName("S3에 업로드된 이미지들의 url을 받아 스토어 이미지들을 저장한다.")
+    @DisplayName("S3에 업로드된 이미지들의 url을 받아 스토어 이미지 영속성 리스트를 반환한다.")
     @Test
     void createUploadImages() {
         // Arrange
-        final S3Client s3Client = S3Client.builder()
-                .endpointOverride(localstack.getEndpointOverride(Service.S3))
-                .credentialsProvider(StaticCredentialsProvider.create(
-                        AwsBasicCredentials.create(localstack.getAccessKey(), localstack.getSecretKey())
-                ))
-                .region(Region.of(localstack.getRegion()))
-                .build();
-        s3Client.createBucket(CreateBucketRequest.builder()
-                .bucket("pinup-test")
-                .build());
-
         final Location location = locationRepository.save(getLocation());
         final StoreCategory storeCategory = storeCategoryRepository.save(getStoreCategory());
         final Store store = storeRepository.save(getStore(storeCategory, location));
-
-        final List<MultipartFile> images = List.of(
-                new MockMultipartFile("file", "test1.jpg", "image/jpeg", "image1".getBytes()),
-                new MockMultipartFile("file", "test2.jpg", "image/jpeg", "image2".getBytes())
-        );
-        final long thumbnailIndex = 1L;
+        final List<String> uploadUrl = List.of("http://127.0.0.1:4566/pinup/store/image.png");
+        final long thumbnailIndex = 0L;
 
         // Act
-        final List<StoreImage> result = storeImageService.createUploadImages(store, images, thumbnailIndex);
+        final List<StoreImage> result = storeImageService.createUploadImages(store, uploadUrl, thumbnailIndex);
 
         // Assert
-        assertThat(result).hasSize(2);
+        assertThat(result).hasSize(1);
         assertThat(result.get((int) thumbnailIndex).isThumbnail()).isTrue();
-        assertThat(result.get(0).getImageUrl()).contains("test1.jpg");
-
-        final ListObjectsV2Response list = s3Client.listObjectsV2(ListObjectsV2Request.builder()
-                .bucket("pinup-test")
-                .build());
-
-        assertThat(list.contents()).hasSize(2);
+        assertThat(result.get(0).getImageUrl()).contains("http://127.0.0.1:4566/pinup/store/image.png");
     }
 
     private StoreCategory getStoreCategory() {

@@ -3,10 +3,7 @@ package kr.co.pinup.stores.controller;
 
 import jakarta.validation.Valid;
 import kr.co.pinup.annotation.ValidImageFile;
-import kr.co.pinup.stores.model.dto.StoreRequest;
-import kr.co.pinup.stores.model.dto.StoreResponse;
-import kr.co.pinup.stores.model.dto.StoreThumbnailResponse;
-import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
+import kr.co.pinup.stores.model.dto.*;
 import kr.co.pinup.stores.service.StoreService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -47,13 +45,13 @@ public class StoreApiController {
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
     @PostMapping
-    public ResponseEntity<StoreResponse> createStore(
+    public ResponseEntity<StoreCreateResponse> createStore(
             @Valid @RequestPart("storeRequest") StoreRequest request,
             @ValidImageFile @RequestParam(value = "images") List<MultipartFile> images) {
         log.debug("createStore StoreRequest={}, images size={}", request, images.size());
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(storeService.createStore(request, images));
+                .body(storeService.createStore(request, images, LocalDate.now()));
     }
 
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_ADMIN')")
