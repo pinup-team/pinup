@@ -3,43 +3,69 @@ package kr.co.pinup.stores.scheduler;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class StoreStatusScheduler {
 
     private final StoreRepository storeRepository;
 
+    private final Supplier<LocalDate> todaySupplier;
+
+    public StoreStatusScheduler(
+            final StoreRepository storeRepository,
+            @Qualifier("todaySupplier") final Supplier<LocalDate> todaySupplier
+    ) {
+        this.storeRepository = storeRepository;
+        this.todaySupplier = todaySupplier;
+    }
+
+    @Transactional
     @Scheduled(cron = "0 0 0 * * *", zone = "Asia/Seoul")
     public void updateStoreStatuses() {
-        List<Store> stores = storeRepository.findAll();
-        LocalDate today = LocalDate.now();
+        final LocalDate today = todaySupplier.get();
 
-        for (Store store : stores) {
-            StoreStatus newStatus;
+        final List<Store> stores = storeRepository.findByStoreStatusInAndIsDeletedFalse(
+                List.of(StoreStatus.PENDING, StoreStatus.RESOLVED)
+        );
 
-            if (store.getStartDate().isAfter(today)) {
-                newStatus = StoreStatus.PENDING;
-            } else if (store.getEndDate().isBefore(today)) {
-                newStatus = StoreStatus.DISMISSED;
-            } else {
-                newStatus = StoreStatus.RESOLVED;
-            }
+        final long updatedCount = stores.stream()
+                .filter(store -> {
+                    final StoreStatus changeStoreStatus = calculateStoreStatus(store, today);
+                    if (store.getStoreStatus() != changeStoreStatus) {
+                        store.updateStatus(changeStoreStatus);
+                        log.info("스토어 [{}] 상태 {}로 변경", store.getId(), changeStoreStatus);
+                        return true;
+                    }
 
-            if (store.getStoreStatus() != newStatus) {
-                store.updateStatus(newStatus);
-                log.info("스토어 [{}] 상태 {}로 변경", store.getId(), newStatus);
-            }
+                    return false;
+                })
+                .count();
+
+        log.info("총 {}개의 스토어 상태를 갱신했습니다.", updatedCount);
+    }
+
+    private StoreStatus calculateStoreStatus(final Store store, final LocalDate today) {
+        final StoreStatus storeStatus = store.getStoreStatus();
+        if (storeStatus == StoreStatus.PENDING &&
+                !store.getStartDate().isAfter(today)) {
+            return StoreStatus.RESOLVED;
         }
 
-        storeRepository.saveAll(stores);
+        if (storeStatus == StoreStatus.RESOLVED &&
+                store.getEndDate().isBefore(today)) {
+            return StoreStatus.DISMISSED;
+        }
+
+        return storeStatus;
     }
 }
