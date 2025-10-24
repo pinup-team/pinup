@@ -115,23 +115,21 @@ class StoreImageServiceTest {
                 .hasMessage("해당 스토어 ID에 썸네일 이미지가 존재하지 않습니다.");
     }
 
-    @DisplayName("S3에 이미지를 업로드하고 스토어 이미지들을 저장한다.")
+    @DisplayName("스토어 이미지 영속성 리스트을 반환한다.")
     @Test
     void createUploadImages() {
         // Arrange
         final Store store = getStore(getStoreCategory(), getLocation());
         final List<MultipartFile> images = List.of(mock(MultipartFile.class));
-        final String uploadUrl = "http://127.0.0.1:4566/pinup/store/image.png";
-
-        given(s3Service.uploadFile(any(MultipartFile.class), anyString())).willReturn(uploadUrl);
+        final List<String> uploadUrl = List.of("http://127.0.0.1:4566/pinup/store/image.png");
 
         // Act
-        final List<StoreImage> result = storeImageService.createUploadImages(store, images, 0L);
+        final List<StoreImage> result = storeImageService.createUploadImages(store, uploadUrl, 0L);
 
         // Assert
         assertThat(result).isNotNull();
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getImageUrl()).isEqualTo(uploadUrl);
+        assertThat(result.get(0).getImageUrl()).isEqualTo(uploadUrl.get(0));
     }
 
     @DisplayName("썸네일을 변경한다")

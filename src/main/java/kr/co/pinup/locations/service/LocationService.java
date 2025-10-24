@@ -32,6 +32,7 @@ public class LocationService  {
         return LocationResponse.from(savedLocation);
     }
 
+    @Transactional(readOnly = true)
     public Location getLocation(Long id) {
         return locationRepository.findById(id)
                 .orElseThrow(LocationNotFoundException::new);

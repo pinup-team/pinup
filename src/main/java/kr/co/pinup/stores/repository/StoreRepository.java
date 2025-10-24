@@ -17,4 +17,6 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     List<Store> findAllByLocation_SigunguAndStoreStatusAndIsDeletedFalse(String sigungu, StoreStatus selectedStatus);
 
     List<Store> findAllByLocation_SigunguAndIsDeletedFalse(String sigungu);
+
+    List<Store> findByStoreStatusInAndIsDeletedFalse(List<StoreStatus> storeStatuses);
 }

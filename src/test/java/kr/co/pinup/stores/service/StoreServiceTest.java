@@ -1,5 +1,6 @@
 package kr.co.pinup.stores.service;
 
+import kr.co.pinup.custom.s3.S3Service;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.service.LocationService;
 import kr.co.pinup.storecategories.StoreCategory;
@@ -11,12 +12,11 @@ import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourRequest;
 import kr.co.pinup.storeoperatinghour.service.StoreOperatingHourService;
 import kr.co.pinup.stores.Store;
 import kr.co.pinup.stores.exception.StoreNotFoundException;
-import kr.co.pinup.stores.model.dto.StoreRequest;
-import kr.co.pinup.stores.model.dto.StoreResponse;
-import kr.co.pinup.stores.model.dto.StoreThumbnailResponse;
-import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
+import kr.co.pinup.stores.model.dto.*;
 import kr.co.pinup.stores.model.enums.StoreStatus;
 import kr.co.pinup.stores.repository.StoreRepository;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,9 +24,12 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
@@ -58,8 +61,40 @@ public class StoreServiceTest {
     @Mock
     private StoreOperatingHourService operatingHourService;
 
+    @Mock
+    private S3Service s3Service;
+
+    private ThreadPoolTaskExecutor taskExecutor;
+
     @InjectMocks
     private StoreService storeService;
+
+    @BeforeEach
+    void setUp() {
+        taskExecutor = new ThreadPoolTaskExecutor();
+        taskExecutor.setCorePoolSize(2);
+        taskExecutor.setMaxPoolSize(4);
+        taskExecutor.setQueueCapacity(10);
+        taskExecutor.setThreadNamePrefix("test-s3-upload-");
+        taskExecutor.initialize();
+
+        storeService = new StoreService(
+                storeRepository,
+                categoryService,
+                locationService,
+                imageService,
+                operatingHourService,
+                s3Service,
+                taskExecutor
+        );
+    }
+
+    @AfterEach
+    void tearDown() {
+        if (taskExecutor != null) {
+            taskExecutor.shutdown();
+        }
+    }
 
     @DisplayName("팝업스토어 전체 조회")
     @Test
@@ -381,48 +416,84 @@ public class StoreServiceTest {
                 .findAllByLocation_SigunguAndIsDeletedFalse(sigungu);
     }
 
-    @DisplayName("팝업스토어 정보를 저장한다")
+    @DisplayName("S3 업로드 및 팝업스토어 저장을 위한 선행 작업")
     @Test
     void createStore() {
         // Arrange
         final StoreRequest request = createStoreRequest();
+        final LocalDate today = LocalDate.now();
 
         final StoreCategory mockCategory = mock(StoreCategory.class);
         final Location mockLocation = mock(Location.class);
-        final List<StoreOperatingHour> mockOperatingHours = List.of(mock(StoreOperatingHour.class));
-        final Store savedStore = mock(Store.class);
-        final StoreImage mockImage = mock(StoreImage.class);
-        given(mockImage.getStore()).willReturn(savedStore);
 
-        final List<StoreImage> mockImages = List.of(mockImage);
-
+        given(s3Service.uploadFile(any(MultipartFile.class), anyString()))
+                .willReturn("http://s3.amazonaws.com/bucket/image.jpg");
         given(categoryService.findCategoryById(1L)).willReturn(mockCategory);
         given(locationService.getLocation(1L)).willReturn(mockLocation);
-
-        final ArgumentCaptor<Store> storeCaptor = ArgumentCaptor.forClass(Store.class);
-        given(storeRepository.save(any(Store.class))).willAnswer(invocation -> invocation.getArgument(0));
-
-        given(operatingHourService.createOperatingHours(any(), any())).willReturn(mockOperatingHours);
-        given(imageService.createUploadImages(any(), any(), anyLong())).willReturn(mockImages);
+        given(storeRepository.save(any(Store.class)))
+                .willAnswer(invocation -> {
+                    Store store = invocation.getArgument(0);
+                    ReflectionTestUtils.setField(store, "id", 1L);
+                    ReflectionTestUtils.setField(store, "createdAt", LocalDateTime.now());
+                    return store;
+                });
 
         // Act
-        final StoreResponse result = storeService.createStore(request, List.of(mock(MultipartFile.class)));
+        final StoreCreateResponse result = storeService.createStore(
+                request,
+                List.of(mock(MultipartFile.class)),
+                today
+        );
 
         // Assert
+        assertThat(result).isNotNull();
+        assertThat(result.id()).isNotNull();
+        assertThat(result.createdAt()).isNotNull();
+
+        then(s3Service).should(times(1))
+                .uploadFile(any(MultipartFile.class), anyString());
         then(categoryService).should(times(1))
                 .findCategoryById(1L);
         then(locationService).should(times(1))
                 .getLocation(1L);
-        then(storeRepository).should(times(1))
-                .save(storeCaptor.capture());
         then(operatingHourService).should(times(1))
                 .createOperatingHours(any(), any());
         then(imageService).should(times(1))
                 .createUploadImages(any(), any(), eq(0L));
+        then(storeRepository).should(times(1))
+                .save(any(Store.class));
+    }
 
-        final Store saved = storeCaptor.getValue();
-        assertThat(saved.getName()).isEqualTo(request.name());
-        assertThat(saved.getDescription()).isEqualTo(request.description());
+    @DisplayName("하나의 트랜잭션에서 팝업스토어를 저장한다")
+    @Test
+    void createStoreTransactional() {
+        // Arrange
+        final StoreRequest request = createStoreRequest();
+        final List<String> uploadUrls = List.of("http://127.0.0.1:4566/pinup/store/image.png");
+        final Store store = Store.builder().build();
+
+        final List<StoreOperatingHour> mockOperatingHours = List.of(mock(StoreOperatingHour.class));
+        final List<StoreImage> mockStoreImages = List.of(mock(StoreImage.class));
+
+        given(operatingHourService.createOperatingHours(eq(store), any()))
+                .willReturn(mockOperatingHours);
+        given(imageService.createUploadImages(store, uploadUrls, 0L))
+                .willReturn(mockStoreImages);
+        given(storeRepository.save(store)).willReturn(store);
+
+        // Act
+        storeService.createStoreTransactional(request, uploadUrls, store);
+
+        // Assert
+        assertThat(store.getOperatingHours()).containsExactlyElementsOf(mockOperatingHours);
+        assertThat(store.getStoreImages()).containsExactlyElementsOf(mockStoreImages);
+
+        then(operatingHourService).should(times(1))
+                .createOperatingHours(eq(store), any());
+        then(imageService).should(times(1))
+                .createUploadImages(store, uploadUrls, 0L);
+        then(storeRepository).should(times(1))
+                .save(store);
     }
 
     @DisplayName("팝업스토어 ID로 팝업스토어 정보를 수정한다")

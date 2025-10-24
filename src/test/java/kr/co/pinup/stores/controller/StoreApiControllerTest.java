@@ -10,10 +10,7 @@ import kr.co.pinup.storeimages.model.dto.StoreImageResponse;
 import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourRequest;
 import kr.co.pinup.storeoperatinghour.model.dto.StoreOperatingHourResponse;
 import kr.co.pinup.stores.exception.StoreNotFoundException;
-import kr.co.pinup.stores.model.dto.StoreRequest;
-import kr.co.pinup.stores.model.dto.StoreResponse;
-import kr.co.pinup.stores.model.dto.StoreThumbnailResponse;
-import kr.co.pinup.stores.model.dto.StoreUpdateRequest;
+import kr.co.pinup.stores.model.dto.*;
 import kr.co.pinup.stores.service.StoreService;
 import kr.co.pinup.support.RestDocsSupport;
 import org.junit.jupiter.api.BeforeEach;
@@ -309,9 +306,9 @@ public class StoreApiControllerTest {
                 objectMapper.writeValueAsString(storeRequest)
                         .getBytes(UTF_8));
 
-        final StoreResponse storeResponse = getStoreResponse();
+        final StoreCreateResponse storeResponse = new StoreCreateResponse(1L, LocalDateTime.now());
 
-        given(storeService.createStore(any(StoreRequest.class), any(List.class)))
+        given(storeService.createStore(any(StoreRequest.class), any(List.class), any(LocalDate.class)))
                 .willReturn(storeResponse);
 
         // Act & Assert
@@ -321,22 +318,11 @@ public class StoreApiControllerTest {
                         .contentType(MULTIPART_FORM_DATA)
                 )
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").exists())
-                .andExpect(jsonPath("$.description").exists())
-                .andExpect(jsonPath("$.status").exists())
-                .andExpect(jsonPath("$.startDate").exists())
-                .andExpect(jsonPath("$.endDate").exists())
-                .andExpect(jsonPath("$.websiteUrl").exists())
-                .andExpect(jsonPath("$.snsUrl").exists())
-                .andExpect(jsonPath("$.viewCount").exists())
-                .andExpect(jsonPath("$.category").exists())
-                .andExpect(jsonPath("$.location").exists())
-                .andExpect(jsonPath("$.operatingHours").exists())
-                .andExpect(jsonPath("$.storeImages").exists())
-                .andExpect(jsonPath("$.createdAt").exists());
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.createdAt").isNotEmpty());
 
         then(storeService).should(times(1))
-                .createStore(any(StoreRequest.class), any(List.class));
+                .createStore(any(StoreRequest.class), any(List.class), any(LocalDate.class));
 
         result.andDo(restDocs.document(
                 requestParts(
@@ -380,36 +366,7 @@ public class StoreApiControllerTest {
                 ),
                 responseFields(
                         fieldWithPath("id").type(NUMBER).description("팝업스토어 아이디"),
-                        fieldWithPath("name").type(STRING).description("팝업스토어명"),
-                        fieldWithPath("description").type(STRING).description("팝업스토어 설명"),
-                        fieldWithPath("status").type(STRING).description("팝업스토어 상태"),
-                        fieldWithPath("startDate").type(STRING).description("팝업스토어 시작날짜"),
-                        fieldWithPath("endDate").type(STRING).description("팝업스토어 종료날짜"),
-                        fieldWithPath("websiteUrl").type(STRING).optional().description("팝업스토어 참고 홈페이지 주소"),
-                        fieldWithPath("snsUrl").type(STRING).optional().description("팝업스토어 참고 SNS 주소"),
-                        fieldWithPath("viewCount").type(NUMBER).description("팝업스토어 조회수"),
-                        fieldWithPath("category.id").type(NUMBER).description("팝업스토어 카테고리 아이디"),
-                        fieldWithPath("category.name").type(STRING).description("팝업스토어 카테고리명"),
-                        fieldWithPath("category.createdAt").type(STRING).description("팝업스토어 카테고리 등록날짜"),
-                        fieldWithPath("category.updatedAt").type(STRING).optional().description("팝업스토어 카테고리 수정날짜"),
-                        fieldWithPath("location.id").type(NUMBER).description("위치 아이디"),
-                        fieldWithPath("location.name").type(STRING).description("위치명"),
-                        fieldWithPath("location.zonecode").type(STRING).description("위치 우편번호"),
-                        fieldWithPath("location.sido").type(STRING).description("위치 시/도"),
-                        fieldWithPath("location.sigungu").type(STRING).description("위치 시/군/구"),
-                        fieldWithPath("location.latitude").type(NUMBER).description("위치 위도"),
-                        fieldWithPath("location.longitude").type(NUMBER).description("위치 경도"),
-                        fieldWithPath("location.address").type(STRING).description("위치 주소"),
-                        fieldWithPath("location.addressDetail").type(STRING).description("위치 상세주소"),
-                        fieldWithPath("operatingHours[].days").type(STRING).description("팝업스토어 운영 날짜"),
-                        fieldWithPath("operatingHours[].startTime").type(STRING).description("팝업스토어 운영 오픈시간"),
-                        fieldWithPath("operatingHours[].endTime").type(STRING).description("팝업스토어 운영 마감시간"),
-                        fieldWithPath("storeImages[].id").type(NUMBER).description("팝업스토어 이미지 아이디"),
-                        fieldWithPath("storeImages[].storeId").type(NUMBER).description("팝업스토어 아이디"),
-                        fieldWithPath("storeImages[].imageUrl").type(STRING).description("팝업스토어 이미지 URL"),
-                        fieldWithPath("storeImages[].isThumbnail").type(BOOLEAN).description("팝업스토어 썸네일 이미지 여부"),
-                        fieldWithPath("createdAt").type(STRING).description("팝업스토어 등록날짜"),
-                        fieldWithPath("updatedAt").type(STRING).optional().description("팝업스토어 수정날짜")
+                        fieldWithPath("createdAt").type(STRING).description("팝업스토어 등록날짜")
                 )
         ));
     }
