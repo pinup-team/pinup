@@ -40,7 +40,7 @@ public class CacheConfig {
                 if (maxSize != null) builder = builder.maximumSize(maxSize);
                 if (ttlSec != null) builder = builder.expireAfterWrite(java.time.Duration.ofSeconds(ttlSec));
 
-                return new org.springframework.cache.caffeine.CaffeineCache(name, builder.build(), false);
+                return new CaffeineCache(name, builder.build(), false);
             }
 
         };
