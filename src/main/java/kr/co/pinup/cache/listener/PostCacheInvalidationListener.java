@@ -3,6 +3,7 @@ package kr.co.pinup.cache.listener;
 import kr.co.pinup.cache.CacheNames;
 import kr.co.pinup.posts.event.PostCacheEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -15,28 +16,30 @@ public class PostCacheInvalidationListener {
     private final CacheManager cacheManager;
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void on(PostCacheEvent e) {
-        switch (e.kind()) {
+    public void on(PostCacheEvent event) {
+        switch (event.kind()) {
             case UPDATED -> {
-                if (e.detailChanged()) {
-                    var d = cacheManager.getCache(CacheNames.POST_DETAIL);
-                    if (d != null) d.evict(e.postId());
+                if (event.detailChanged()) {
+                    evictIfPresent(CacheNames.POST_DETAIL, event.postId());
                 }
-                if (e.imagesChanged()) {
-                    var i = cacheManager.getCache(CacheNames.POST_IMAGES);
-                    if (i != null) i.evict(e.postId());
+                if (event.imagesChanged()) {
+                    evictIfPresent(CacheNames.POST_IMAGES, event.postId());
                 }
             }
             case DISABLED -> {
-                var d = cacheManager.getCache(CacheNames.POST_DETAIL);
-                if (d != null) d.evict(e.postId());
+                evictIfPresent(CacheNames.POST_DETAIL, event.postId());
             }
             case DELETED -> {
-                var d = cacheManager.getCache(CacheNames.POST_DETAIL);
-                if (d != null) d.evict(e.postId());
-                var i = cacheManager.getCache(CacheNames.POST_IMAGES);
-                if (i != null) i.evict(e.postId());
+                evictIfPresent(CacheNames.POST_DETAIL, event.postId());
+                evictIfPresent(CacheNames.POST_IMAGES, event.postId());
             }
+        }
+    }
+
+    private void evictIfPresent(String cacheName, Object key) {
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache != null) {
+            cache.evict(key);
         }
     }
 }

@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.Map;
 
-@ConfigurationProperties(prefix =  "spring.cache.app")
+@ConfigurationProperties(prefix ="spring.cache.app")
 public record AppCacheProps(
         Defaults defaults,
         Map<String, Spec> caches
