@@ -1,6 +1,8 @@
 package kr.co.pinup.posts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.co.pinup.cache.listener.PostCacheInvalidationListener;
+import kr.co.pinup.config.CacheConfig;
 import kr.co.pinup.config.S3ClientConfig;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
@@ -38,6 +40,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.ui.ModelMap;
@@ -68,8 +71,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Transactional
-@Import({S3ClientConfig.class, PostIntegrationTest.TestMockConfig.class})
+@Import({S3ClientConfig.class, PostIntegrationTest.TestMockConfig.class,   CacheConfig.class, PostCacheInvalidationListener.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PostIntegrationTest {
 
@@ -379,6 +381,7 @@ public class PostIntegrationTest {
         }
 
         @Test
+        @Transactional(propagation = Propagation.NOT_SUPPORTED)
         @DisplayName("제목만 수정하고 이미지 1개만 삭제할 경우 예외가 발생하고 기존 상태가 유지된다(현행 동작 기준)")
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
         void updatePost_whenTitleAndDeleteImages_thenThrowsExceptionAndRollback() throws Exception {
@@ -405,21 +408,23 @@ public class PostIntegrationTest {
                     });
 
             // Then (서비스 수정 없음, 현행 동작 기준):
-            // - 이미지 삭제(DB)는 별도 트랜잭션으로 커밋되어 1장만 남음
-            // - 썸네일은 저장되지 않아 '삭제된 URL'이 남아있거나, 구현차로 남은 URL일 수도 있음 (둘 다 허용)
-            // - S3는 afterCommit 예약이 없어서 두 객체 모두 여전히 존재
-            Post post = postRepository.findById(postId).orElseThrow();
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new AssertionError("게시글이 존재해야 함"));
+
             List<PostImage> currentImages = postImageRepository.findByPostId(postId);
             List<String> currentUrls = currentImages.stream().map(PostImage::getS3Url).toList();
 
-            assertThat(currentUrls).containsExactly(remainingUrl); // DB에는 1장만 남음
+            assertThat(currentUrls)
+                    .as("내부 REQUIRES_NEW 커밋으로 1장만 남음(현행 동작)")
+                    .containsExactly(remainingUrl);
 
-            // 썸네일은 삭제된 URL이 그대로일 가능성이 높음(저장 안 됨). 둘 다 허용.
-            assertThat(post.getThumbnail()).isIn(deleteTargetUrl, remainingUrl);
+            assertThat(post.getThumbnail())
+                    .as("썸네일은 롤백되어 기존 상태 유지")
+                    .isIn(deleteTargetUrl, remainingUrl);
 
-            // S3는 둘 다 아직 존재해야 함
             assertS3ObjectExists(extractS3Key(deleteTargetUrl));
             assertS3ObjectExists(extractS3Key(remainingUrl));
+
         }
 
     }
@@ -704,7 +709,8 @@ public class PostIntegrationTest {
                         .param("thumbnail", thumbnailName)
                         .with(csrf()))
                 .andExpect(status().isCreated());
-
+        postRepository.flush();
+        postImageRepository.flush();
         return postRepository.findAll().get(0).getId();
     }
 
