@@ -12,6 +12,8 @@ public interface PostImageRepository extends JpaRepository<PostImage, Long> {
 
     List<PostImage> findByPostId(Long postId);
 
+    List<PostImage> findAllByPostIdOrderByIdAsc(Long postId);
+
     void deleteAllByPostId(Long postId);
 
     List<PostImage> findByPostIdAndS3UrlIn(Long id, List<String> images);

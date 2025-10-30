@@ -1,5 +1,6 @@
 package kr.co.pinup.posts.service;
 
+import kr.co.pinup.cache.CacheNames;
 import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.custom.logging.model.dto.ErrorLog;
 import kr.co.pinup.custom.logging.model.dto.InfoLog;
@@ -12,8 +13,10 @@ import kr.co.pinup.postImages.exception.postimage.PostImageUpdateCountException;
 import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.model.dto.UpdatePostImageRequest;
+import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.posts.Post;
+import kr.co.pinup.posts.event.PostCacheEvent;
 import kr.co.pinup.posts.exception.post.PostDeleteFailedException;
 import kr.co.pinup.posts.exception.post.PostNotFoundException;
 import kr.co.pinup.posts.model.dto.CreatePostRequest;
@@ -25,6 +28,8 @@ import kr.co.pinup.stores.exception.StoreNotFoundException;
 import kr.co.pinup.stores.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,7 +48,10 @@ public class PostService {
     private final PostImageService postImageService;
     private final MemberRepository memberRepository;
     private final StoreRepository storeRepository;
-    private final AppLogger appLogger;
+    private final PostImageRepository postImageRepository;
+    private final AppLogger appLogger ;
+    private final ApplicationEventPublisher events;
+
 
     private record ChangeFlags(boolean hasText, boolean hasUpload, boolean hasDelete) {
     }
@@ -111,6 +119,12 @@ public class PostService {
 
     }
 
+    @Cacheable(
+            value = CacheNames.POST_DETAIL,
+            key = "#p0",
+            condition = "!#p1",
+            sync = true
+    )
     @Transactional(readOnly = true)
     public PostResponse getPostById(Long id, boolean isDeleted) {
         log.debug("게시글 단건 요청: postId={}, isDeleted={}", id, isDeleted);
@@ -133,6 +147,7 @@ public class PostService {
         }
         try {
             postRepository.delete(post);
+            events.publishEvent(PostCacheEvent.deleted(postId));
             appLogger.info(new InfoLog("게시글 삭제 성공").setStatus("200").setTargetId(postId.toString()));
         } catch (Exception e) {
             appLogger.error(new ErrorLog("게시글 삭제 실패", e)
@@ -148,6 +163,7 @@ public class PostService {
         post.disablePost(true);
         appLogger.info(new InfoLog("게시글 비활성화 처리").setStatus("200").setTargetId(postId.toString()));
         postRepository.save(post);
+        events.publishEvent(PostCacheEvent.disabled(postId));
     }
 
     public Post findByIdOrThrow(Long id) {
@@ -235,6 +251,8 @@ public class PostService {
             if (!actuallyDeleted.isEmpty()) {
                 postImageService.deleteS3QuietlyAfterCommit(actuallyDeleted);
             }
+            if (imagesChanged ) {
+                events.publishEvent(PostCacheEvent.updated(id, /*detailChanged*/ false, /*imagesChanged*/ true));            }
             return PostResponse.from(post);
         }
 
@@ -249,6 +267,10 @@ public class PostService {
             if (!actuallyDeleted.isEmpty()) {
                 postImageService.deleteS3QuietlyAfterCommit(actuallyDeleted);
             }
+            events.publishEvent(PostCacheEvent.updated(
+                    id,
+                    /* detailChanged */  (textChanged || thumbChanged),/* imagesChanged */  (imagesChanged || thumbChanged)
+            ));
         }
     }
 
@@ -277,7 +299,7 @@ public class PostService {
     private boolean refreshThumbnailIfNeeded(Post post, Long postId, boolean imagesChanged) {
         if (!imagesChanged) return false;
 
-        List<PostImageResponse> remaining = postImageService.findImagesByPostId(postId);
+        List<PostImage> remaining = postImageRepository.findAllByPostIdOrderByIdAsc(postId);
         if (remaining.size() < 2) throw new PostImageUpdateCountException();
 
         String current = post.getThumbnail();

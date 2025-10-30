@@ -1,7 +1,9 @@
 package kr.co.pinup.postImages.service;
 
+import kr.co.pinup.cache.CacheNames;
 import kr.co.pinup.custom.s3.exception.ImageDeleteFailedException;
 import kr.co.pinup.postImages.model.dto.PostImageUploadRequest;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -173,6 +175,11 @@ public class PostImageService  {
         }
     }
 
+    @Cacheable(
+            value = CacheNames.POST_IMAGES,
+            key = "#p0",  // postId
+            sync = true
+    )
     @Transactional(readOnly = true)
     public List<PostImageResponse> findImagesByPostId(Long postId) {
         log.debug("이미지 목록 조회: postId={}", postId);
