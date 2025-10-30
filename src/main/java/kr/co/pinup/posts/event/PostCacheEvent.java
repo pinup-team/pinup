@@ -8,7 +8,6 @@ public record PostCacheEvent(
 ) {
     public enum Kind { UPDATED, DISABLED, DELETED }
 
-    // 의도 명확한 팩토리 메서드
     public static PostCacheEvent updated(Long postId, boolean detailChanged, boolean imagesChanged) {
         return new PostCacheEvent(postId, Kind.UPDATED, detailChanged, imagesChanged);
     }

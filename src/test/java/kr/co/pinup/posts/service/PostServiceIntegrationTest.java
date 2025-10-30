@@ -13,7 +13,6 @@ import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageUpdateCountException;
 import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
-import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.postLikes.PostLike;
@@ -38,12 +37,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -216,7 +213,6 @@ public class PostServiceIntegrationTest {
         assertEquals("Updated", result.title());
         assertEquals("Content", result.content());
 
-        // ✅ 핵심 검증: 남은 이미지 중 첫 번째(remain_url)가 썸네일로 유지됨
         assertEquals("remain_url", result.thumbnail());
 
         verify(postImageService).uploadImagesOnly(any(CreatePostImageRequest.class));
@@ -259,7 +255,6 @@ public class PostServiceIntegrationTest {
 
         Long postId = mockPost.getId();
 
-        // Mock: 업로드 로직
         List<String> uploadedUrls = List.of(
                 "https://s3.com/file1.jpg",
                 "https://s3.com/file2.jpg"
@@ -267,13 +262,11 @@ public class PostServiceIntegrationTest {
         when(postImageService.uploadImagesOnly(any(CreatePostImageRequest.class)))
                 .thenReturn(uploadedUrls);
 
-        // Mock: DB 저장 로직
         PostImage postImage1 = new PostImage(mockPost, uploadedUrls.get(0));
         PostImage postImage2 = new PostImage(mockPost, uploadedUrls.get(1));
         when(postImageService.saveImageUrls(any(Post.class), eq(uploadedUrls)))
                 .thenReturn(List.of(postImage1, postImage2));
 
-        // 실제 DB에 추가 (기존 url.jpg 유지 + 신규 업로드 추가)
         postImageRepository.save(postImage1);
         postImageRepository.save(postImage2);
 
@@ -284,7 +277,7 @@ public class PostServiceIntegrationTest {
         assertNotNull(result);
         assertEquals("Updated", result.title());
         assertEquals("Content", result.content());
-        assertEquals("https://s3.com/file1.jpg", result.thumbnail()); // ✅ 새 업로드 이미지가 썸네일로 교체됨
+        assertEquals("https://s3.com/file1.jpg", result.thumbnail());
 
         verify(postImageService, atLeastOnce()).uploadImagesOnly(any(CreatePostImageRequest.class));
         verify(postImageService, atLeastOnce()).saveImageUrls(any(Post.class), eq(uploadedUrls));
@@ -313,11 +306,9 @@ public class PostServiceIntegrationTest {
     @DisplayName("게시글 목록 조회 - 로그인 여부와 좋아요 여부에 따른 likedByCurrentUser 필드 검증")
     void findByStoreIdWithCommentsAndLikes_allScenarios() {
         // given
-        // 1. 게시글 2개 생성
         Post post1 = postRepository.save(Post.builder().title("post1").content("c1").member(mockMember).store(mockPost.getStore()).build());
         Post post2 = postRepository.save(Post.builder().title("post2").content("c2").member(mockMember).store(mockPost.getStore()).build());
 
-        // 2. post1에는 좋아요 저장
         postLikeRepository.save(PostLike.builder().post(post1).member(mockMember).build());
 
         MemberInfo memberInfo = new MemberInfo(mockMember.getNickname(), mockMember.getProviderType(), mockMember.getRole());
@@ -330,7 +321,6 @@ public class PostServiceIntegrationTest {
         assertThat(loggedInResult).hasSize(3); // 기존 mockPost + 위에서 만든 post1, post2
         assertThat(anonymousResult).hasSize(3);
 
-        // 로그인한 사용자는 post1만 좋아요 누름
         for (PostResponse response : loggedInResult) {
             if (response.title().equals("post1")) {
                 assertThat(response.likedByCurrentUser()).isTrue();
@@ -339,7 +329,6 @@ public class PostServiceIntegrationTest {
             }
         }
 
-        // 비로그인 사용자는 모두 false
         assertThat(anonymousResult).allSatisfy(resp -> assertThat(resp.likedByCurrentUser()).isFalse());
     }
 
