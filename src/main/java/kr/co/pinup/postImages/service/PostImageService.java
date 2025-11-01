@@ -1,31 +1,28 @@
 package kr.co.pinup.postImages.service;
 
-import kr.co.pinup.custom.s3.exception.ImageDeleteFailedException;
-import kr.co.pinup.postImages.model.dto.PostImageUploadRequest;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
+import kr.co.pinup.cache.CacheNames;
 import kr.co.pinup.custom.logging.AppLogger;
 import kr.co.pinup.custom.logging.model.dto.ErrorLog;
 import kr.co.pinup.custom.logging.model.dto.InfoLog;
 import kr.co.pinup.custom.logging.model.dto.WarnLog;
 import kr.co.pinup.custom.s3.S3Service;
-
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageDeleteFailedException;
 import kr.co.pinup.postImages.exception.postimage.PostImageNotFoundException;
 import kr.co.pinup.postImages.exception.postimage.PostImageSaveFailedException;
 import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
 import kr.co.pinup.postImages.model.dto.PostImageResponse;
-
 import kr.co.pinup.postImages.model.dto.UpdatePostImageRequest;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.posts.Post;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -173,6 +170,11 @@ public class PostImageService  {
         }
     }
 
+    @Cacheable(
+            value = CacheNames.POST_IMAGES,
+            key = "#p0",  // postId
+            sync = true
+    )
     @Transactional(readOnly = true)
     public List<PostImageResponse> findImagesByPostId(Long postId) {
         log.debug("이미지 목록 조회: postId={}", postId);

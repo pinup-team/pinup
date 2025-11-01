@@ -13,7 +13,6 @@ import kr.co.pinup.oauth.OAuthProvider;
 import kr.co.pinup.postImages.PostImage;
 import kr.co.pinup.postImages.exception.postimage.PostImageUpdateCountException;
 import kr.co.pinup.postImages.model.dto.CreatePostImageRequest;
-import kr.co.pinup.postImages.model.dto.PostImageResponse;
 import kr.co.pinup.postImages.repository.PostImageRepository;
 import kr.co.pinup.postImages.service.PostImageService;
 import kr.co.pinup.postLikes.PostLike;
@@ -38,12 +37,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -177,10 +174,14 @@ public class PostServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("게시물 수정 - 이미지 삭제 및 업로드 포함")
+    @DisplayName("게시물 수정 - 이미지 삭제 및 업로드 포함 (부분 삭제 + 신규 업로드)")
     void updatePost_whenImagesDeletedAndUploaded_thenSuccess() {
         // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
+
+        postImageRepository.deleteAll();
+        postImageRepository.save(new PostImage(mockPost, "img1"));
+        postImageRepository.save(new PostImage(mockPost, "remain_url"));
 
         when(postImageService.uploadImagesOnly(any(CreatePostImageRequest.class)))
                 .thenReturn(List.of("new_url"));
@@ -190,11 +191,12 @@ public class PostServiceIntegrationTest {
         when(postImageService.deleteSelectedImagesDbOnly(eq(mockPost.getId()), eq(List.of("img1"))))
                 .thenReturn(List.of("img1"));
 
-        when(postImageService.findImagesByPostId(mockPost.getId()))
-                .thenReturn(List.of(
-                        PostImageResponse.builder().id(2L).postId(mockPost.getId()).s3Url("remain_url").build(),
-                        PostImageResponse.builder().id(3L).postId(mockPost.getId()).s3Url("new_url").build()
-                ));
+        postImageRepository.findAll().stream()
+                .filter(img -> img.getS3Url().equals("img1"))
+                .findFirst()
+                .ifPresent(postImageRepository::delete);
+
+        postImageRepository.save(new PostImage(mockPost, "new_url"));
 
         MultipartFile img = new MockMultipartFile("img", "file.jpg", "image/jpeg", "data".getBytes());
 
@@ -206,18 +208,18 @@ public class PostServiceIntegrationTest {
                 List.of("img1")
         );
 
-
+        // Then
         assertNotNull(result);
         assertEquals("Updated", result.title());
         assertEquals("Content", result.content());
+
         assertEquals("remain_url", result.thumbnail());
 
-        verify(postImageService, atLeastOnce()).uploadImagesOnly(any(CreatePostImageRequest.class));
-        verify(postImageService, atLeastOnce()).saveImageUrls(eq(mockPost), eq(List.of("new_url")));
-        verify(postImageService, atLeastOnce()).deleteSelectedImagesDbOnly(mockPost.getId(), List.of("img1"));
-        verify(postImageService, atLeastOnce()).findImagesByPostId(mockPost.getId());
-
+        verify(postImageService).uploadImagesOnly(any(CreatePostImageRequest.class));
+        verify(postImageService).saveImageUrls(eq(mockPost), eq(List.of("new_url")));
+        verify(postImageService).deleteSelectedImagesDbOnly(mockPost.getId(), List.of("img1"));
     }
+
 
     @Test
     @DisplayName("게시물 수정 - 이미지 삭제만")
@@ -225,17 +227,9 @@ public class PostServiceIntegrationTest {
         // Given
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
 
-        when(postImageService.findImagesByPostId(mockPost.getId())).thenReturn(
-                List.of(
-                        PostImageResponse.builder().id(1L).postId(mockPost.getId()).s3Url("img1").build(),
-                        PostImageResponse.builder().id(2L).postId(mockPost.getId()).s3Url("img2").build(),
-                        PostImageResponse.builder().id(3L).postId(mockPost.getId()).s3Url("remaining_image_url.jpg").build()
-                ),
-                List.of(
-                        PostImageResponse.builder().id(2L).postId(mockPost.getId()).s3Url("img2").build(),
-                        PostImageResponse.builder().id(3L).postId(mockPost.getId()).s3Url("remaining_image_url.jpg").build()
-                )
-        );
+        postImageRepository.save(new PostImage(mockPost, "img1"));
+        postImageRepository.save(new PostImage(mockPost, "img2"));
+        postImageRepository.save(new PostImage(mockPost, "remaining_image_url.jpg"));
 
         doNothing().when(postImageService).deleteSelectedImages(eq(mockPost.getId()), any());
 
@@ -248,9 +242,10 @@ public class PostServiceIntegrationTest {
     }
 
     @Test
-    @DisplayName("게시물 수정 - 이미지만 업로드")
+    @DisplayName("게시물 수정 - 이미지만 업로드 (기존 썸네일 교체)")
     void updatePost_whenImagesUploadedOnly_thenSuccess() {
         // Given
+        postImageRepository.deleteAll();
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
 
         MultipartFile[] imgs = {
@@ -258,9 +253,8 @@ public class PostServiceIntegrationTest {
                 new MockMultipartFile("img", "file2.jpg", "image/jpeg", "data2".getBytes())
         };
 
-        Long postId = mockPost.getId(); // ← 실제 DB에 저장된 ID 사용
+        Long postId = mockPost.getId();
 
-        // 업로드 후 S3 URL들이 만들어진다고 가정
         List<String> uploadedUrls = List.of(
                 "https://s3.com/file1.jpg",
                 "https://s3.com/file2.jpg"
@@ -268,18 +262,13 @@ public class PostServiceIntegrationTest {
         when(postImageService.uploadImagesOnly(any(CreatePostImageRequest.class)))
                 .thenReturn(uploadedUrls);
 
-        // URL을 DB에 저장하면 PostImage 리스트를 반환
-        PostImage postImage1 = PostImage.builder().post(mockPost).s3Url(uploadedUrls.get(0)).build();
-        PostImage postImage2 = PostImage.builder().post(mockPost).s3Url(uploadedUrls.get(1)).build();
+        PostImage postImage1 = new PostImage(mockPost, uploadedUrls.get(0));
+        PostImage postImage2 = new PostImage(mockPost, uploadedUrls.get(1));
         when(postImageService.saveImageUrls(any(Post.class), eq(uploadedUrls)))
-                .thenReturn(List.of(postImage1, postImage2)); // ← any(Post.class) 로 받기
+                .thenReturn(List.of(postImage1, postImage2));
 
-        // 썸네일 갱신 기준용: 현재 이미지 목록(여기서는 업로드 2장만 응답하도록 가정)
-        List<PostImageResponse> uploadedResponses = List.of(
-                PostImageResponse.from(postImage1),
-                PostImageResponse.from(postImage2)
-        );
-        when(postImageService.findImagesByPostId(postId)).thenReturn(uploadedResponses);
+        postImageRepository.save(postImage1);
+        postImageRepository.save(postImage2);
 
         // When
         PostResponse result = postService.updatePost(postId, req, imgs, List.of());
@@ -288,13 +277,18 @@ public class PostServiceIntegrationTest {
         assertNotNull(result);
         assertEquals("Updated", result.title());
         assertEquals("Content", result.content());
-        assertEquals("https://s3.com/file1.jpg", result.thumbnail()); // remaining.get(0) 규칙에 맞게 첫 이미지
+        assertEquals("https://s3.com/file1.jpg", result.thumbnail());
+
+        verify(postImageService, atLeastOnce()).uploadImagesOnly(any(CreatePostImageRequest.class));
+        verify(postImageService, atLeastOnce()).saveImageUrls(any(Post.class), eq(uploadedUrls));
     }
 
     @Test
     @DisplayName("게시물 수정 실패 - 모든 이미지 삭제 후 예외 발생 (이미지 2장 미만)")
     void updatePost_whenAllImagesDeleted_thenThrowsException() {
         // Given
+        postImageRepository.deleteAll();
+
         UpdatePostRequest req = new UpdatePostRequest("Updated", "Content");
 
         postImageRepository.save(PostImage.builder()
@@ -312,11 +306,9 @@ public class PostServiceIntegrationTest {
     @DisplayName("게시글 목록 조회 - 로그인 여부와 좋아요 여부에 따른 likedByCurrentUser 필드 검증")
     void findByStoreIdWithCommentsAndLikes_allScenarios() {
         // given
-        // 1. 게시글 2개 생성
         Post post1 = postRepository.save(Post.builder().title("post1").content("c1").member(mockMember).store(mockPost.getStore()).build());
         Post post2 = postRepository.save(Post.builder().title("post2").content("c2").member(mockMember).store(mockPost.getStore()).build());
 
-        // 2. post1에는 좋아요 저장
         postLikeRepository.save(PostLike.builder().post(post1).member(mockMember).build());
 
         MemberInfo memberInfo = new MemberInfo(mockMember.getNickname(), mockMember.getProviderType(), mockMember.getRole());
@@ -329,7 +321,6 @@ public class PostServiceIntegrationTest {
         assertThat(loggedInResult).hasSize(3); // 기존 mockPost + 위에서 만든 post1, post2
         assertThat(anonymousResult).hasSize(3);
 
-        // 로그인한 사용자는 post1만 좋아요 누름
         for (PostResponse response : loggedInResult) {
             if (response.title().equals("post1")) {
                 assertThat(response.likedByCurrentUser()).isTrue();
@@ -338,7 +329,6 @@ public class PostServiceIntegrationTest {
             }
         }
 
-        // 비로그인 사용자는 모두 false
         assertThat(anonymousResult).allSatisfy(resp -> assertThat(resp.likedByCurrentUser()).isFalse());
     }
 

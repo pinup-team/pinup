@@ -1,6 +1,8 @@
 package kr.co.pinup.posts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import kr.co.pinup.cache.listener.PostCacheInvalidationListener;
+import kr.co.pinup.config.CacheConfig;
 import kr.co.pinup.config.S3ClientConfig;
 import kr.co.pinup.locations.Location;
 import kr.co.pinup.locations.reposiotry.LocationRepository;
@@ -38,6 +40,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.ui.ModelMap;
@@ -46,16 +49,16 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.S3Object;
-import static org.awaitility.Awaitility.await;
-import java.time.Duration;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -68,8 +71,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Transactional
-@Import({S3ClientConfig.class, PostIntegrationTest.TestMockConfig.class})
+@Import({S3ClientConfig.class, PostIntegrationTest.TestMockConfig.class,   CacheConfig.class, PostCacheInvalidationListener.class})
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PostIntegrationTest {
 
@@ -168,7 +170,7 @@ public class PostIntegrationTest {
         @DisplayName("정상적으로 게시글이 생성되고 모든 흐름이 작동한다")
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
         void createPost_thenFlowComplete() throws Exception {
-            // Given: 이미지 파일과 게시글 정보가 주어짐
+            // Given
             MockMultipartFile image1 = new MockMultipartFile("images", "img1.jpg", "image/jpeg", "data1".getBytes());
             MockMultipartFile image2 = new MockMultipartFile("images", "img2.jpg", "image/jpeg", "data2".getBytes());
 
@@ -183,18 +185,18 @@ public class PostIntegrationTest {
                     "post", "post.json", "application/json", json.getBytes(StandardCharsets.UTF_8)
             );
 
-            // When: 게시글 생성 요청
+            // When
             mockMvc.perform(multipart("/api/post/create")
                             .file(image1)
                             .file(image2)
                             .file(postPart)
                             .with(csrf()))
-                    // Then: 응답이 성공이고 JSON 응답이 예상한 값과 일치함
+                    // Then
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.title").value("테스트 제목"))
                     .andExpect(jsonPath("$.thumbnail").value(containsString("img1.jpg")));
 
-            // And: DB 및 S3 상태 검증
+            // And
             TransactionTemplate txTemplate = new TransactionTemplate(txManager);
             txTemplate.executeWithoutResult(status -> {
                 List<Post> posts = postRepository.findAll();
@@ -221,32 +223,29 @@ public class PostIntegrationTest {
         @DisplayName("게시글 삭제 요청 시 DB에서 삭제되고 이미지도 함께 삭제된다")
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
         void deletePost_thenCascadeDeleteWorks() throws Exception {
-            // Given: 게시글 생성 (이미지 2장 업로드됨)
+            // Given
             Long postId = createPostAsLoggedInUser("삭제용 제목", "img1.jpg");
 
-            // 삭제할 S3 키 미리 확보 (DB는 곧 지울 것이므로 지금 땡겨둡니다)
             List<String> keysToDelete = postImageRepository.findByPostId(postId).stream()
-                    .map(PostImage::getS3Url)        // ex) http://127.0.0.1:4566/<bucket>/post/xxx.jpg
-                    .map(this::extractS3Key)         // -> "post/xxx.jpg"
+                    .map(PostImage::getS3Url)
+                    .map(this::extractS3Key)
                     .toList();
             assertThat(keysToDelete).hasSize(2);
 
-            // When: 컨트롤러로 삭제 요청 (내부에서 PostImageService.deleteAllByPost(@Transactional) 커밋 발생)
+            // When
             mockMvc.perform(delete("/api/post/" + postId).with(csrf()))
                     .andExpect(status().isNoContent());
 
-            // Then: DB 삭제 확인
+            // Then
             assertThat(postRepository.findById(postId)).isEmpty();
             assertThat(postImageRepository.findByPostId(postId)).isEmpty();
 
-            // And: S3 삭제 확인 (커밋 이후 afterCommit 훅에서 실제 삭제됨)
+            // And
             assertS3ObjectsDeleted(keysToDelete);
         }
 
         /** Test용: S3 URL -> "post/파일명" 키로 변환 */
         private String extractS3Key(String url) {
-            // 서비스와 동일하게 파일명만 뽑아서 prefix를 붙여줍니다.
-            // s3Service.extractFileName(url)을 쓰셔도 됩니다.
             int slash = url.lastIndexOf('/');
             String fileName = (slash >= 0) ? url.substring(slash + 1) : url;
             return "post/" + fileName;
@@ -254,7 +253,6 @@ public class PostIntegrationTest {
 
         /** Test용: 버킷에 남아있는지 검사해서 남아 있으면 실패 */
         private void assertS3ObjectsDeleted(List<String> expectedDeletedKeys) {
-            // listObjectsV2 로 현재 버킷의 post/ 프리픽스 객체를 모아 비교
             var listed = s3Client.listObjectsV2(b -> b.bucket(bucketName).prefix("post/"));
             var existingKeys = listed.contents().stream().map(S3Object::key).collect(Collectors.toSet());
 
@@ -316,10 +314,10 @@ public class PostIntegrationTest {
         @DisplayName("새로운 이미지만 업로드하고 기존 이미지는 유지된다")
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
         void updatePost_whenOnlyUploadImages_thenSuccess() throws Exception {
-            // Given: 기존 이미지 2장이 등록된 게시글 생성
+            // Given
             Long postId = createPostAsLoggedInUser("초기 제목", "img1.jpg");
 
-            // When: 새 이미지 업로드 (img3)
+            // When
             MockMultipartFile image3 = new MockMultipartFile("images", "img3.jpg", "image/jpeg", "data3".getBytes());
             mockMvc.perform(multipart("/api/post/" + postId)
                             .file(image3)
@@ -328,7 +326,7 @@ public class PostIntegrationTest {
                             .with(req -> { req.setMethod("PUT"); return req; }))
                     .andExpect(status().isOk());
 
-            // Then: 이미지 3장이 등록되어 있고 썸네일이 img3로 변경됨
+            // Then
             TransactionTemplate tx = new TransactionTemplate(txManager);
             tx.executeWithoutResult(status -> {
                 Post updated = postRepository.findById(postId).orElseThrow();
@@ -337,7 +335,7 @@ public class PostIntegrationTest {
                 assertThat(allImages).hasSize(3);
                 assertThat(updated.getThumbnail()).isEqualTo(allImages.get(0).getS3Url());
 
-                // And: 모든 S3 객체가 존재함
+                // And
                 for (PostImage img : allImages) {
                     assertS3ObjectExists(extractS3Key(img.getS3Url()));
                 }
@@ -348,10 +346,10 @@ public class PostIntegrationTest {
         @DisplayName("제목만 수정하고 새로운 이미지를 업로드하면 기존 이미지는 유지되고 썸네일은 변경된다")
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
         void updatePost_whenTitleAndUploadImages_thenSuccess() throws Exception {
-            // Given: 게시글과 이미지가 생성됨
+            // Given
             Long postId = createPostAsLoggedInUser("초기 제목", "img1.jpg");
 
-            // When: 제목만 변경하고 새 이미지(img3)를 업로드함
+            // When
             MockMultipartFile image3 = new MockMultipartFile("images", "img3.jpg", "image/jpeg", "data3".getBytes());
             mockMvc.perform(multipart("/api/post/" + postId)
                             .file(image3)
@@ -361,7 +359,7 @@ public class PostIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.title").value("수정된 제목"));
 
-            // Then: 총 3장 이미지가 등록되어 있고 썸네일이 img3로 변경됨
+            // Then
             TransactionTemplate tx = new TransactionTemplate(txManager);
             tx.executeWithoutResult(status -> {
                 Post updated = postRepository.findById(postId).orElseThrow();
@@ -371,7 +369,7 @@ public class PostIntegrationTest {
                 assertThat(updated.getTitle()).isEqualTo("수정된 제목");
                 assertThat(updated.getThumbnail()).isEqualTo(allImages.get(0).getS3Url());
 
-                // And: 모든 S3 객체가 존재해야 함
+                // And
                 for (PostImage img : allImages) {
                     assertS3ObjectExists(extractS3Key(img.getS3Url()));
                 }
@@ -379,16 +377,17 @@ public class PostIntegrationTest {
         }
 
         @Test
+        @Transactional(propagation = Propagation.NOT_SUPPORTED)
         @DisplayName("제목만 수정하고 이미지 1개만 삭제할 경우 예외가 발생하고 기존 상태가 유지된다(현행 동작 기준)")
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
         void updatePost_whenTitleAndDeleteImages_thenThrowsExceptionAndRollback() throws Exception {
-            // Given: 게시글 생성(이미지 2장)
+            // Given
             Long postId = createPostAsLoggedInUser("초기 제목", "img1.jpg");
             List<PostImage> originalImages = postImageRepository.findByPostId(postId);
             String deleteTargetUrl = originalImages.get(0).getS3Url();
             String remainingUrl   = originalImages.get(1).getS3Url();
 
-            // When: 업로드 없이 1장만 삭제 → 비즈니스 규칙 위반으로 예외
+            // When
             MockMultipartFile empty = new MockMultipartFile(
                     "images", "", "application/octet-stream", new byte[0]); // 업로드 없음
 
@@ -404,22 +403,24 @@ public class PostIntegrationTest {
                         assertThat(ex).isEqualTo("PostImageUpdateCountException");
                     });
 
-            // Then (서비스 수정 없음, 현행 동작 기준):
-            // - 이미지 삭제(DB)는 별도 트랜잭션으로 커밋되어 1장만 남음
-            // - 썸네일은 저장되지 않아 '삭제된 URL'이 남아있거나, 구현차로 남은 URL일 수도 있음 (둘 다 허용)
-            // - S3는 afterCommit 예약이 없어서 두 객체 모두 여전히 존재
-            Post post = postRepository.findById(postId).orElseThrow();
+            // Then
+            Post post = postRepository.findById(postId)
+                    .orElseThrow(() -> new AssertionError("게시글이 존재해야 함"));
+
             List<PostImage> currentImages = postImageRepository.findByPostId(postId);
             List<String> currentUrls = currentImages.stream().map(PostImage::getS3Url).toList();
 
-            assertThat(currentUrls).containsExactly(remainingUrl); // DB에는 1장만 남음
+            assertThat(currentUrls)
+                    .as("내부 REQUIRES_NEW 커밋으로 1장만 남음(현행 동작)")
+                    .containsExactly(remainingUrl);
 
-            // 썸네일은 삭제된 URL이 그대로일 가능성이 높음(저장 안 됨). 둘 다 허용.
-            assertThat(post.getThumbnail()).isIn(deleteTargetUrl, remainingUrl);
+            assertThat(post.getThumbnail())
+                    .as("썸네일은 롤백되어 기존 상태 유지")
+                    .isIn(deleteTargetUrl, remainingUrl);
 
-            // S3는 둘 다 아직 존재해야 함
             assertS3ObjectExists(extractS3Key(deleteTargetUrl));
             assertS3ObjectExists(extractS3Key(remainingUrl));
+
         }
 
     }
@@ -432,18 +433,18 @@ public class PostIntegrationTest {
         @DisplayName("게시글 비활성화 요청 시 isDeleted가 true로 변경된다")
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
         void disablePost_thenPostMarkedAsDeleted() throws Exception {
-            // Given: 게시글이 생성됨
+            // Given
             Long postId = createPostAsLoggedInUser("비활성화 테스트", "img1.jpg");
 
-            // When: 비활성화 요청 실행
+            // When
             mockMvc.perform(
                             org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                     .patch("/api/post/" + postId + "/disable")
                                     .with(csrf()))
-                    // Then: 요청이 성공하고 상태코드는 204
+                    // Then:
                     .andExpect(status().isNoContent());
 
-            // And: DB에서 해당 게시글 isDeleted = true
+            // And
             TransactionTemplate tx = new TransactionTemplate(txManager);
             tx.executeWithoutResult(status -> {
                 Post disabledPost = postRepository.findById(postId).orElseThrow();
@@ -455,17 +456,17 @@ public class PostIntegrationTest {
         @DisplayName("존재하지 않는 게시글에 대해 비활성화 요청 시 예외가 발생한다")
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
         void disablePost_whenPostNotFound_thenFail() throws Exception {
-            // Given: 존재하지 않는 게시글 ID
+            // Given
             Long invalidId = 9999L;
 
-            // When: 비활성화 요청 실행
+            // When
             mockMvc.perform(
                             org.springframework.test.web.servlet.request.MockMvcRequestBuilders
                                     .patch("/api/post/" + invalidId + "/disable")
                                     .with(csrf()))
-                    // Then: 404 Not Found 응답
+                    // Then
                     .andExpect(status().isNotFound())
-                    // And: 예외 클래스명이 PostNotFoundException
+                    // And
                     .andExpect(result -> {
                         String exName = result.getResolvedException().getClass().getSimpleName();
                         assertThat(exName).isEqualTo("PostNotFoundException");
@@ -481,12 +482,12 @@ public class PostIntegrationTest {
         @DisplayName("ROLE_USER가 게시글 삭제 요청 시 403 Forbidden")
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
         void deletePost_whenUser_thenForbidden() throws Exception {
-            // Given: 게시글 생성
+            // Given
             Long postId = createPostAsLoggedInUser("비활성화 테스트", "img1.jpg");
 
-            // When: 삭제 요청 실행 (ROLE_USER)
+            // When
             mockMvc.perform(delete("/api/post/" + postId).with(csrf()))
-                    // Then: 403 Forbidden 응답
+                    // Then
                     .andExpect(status().isForbidden());
         }
 
@@ -494,9 +495,9 @@ public class PostIntegrationTest {
         @Test
         @DisplayName("비로그인 사용자가 게시글 수정 시도 시 401 isUnauthorized")
         void updatePost_whenAnonymous_thenUnauthorized() throws Exception {
-            // Given: 비로그인 사용자가 게시글 접근 (mockPost는 사전 세팅됨)
+            // Given
 
-            // When: 수정 요청 실행
+            // When
             mockMvc.perform(multipart("/api/post/" + mockPost.getId())
                             .file(new MockMultipartFile("images", "", "application/octet-stream", new byte[0]))
                             .param("title", "변경됨")
@@ -512,14 +513,14 @@ public class PostIntegrationTest {
         @DisplayName("존재하지 않는 게시글 삭제 시도 시 404 Not Found")
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_ADMIN)
         void deletePost_whenNotFound_thenFail() throws Exception {
-            // Given: 존재하지 않는 게시글 ID
+            // Given
             Long invalidId = 9999L;
 
-            // When: 삭제 요청 실행
+            // When
             mockMvc.perform(delete("/api/post/" + invalidId).with(csrf()))
-                    // Then: 404 Not Found 응답
+                    // Then
                     .andExpect(status().isNotFound())
-                    // And: 예외 클래스명이 PostNotFoundException
+                    // And
                     .andExpect(result ->
                             assertThat(result.getResolvedException().getClass().getSimpleName())
                                     .isEqualTo("PostNotFoundException")
@@ -530,7 +531,7 @@ public class PostIntegrationTest {
         @DisplayName("존재하지 않는 게시글 수정 시도 시 404 Not Found")
         @WithMockMember(nickname = "행복한돼지", provider = OAuthProvider.NAVER, role = MemberRole.ROLE_USER)
         void updatePost_whenNotFound_thenFail() throws Exception {
-            // Given: 존재하지 않는 게시글 ID
+            // Given
             long nonExistentPostId = 9999L;
 
             // JSON part
@@ -543,7 +544,7 @@ public class PostIntegrationTest {
                     "updatePostRequest", "updatePostRequest.json", "application/json", json.getBytes(StandardCharsets.UTF_8)
             );
 
-            // 빈 이미지
+
             MockMultipartFile emptyImages = new MockMultipartFile("images", "", "application/octet-stream", new byte[0]);
 
             // When & Then
@@ -580,7 +581,7 @@ public class PostIntegrationTest {
                     .andExpect(status().isOk())
                     .andReturn();
 
-            // Then: 모델에서 직접 검증
+            // Then
             ModelMap modelMap = result.getModelAndView().getModelMap();
             List<PostResponse> posts = (List<PostResponse>) modelMap.get("posts");
 
@@ -704,7 +705,8 @@ public class PostIntegrationTest {
                         .param("thumbnail", thumbnailName)
                         .with(csrf()))
                 .andExpect(status().isCreated());
-
+        postRepository.flush();
+        postImageRepository.flush();
         return postRepository.findAll().get(0).getId();
     }
 
